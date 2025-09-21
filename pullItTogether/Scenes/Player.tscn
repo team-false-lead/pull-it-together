@@ -1,0 +1,66 @@
+[gd_scene load_steps=10 format=3 uid="uid://ckpgu08xdcwp4"]
+
+[ext_resource type="Script" uid="uid://cor1xxd0lnxxg" path="res://Scripts/PlayerScripts/PlayerController.cs" id="1_kyqiw"]
+[ext_resource type="Script" uid="uid://dmbbfw34d8nf1" path="res://Scripts/PlayerScripts/PlayerCameraSync.cs" id="2_gntrk"]
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_hyhp3"]
+properties/0/path = NodePath(".:position")
+properties/0/spawn = true
+properties/0/replication_mode = 1
+properties/1/path = NodePath(".:rotation")
+properties/1/spawn = true
+properties/1/replication_mode = 1
+properties/2/path = NodePath("Head:rotation")
+properties/2/spawn = true
+properties/2/replication_mode = 1
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_r1we1"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ndhuy"]
+albedo_color = Color(0.054902, 0.67451, 0.976471, 1)
+
+[sub_resource type="SphereMesh" id="SphereMesh_ndhuy"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_rliju"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_rliju"]
+albedo_color = Color(0.054902, 0.67451, 0.976471, 1)
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_8k31v"]
+
+[node name="Player" type="CharacterBody3D" node_paths=PackedStringArray("head", "camera")]
+script = ExtResource("1_kyqiw")
+head = NodePath("Head")
+camera = NodePath("Head/Camera3D")
+
+[node name="PlayerCameraSync" type="Node" parent="." node_paths=PackedStringArray("Camera")]
+script = ExtResource("2_gntrk")
+Camera = NodePath("../Head/Camera3D")
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
+replication_config = SubResource("SceneReplicationConfig_hyhp3")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.216008, 0)
+shape = SubResource("CapsuleShape3D_r1we1")
+
+[node name="Head" type="Node3D" parent="." groups=["self_hide"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.981634, 0)
+
+[node name="HeadMesh" type="MeshInstance3D" parent="Head"]
+material_override = SubResource("StandardMaterial3D_ndhuy")
+mesh = SubResource("SphereMesh_ndhuy")
+
+[node name="Camera3D" type="Camera3D" parent="Head"]
+cull_mask = 1047583
+
+[node name="EyesMesh" type="MeshInstance3D" parent="Head/Camera3D"]
+transform = Transform3D(0.69, 0, 0, 0, 0.27, 0, 0, 0, 0.57, 0, 0.0681075, -0.250253)
+material_override = SubResource("StandardMaterial3D_ndhuy")
+mesh = SubResource("BoxMesh_rliju")
+skeleton = NodePath("../..")
+
+[node name="BodyMesh" type="MeshInstance3D" parent="." groups=["self_hide"]]
+transform = Transform3D(1, 0, 0, 0, 0.745, 0, 0, 0, 1, 0, -0.0248527, 0)
+material_override = SubResource("StandardMaterial3D_rliju")
+mesh = SubResource("CapsuleMesh_8k31v")
