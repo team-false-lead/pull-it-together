@@ -10,7 +10,7 @@ font_size = 25
 
 [node name="Main" type="Node3D"]
 
-[node name="GameManager" type="Node" parent="." node_paths=PackedStringArray("network_manager", "map_manager", "main_canvas", "main_menu", "multiplayer_select_menu", "local_multiplayer_menu", "public_multiplayer_menu", "local_host_button", "local_join_button", "local_back_to_menu_button", "steam_status_label", "public_refresh_button", "public_create_lobby_button", "public_back_button", "public_list_container", "manual_join_id", "manual_join_button")]
+[node name="GameManager" type="Node" parent="." node_paths=PackedStringArray("network_manager", "map_manager", "main_canvas", "main_menu", "multiplayer_select_menu", "local_multiplayer_menu", "public_multiplayer_menu", "local_host_button", "local_join_button", "local_back_to_menu_button", "local_address_input", "local_port", "local_LAN_label", "local_max_players", "steam_status_label", "public_refresh_button", "public_create_lobby_button", "public_back_button", "public_list_container", "manual_join_id", "manual_join_button")]
 script = ExtResource("1_pbw6q")
 network_manager = NodePath("../NetworkManager")
 map_manager = NodePath("../MapManager")
@@ -19,9 +19,13 @@ main_menu = NodePath("../CanvasLayer/MainControl/MainMenu")
 multiplayer_select_menu = NodePath("../CanvasLayer/MainControl/MultiplayerSelectMenu")
 local_multiplayer_menu = NodePath("../CanvasLayer/MainControl/LocalMultiplayerMenu")
 public_multiplayer_menu = NodePath("../CanvasLayer/MainControl/PublicMultiplayerMenu")
-local_host_button = NodePath("../CanvasLayer/MainControl/LocalMultiplayerMenu/VBoxContainer/HostButton")
-local_join_button = NodePath("../CanvasLayer/MainControl/LocalMultiplayerMenu/VBoxContainer/JoinButton")
+local_host_button = NodePath("../CanvasLayer/MainControl/LocalMultiplayerMenu/ButtonsVBoxContainer/HostButton")
+local_join_button = NodePath("../CanvasLayer/MainControl/LocalMultiplayerMenu/ButtonsVBoxContainer/JoinButton")
 local_back_to_menu_button = NodePath("../CanvasLayer/MainControl/LocalMultiplayerMenu/BackToMenuButton")
+local_address_input = NodePath("../CanvasLayer/MainControl/LocalMultiplayerMenu/LocalSettingsPanel/VBoxContainer/AddressInputLineEdit")
+local_port = NodePath("../CanvasLayer/MainControl/LocalMultiplayerMenu/LocalSettingsPanel/VBoxContainer/PortLineEdit2")
+local_LAN_label = NodePath("../CanvasLayer/MainControl/LocalMultiplayerMenu/LocalSettingsPanel/VBoxContainer/LocalIPLabel")
+local_max_players = NodePath("../CanvasLayer/MainControl/LocalMultiplayerMenu/CreateLocalLobbyPanel/VBoxContainer/MaxPlayersSpinBox")
 steam_status_label = NodePath("../CanvasLayer/MainControl/PublicMultiplayerMenu/CreateLobbyPanel/VBoxContainer/SteamStatusLabel")
 public_refresh_button = NodePath("../CanvasLayer/MainControl/PublicMultiplayerMenu/RefreshButton")
 public_create_lobby_button = NodePath("../CanvasLayer/MainControl/PublicMultiplayerMenu/CreateLobbyPanel/HostButton")
@@ -152,13 +156,13 @@ offset_top = 104.0
 offset_right = 737.0
 offset_bottom = 263.0
 
-[node name="CreateLobbyLabel" type="Label" parent="CanvasLayer/MainControl/LocalMultiplayerMenu/CreateLocalLobbyPanel"]
+[node name="LocalLobbyLabel" type="Label" parent="CanvasLayer/MainControl/LocalMultiplayerMenu/CreateLocalLobbyPanel"]
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
 offset_bottom = 50.0
 grow_horizontal = 2
-text = "Create A Lobby"
+text = "Local Lobby"
 label_settings = SubResource("LabelSettings_nfy72")
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -180,7 +184,59 @@ value = 4.0
 alignment = 1
 prefix = "Max Players"
 
-[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/MainControl/LocalMultiplayerMenu"]
+[node name="LocalSettingsPanel" type="Panel" parent="CanvasLayer/MainControl/LocalMultiplayerMenu"]
+custom_minimum_size = Vector2(100, 0)
+offset_left = 752.0
+offset_top = 103.0
+offset_right = 998.0
+offset_bottom = 348.0
+scale = Vector2(1, 0.920001)
+
+[node name="SettingsLabel" type="Label" parent="CanvasLayer/MainControl/LocalMultiplayerMenu/LocalSettingsPanel"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 50.0
+grow_horizontal = 2
+text = "Lobby Settings"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/MainControl/LocalMultiplayerMenu/LocalSettingsPanel"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 15.0
+offset_top = -119.0
+offset_right = -20.0
+offset_bottom = -16.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_constants/separation = 13
+alignment = 1
+
+[node name="AddressInputLineEdit" type="LineEdit" parent="CanvasLayer/MainControl/LocalMultiplayerMenu/LocalSettingsPanel/VBoxContainer"]
+layout_mode = 2
+placeholder_text = "Default Address: 127.0.0.1"
+max_length = 15
+
+[node name="PortLineEdit2" type="LineEdit" parent="CanvasLayer/MainControl/LocalMultiplayerMenu/LocalSettingsPanel/VBoxContainer"]
+layout_mode = 2
+placeholder_text = "Default Port: 2450"
+max_length = 4
+
+[node name="GetLocalIPButton" type="Button" parent="CanvasLayer/MainControl/LocalMultiplayerMenu/LocalSettingsPanel/VBoxContainer"]
+layout_mode = 2
+text = "Get Local IPv4 Address"
+
+[node name="LocalIPLabel" type="Label" parent="CanvasLayer/MainControl/LocalMultiplayerMenu/LocalSettingsPanel/VBoxContainer"]
+layout_mode = 2
+text = " 
+"
+
+[node name="ButtonsVBoxContainer" type="VBoxContainer" parent="CanvasLayer/MainControl/LocalMultiplayerMenu"]
 layout_mode = 1
 anchors_preset = 13
 anchor_left = 0.5
@@ -194,13 +250,13 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 10
 
-[node name="HostButton" type="Button" parent="CanvasLayer/MainControl/LocalMultiplayerMenu/VBoxContainer"]
+[node name="HostButton" type="Button" parent="CanvasLayer/MainControl/LocalMultiplayerMenu/ButtonsVBoxContainer"]
 custom_minimum_size = Vector2(0, 60)
 layout_mode = 2
 mouse_default_cursor_shape = 2
 text = "Host"
 
-[node name="JoinButton" type="Button" parent="CanvasLayer/MainControl/LocalMultiplayerMenu/VBoxContainer"]
+[node name="JoinButton" type="Button" parent="CanvasLayer/MainControl/LocalMultiplayerMenu/ButtonsVBoxContainer"]
 custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 mouse_default_cursor_shape = 2
@@ -438,8 +494,9 @@ text = "HOST"
 [connection signal="pressed" from="CanvasLayer/MainControl/MultiplayerSelectMenu/VBoxContainer/PublicMultiplayerButton" to="GameManager" method="show_public_menu"]
 [connection signal="pressed" from="CanvasLayer/MainControl/MultiplayerSelectMenu/VBoxContainer/LocalMultiplayerButton" to="GameManager" method="show_local_menu"]
 [connection signal="pressed" from="CanvasLayer/MainControl/MultiplayerSelectMenu/BackToMainMenuButton" to="GameManager" method="_show_main_menu"]
-[connection signal="pressed" from="CanvasLayer/MainControl/LocalMultiplayerMenu/VBoxContainer/HostButton" to="GameManager" method="_on_local_host_pressed"]
-[connection signal="pressed" from="CanvasLayer/MainControl/LocalMultiplayerMenu/VBoxContainer/JoinButton" to="GameManager" method="_on_local_join_pressed"]
+[connection signal="pressed" from="CanvasLayer/MainControl/LocalMultiplayerMenu/LocalSettingsPanel/VBoxContainer/GetLocalIPButton" to="GameManager" method="_display_local_lan_IP"]
+[connection signal="pressed" from="CanvasLayer/MainControl/LocalMultiplayerMenu/ButtonsVBoxContainer/HostButton" to="GameManager" method="_on_local_host_pressed"]
+[connection signal="pressed" from="CanvasLayer/MainControl/LocalMultiplayerMenu/ButtonsVBoxContainer/JoinButton" to="GameManager" method="_on_local_join_pressed"]
 [connection signal="pressed" from="CanvasLayer/MainControl/LocalMultiplayerMenu/BackToMenuButton" to="GameManager" method="_show_multiplayer_select"]
 [connection signal="pressed" from="CanvasLayer/MainControl/PublicMultiplayerMenu/RefreshButton" to="GameManager" method="refresh_steam_lobby_list"]
 [connection signal="pressed" from="CanvasLayer/MainControl/PublicMultiplayerMenu/BackToMenuButton" to="GameManager" method="_show_multiplayer_select"]

@@ -42,7 +42,7 @@ func host_steam() -> bool:
 		peer = null
 		return false
 	_attach_peer()
-	emit_signal("session_started", "host")
+	emit_signal("session_started", "public host")
 	return true
 
 func join_steam(host_steam_id_64 : int) -> bool:
@@ -58,19 +58,21 @@ func join_steam(host_steam_id_64 : int) -> bool:
 		peer = null
 		return false
 	_attach_peer()
-	emit_signal("session_started", "client")
+	emit_signal("session_started", "public client")
 	return true
 
 # ---------- Local ENet ----------
-func host_local(port : int = 2450, max_clients : int = 8) -> bool:
+func host_local(address : String = "127.0.0.1", port : int = 2450, max_clients : int = 4) -> bool:
 	set_peer_mode(PeerMode.LOCAL)
+	peer.set_bind_ip(address)
 	var err: int = peer.create_server(port, max_clients)
 	if err != OK:
 		push_error("ENet create_server() failed: %s" % err)
 		peer = null
 		return false
 	_attach_peer()
-	emit_signal("session_started", "host")
+	emit_signal("session_started", "local host")
+	print("LAN IP: %s\nPort: %d" % [address, port])
 	return true
 
 func join_local(address : String = "127.0.0.1", port : int = 2450) -> bool:
@@ -81,7 +83,7 @@ func join_local(address : String = "127.0.0.1", port : int = 2450) -> bool:
 		peer = null
 		return false
 	_attach_peer()
-	emit_signal("session_started", "client")
+	emit_signal("session_started", "local client")
 	return true
 
 # ---------- Common ----------

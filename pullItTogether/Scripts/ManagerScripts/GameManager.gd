@@ -20,8 +20,9 @@ class_name GameManager
 @export var local_host_button: Button
 @export var local_join_button: Button
 @export var local_back_to_menu_button: Button
-@export var local_address: LineEdit
-@export var local_port: SpinBox
+@export var local_address_input: LineEdit
+@export var local_port: LineEdit
+@export var local_LAN_label: Label
 @export var local_max_players: SpinBox
 
 @export_category("Public UI")
@@ -134,6 +135,7 @@ func show_local_menu() -> void:
 func show_public_menu() -> void:
 	_hide_all_menus()
 	if public_multiplayer_menu: public_multiplayer_menu.show()
+	
 
 # ---------- Single Player ----------
 func _on_single_player_pressed() -> void:
@@ -143,30 +145,30 @@ func _on_single_player_pressed() -> void:
 
 # ---------- Local Network flow ----------
 func _on_local_host_pressed() -> void:
+	var addr :=default_addr
 	var port := default_port
 	var maxp := default_max_players
-	if local_port: port = int(local_port.value)
+	if local_address_input and local_address_input.text.strip_edges() != "":
+		addr = local_address_input.text.strip_edges()
+	if local_port.text != "":
+		port = int(local_port.text)
 	if local_max_players: maxp = int(local_max_players.value)
 
 	if not network_manager:
 		push_error("NetworkManager not assigned"); return
-	if network_manager.host_local(port, maxp):
-		_on_session_started("host")
-	else:
+	if not network_manager.host_local(addr, port, maxp):
 		push_error("Failed to host local ENet")
 
 func _on_local_join_pressed() -> void:
 	var addr := default_addr
 	var port := default_port
-	if local_address and local_address.text.strip_edges() != "":
-		addr = local_address.text.strip_edges()
-	if local_port:
-		port = int(local_port.value)
+	if local_address_input and local_address_input.text.strip_edges() != "":
+		addr = local_address_input.text.strip_edges()
+	if local_port.text != "":
+		port = int(local_port.text)
 	if not network_manager:
 		push_error("NetworkManager not assigned"); return
-	if network_manager.join_local(addr, port):
-		_on_session_started("client")
-	else:
+	if not network_manager.join_local(addr, port):
 		push_error("Failed to join local ENet %s:%s" % [addr, port])
 
 # ---------- Steam lobby (GodotSteam) + transport (Expresso Bits) ----------
@@ -291,7 +293,7 @@ func _steam_runtime_present() -> bool:
 	)
 
 func _update_runtime_ui() -> void:
-	var is_ready := _steam_runtime_present()
+	var is_ready := _steam_runtime_present() && _steam_ok
 	if steam_status_label:
 		steam_status_label.text = "Steam: Ready" if is_ready else "Steam: Not Ready"
 		steam_status_label.add_theme_color_override("font_color", Color(0.32, 0.78, 0.37) if is_ready else Color(0.9, 0.25, 0.25))
@@ -354,3 +356,47 @@ func _render_lobby_list(items: Array) -> void:
 		row.add_child(join_btn)
 
 		public_list_container.add_child(row)
+		
+# ---------- Get Local LAN IP ----------
+func _display_local_lan_IP() -> void:
+	var message := ""
+	var ip := _get_lan_ipv4()
+	
+	if ip == "":
+		message = "No LAN IPv4 found."
+	else:
+		DisplayServer.clipboard_set(ip)
+		message = "LAN IP: %s\n (Copied to Clipboard)" % [ip]
+
+	if local_LAN_label:
+		local_LAN_label.text = message
+	else:
+		print(message)
+
+func _get_lan_ipv4() -> String:
+	# 192.168.*, 10.*, or 172.16–31.*
+	var fallback := ""
+	for address in IP.get_local_addresses():
+		if _is_private_ipv4(address) and not address.begins_with("127.") and not address.begins_with("169.254."):
+			if address.begins_with("192.168."):
+				return address
+			if fallback == "":
+				fallback = address
+	return fallback
+
+func _is_private_ipv4(address: String) -> bool:
+	if address.count(".") !=3 or not address.is_valid_ip_address():
+		return false
+	var parts := address.split(".")
+	var part0 := int(parts[0])
+	var part1 := int(parts[1])
+	# 10.0.0.0/8
+	if part0 == 10:
+		return true
+	# 192.168.0.0/16
+	if part0 == 192 and part1 == 168:
+		return true
+	# 172.16.0.0 – 172.31.255.255
+	if part0 == 172 and part1 >= 16 and part1 <= 31:
+		return true
+	return false
