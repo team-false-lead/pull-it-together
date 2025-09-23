@@ -64,3 +64,6 @@ skeleton = NodePath("../..")
 transform = Transform3D(1, 0, 0, 0, 0.745, 0, 0, 0, 1, 0, -0.0248527, 0)
 material_override = SubResource("StandardMaterial3D_rliju")
 mesh = SubResource("CapsuleMesh_8k31v")
+
+[node name="Inventory" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.74362, -1.04144)

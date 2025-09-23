@@ -186,6 +186,7 @@ prefix = "Max Players"
 
 [node name="LocalSettingsPanel" type="Panel" parent="CanvasLayer/MainControl/LocalMultiplayerMenu"]
 custom_minimum_size = Vector2(100, 0)
+layout_mode = 0
 offset_left = 752.0
 offset_top = 103.0
 offset_right = 998.0

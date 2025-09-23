@@ -25,6 +25,11 @@ public partial class PlayerController : CharacterBody3D
 	[Export] public float bobAmplitude = 0.08f;
 	private float bobTimer = 0.0f;
 
+	private Interactable heldObject = null;
+	[Export] public float interactRange = 3.0f;
+	[Export] public uint interactMask = 3;
+
+
 
 	public override void _EnterTree()
 	{
@@ -140,6 +145,21 @@ public partial class PlayerController : CharacterBody3D
 
 		Velocity = velocity;
 		MoveAndSlide();
+
+		// Handle interaction input
+		if (Input.IsActionJustPressed("use"))
+			OnUsedPressed();
+		if (Input.IsActionJustPressed("drop"))
+			DropObject();
+		if (Input.IsActionJustPressed("pickup"))
+		{
+			var target = GetInteractableLookedAt();
+			if (target != null)
+			{
+				GD.Print(target.ToString());
+				PickupObject(target);
+			}
+		}
 	}
 
 	// Simple head bobbing effect
@@ -149,5 +169,118 @@ public partial class PlayerController : CharacterBody3D
 		bobPos.Y = Mathf.Sin(timer * bobFrequency) * bobAmplitude;
 		bobPos.X = Mathf.Cos(timer * bobFrequency * 0.5f) * bobAmplitude;
 		return bobPos;
+	}
+
+	// Handle the "use" action input
+	private void OnUsedPressed()
+	{
+		if (!IsLocalControlled()) return; // Only the local player can interact
+		if (heldObject == null) return;
+
+		var target = GetInteractableLookedAt();
+		
+		if (target != null && target != heldObject)
+		{
+			UseHeldObjectOn(target);
+		}
+		else
+		{
+			UseHeldObject();
+		}
+	}
+
+	// Raycast to find an interactable object the player is looking at
+	private Interactable GetInteractableLookedAt()
+	{
+		if (camera == null) return null;
+
+		// screen center
+		var vp = GetViewport();
+		Vector2 center = vp.GetVisibleRect().Size * 0.5f;
+
+		Vector3 origin = camera.ProjectRayOrigin(center);
+		Vector3 dir = camera.ProjectRayNormal(center);
+		Vector3 to = origin + dir * interactRange;
+
+		var state = GetWorld3D().DirectSpaceState;
+		var query = PhysicsRayQueryParameters3D.Create(origin, to);
+		query.CollisionMask = interactMask;
+		// ignore self so we don't hit our own body
+		query.Exclude = new Godot.Collections.Array<Rid> { GetRid() };
+
+		var hit = state.IntersectRay(query);
+		if (hit.Count == 0) return null;
+
+		// "collider" can be Node or RigidBody/Area/CollisionObject3D etc.
+		if (hit.TryGetValue("collider", out var colliderVariant))
+		{
+			var godotObj = ((Variant)colliderVariant).AsGodotObject();
+			if (godotObj is Node colliderNode)
+				return FindInteractable(colliderNode);
+		}
+
+		return null;
+	}
+
+	// Traverse up the node tree to find an Interactable component
+	private Interactable FindInteractable(Node node)
+	{
+		while (node != null)
+		{
+			if (node is Interactable interactable)
+				return interactable;
+			node = node.GetParent();
+		}
+		return null;
+	}
+
+	// Methods to manage held object
+	public void PickupObject(Interactable obj)
+	{
+		if (heldObject != null)
+		{
+			DropObject();
+		}
+
+		if (obj.TryPickup(this))
+		{
+			heldObject = obj;
+		}
+	}
+
+	// Drop the currently held object
+	public void DropObject()
+	{
+		if (heldObject != null)
+		{
+			heldObject.Drop(this);
+			heldObject = null;
+		}
+	}
+
+	// Use the held object on itself or on a target
+	public void UseHeldObject()
+	{
+		if (heldObject != null)
+		{
+			heldObject.TryUseSelf(this);
+			if (!IsInstanceValid(heldObject))
+			{
+				heldObject = null; // The held object was destroyed during use
+			}
+		}
+	}
+
+	// Use the held object on a target interactable
+	public void UseHeldObjectOn(Interactable target)
+	{
+		if (heldObject != null && target != null)
+		{
+			heldObject.TryUseOn(this, target);
+			if (!IsInstanceValid(heldObject))
+			{
+				heldObject = null; // The held object was destroyed during use
+			}
+		}
 	}
 }
