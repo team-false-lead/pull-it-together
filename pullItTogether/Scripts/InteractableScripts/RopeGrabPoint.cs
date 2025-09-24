@@ -3,7 +3,7 @@ using System;
 
 /// <summary>
 /// A rope that can be carried but not used on anything.
-public partial class Rope : Interactable
+public partial class RopeGrabPoint : Interactable
 {
     public override void TryUseSelf(CharacterBody3D user)
     {

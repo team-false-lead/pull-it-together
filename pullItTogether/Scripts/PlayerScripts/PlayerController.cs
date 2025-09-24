@@ -253,7 +253,7 @@ public partial class PlayerController : CharacterBody3D
 	{
 		if (heldObject != null)
 		{
-			heldObject.Drop(this);
+			heldObject.Drop(this, camera.GlobalTransform.Origin + -(camera.GlobalTransform.Basis.Z * interactRange)); // Drop in front of the player
 			heldObject = null;
 		}
 	}
@@ -264,7 +264,7 @@ public partial class PlayerController : CharacterBody3D
 		if (heldObject != null)
 		{
 			heldObject.TryUseSelf(this);
-			if (!IsInstanceValid(heldObject))
+			if (!IsInstanceValid(heldObject) || heldObject.IsQueuedForDeletion())
 			{
 				heldObject = null; // The held object was destroyed during use
 			}

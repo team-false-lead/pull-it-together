@@ -1,0 +1,14 @@
+[gd_scene load_steps=3 format=3 uid="uid://b575wgt5fc8yc"]
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_on6pt"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_aiyb2"]
+
+[node name="Campfire" type="RigidBody3D"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, 0)
+shape = SubResource("CylinderShape3D_on6pt")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="CollisionShape3D"]
+mesh = SubResource("CylinderMesh_aiyb2")

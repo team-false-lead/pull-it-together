@@ -1,8 +1,9 @@
-[gd_scene load_steps=13 format=3 uid="uid://b7pp3skomvnhc"]
+[gd_scene load_steps=14 format=3 uid="uid://b7pp3skomvnhc"]
 
 [ext_resource type="Script" uid="uid://wudugmq7kbma" path="res://Scripts/ManagerScripts/PlayerSpawnManager.gd" id="1_k5f4k"]
 [ext_resource type="PackedScene" uid="uid://ckpgu08xdcwp4" path="res://Scenes/Player.tscn" id="2_k5f4k"]
-[ext_resource type="PackedScene" uid="uid://b8o20cpj7x4mc" path="res://Scenes/RopeBox.tscn" id="3_n6t57"]
+[ext_resource type="PackedScene" uid="uid://b8o20cpj7x4mc" path="res://Scenes/Interactables/RopeBox.tscn" id="3_n6t57"]
+[ext_resource type="PackedScene" uid="uid://ba3m0401u3th5" path="res://Scenes/Interactables/WoodPlank.tscn" id="4_qg828"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_xh66l"]
 sky_horizon_color = Color(0.662243, 0.671743, 0.686743, 1)
@@ -88,5 +89,11 @@ transform = Transform3D(0.72953, 0, 0.683949, 0, 1, 0, -0.683949, 0, 0.72953, -0
 material_override = SubResource("StandardMaterial3D_0f350")
 use_collision = true
 
-[node name="RopeBox" parent="." instance=ExtResource("3_n6t57")]
+[node name="Items" type="Node3D" parent="."]
+unique_name_in_owner = true
+
+[node name="RopeBox" parent="Items" instance=ExtResource("3_n6t57")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.51016, 1.71713, 0.991464)
+
+[node name="WoodPlank" parent="Items" instance=ExtResource("4_qg828")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.88892, 1.46713, 1.78256)

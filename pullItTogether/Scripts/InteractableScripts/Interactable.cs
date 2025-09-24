@@ -10,32 +10,43 @@ public abstract partial class Interactable : RigidBody3D
     public virtual bool TryPickup(CharacterBody3D carrier)
     {
         if (Carrier != null || !CanBeCarried()) return false;
-        Carrier = carrier;
-        GetParent<Node3D>().RemoveChild(this); // Remove from current parent
-        carrier.GetNode<Node3D>("Inventory").AddChild(this); // Add to the carrier
-        Position = Vector3.Zero; // Reset position relative to carrier
-        Rotation = Vector3.Zero; // Reset rotation relative to carrier
-        Scale = Vector3.One; // Reset scale relative to carrier
-
-        LinearVelocity = Vector3.Zero; // Stop any existing motion
+        
+        // Attach to the carrier's inventory slot
+        var slot = carrier.GetNode<Node3D>("%InventorySlot1");
+        
+        Freeze = true;
+        GravityScale = 0;
+        LinearVelocity = Vector3.Zero;
         AngularVelocity = Vector3.Zero;
-        GravityScale = 0; // Disable gravity while carried
-        Freeze = true; // Prevent physics interactions while carried
+        GetParent<Node3D>().RemoveChild(this); // Remove from current parent
+        slot.AddChild(this); // Add to the carrier
+
+        TopLevel = false; // Make non-top-level to inherit carrier's transform
+        //Transform = Transform3D.Identity; // Reset transform relative to carrier
+        Position = Vector3.Zero;
+        Scale = Vector3.One * (1/ GetParent<Node3D>().Scale.X);
+
         savedMask = CollisionMask;
         CollisionMask = 0; // Disable collisions while carried
+
+        Carrier = carrier;
         return true;
     }
 
-    public virtual void Drop(CharacterBody3D carrier)
+    public virtual void Drop(CharacterBody3D carrier, Vector3 dropPosition)
     {
         if (Carrier != carrier) return;
-        carrier.GetNode<Node3D>("Inventory").RemoveChild(this); // Remove from current parent
-        Carrier.GetParent<Node3D>().AddChild(this); // Add to the world
-        Carrier = null;
 
-        GravityScale = 1; // Re-enable gravity
+        GetParent<Node3D>().RemoveChild(this); // Remove from current parent
+        carrier.GetParent<Node3D>().GetParent<Node3D>().GetNode<Node3D>("%Items").AddChild(this); // Add to the world items node
+        GlobalTransform = new Transform3D(GlobalTransform.Basis, dropPosition); // Set position in the world
+
+        TopLevel = true; // Make top-level to have independent transform
         Freeze = false; // Re-enable physics interactions
+        GravityScale = 1; // Re-enable gravity
         CollisionMask = savedMask; // Restore collision settings
+
+        Carrier = null;
     }
     
     // By default, objects can use themselves
