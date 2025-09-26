@@ -1,13 +1,29 @@
-[gd_scene load_steps=3 format=3 uid="uid://b575wgt5fc8yc"]
+[gd_scene load_steps=4 format=3 uid="uid://b575wgt5fc8yc"]
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_on6pt"]
+properties/0/path = NodePath("CollisionShape3D:position")
+properties/0/spawn = true
+properties/0/replication_mode = 1
+properties/1/path = NodePath("CollisionShape3D:rotation")
+properties/1/spawn = true
+properties/1/replication_mode = 1
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_on6pt"]
+resource_local_to_scene = true
+height = 0.5
+radius = 0.75
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_aiyb2"]
+resource_local_to_scene = true
+bottom_radius = 0.75
+height = 0.5
 
 [node name="Campfire" type="RigidBody3D"]
 
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
+replication_config = SubResource("SceneReplicationConfig_on6pt")
+
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
-transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, 0)
 shape = SubResource("CylinderShape3D_on6pt")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="CollisionShape3D"]

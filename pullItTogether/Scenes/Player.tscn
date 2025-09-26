@@ -39,9 +39,10 @@ albedo_color = Color(0.054902, 0.67451, 0.976471, 1)
 
 [sub_resource type="SphereMesh" id="SphereMesh_gntrk"]
 
-[node name="Player" type="CharacterBody3D" node_paths=PackedStringArray("head", "camera")]
+[node name="Player" type="CharacterBody3D" node_paths=PackedStringArray("head", "collisionPusher", "camera")]
 script = ExtResource("1_kyqiw")
 head = NodePath("Head")
+collisionPusher = NodePath("AnimatableBody3D")
 camera = NodePath("Head/Camera3D")
 
 [node name="PlayerCameraSync" type="Node" parent="." node_paths=PackedStringArray("Camera")]
@@ -69,6 +70,7 @@ mesh = SubResource("SphereMesh_ndhuy")
 
 [node name="Camera3D" type="Camera3D" parent="Head"]
 cull_mask = 1047583
+current = true
 
 [node name="EyesMesh" type="MeshInstance3D" parent="Head/Camera3D" groups=["self_hide"]]
 transform = Transform3D(0.69, 0, 0, 0, 0.27, 0, 0, 0, 0.57, 0, 0.0681075, -0.250253)
@@ -84,3 +86,11 @@ unique_name_in_owner = true
 transform = Transform3D(0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1, 1, 0, 0)
 material_override = SubResource("StandardMaterial3D_kyqiw")
 mesh = SubResource("SphereMesh_gntrk")
+
+[node name="AnimatableBody3D" type="AnimatableBody3D" parent="."]
+collision_layer = 8
+collision_mask = 8
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="AnimatableBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.216008, 0)
+shape = SubResource("CapsuleShape3D_r1we1")

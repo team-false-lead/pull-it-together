@@ -2,23 +2,25 @@ extends Node
 class_name MapManager
 
 @export var level : PackedScene
-@export var container_path : NodePath
+#@export var container_path : NodePath
+@export var interactables_node = null
 
 var current_map: Node = null
 var _spawner: Node = null
 var _loading := false
+
 
 func load_map() -> Node:
 	if _loading:
 		return current_map
 	_loading = true
 	
-	var parent := get_node_or_null(container_path)
-	if parent == null: 
-		parent = self
+	#var parent := get_node_or_null(container_path)
+	#if parent == null: 
+	#parent = self
 
-	var scene: PackedScene = level
-	if scene == null:
+	#var scene: PackedScene = level
+	if level == null:
 		push_error("MapManager: no map assigned")
 		_loading = false
 		return null
@@ -26,14 +28,17 @@ func load_map() -> Node:
 	if current_map and is_instance_valid(current_map):
 		current_map.queue_free()
 		current_map = null
-		for c in parent.get_children():
+		for c in self.get_children():
 			c.queue_free()
 		await get_tree().process_frame
 		#_spawner = null
 
-	current_map = scene.instantiate()
+	current_map = level.instantiate()
 	current_map.name = "LevelInstance"
-	parent.add_child(current_map)
+	self.add_child(current_map)
+	interactables_node = current_map.get_node_or_null("%Interactables")
+	if interactables_node == null:
+		interactables_node = current_map
 
 	await get_tree().process_frame
 	

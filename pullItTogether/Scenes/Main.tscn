@@ -38,11 +38,9 @@ manual_join_button = NodePath("../CanvasLayer/MainControl/PublicMultiplayerMenu/
 script = ExtResource("2_v1gob")
 
 [node name="MapManager" type="Node" parent="."]
+unique_name_in_owner = true
 script = ExtResource("3_jw32o")
 level = ExtResource("4_50glp")
-container_path = NodePath("../MapContainer")
-
-[node name="MapContainer" type="Node" parent="."]
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 

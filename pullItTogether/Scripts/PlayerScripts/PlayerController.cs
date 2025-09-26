@@ -1,5 +1,7 @@
 using Godot;
+using Godot.Collections;
 using System;
+using System.Collections.Generic;
 
 //Based on Juiced Up First Person Character Controller Tutorial - Godot 3D FPS - YouTube
 // https://www.youtube.com/watch?v=A3HLeyaBCq4&t=461s&ab_channel=LegionGames
@@ -16,6 +18,7 @@ public partial class PlayerController : CharacterBody3D
 	public float inertiaGroundValue = 7.0f;
 
 	[Export] public Node3D head;
+	[Export] public AnimatableBody3D collisionPusher;
 	[Export] public Camera3D camera;
 	[Export] public float fov = 75.0f;
 	[Export] public float fovChange = 1.25f;
@@ -27,7 +30,8 @@ public partial class PlayerController : CharacterBody3D
 
 	private Interactable heldObject = null;
 	[Export] public float interactRange = 3.0f;
-	[Export] public uint interactMask = 3;
+	[Export] public int interactMaskInt = 4;
+	private uint interactMaskUint = 8;
 
 
 
@@ -55,6 +59,13 @@ public partial class PlayerController : CharacterBody3D
 		{
 			Input.SetMouseMode(Input.MouseModeEnum.Visible);
 		}
+
+		if (collisionPusher != null)
+		{
+			collisionPusher.SyncToPhysics = true;
+		}
+
+		interactMaskUint = (uint)(1 << (interactMaskInt - 1));// Convert layer number to bitmask
 	}
 
 	// Check if this player instance is controlled by the local user
@@ -147,11 +158,11 @@ public partial class PlayerController : CharacterBody3D
 		MoveAndSlide();
 
 		// Handle interaction input
-		if (Input.IsActionJustPressed("use"))
+		if (Input.IsActionJustPressed("use"))// L Click
 			OnUsedPressed();
-		if (Input.IsActionJustPressed("drop"))
+		if (Input.IsActionJustPressed("drop"))// Q
 			DropObject();
-		if (Input.IsActionJustPressed("pickup"))
+		if (Input.IsActionJustPressed("pickup")) // E
 		{
 			var target = GetInteractableLookedAt();
 			if (target != null)
@@ -159,6 +170,11 @@ public partial class PlayerController : CharacterBody3D
 				GD.Print(target.ToString());
 				PickupObject(target);
 			}
+		}
+
+		if (collisionPusher != null)
+		{
+			collisionPusher.GlobalTransform = GlobalTransform;
 		}
 	}
 
@@ -178,10 +194,14 @@ public partial class PlayerController : CharacterBody3D
 		if (heldObject == null) return;
 
 		var target = GetInteractableLookedAt();
-		
+		//if (target == null)
+		//{
+		//	target = GetEntityLookedAt();
+		//}
+				
 		if (target != null && target != heldObject)
 		{
-			UseHeldObjectOn(target);
+			UseHeldObjectOnInteractable(target);
 		}
 		else
 		{
@@ -189,13 +209,11 @@ public partial class PlayerController : CharacterBody3D
 		}
 	}
 
-	// Raycast to find an interactable object the player is looking at
-	private Interactable GetInteractableLookedAt()
-	{
-		if (camera == null) return null;
-
-		// screen center
-		var vp = GetViewport();
+	// Raycast forward from the camera to find what the player is looking at
+	public Dictionary RayCastForward()
+    {
+        // screen center
+        var vp = GetViewport();
 		Vector2 center = vp.GetVisibleRect().Size * 0.5f;
 
 		Vector3 origin = camera.ProjectRayOrigin(center);
@@ -204,11 +222,20 @@ public partial class PlayerController : CharacterBody3D
 
 		var state = GetWorld3D().DirectSpaceState;
 		var query = PhysicsRayQueryParameters3D.Create(origin, to);
-		query.CollisionMask = interactMask;
+		query.CollisionMask = interactMaskUint;
 		// ignore self so we don't hit our own body
 		query.Exclude = new Godot.Collections.Array<Rid> { GetRid() };
 
 		var hit = state.IntersectRay(query);
+		return hit;
+	}
+
+	// Get the Interactable the player is currently looking at
+	private Interactable GetInteractableLookedAt()
+	{
+		if (camera == null) return null;
+
+		var hit = RayCastForward();
 		if (hit.Count == 0) return null;
 
 		// "collider" can be Node or RigidBody/Area/CollisionObject3D etc.
@@ -234,7 +261,39 @@ public partial class PlayerController : CharacterBody3D
 		return null;
 	}
 
-	// Methods to manage held object
+	// Template logic for later Entity interactions
+	//// Get the Entity the player is currently looking at
+	//private Entity GetEntityLookedAt()
+	//{
+	//	if (camera == null) return null;
+	//
+	//	var hit = RayCastForward();
+	//	if (hit.Count == 0) return null;
+	//
+	//	// "collider" can be Node or RigidBody/Area/CollisionObject3D etc.
+	//	if (hit.TryGetValue("collider", out var colliderVariant))
+	//	{
+	//		var godotObj = ((Variant)colliderVariant).AsGodotObject();
+	//		if (godotObj is Node colliderNode)
+	//			return FindEntity(colliderNode);
+	//	}
+	//
+	//	return null;
+	//}
+	//
+	//// Traverse up the node tree to find an Entity component
+	//private Entity FindEntity(Node node)
+	//{
+	//	while (node != null)
+	//	{
+	//		if (node is Interactable interactable)
+	//			return interactable;
+	//		node = node.GetParent();
+	//	}
+	//	return null;
+	//}
+
+	// pickup currently held object
 	public void PickupObject(Interactable obj)
 	{
 		if (heldObject != null)
@@ -253,7 +312,7 @@ public partial class PlayerController : CharacterBody3D
 	{
 		if (heldObject != null)
 		{
-			heldObject.Drop(this, camera.GlobalTransform.Origin + -(camera.GlobalTransform.Basis.Z * interactRange)); // Drop in front of the player
+			heldObject.Drop(this);
 			heldObject = null;
 		}
 	}
@@ -272,11 +331,11 @@ public partial class PlayerController : CharacterBody3D
 	}
 
 	// Use the held object on a target interactable
-	public void UseHeldObjectOn(Interactable target)
+	public void UseHeldObjectOnInteractable(Interactable target)
 	{
 		if (heldObject != null && target != null)
 		{
-			heldObject.TryUseOn(this, target);
+			heldObject.TryUseOnInteractable(this, target);
 			if (!IsInstanceValid(heldObject))
 			{
 				heldObject = null; // The held object was destroyed during use
