@@ -4,9 +4,9 @@ using System;
 /// Interactable is the base class for all objects that can be picked up, dropped, and interacted with by the player.
 public abstract partial class Interactable : RigidBody3D
 {
-    private uint savedLayer, savedMask;
-    private Node mapManager;
-    private Node3D worldInteractables;
+    protected uint savedLayer, savedMask;
+    protected Node mapManager;
+    protected Node3D worldInteractables;
     public virtual bool CanBeCarried() { return true; }
     public CharacterBody3D Carrier { get; set; } = null;
 

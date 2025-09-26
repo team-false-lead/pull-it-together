@@ -1,0 +1,90 @@
+[gd_scene load_steps=10 format=3 uid="uid://c10ybnoe2rhv4"]
+
+[ext_resource type="Script" uid="uid://576r8y5ml8oo" path="res://Scripts/InteractableScripts/RopeGrabPoint.cs" id="1_msc8u"]
+[ext_resource type="PackedScene" uid="uid://b638mtt6nax88" path="res://Scenes/Interactables/RopeProxy.tscn" id="2_3hgbo"]
+[ext_resource type="Script" uid="uid://dja12uyulc7ee" path="res://addons/verlet_rope_4/Physics/VerletRopeRigid.cs" id="3_3hgbo"]
+[ext_resource type="Script" uid="uid://cuw8dk3lkvm2n" path="res://addons/verlet_rope_4/Physics/Joints/VerletJointRigid.cs" id="4_perk6"]
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_dxh6e"]
+properties/0/path = NodePath(".:position")
+properties/0/spawn = true
+properties/0/replication_mode = 1
+properties/1/path = NodePath("Box:rotation")
+properties/1/spawn = true
+properties/1/replication_mode = 1
+properties/2/path = NodePath("GrabPoint:position")
+properties/2/spawn = true
+properties/2/replication_mode = 1
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_0sswb"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_sopvj"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_dxh6e"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_gki2b"]
+
+[node name="RopeBoxVerlet" type="Node3D"]
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
+replication_config = SubResource("SceneReplicationConfig_dxh6e")
+
+[node name="Box" type="RigidBody3D" parent="."]
+collision_layer = 4
+collision_mask = 9
+mass = 65.0
+can_sleep = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Box"]
+transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, -0.521537)
+shape = SubResource("BoxShape3D_0sswb")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Box"]
+transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, -0.521537)
+mesh = SubResource("BoxMesh_sopvj")
+
+[node name="RopeStartPoint" type="Node3D" parent="Box"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.5)
+
+[node name="GrabPointResetSlot" type="Node3D" parent="Box"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.608, 0.681, 1)
+
+[node name="VerletRopeRigid" type="Node3D" parent="."]
+transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 0, 0, 0)
+script = ExtResource("3_3hgbo")
+SimulationSegments = 6
+CollisionWidthMargin = 0.02
+CollisionLayer = 8
+CollisionMask = 13
+IsStartPinned = false
+RopeWidth = 0.1
+UseVisibleOnScreenNotifier = false
+metadata/_custom_type_script = "uid://dja12uyulc7ee"
+
+[node name="VerletJointRigid" type="Node" parent="VerletRopeRigid" node_paths=PackedStringArray("VerletRope", "StartBody", "StartCustomLocation", "EndBody", "EndCustomLocation")]
+script = ExtResource("4_perk6")
+VerletRope = NodePath("..")
+StartBody = NodePath("../../Box")
+StartCustomLocation = NodePath("../../Box/RopeStartPoint")
+EndBody = NodePath("../../GrabPoint")
+EndCustomLocation = NodePath("../../GrabPoint")
+metadata/_custom_type_script = "uid://cuw8dk3lkvm2n"
+
+[node name="GrabPoint" type="RigidBody3D" parent="." node_paths=PackedStringArray("resetPoint", "rope", "joint")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.608, 0.681, 1)
+collision_layer = 8
+mass = 0.1
+script = ExtResource("1_msc8u")
+ropeProxyScene = ExtResource("2_3hgbo")
+resetPoint = NodePath("../Box/GrabPointResetSlot")
+rope = NodePath("../VerletRopeRigid")
+joint = NodePath("../VerletRopeRigid/VerletJointRigid")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GrabPoint"]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, 0)
+shape = SubResource("SphereShape3D_dxh6e")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GrabPoint"]
+transform = Transform3D(0.25, 0, 0, 0, 0.25, 0, 0, 0, 0.25, 0, 0, 0)
+mesh = SubResource("SphereMesh_gki2b")
+skeleton = NodePath("")

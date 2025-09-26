@@ -30,9 +30,15 @@ public partial class PlayerController : CharacterBody3D
 
 	private Interactable heldObject = null;
 	[Export] public float interactRange = 3.0f;
-	[Export] public int interactMaskInt = 4;
+	[Export] public int interactLayer = 4;
+	[Export] public int wagonLayer = 3;
+	[Export] public float wagonPushReductionFactor = 0.5f;
 	private uint interactMaskUint = 8;
 
+	private Node3D tetherAnchor;
+	private float maxTetherDist;
+	private float tetherBuffer;
+	private float tetherStrength;
 
 
 	public override void _EnterTree()
@@ -65,7 +71,7 @@ public partial class PlayerController : CharacterBody3D
 			collisionPusher.SyncToPhysics = true;
 		}
 
-		interactMaskUint = (uint)(1 << (interactMaskInt - 1));// Convert layer number to bitmask
+		interactMaskUint = (uint)(1 << (interactLayer - 1));// Convert layer number to bitmask
 	}
 
 	// Check if this player instance is controlled by the local user
@@ -154,6 +160,11 @@ public partial class PlayerController : CharacterBody3D
 			camera.Position = Vector3.Zero;
 		}
 
+		if (tetherAnchor != null)
+		{
+			velocity = TetherToRopeAnchor(delta, velocity);
+		}
+
 		Velocity = velocity;
 		MoveAndSlide();
 
@@ -198,7 +209,7 @@ public partial class PlayerController : CharacterBody3D
 		//{
 		//	target = GetEntityLookedAt();
 		//}
-				
+
 		if (target != null && target != heldObject)
 		{
 			UseHeldObjectOnInteractable(target);
@@ -211,9 +222,9 @@ public partial class PlayerController : CharacterBody3D
 
 	// Raycast forward from the camera to find what the player is looking at
 	public Dictionary RayCastForward()
-    {
-        // screen center
-        var vp = GetViewport();
+	{
+		// screen center
+		var vp = GetViewport();
 		Vector2 center = vp.GetVisibleRect().Size * 0.5f;
 
 		Vector3 origin = camera.ProjectRayOrigin(center);
@@ -341,5 +352,49 @@ public partial class PlayerController : CharacterBody3D
 				heldObject = null; // The held object was destroyed during use
 			}
 		}
+	}
+
+	public void SetTetherAnchor(Node3D anchor, float maxDist, float buffer, float strength)
+	{
+		tetherAnchor = anchor;
+		maxTetherDist = maxDist;
+		tetherBuffer = buffer;
+		tetherStrength = strength;
+	}
+
+	public void RemoveTetherAnchor()
+	{
+		tetherAnchor = null;
+	}
+
+	private Vector3 TetherToRopeAnchor(double delta, Vector3 velocity)
+	{
+		Vector3 toPlayer = GlobalTransform.Origin - tetherAnchor.GlobalTransform.Origin;
+		float dist = toPlayer.Length();
+
+		//if player is past max 
+		if (dist > maxTetherDist)
+		{
+			Vector3 outwardVector = toPlayer.Normalized();
+
+			//dont move farther out
+			//float outwardSpeed = velocity.Dot(outwardVector);
+			//if (outwardSpeed > 0f)
+			//{
+			//	velocity -= outwardVector * outwardSpeed;
+			//}
+
+			//pull back toward maxTetherDistance
+			float distPastMax = dist - maxTetherDist;
+			velocity += -(outwardVector * (tetherStrength * (float)delta * distPastMax));
+
+			// clamp total dist to maxTetherDist with buffer
+			if (dist > maxTetherDist + tetherBuffer)
+			{
+				GlobalTransform = new Transform3D(GlobalTransform.Basis, tetherAnchor.GlobalTransform.Origin + outwardVector * (maxTetherDist + tetherBuffer));
+			}
+		}
+
+		return velocity;
 	}
 }
