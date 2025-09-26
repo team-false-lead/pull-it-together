@@ -34,3 +34,8 @@ shape = SubResource("BoxShape3D_fmbki")
 [node name="MeshInstance3D" type="MeshInstance3D" parent="CollisionShape3D"]
 mesh = SubResource("BoxMesh_2skcm")
 skeleton = NodePath("../..")
+
+[node name="Label3D" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.602306, 0)
+billboard = 2
+text = "Wood Plank"

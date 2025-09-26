@@ -29,3 +29,8 @@ shape = SubResource("CylinderShape3D_on6pt")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="CollisionShape3D"]
 mesh = SubResource("CylinderMesh_aiyb2")
+
+[node name="Label3D" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.602306, 0)
+billboard = 2
+text = "Campfire"
