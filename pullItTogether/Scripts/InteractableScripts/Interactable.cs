@@ -15,13 +15,14 @@ public abstract partial class Interactable : RigidBody3D
     {
         if (Carrier != null || !CanBeCarried()) return false;
 
-        // Attach to the carrier's inventory slot
-        var slot = carrier.GetNode<Node3D>("%InventorySlot1");
-
+        // Disable physics
         Freeze = true;
         GravityScale = 0;
         LinearVelocity = Vector3.Zero;
         AngularVelocity = Vector3.Zero;
+
+        // Attach to the carrier's inventory slot
+        var slot = carrier.GetNode<Node3D>("%InventorySlot1");
         GetParent<Node3D>().RemoveChild(this); // Remove from current parent
         slot.AddChild(this); // Add to the carrier
 
@@ -30,15 +31,17 @@ public abstract partial class Interactable : RigidBody3D
         Rotation = Vector3.Zero;
         Scale = Vector3.One * (1 / GetParent<Node3D>().Scale.X); // Reset scale relative to carrier
 
+        // Save and disable collisions
         savedMask = CollisionMask;
         savedLayer = CollisionLayer;
-        CollisionLayer = 0; // Disable collisions while carried
-        CollisionMask = 0; // Disable collisions while carried
+        CollisionLayer = 0;
+        CollisionMask = 0;
 
         Carrier = carrier;
         return true;
     }
 
+    // Drop the object from the carrier
     public virtual void Drop(CharacterBody3D carrier)
     {
         if (Carrier != carrier) return;
@@ -48,23 +51,23 @@ public abstract partial class Interactable : RigidBody3D
         if (worldInteractables == null) worldInteractables = InitWorldInteractablesNode(carrier);
         worldInteractables.AddChild(this);
 
-
+        // Place in front of the carrier
         Vector3 dropPosition = GetDropPosition(carrier);
         GlobalTransform = new Transform3D(GlobalTransform.Basis, dropPosition); // Set position in the world
 
+        // Re-enable physics and collisions
         TopLevel = true; // Make top-level to have independent transform
         Freeze = false; // Re-enable physics interactions
-        GravityScale = 1; // Re-enable gravity
-        CollisionMask = savedMask; // Restore collision settings
-        CollisionLayer = savedLayer; // Restore collision settings
+        GravityScale = 1;
+        CollisionMask = savedMask;
+        CollisionLayer = savedLayer;
 
         Carrier = null;
     }
 
-    // Find the world interactables node in the scene tree
+    // Find the world interactables node to reattach to when dropped
     protected Node3D InitWorldInteractablesNode(CharacterBody3D carrier)
     {
-        // Find the world interactables node to reattach to when dropped
         mapManager = carrier.GetTree().CurrentScene.GetNodeOrNull<Node>("%MapManager");
         return mapManager != null ? mapManager.Get("interactables_node").As<Node3D>() : GetTree().CurrentScene as Node3D;
     }
@@ -82,13 +85,15 @@ public abstract partial class Interactable : RigidBody3D
         Vector3 dir = carrierScript.camera.ProjectRayNormal(center);
         Vector3 to = origin + dir * carrierScript.interactRange;
 
+        // Raycast to find a safe drop position
         var state = GetWorld3D().DirectSpaceState;
         var query = PhysicsRayQueryParameters3D.Create(origin, to);
         query.CollisionMask = savedMask; // Use saved mask to avoid dropping inside other objects
-        query.Exclude = new Godot.Collections.Array<Rid> { GetRid(), carrier.GetRid() };
+        query.Exclude = new Godot.Collections.Array<Rid> { GetRid(), carrier.GetRid() }; // ignore self and carrier
         var hit = state.IntersectRay(query);
-        Vector3 dropPosition = hit.Count > 0 ? (Vector3)hit["position"] : to;
+        Vector3 dropPosition = hit.Count > 0 ? (Vector3)hit["position"] : to; // Drop at hit point or max range
         dropPosition += Vector3.Up * 0.25f;
+        
         return dropPosition;
     }
 

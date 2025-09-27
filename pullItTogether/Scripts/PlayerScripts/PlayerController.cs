@@ -3,13 +3,13 @@ using Godot.Collections;
 using System;
 using System.Collections.Generic;
 
-//Based on Juiced Up First Person Character Controller Tutorial - Godot 3D FPS - YouTube
+// Movement Based on Juiced Up First Person Character Controller Tutorial - Godot 3D FPS - YouTube
 // https://www.youtube.com/watch?v=A3HLeyaBCq4&t=461s&ab_channel=LegionGames
 
-/// PlayerController handles player movement, camera control, and head bobbing effect.
+/// PlayerController handles player movement, looking around, and interaction with objects.
 public partial class PlayerController : CharacterBody3D
 {
-
+	// Movement parameters
 	public float speed;
 	public float walkSpeed = 5.0f;
 	public float sprintSpeed = 8.0f;
@@ -17,8 +17,8 @@ public partial class PlayerController : CharacterBody3D
 	public float inertiaAirValue = 3.0f;
 	public float inertiaGroundValue = 7.0f;
 
+	// Camera and look parameters
 	[Export] public Node3D head;
-	[Export] public AnimatableBody3D collisionPusher;
 	[Export] public Camera3D camera;
 	[Export] public float fov = 75.0f;
 	[Export] public float fovChange = 1.25f;
@@ -28,13 +28,18 @@ public partial class PlayerController : CharacterBody3D
 	[Export] public float bobAmplitude = 0.08f;
 	private float bobTimer = 0.0f;
 
+	// Interaction parameters
 	private Interactable heldObject = null;
 	[Export] public float interactRange = 3.0f;
 	[Export] public int interactLayer = 4;
+
+	// Collision parameters
+	[Export] public AnimatableBody3D collisionPusher;
 	[Export] public int wagonLayer = 3;
 	[Export] public float wagonPushReductionFactor = 0.5f;
 	private uint interactMaskUint = 8;
 
+	// Rope tether parameters when carrying rope grab point
 	private Node3D tetherAnchor;
 	private float maxTetherDist;
 	private float tetherBuffer;
@@ -48,6 +53,7 @@ public partial class PlayerController : CharacterBody3D
 
 	public override void _Ready()
 	{
+		// Only the local player should capture the mouse and hide self
 		if (IsMultiplayerAuthority())
 		{
 			Input.SetMouseMode(Input.MouseModeEnum.Captured);
@@ -93,10 +99,10 @@ public partial class PlayerController : CharacterBody3D
 		}
 	}
 
-	// Called every physics frame. Delta is time since last physics frame.
+	// Handles movement, jumping, sprinting, head bobbing, and interaction input, probably needs to be split up later
 	public override void _PhysicsProcess(double delta)
 	{
-		if (!IsLocalControlled()) return;
+		if (!IsLocalControlled()) return; // local player processes movement
 
 		Vector3 velocity = Velocity;
 
@@ -112,7 +118,7 @@ public partial class PlayerController : CharacterBody3D
 			velocity.Y = jumpVelocity;
 		}
 
-		// Handle sprint
+		// Handle sprint input and FOV change
 		if (Input.IsActionPressed("sprint"))
 		{
 			speed = sprintSpeed;
@@ -126,9 +132,10 @@ public partial class PlayerController : CharacterBody3D
 
 		// Get the input direction and handle the movement/deceleration.
 		// As good practice, you should replace UI actions with custom gameplay actions.
-		Vector2 inputDir = Input.GetVector("left", "right", "forward", "back");
+		Vector2 inputDir = Input.GetVector("left", "right", "forward", "back"); // WASD
 		Vector3 direction = (head.Transform.Basis * new Vector3(inputDir.X, 0, inputDir.Y)).Normalized();
 
+	 	// intertia
 		if (IsOnFloor()) // full control when on the ground
 		{
 			if (direction != Vector3.Zero)
@@ -160,6 +167,7 @@ public partial class PlayerController : CharacterBody3D
 			camera.Position = Vector3.Zero;
 		}
 
+		// add tether force if holding rope
 		if (tetherAnchor != null)
 		{
 			velocity = TetherToRopeAnchor(delta, velocity);
@@ -169,7 +177,7 @@ public partial class PlayerController : CharacterBody3D
 		MoveAndSlide();
 
 		// Handle interaction input
-		if (Input.IsActionJustPressed("use"))// L Click
+		if (Input.IsActionJustPressed("use"))// LMB
 			OnUsedPressed();
 		if (Input.IsActionJustPressed("drop"))// Q
 			DropObject();
@@ -183,6 +191,7 @@ public partial class PlayerController : CharacterBody3D
 			}
 		}
 
+		// update pusher to match player position
 		if (collisionPusher != null)
 		{
 			collisionPusher.GlobalTransform = GlobalTransform;
@@ -201,23 +210,8 @@ public partial class PlayerController : CharacterBody3D
 	// Handle the "use" action input
 	private void OnUsedPressed()
 	{
-		if (!IsLocalControlled()) return; // Only the local player can interact
-		if (heldObject == null) return;
-
-		var target = GetInteractableLookedAt();
-		//if (target == null)
-		//{
-		//	target = GetEntityLookedAt();
-		//}
-
-		if (target != null && target != heldObject)
-		{
-			UseHeldObjectOnInteractable(target);
-		}
-		else
-		{
-			UseHeldObject();
-		}
+		if (!IsLocalControlled() || heldObject == null) return; // Only the local player can interact
+		UseHeldObject();
 	}
 
 	// Raycast forward from the camera to find what the player is looking at
@@ -231,11 +225,11 @@ public partial class PlayerController : CharacterBody3D
 		Vector3 dir = camera.ProjectRayNormal(center);
 		Vector3 to = origin + dir * interactRange;
 
+		// Raycast in front of player on interact layer
 		var state = GetWorld3D().DirectSpaceState;
 		var query = PhysicsRayQueryParameters3D.Create(origin, to);
 		query.CollisionMask = interactMaskUint;
-		// ignore self so we don't hit our own body
-		query.Exclude = new Godot.Collections.Array<Rid> { GetRid() };
+		query.Exclude = new Array<Rid> { GetRid() }; // ignore self
 
 		var hit = state.IntersectRay(query);
 		return hit;
@@ -304,7 +298,7 @@ public partial class PlayerController : CharacterBody3D
 	//	return null;
 	//}
 
-	// pickup currently held object
+	// pickup currently looked at object, drop current held object if any
 	public void PickupObject(Interactable obj)
 	{
 		if (heldObject != null)
@@ -331,29 +325,44 @@ public partial class PlayerController : CharacterBody3D
 	// Use the held object on itself or on a target
 	public void UseHeldObject()
 	{
-		if (heldObject != null)
+		if (heldObject == null) return;
+
+		//check if looking at another interactable first
+		var target = GetInteractableLookedAt();
+		if (target != null) //target is interactable
 		{
-			heldObject.TryUseSelf(this);
+			heldObject.TryUseOnInteractable(this, target);
 			if (!IsInstanceValid(heldObject) || heldObject.IsQueuedForDeletion())
 			{
 				heldObject = null; // The held object was destroyed during use
 			}
+			return;
 		}
-	}
 
-	// Use the held object on a target interactable
-	public void UseHeldObjectOnInteractable(Interactable target)
-	{
-		if (heldObject != null && target != null)
+		//check if looking at an entity second
+		//if (target == null)
+		//{
+		//	target = GetEntityLookedAt();
+		//}
+		//if (target != null) //target is entity
+		//{
+		//	heldObject.TryUseOnEntity(this, target);
+		//	if (!IsInstanceValid(heldObject) || heldObject.IsQueuedForDeletion())
+		//	{
+		//		heldObject = null; // The held object was destroyed during use
+		//	}
+		//	return;
+		//}
+
+		//use on self if no target found
+		heldObject.TryUseSelf(this);
+		if (!IsInstanceValid(heldObject) || heldObject.IsQueuedForDeletion())
 		{
-			heldObject.TryUseOnInteractable(this, target);
-			if (!IsInstanceValid(heldObject))
-			{
-				heldObject = null; // The held object was destroyed during use
-			}
+			heldObject = null; // The held object was destroyed during use
 		}
 	}
 
+	// Set up a tether anchor point for rope mechanics
 	public void SetTetherAnchor(Node3D anchor, float maxDist, float buffer, float strength)
 	{
 		tetherAnchor = anchor;
@@ -362,33 +371,28 @@ public partial class PlayerController : CharacterBody3D
 		tetherStrength = strength;
 	}
 
+	// Remove the tether anchor
 	public void RemoveTetherAnchor()
 	{
 		tetherAnchor = null;
 	}
 
+	// Apply tethering force to keep player within max distance of the anchor
 	private Vector3 TetherToRopeAnchor(double delta, Vector3 velocity)
 	{
 		Vector3 toPlayer = GlobalTransform.Origin - tetherAnchor.GlobalTransform.Origin;
 		float dist = toPlayer.Length();
 
-		//if player is past max 
+		//if player is past max tether distance, apply force to pull back
 		if (dist > maxTetherDist)
 		{
 			Vector3 outwardVector = toPlayer.Normalized();
 
-			//dont move farther out
-			//float outwardSpeed = velocity.Dot(outwardVector);
-			//if (outwardSpeed > 0f)
-			//{
-			//	velocity -= outwardVector * outwardSpeed;
-			//}
-
-			//pull back toward maxTetherDistance
+			//pull back toward maxTetherDistance with strength based on how far past max
 			float distPastMax = dist - maxTetherDist;
 			velocity += -(outwardVector * (tetherStrength * (float)delta * distPastMax));
 
-			// clamp total dist to maxTetherDist with buffer
+			// clamp total dist to maxTetherDist with buffer, this might be causing jitters
 			if (dist > maxTetherDist + tetherBuffer)
 			{
 				GlobalTransform = new Transform3D(GlobalTransform.Basis, tetherAnchor.GlobalTransform.Origin + outwardVector * (maxTetherDist + tetherBuffer));

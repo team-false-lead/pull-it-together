@@ -1,6 +1,7 @@
 using Godot;
 using System;
 
+/// a proxy object for the rope to follow the player and have object in player inventory
 public partial class RopeProxy : AnimatableBody3D
 {
 	private Node3D slot;

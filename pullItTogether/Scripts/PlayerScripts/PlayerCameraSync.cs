@@ -1,7 +1,7 @@
 using Godot;
 using System;
 
-// Syncs the player's camera to the local player.
+// Syncs the controlled camera to the local player.
 public partial class PlayerCameraSync : Node
 {
     [Export] public Camera3D Camera;
