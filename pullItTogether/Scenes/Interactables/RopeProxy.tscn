@@ -1,0 +1,15 @@
+[gd_scene load_steps=3 format=3 uid="uid://b638mtt6nax88"]
+
+[ext_resource type="Script" uid="uid://bfyns32jk0hyu" path="res://Scripts/InteractableScripts/RopeProxy.cs" id="1_lajga"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_m0n88"]
+
+[node name="RopeProxy" type="AnimatableBody3D"]
+transform = Transform3D(0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1, 0, 0, 0)
+collision_layer = 0
+collision_mask = 0
+script = ExtResource("1_lajga")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("SphereShape3D_m0n88")
+disabled = true

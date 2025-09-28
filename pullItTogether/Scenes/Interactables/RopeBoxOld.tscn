@@ -1,0 +1,162 @@
+[gd_scene load_steps=10 format=3 uid="uid://b8o20cpj7x4mc"]
+
+[ext_resource type="Script" uid="uid://576r8y5ml8oo" path="res://Scripts/InteractableScripts/RopeGrabPoint.cs" id="1_jvpxd"]
+[ext_resource type="PackedScene" uid="uid://b638mtt6nax88" path="res://Scenes/Interactables/RopeProxy.tscn" id="2_6v2tq"]
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_dxh6e"]
+properties/0/path = NodePath(".:position")
+properties/0/spawn = true
+properties/0/replication_mode = 1
+properties/1/path = NodePath("Box:rotation")
+properties/1/spawn = true
+properties/1/replication_mode = 1
+properties/2/path = NodePath("GrabPoint:position")
+properties/2/spawn = true
+properties/2/replication_mode = 1
+properties/3/path = NodePath("rope1:position")
+properties/3/spawn = true
+properties/3/replication_mode = 1
+properties/4/path = NodePath("rope1:rotation")
+properties/4/spawn = true
+properties/4/replication_mode = 1
+properties/5/path = NodePath("rope2:position")
+properties/5/spawn = true
+properties/5/replication_mode = 1
+properties/6/path = NodePath("rope2:rotation")
+properties/6/spawn = true
+properties/6/replication_mode = 1
+properties/7/path = NodePath("rope3:position")
+properties/7/spawn = true
+properties/7/replication_mode = 1
+properties/8/path = NodePath("rope3:rotation")
+properties/8/spawn = true
+properties/8/replication_mode = 1
+properties/9/path = NodePath("rope4:position")
+properties/9/spawn = true
+properties/9/replication_mode = 1
+properties/10/path = NodePath("rope4:rotation")
+properties/10/spawn = true
+properties/10/replication_mode = 1
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_0sswb"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_sopvj"]
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_cpps0"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_dykvq"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_gki2b"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_dxh6e"]
+
+[node name="RopeBox" type="Node3D"]
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
+replication_config = SubResource("SceneReplicationConfig_dxh6e")
+
+[node name="Box" type="RigidBody3D" parent="."]
+collision_layer = 8
+collision_mask = 9
+mass = 500.0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Box"]
+transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, -0.521537)
+shape = SubResource("BoxShape3D_0sswb")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Box"]
+transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, -0.521537)
+mesh = SubResource("BoxMesh_sopvj")
+
+[node name="PinJoint3D" type="Generic6DOFJoint3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.515783)
+node_a = NodePath("../Box")
+node_b = NodePath("../rope1")
+
+[node name="rope1" type="RigidBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.766406)
+collision_layer = 8
+collision_mask = 9
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="rope1"]
+transform = Transform3D(0.25, 0, 0, 0, -1.09278e-08, -0.25, 0, 0.25, -1.09278e-08, 0, 0, 0)
+shape = SubResource("CylinderShape3D_cpps0")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="rope1"]
+transform = Transform3D(0.25, 0, 0, 0, -1.09278e-08, -0.25, 0, 0.25, -1.09278e-08, 0, 0, 0)
+mesh = SubResource("CylinderMesh_dykvq")
+
+[node name="PinJoint3D2" type="Generic6DOFJoint3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1.03116)
+node_a = NodePath("../rope1")
+node_b = NodePath("../rope2")
+
+[node name="rope2" type="RigidBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1.29953)
+collision_layer = 8
+collision_mask = 9
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="rope2"]
+transform = Transform3D(0.25, 0, 0, 0, -1.09278e-08, -0.25, 0, 0.25, -1.09278e-08, 0, 0, 0)
+shape = SubResource("CylinderShape3D_cpps0")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="rope2"]
+transform = Transform3D(0.25, 0, 0, 0, -1.09278e-08, -0.25, 0, 0.25, -1.09278e-08, 0, 0, 0)
+mesh = SubResource("CylinderMesh_dykvq")
+
+[node name="PinJoint3D3" type="Generic6DOFJoint3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1.55747)
+node_a = NodePath("../rope2")
+node_b = NodePath("../rope3")
+
+[node name="rope3" type="RigidBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1.83338)
+collision_layer = 8
+collision_mask = 9
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="rope3"]
+transform = Transform3D(0.25, 0, 0, 0, -1.09278e-08, -0.25, 0, 0.25, -1.09278e-08, 0, 0, 0)
+shape = SubResource("CylinderShape3D_cpps0")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="rope3"]
+transform = Transform3D(0.25, 0, 0, 0, -1.09278e-08, -0.25, 0, 0.25, -1.09278e-08, 0, 0, 0)
+mesh = SubResource("CylinderMesh_dykvq")
+
+[node name="PinJoint3D4" type="Generic6DOFJoint3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 2.09996)
+node_a = NodePath("../rope3")
+node_b = NodePath("../rope4")
+
+[node name="rope4" type="RigidBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 2.36176)
+collision_layer = 8
+collision_mask = 9
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="rope4"]
+transform = Transform3D(0.25, 0, 0, 0, -1.09278e-08, -0.25, 0, 0.25, -1.09278e-08, 0, 0, 0)
+shape = SubResource("CylinderShape3D_cpps0")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="rope4"]
+transform = Transform3D(0.25, 0, 0, 0, -1.09278e-08, -0.25, 0, 0.25, -1.09278e-08, 0, 0, 0)
+mesh = SubResource("CylinderMesh_dykvq")
+
+[node name="PinJoint3D5" type="Generic6DOFJoint3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 2.6173)
+node_a = NodePath("../rope4")
+node_b = NodePath("../GrabPoint")
+
+[node name="GrabPoint" type="RigidBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 2.74382)
+collision_layer = 8
+collision_mask = 9
+script = ExtResource("1_jvpxd")
+ropeProxyScene = ExtResource("2_6v2tq")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GrabPoint"]
+transform = Transform3D(0.25, 0, 0, 0, 0.25, 0, 0, 0, 0.25, 0, 0, 0)
+mesh = SubResource("SphereMesh_gki2b")
+skeleton = NodePath("")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GrabPoint"]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, 0)
+shape = SubResource("SphereShape3D_dxh6e")

@@ -1,0 +1,84 @@
+extends Node
+class_name MapManager
+
+@export var level : PackedScene
+#@export var container_path : NodePath
+@export var interactables_node = null
+
+var current_map: Node = null
+var _spawner: Node = null
+var _loading := false
+
+
+func load_map() -> Node:
+	if _loading:
+		return current_map
+	_loading = true
+	
+	#var parent := get_node_or_null(container_path)
+	#if parent == null: 
+	#parent = self
+
+	#var scene: PackedScene = level
+	if level == null:
+		push_error("MapManager: no map assigned")
+		_loading = false
+		return null
+
+	if current_map and is_instance_valid(current_map):
+		current_map.queue_free()
+		current_map = null
+		for c in self.get_children():
+			c.queue_free()
+		await get_tree().process_frame
+		#_spawner = null
+
+	current_map = level.instantiate()
+	current_map.name = "LevelInstance"
+	self.add_child(current_map)
+	interactables_node = current_map.get_node_or_null("%Interactables")
+	if interactables_node == null:
+		interactables_node = current_map
+
+	await get_tree().process_frame
+	
+	_spawner = _find_spawner(current_map)
+	if _spawner == null:
+		push_error("MapManager: PlayerSpawner not found in loaded level.")
+		
+	_loading = false
+	return current_map
+
+func _find_spawner(root: Node) -> Node:
+	var n := root.find_child("PlayerSpawner", true, false)
+	if n: return n
+	for node in get_tree().get_nodes_in_group("player_spawner"):
+		if root.is_ancestor_of(node):
+			return node
+	for c in root.get_children():
+		if c is MultiplayerSpawner or c.get_class() == "PlayerSpawner":
+			return c
+		var deep := _find_spawner(c)
+		if deep: return deep
+	return null
+
+# Only the host should spawn; defer until ready.
+func spawn_player(peer_id: int) -> void:
+	if not multiplayer.is_server():
+		return
+	var tries := 0
+	while (_spawner == null or not _spawner.is_inside_tree() or not multiplayer.has_multiplayer_peer()) and tries < 60:
+		await get_tree().process_frame
+		if _spawner == null and current_map:
+			_spawner = _find_spawner(current_map)
+		tries += 1
+	if _spawner and _spawner.has_method("spawn"):
+		_spawner.spawn(peer_id)
+
+func despawn_player(peer_id: int) -> void:
+	if not multiplayer.is_server():
+		return
+	if _spawner and _spawner.is_inside_tree() and _spawner.has_method("despawn_player"):
+		_spawner.despawn_player(peer_id)
+	else:
+		push_warning("MapManager: despawn_player() called but spawner not ready")
