@@ -11,6 +11,7 @@ public partial class RopeProxy : AnimatableBody3D
 	{
 		SyncToPhysics = true;
 		slot = GetParent<Node3D>();
+		TopLevel = true;
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.

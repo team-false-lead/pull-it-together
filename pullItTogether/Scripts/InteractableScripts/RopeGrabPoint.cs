@@ -20,23 +20,90 @@ public partial class RopeGrabPoint : Interactable
     private AnimatableBody3D proxy;
     private bool isHeld = false;
 
+    public override void _Ready()
+    {
+        if (resetPoint != null)
+        {
+            GlobalTransform = resetPoint.GlobalTransform;
+        }
+        savedLayer = CollisionLayer;
+        savedMask = CollisionMask;
+
+        Freeze = true; // start frozen
+        GravityScale = 0;
+
+        joint.EndBody = this;
+        joint.EndCustomLocation = this;
+        CallDeferred(nameof(DeferredResetJoint));
+        GD.Print(joint.EndBody);
+    }
+
     public override void _PhysicsProcess(double delta)
     {
         // if held, follow the proxy in the inventory slot
-        if (isHeld && IsInstanceValid(proxy))
+        if (!isHeld && resetPoint != null)
         {
-            Freeze = true;
-            LinearVelocity = Vector3.Zero;
-            AngularVelocity = Vector3.Zero;
-            GlobalTransform = proxy.GlobalTransform;
-        }
-        // if not held and has a reset point, go back to it
-        else if (Carrier == null && resetPoint != null)
-        {
-            Freeze = true;
-            LinearVelocity = Vector3.Zero;
-            AngularVelocity = Vector3.Zero;
             GlobalTransform = resetPoint.GlobalTransform;
+            Freeze = true;
+            GravityScale = 0;
+        }
+    }
+
+    public void AttachToProxy(Node3D proxyNode, CharacterBody3D carrier)
+    {
+        proxy = proxyNode as AnimatableBody3D;
+
+        if (joint != null && proxy != null)
+        {
+            joint.EndBody = proxy;
+            joint.EndCustomLocation = proxy;
+            CallDeferred(nameof(DeferredResetJoint));
+        }
+
+        savedRopeLayer = rope.CollisionLayer;
+        savedRopeMask = rope.CollisionMask;
+        CollisionLayer = 0; // disable self collisions
+        CollisionMask = 0;
+
+        PlayerController carrierScript = carrier as PlayerController;
+        uint carrierLayerBit = carrierScript.collisionPusher.CollisionLayer;
+        //rope.CollisionLayer = 0;
+        rope.CollisionMask = savedRopeMask & ~carrierLayerBit & ~savedLayer; // drop player
+
+        carrierScript.SetTetherAnchor(joint.StartCustomLocation, rope.RopeLength, carrierTetherBuffer, carrierTetherStrength);
+        isHeld = true;
+        Carrier = carrier;
+    }
+
+    public void DetachFromProxy()
+    {
+        joint.EndBody = this;
+        joint.EndCustomLocation = this;
+        CallDeferred(nameof(DeferredResetJoint));
+
+        // Restore collision setting
+        rope.CollisionMask = savedRopeMask;
+        rope.CollisionLayer = savedRopeLayer;
+        CollisionLayer = savedLayer;
+        CollisionMask = savedMask;
+
+        PlayerController carrierScript = Carrier as PlayerController;
+        carrierScript.RemoveTetherAnchor();
+
+        isHeld = false;
+        Carrier = null;
+
+        if (resetPoint != null)
+        {
+            GlobalTransform = resetPoint.GlobalTransform;
+        }
+    }
+
+    private void DeferredResetJoint()
+    {
+        if (joint != null)
+        {
+            joint.ResetJoint();
         }
     }
 
@@ -46,72 +113,45 @@ public partial class RopeGrabPoint : Interactable
         if (Carrier != null || !CanBeCarried() || ropeProxyScene == null)
             return false;
 
-        var slot = carrier.GetNode<Node3D>("%InventorySlot1");
-        if (slot == null) return false;
+        if (itemManager == null) InitReferences();
+        if (multiplayerActive)
+        {
+            var error = itemManager.Rpc(nameof(ItemManager.RequestHoldRope), GetPath(), ropeProxyScene.ResourcePath);
+            if (error != Error.Ok)
+            {
+                GD.PrintErr("RopeGrabPoint: Failed to request item hold via RPC. Error: " + error);
+                return false;
+            }
+        }
+        else
+        {
+            itemManager.DoHoldRope(GetPath(), ropeProxyScene.ResourcePath, GetTree().GetMultiplayer().GetUniqueId());
+        }
 
-        // create proxy and attach to player slot
-        proxy = ropeProxyScene.Instantiate<AnimatableBody3D>();
-        slot.AddChild(proxy);
-        proxy.Transform = Transform3D.Identity;
-        proxy.SyncToPhysics = true;
-
-        // attach rope joint to proxy
-        joint.EndBody = proxy;
-        joint.EndCustomLocation = proxy;
-        joint.ResetJoint();
-
-        // disable collisions between player and rope/grab point while carrying
-        savedMask = CollisionMask;
-        savedLayer = CollisionLayer;
-        CollisionLayer = 0;
-        CollisionMask = 0;
-
-        PlayerController carrierScript = carrier as PlayerController;
-
-        // disable collisions between player and rope while carrying
-        savedRopeLayer = rope.CollisionLayer;
-        savedRopeMask = rope.CollisionMask;
-        uint carrierLayerBit = carrierScript.collisionPusher.CollisionLayer;
-        rope.CollisionLayer = 0;
-        rope.CollisionMask = savedRopeMask & ~carrierLayerBit; // drop player collision but keep world and object
-
-        isHeld = true;
-        Carrier = carrier;
-        carrierScript.SetTetherAnchor(joint.StartCustomLocation, rope.RopeLength, carrierTetherBuffer, carrierTetherStrength);
         return true;
     }
 
     // override drop to remove proxy and re-enable collisions
-    public override void Drop(CharacterBody3D carrier)
+    public override bool TryDrop(CharacterBody3D carrier)
     {
-        if (Carrier != carrier) return;
+        if (Carrier != carrier) return false;
 
-        // detach rope joint from proxy and reattach to self
-        joint.EndBody = this;
-        joint.EndCustomLocation = this;
-        joint.ResetJoint();
-
-        // remove and free proxy
-        if (IsInstanceValid(proxy))
+        if (itemManager == null) InitReferences();
+        if (multiplayerActive)
         {
-            proxy.GetParent().RemoveChild(proxy);
-            proxy.QueueFree();
+            var error = itemManager.Rpc(nameof(ItemManager.RequestReleaseRope), GetPath());
+            if (error != Error.Ok)
+            {
+                GD.PrintErr("RopeGrabPoint: Failed to request rope release via RPC. Error: " + error);
+                return false;
+            }
         }
-        proxy = null;
+        else
+        {
+            itemManager.DoReleaseRope(GetPath());
+        }
 
-        if (resetPoint != null)
-            GlobalTransform = resetPoint.GlobalTransform;
-
-        // Restore collision settings
-        CollisionMask = savedMask; 
-        CollisionLayer = savedLayer; 
-        rope.CollisionMask = savedRopeMask;
-        rope.CollisionLayer = savedRopeLayer;
-
-        isHeld = false;
-        PlayerController carrierScript = carrier as PlayerController;
-        carrierScript.RemoveTetherAnchor();
-        Carrier = null;
+        return true;
     }
 
     public override void TryUseSelf(CharacterBody3D user)

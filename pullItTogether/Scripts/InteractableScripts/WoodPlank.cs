@@ -12,11 +12,28 @@ public partial class WoodPlank : Interactable
         if (campfireScene == null) return;
 
         // Spawn campfire at drop position
-        var interactablesNode = InitWorldInteractablesNode(user);
-        var spawnedCampfire = campfireScene.Instantiate<Node3D>();
+        //var interactablesNode = InitWorldInteractablesNode(user);
+        //var spawnedCampfire = campfireScene.Instantiate<Node3D>();
+        Vector3 dropPosition = GetDropPosition(user);
+        String campfireScenePath = campfireScene.ResourcePath;
 
-        spawnedCampfire.Position = GetDropPosition(user);
-        interactablesNode.AddChild(spawnedCampfire);
+        if (multiplayerActive)
+        {
+            var error = itemManager.Rpc(nameof(ItemManager.RequestSpawnItem), campfireScenePath, dropPosition);
+            if (error != Error.Ok)
+            {
+                GD.PrintErr("WoodPlank: Failed to request campfire spawn via RPC. Error: " + error);
+                return;
+            }
+        }
+        else
+        {
+            itemManager.RequestSpawnItem(campfireScenePath, dropPosition);
+        }
+        
+
+        // spawnedCampfire.Position = GetDropPosition(user);
+        //interactablesNode.AddChild(spawnedCampfire);
         QueueFree(); // Remove the plank after use
     }
 

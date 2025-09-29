@@ -4,9 +4,11 @@ using System;
 /// Interactable is the base class for all objects that can be picked up, dropped, and interacted with by the player.
 public abstract partial class Interactable : RigidBody3D
 {
-    protected uint savedLayer, savedMask;
+    public uint savedLayer, savedMask;
     protected Node mapManager;
-    protected Node3D worldInteractables;
+    protected bool multiplayerActive; 
+    protected Node3D levelInteractablesNode;
+    protected ItemManager itemManager;
     public virtual bool CanBeCarried() { return true; }
     public CharacterBody3D Carrier { get; set; } = null;
 
@@ -15,61 +17,71 @@ public abstract partial class Interactable : RigidBody3D
     {
         if (Carrier != null || !CanBeCarried()) return false;
 
-        // Disable physics
-        Freeze = true;
-        GravityScale = 0;
-        LinearVelocity = Vector3.Zero;
-        AngularVelocity = Vector3.Zero;
+        if (itemManager == null) InitReferences();
+        if (multiplayerActive)
+        {
+            var error = itemManager.Rpc(nameof(ItemManager.RequestPickupItem), GetPath());
+            if (error != Error.Ok)
+            {
+                GD.PrintErr("Interactable: Failed to request item pickup via RPC. Error: " + error);
+                return false;
+            }
+        }
+        else
+        {
+            itemManager.DoPickupItem(GetPath(), GetTree().GetMultiplayer().GetUniqueId());
+        }
+        
 
-        // Attach to the carrier's inventory slot
-        var slot = carrier.GetNode<Node3D>("%InventorySlot1");
-        GetParent<Node3D>().RemoveChild(this); // Remove from current parent
-        slot.AddChild(this); // Add to the carrier
-
-        TopLevel = false; // Make non-top-level to inherit carrier's transform
-        Position = Vector3.Zero;
-        Rotation = Vector3.Zero;
-        Scale = Vector3.One * (1 / GetParent<Node3D>().Scale.X); // Reset scale relative to carrier
-
-        // Save and disable collisions
-        savedMask = CollisionMask;
-        savedLayer = CollisionLayer;
-        CollisionLayer = 0;
-        CollisionMask = 0;
+        //host handles held logic
 
         Carrier = carrier;
         return true;
     }
 
     // Drop the object from the carrier
-    public virtual void Drop(CharacterBody3D carrier)
+    public virtual bool TryDrop(CharacterBody3D carrier)
     {
-        if (Carrier != carrier) return;
+        if (Carrier != carrier) return false;
 
-        GetParent<Node3D>().RemoveChild(this); // Remove from current parent
-        // Reattach to world interactables node
-        if (worldInteractables == null) worldInteractables = InitWorldInteractablesNode(carrier);
-        worldInteractables.AddChild(this);
-
-        // Place in front of the carrier
         Vector3 dropPosition = GetDropPosition(carrier);
-        GlobalTransform = new Transform3D(GlobalTransform.Basis, dropPosition); // Set position in the world
 
-        // Re-enable physics and collisions
-        TopLevel = true; // Make top-level to have independent transform
-        Freeze = false; // Re-enable physics interactions
-        GravityScale = 1;
-        CollisionMask = savedMask;
-        CollisionLayer = savedLayer;
+        if (itemManager == null) InitReferences();
+        if (multiplayerActive)
+        {
+            var error = itemManager.Rpc(nameof(ItemManager.RequestDropItem), GetPath(), dropPosition);
+            if (error != Error.Ok)
+            {
+                GD.PrintErr("Interactable: Failed to request item drop via RPC. Error: " + error);
+                return false;
+            }
+        }
+        else
+        {
+            itemManager.DoDropItem(GetPath(), dropPosition);
+        }
+
+        //host handles drop logic
 
         Carrier = null;
+        return true;
     }
 
     // Find the world interactables node to reattach to when dropped
-    protected Node3D InitWorldInteractablesNode(CharacterBody3D carrier)
+    protected void InitReferences()
     {
-        mapManager = carrier.GetTree().CurrentScene.GetNodeOrNull<Node>("%MapManager");
-        return mapManager != null ? mapManager.Get("interactables_node").As<Node3D>() : GetTree().CurrentScene as Node3D;
+        mapManager = GetTree().CurrentScene.GetNodeOrNull<Node>("%MapManager");
+        if (mapManager != null)
+        {
+            //levelInstance = mapManager.Get("level_instance").As<Node3D>();
+            levelInteractablesNode = mapManager.Get("interactables_node").As<Node3D>();
+            itemManager = levelInteractablesNode as ItemManager;
+            multiplayerActive = itemManager != null && mapManager.Get("is_multiplayer_session").As<bool>() && GetTree().GetMultiplayer().HasMultiplayerPeer();
+        }
+        else
+        {
+            GD.PrintErr("Interactable: MapManager not found in scene tree!");
+        }
     }
 
     // Calculate a safe drop position in front of the carrier

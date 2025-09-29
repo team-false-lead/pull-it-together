@@ -1,18 +1,26 @@
 extends Node
 class_name MapManager
 
-@export var level : PackedScene
+@export var game_manager: Node
+@export var level_scene : PackedScene
 #@export var container_path : NodePath
 @export var interactables_node = null
 
-var current_map: Node = null
+@export var level_instance: Node = null
 var _spawner: Node = null
 var _loading := false
 
+var is_multiplayer_session: bool = true
 
+func _ready() -> void:
+	game_manager.connect("singleplayer_session_started", Callable(self, "_set_multiplayer_false"))
+
+func _set_multiplayer_false() -> void:
+	is_multiplayer_session = false
+	
 func load_map() -> Node:
 	if _loading:
-		return current_map
+		return level_instance
 	_loading = true
 	
 	#var parent := get_node_or_null(container_path)
@@ -20,34 +28,34 @@ func load_map() -> Node:
 	#parent = self
 
 	#var scene: PackedScene = level
-	if level == null:
+	if level_scene == null:
 		push_error("MapManager: no map assigned")
 		_loading = false
 		return null
 
-	if current_map and is_instance_valid(current_map):
-		current_map.queue_free()
-		current_map = null
+	if level_instance and is_instance_valid(level_instance):
+		level_instance.queue_free()
+		level_instance = null
 		for c in self.get_children():
 			c.queue_free()
 		await get_tree().process_frame
 		#_spawner = null
 
-	current_map = level.instantiate()
-	current_map.name = "LevelInstance"
-	self.add_child(current_map)
-	interactables_node = current_map.get_node_or_null("%Interactables")
+	level_instance = level_scene.instantiate()
+	level_instance.name = "LevelInstance"
+	self.add_child(level_instance)
+	interactables_node = level_instance.get_node_or_null("%Interactables")
 	if interactables_node == null:
-		interactables_node = current_map
+		interactables_node = level_instance
 
 	await get_tree().process_frame
 	
-	_spawner = _find_spawner(current_map)
+	_spawner = _find_spawner(level_instance)
 	if _spawner == null:
 		push_error("MapManager: PlayerSpawner not found in loaded level.")
 		
 	_loading = false
-	return current_map
+	return level_instance
 
 func _find_spawner(root: Node) -> Node:
 	var n := root.find_child("PlayerSpawner", true, false)
@@ -69,8 +77,8 @@ func spawn_player(peer_id: int) -> void:
 	var tries := 0
 	while (_spawner == null or not _spawner.is_inside_tree() or not multiplayer.has_multiplayer_peer()) and tries < 60:
 		await get_tree().process_frame
-		if _spawner == null and current_map:
-			_spawner = _find_spawner(current_map)
+		if _spawner == null and level_instance:
+			_spawner = _find_spawner(level_instance)
 		tries += 1
 	if _spawner and _spawner.has_method("spawn"):
 		_spawner.spawn(peer_id)

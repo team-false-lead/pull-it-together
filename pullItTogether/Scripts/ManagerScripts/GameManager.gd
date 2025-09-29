@@ -4,6 +4,7 @@ class_name GameManager
 ## P2P transport via Expresso Bits (SteamMultiplayerPeer)
 ## lobby discovery via GodotSteam (if installed)
 
+signal singleplayer_session_started()
 # ---------- Scene References ----------
 # need to clean this up and get rid of not used, etc.
 @export var network_manager: Node
@@ -35,6 +36,8 @@ class_name GameManager
 @export var manual_join_button: Button
 
 # ---------- Config ----------
+@export var lobby_prefix: String = "Pull It Together "
+var user_friendly_name: String
 @export var default_addr: String = "127.0.0.1"
 @export var default_port: int = 2450
 @export var default_max_players: int = 4
@@ -61,6 +64,7 @@ func _ready() -> void:
 	_try_init_godotsteam()
 	if _steam_ok:
 		_connect_gs_signals() 
+	randomize()
 	
 	print("Has GodotSteam:", Engine.has_singleton("Steam"))
 	print("Has SteamMultiplayerPeer class:", ClassDB.class_exists("SteamMultiplayerPeer"))
@@ -142,6 +146,7 @@ func _on_single_player_pressed() -> void:
 	if map_manager and map_manager.has_method("load_map"):
 		map_manager.call("load_map")
 	if main_canvas: main_canvas.hide()
+	emit_signal("singleplayer_session_started")
 
 # ---------- Local Network flow ----------
 func _on_local_host_pressed() -> void:
@@ -189,6 +194,10 @@ func _connect_gs_signals() -> void:
 		GS.connect("lobby_data_update", Callable(self, "_on_gs_lobby_data_update"))
 	_gs_signals_connected = true
 
+func _gen_lobby_name() -> String:
+	var room_id := randi_range(0, 9999)
+	return "%s %04d" % [lobby_prefix, room_id]
+
 func create_steam_lobby() -> void:
 	if not _steam_ok:
 		push_error("Steam not initialized; cannot create lobby.")
@@ -230,7 +239,7 @@ func join_steam_lobby(host_steam_id_64: int) -> void:
 
 # GodotSteam signal handlers
 func _on_gs_lobby_created(a, b) -> void:
-	print("[Steam] lobby_created:", a, b)
+	print("[Steam] lobby_created: ", a, b)
 	# Determine param order (result vs lobby_id) safely
 	var lobby_id := 0
 	var result := 0
@@ -250,6 +259,10 @@ func _on_gs_lobby_created(a, b) -> void:
 	GS.setLobbyData(lobby_id, "host_id64", str(my_id64))
 	GS.setLobbyJoinable(lobby_id, true)
 
+	user_friendly_name = _gen_lobby_name()
+	print("[Steam] lobby_name: ", user_friendly_name)
+	GS.setLobbyData(lobby_id, "name", user_friendly_name)
+	
 	# Start P2P transport
 	if not network_manager:
 		push_error("NetworkManager not assigned"); return
@@ -263,10 +276,16 @@ func _on_gs_lobby_match_list(lobbies: Array) -> void:
 	if not _has_gs(): return
 	var GS = _gs()
 	var out: Array = []
+	var prefix : String = lobby_prefix.to_lower()
+	
 	for lobby_id in lobbies:
 		var lobby_name: String = GS.getLobbyData(lobby_id, "name")
 		if lobby_name == "":
 			lobby_name = "Lobby %s" % lobby_id
+		
+		if lobby_name.to_lower().find(prefix) == -1:
+			continue
+		
 		var host_str: String = GS.getLobbyData(lobby_id, "host_id64")
 		if host_str == "":
 			host_str = str(GS.getLobbyOwner(lobby_id))
