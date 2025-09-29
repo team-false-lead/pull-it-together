@@ -266,7 +266,7 @@ public partial class PlayerController : CharacterBody3D
 	{
 		while (node != null)
 		{
-			if (node is Interactable interactable)
+			if (node is Interactable interactable && !string.IsNullOrEmpty(interactable.interactableId))
 				return interactable;
 			node = node.GetParent();
 		}

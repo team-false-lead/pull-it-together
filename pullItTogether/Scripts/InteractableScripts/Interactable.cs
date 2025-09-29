@@ -4,7 +4,7 @@ using System;
 /// Interactable is the base class for all objects that can be picked up, dropped, and interacted with by the player.
 public abstract partial class Interactable : RigidBody3D
 {
-    public string interactableId { get; set; } = "";
+    [Export]public string interactableId { get; set; } = "";
     public string GetInteractableId() => string.IsNullOrEmpty(interactableId) ? Name : interactableId;
     public uint savedLayer, savedMask;
     protected Node mapManager;

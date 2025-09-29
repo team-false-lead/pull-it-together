@@ -61,6 +61,7 @@ public partial class ItemManager : Node3D
 			var instance = scene.Instantiate<Node3D>();
 			this.AddChild(instance, true);
 			instance.GlobalTransform = placeholder.GlobalTransform;
+			instance.SetOwner(GetTree().CurrentScene); // Ensure the instance is owned by the current scene
 
 			if (instance is Interactable item)
 			{
@@ -105,8 +106,8 @@ public partial class ItemManager : Node3D
 
 	private Interactable FindInteractableById(string id)
 	{
-		if (!multiplayer.IsServer()) return null;
-
+		//if (!multiplayer.IsServer()) return null; //already should be server if calling
+		if (string.IsNullOrEmpty(id)) { GD.Print("ItemManager: Invalid ID"); return null; }
 		if (interactables.TryGetValue(id, out var item))
 		{
 			if (IsInstanceValid(item))
@@ -159,6 +160,7 @@ public partial class ItemManager : Node3D
 		if (itemScene == null) { GD.Print("Item scene null"); return; }
 
 		var instance = itemScene.Instantiate<RigidBody3D>();
+		instance.SetOwner(GetTree().CurrentScene); // Ensure the instance is owned by the current scene
 
 		if (instance != null)
 		{
