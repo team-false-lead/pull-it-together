@@ -8,6 +8,7 @@ public partial class TransitionArea : Area3D
 
     private void OnBodyEntered(Node3D node)
     {
-        label.Text = "Your did it :)";    
+        label.Text = "Your did it :)";
+        GetTree().CallDeferred("change_scene_to_file", "res://Scenes/TestMap.tscn"); // No clue if this messes with the multiplayer stuff
     }
 }
