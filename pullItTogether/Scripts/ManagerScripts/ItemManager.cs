@@ -86,9 +86,8 @@ public partial class ItemManager : Node3D
 	{
 		if (string.IsNullOrEmpty(item.interactableId))
 		{
-			String id = $"{item.Name}_{Guid.NewGuid():N}"; // Generate unique ID
-			item.interactableId = id;
-			item.Name = id;
+			item.interactableId = $"{item.Name}_{Guid.NewGuid():N}"; // Generate unique ID
+			//item.Name = id; // breaks peer-to-peer?
 		}
 
 		interactables[item.interactableId] = item;
@@ -355,6 +354,7 @@ public partial class ItemManager : Node3D
 
 		proxyScript.isTweening = false;
 		proxy.Reparent(slot, keepGlobalTransform: false);
+		ropeProxyByItem[item.interactableId] = proxy.GetPath();
 		//slot.AddChild(proxy, true); // Add to carrier's inventory slot
 		proxy.TopLevel = true;
 		proxy.Transform = Transform3D.Identity;
