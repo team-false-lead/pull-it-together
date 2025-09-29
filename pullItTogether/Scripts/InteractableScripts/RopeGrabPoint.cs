@@ -49,9 +49,33 @@ public partial class RopeGrabPoint : Interactable
         }
     }
 
-    public void AttachToProxy(Node3D proxyNode, CharacterBody3D carrier)
+    public void AttachToProxyPrep(Node3D proxyNode, CharacterBody3D carrier)
     {
         proxy = proxyNode as AnimatableBody3D;
+
+        savedRopeLayer = rope.CollisionLayer;
+        savedRopeMask = rope.CollisionMask;
+        CollisionLayer = 0; // disable collisions
+        CollisionMask = 0;
+
+        Visible = false;
+        Freeze = true;
+        GravityScale = 0;
+
+
+        PlayerController carrierScript = carrier as PlayerController;
+        uint carrierLayerBit = carrierScript.collisionPusher.CollisionLayer;
+        //rope.CollisionLayer = 0;
+        rope.CollisionMask = savedRopeMask & ~carrierLayerBit & ~savedLayer; // drop player and self from rope collisions
+        carrierScript.SetTetherAnchor(joint.StartCustomLocation, rope.RopeLength, carrierTetherBuffer, carrierTetherStrength);
+
+        Carrier = carrier;
+        isHeld = true;
+    }
+
+    public void AttachToProxy(AnimatableBody3D proxyNode)
+    {
+        proxy = proxyNode;
 
         if (joint != null && proxy != null)
         {
@@ -59,20 +83,6 @@ public partial class RopeGrabPoint : Interactable
             joint.EndCustomLocation = proxy;
             CallDeferred(nameof(DeferredResetJoint));
         }
-
-        savedRopeLayer = rope.CollisionLayer;
-        savedRopeMask = rope.CollisionMask;
-        CollisionLayer = 0; // disable self collisions
-        CollisionMask = 0;
-
-        PlayerController carrierScript = carrier as PlayerController;
-        uint carrierLayerBit = carrierScript.collisionPusher.CollisionLayer;
-        //rope.CollisionLayer = 0;
-        rope.CollisionMask = savedRopeMask & ~carrierLayerBit & ~savedLayer; // drop player
-
-        carrierScript.SetTetherAnchor(joint.StartCustomLocation, rope.RopeLength, carrierTetherBuffer, carrierTetherStrength);
-        isHeld = true;
-        Carrier = carrier;
     }
 
     public void DetachFromProxy()
@@ -87,16 +97,19 @@ public partial class RopeGrabPoint : Interactable
         CollisionLayer = savedLayer;
         CollisionMask = savedMask;
 
+        Visible = true;
+        Freeze = true;
+        GravityScale = 0;
+        if (resetPoint != null)
+        {
+            GlobalTransform = resetPoint.GlobalTransform;
+        }
+
         PlayerController carrierScript = Carrier as PlayerController;
         carrierScript.RemoveTetherAnchor();
 
         isHeld = false;
         Carrier = null;
-
-        if (resetPoint != null)
-        {
-            GlobalTransform = resetPoint.GlobalTransform;
-        }
     }
 
     private void DeferredResetJoint()
@@ -114,9 +127,10 @@ public partial class RopeGrabPoint : Interactable
             return false;
 
         if (itemManager == null) InitReferences();
-        if (multiplayerActive)
+        var id = GetInteractableId();
+        if (multiplayerActive && !multiplayer.IsServer())
         {
-            var error = itemManager.Rpc(nameof(ItemManager.RequestHoldRope), GetPath(), ropeProxyScene.ResourcePath);
+            var error = itemManager.RpcId(1, nameof(ItemManager.RequestHoldRope), id, ropeProxyScene.ResourcePath);
             if (error != Error.Ok)
             {
                 GD.PrintErr("RopeGrabPoint: Failed to request item hold via RPC. Error: " + error);
@@ -125,7 +139,7 @@ public partial class RopeGrabPoint : Interactable
         }
         else
         {
-            itemManager.DoHoldRope(GetPath(), ropeProxyScene.ResourcePath, GetTree().GetMultiplayer().GetUniqueId());
+            var execute = itemManager.DoHoldRope(id, ropeProxyScene.ResourcePath, multiplayer.GetUniqueId());
         }
 
         return true;
@@ -137,9 +151,10 @@ public partial class RopeGrabPoint : Interactable
         if (Carrier != carrier) return false;
 
         if (itemManager == null) InitReferences();
-        if (multiplayerActive)
+        var id = GetInteractableId();
+        if (multiplayerActive && !multiplayer.IsServer())
         {
-            var error = itemManager.Rpc(nameof(ItemManager.RequestReleaseRope), GetPath());
+            var error = itemManager.RpcId(1, nameof(ItemManager.RequestReleaseRope), id);
             if (error != Error.Ok)
             {
                 GD.PrintErr("RopeGrabPoint: Failed to request rope release via RPC. Error: " + error);
@@ -148,7 +163,7 @@ public partial class RopeGrabPoint : Interactable
         }
         else
         {
-            itemManager.DoReleaseRope(GetPath());
+            itemManager.DoReleaseRope(id);
         }
 
         return true;

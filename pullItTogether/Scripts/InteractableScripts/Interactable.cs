@@ -4,9 +4,12 @@ using System;
 /// Interactable is the base class for all objects that can be picked up, dropped, and interacted with by the player.
 public abstract partial class Interactable : RigidBody3D
 {
+    public string interactableId { get; set; } = "";
+    public string GetInteractableId() => string.IsNullOrEmpty(interactableId) ? Name : interactableId;
     public uint savedLayer, savedMask;
     protected Node mapManager;
     protected bool multiplayerActive; 
+    protected MultiplayerApi multiplayer => GetTree().GetMultiplayer();
     protected Node3D levelInteractablesNode;
     protected ItemManager itemManager;
     public virtual bool CanBeCarried() { return true; }
@@ -18,9 +21,12 @@ public abstract partial class Interactable : RigidBody3D
         if (Carrier != null || !CanBeCarried()) return false;
 
         if (itemManager == null) InitReferences();
-        if (multiplayerActive)
+        var id = GetInteractableId();
+        
+        if (multiplayerActive && !multiplayer.IsServer())
         {
-            var error = itemManager.Rpc(nameof(ItemManager.RequestPickupItem), GetPath());
+            var error = itemManager.RpcId(1, nameof(ItemManager.RequestPickupItem), id);
+            GD.Print("Rpc error: " + error);
             if (error != Error.Ok)
             {
                 GD.PrintErr("Interactable: Failed to request item pickup via RPC. Error: " + error);
@@ -29,7 +35,7 @@ public abstract partial class Interactable : RigidBody3D
         }
         else
         {
-            itemManager.DoPickupItem(GetPath(), GetTree().GetMultiplayer().GetUniqueId());
+            itemManager.DoPickupItem(id, multiplayer.GetUniqueId());
         }
         
 
@@ -47,9 +53,11 @@ public abstract partial class Interactable : RigidBody3D
         Vector3 dropPosition = GetDropPosition(carrier);
 
         if (itemManager == null) InitReferences();
-        if (multiplayerActive)
+
+        var id = GetInteractableId();
+        if (multiplayerActive && !multiplayer.IsServer())
         {
-            var error = itemManager.Rpc(nameof(ItemManager.RequestDropItem), GetPath(), dropPosition);
+            var error = itemManager.RpcId(1, nameof(ItemManager.RequestDropItem), id, dropPosition);
             if (error != Error.Ok)
             {
                 GD.PrintErr("Interactable: Failed to request item drop via RPC. Error: " + error);
@@ -58,7 +66,7 @@ public abstract partial class Interactable : RigidBody3D
         }
         else
         {
-            itemManager.DoDropItem(GetPath(), dropPosition);
+            itemManager.DoDropItem(id, dropPosition);
         }
 
         //host handles drop logic

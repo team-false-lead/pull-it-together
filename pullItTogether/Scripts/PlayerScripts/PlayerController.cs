@@ -187,7 +187,7 @@ public partial class PlayerController : CharacterBody3D
 			var target = GetInteractableLookedAt();
 			if (target != null)
 			{
-				GD.Print(target.ToString());
+				//GD.Print(target.ToString());
 				PickupObject(target);
 			}
 		}

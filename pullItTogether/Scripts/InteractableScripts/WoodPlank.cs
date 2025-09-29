@@ -17,9 +17,9 @@ public partial class WoodPlank : Interactable
         Vector3 dropPosition = GetDropPosition(user);
         String campfireScenePath = campfireScene.ResourcePath;
 
-        if (multiplayerActive)
+        if (multiplayerActive && !multiplayer.IsServer())
         {
-            var error = itemManager.Rpc(nameof(ItemManager.RequestSpawnItem), campfireScenePath, dropPosition);
+            var error = itemManager.RpcId(1, nameof(ItemManager.RequestSpawnItem), campfireScenePath, dropPosition);
             if (error != Error.Ok)
             {
                 GD.PrintErr("WoodPlank: Failed to request campfire spawn via RPC. Error: " + error);
