@@ -1,10 +1,11 @@
-[gd_scene load_steps=15 format=3 uid="uid://b7pp3skomvnhc"]
+[gd_scene load_steps=16 format=3 uid="uid://b7pp3skomvnhc"]
 
 [ext_resource type="Script" uid="uid://wudugmq7kbma" path="res://Scripts/ManagerScripts/PlayerSpawnManager.gd" id="1_k5f4k"]
 [ext_resource type="PackedScene" uid="uid://ckpgu08xdcwp4" path="res://Scenes/Player.tscn" id="2_k5f4k"]
 [ext_resource type="PackedScene" uid="uid://c10ybnoe2rhv4" path="res://Scenes/Interactables/RopeBoxVerlet.tscn" id="3_0314m"]
 [ext_resource type="PackedScene" uid="uid://b8o20cpj7x4mc" path="res://Scenes/Interactables/RopeBoxOld.tscn" id="3_n6t57"]
 [ext_resource type="PackedScene" uid="uid://ba3m0401u3th5" path="res://Scenes/Interactables/WoodPlank.tscn" id="4_qg828"]
+[ext_resource type="PackedScene" uid="uid://bvt7lytmjd00f" path="res://Scenes/Interactables/WagonTest1.tscn" id="6_00jar"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_okv1i"]
 transparency = 1
@@ -114,3 +115,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.76184, 4.37407, 1.78256)
 
 [node name="PlayersContainer" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.90816, 0)
+
+[node name="RopeBoxVerlet" parent="." instance=ExtResource("6_00jar")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.54623, 3.44017, -16.4477)
