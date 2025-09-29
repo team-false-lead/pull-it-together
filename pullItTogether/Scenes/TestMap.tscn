@@ -1,7 +1,8 @@
-[gd_scene load_steps=15 format=3 uid="uid://b7pp3skomvnhc"]
+[gd_scene load_steps=17 format=3 uid="uid://b7pp3skomvnhc"]
 
 [ext_resource type="Script" uid="uid://wudugmq7kbma" path="res://Scripts/ManagerScripts/PlayerSpawnManager.gd" id="1_k5f4k"]
 [ext_resource type="PackedScene" uid="uid://ckpgu08xdcwp4" path="res://Scenes/Player.tscn" id="2_k5f4k"]
+[ext_resource type="PackedScene" uid="uid://woij3e5klul2" path="res://Scenes/TransitionArea.tscn" id="3_00jar"]
 [ext_resource type="PackedScene" uid="uid://c10ybnoe2rhv4" path="res://Scenes/Interactables/RopeBoxVerlet.tscn" id="3_0314m"]
 [ext_resource type="PackedScene" uid="uid://b8o20cpj7x4mc" path="res://Scenes/Interactables/RopeBoxOld.tscn" id="3_n6t57"]
 [ext_resource type="PackedScene" uid="uid://ba3m0401u3th5" path="res://Scenes/Interactables/WoodPlank.tscn" id="4_qg828"]
@@ -39,6 +40,9 @@ albedo_color = Color(0, 0.4, 0.8, 1)
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_0f350"]
 albedo_color = Color(0, 0.4, 0.8, 1)
 
+[sub_resource type="BoxShape3D" id="BoxShape3D_j0g0q"]
+size = Vector3(50, 50, 1)
+
 [node name="Map" type="Node3D"]
 
 [node name="PlayerSpawner" type="MultiplayerSpawner" parent="." node_paths=PackedStringArray("spawn_point") groups=["player_spawner"]]
@@ -64,11 +68,11 @@ environment = SubResource("Environment_qg828")
 transform = Transform3D(1, 0, 0, 0, 0.628194, 0.778057, 0, -0.778057, 0.628194, 0, 3, 0)
 
 [node name="CSGBox3D" type="CSGBox3D" parent="Environment"]
-transform = Transform3D(2.25, 0, 0, 0, 2.25, 0, 0, 0, 2.25, -0.0229278, 1.03091, -0.0953117)
+transform = Transform3D(2.25, 0, 0, 0, 2.25, 0, 0, 0, 2.25, 0, 1, -30)
 material_override = SubResource("StandardMaterial3D_k5f4k")
 use_collision = true
 collision_mask = 15
-size = Vector3(15, 0.166, 15)
+size = Vector3(15, 0.166, 43.9808)
 
 [node name="CSGBox3D2" type="CSGBox3D" parent="Environment"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.71713, -4.30189)
@@ -94,6 +98,20 @@ material_override = SubResource("StandardMaterial3D_0f350")
 use_collision = true
 collision_mask = 15
 
+[node name="Label3D" type="Label3D" parent="Environment"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5, -65)
+text = "GO HERE"
+font_size = 500
+outline_size = 50
+
+[node name="TransitionArea" parent="Environment" node_paths=PackedStringArray("label") instance=ExtResource("3_00jar")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -57.8781)
+collision_mask = 2
+label = NodePath("../Label3D")
+
+[node name="CollisionShape3D" parent="Environment/TransitionArea" index="0"]
+shape = SubResource("BoxShape3D_j0g0q")
+
 [node name="Interactables" type="Node3D" parent="."]
 unique_name_in_owner = true
 
@@ -114,3 +132,5 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.76184, 4.37407, 1.78256)
 
 [node name="PlayersContainer" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.90816, 0)
+
+[editable path="Environment/TransitionArea"]
