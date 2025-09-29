@@ -29,7 +29,6 @@ script = ExtResource("1_0kels")
 campfireScene = ExtResource("2_xx7ku")
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
-root_path = NodePath(".")
 replication_config = SubResource("SceneReplicationConfig_0kels")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]

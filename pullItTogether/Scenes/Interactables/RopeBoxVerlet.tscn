@@ -30,7 +30,6 @@ properties/3/replication_mode = 1
 [node name="RopeBoxVerlet" type="Node3D"]
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
-root_path = NodePath(".")
 replication_config = SubResource("SceneReplicationConfig_dxh6e")
 
 [node name="Box" type="RigidBody3D" parent="."]

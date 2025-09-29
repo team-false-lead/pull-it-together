@@ -17,7 +17,6 @@ collision_mask = 0
 script = ExtResource("1_lajga")
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
-root_path = NodePath(".")
 replication_config = SubResource("SceneReplicationConfig_lajga")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
