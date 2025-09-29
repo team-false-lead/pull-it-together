@@ -7,7 +7,11 @@ using System.Threading.Tasks;
 public partial class ItemManager : Node3D
 {
 	[Export] public NodePath placeholdersPath;
+	[Export] public NodePath spawnerPath;
 	[Export] public bool removePlaceholdersOnSpawn = true;
+
+	private MultiplayerSpawner spawner;
+	private Node spawnerParent;
 
 	private Dictionary<String, Interactable> interactables = new();
 	private Dictionary<string, NodePath> ropeProxyByItem = new();
@@ -29,12 +33,32 @@ public partial class ItemManager : Node3D
 			GD.PrintErr("ItemManager: MapManager not found in scene tree!");
 		}
 
-		bool isServer = !isMultiplayerSession || multiplayer.IsServer();
+		spawner = GetNodeOrNull<MultiplayerSpawner>(spawnerPath);
+		if (spawner != null)
+		{
+			var path = spawner.SpawnPath;
+			if (path == null || path.ToString() == "" || path == ".")
+			{
+				spawnerParent = spawner;
+			}
+			else
+			{
+				spawnerParent = spawner.GetNodeOrNull<Node>(path) ?? spawner;
+			}
+		}
+		else
+		{
+			GD.PrintErr("ItemManager: Spawner not found at path " + spawnerPath);
+			spawnerParent = this;
+		}
 
+		bool isServer = !isMultiplayerSession || multiplayer.IsServer();
 		if (isServer)
 		{
 			SetMultiplayerAuthority(multiplayer.GetUniqueId());
 			SpawnFromPlaceholders();
+			Rpc(nameof(ClientRemovePlaceholders));
+			ClientRemovePlaceholders();
 		}
 
 		this.ChildEnteredTree += OnChildEnteredTree;
@@ -56,10 +80,10 @@ public partial class ItemManager : Node3D
 			if (String.IsNullOrEmpty(scenePath)) continue;
 
 			var scene = ResourceLoader.Load<PackedScene>(scenePath);
-			if (scene == null) continue;
+			if (scene == null) { GD.PrintErr("ItemManager: Failed to load scene at path " + scenePath); continue; }
 
 			var instance = scene.Instantiate<Node3D>();
-			this.AddChild(instance, true);
+			spawnerParent.AddChild(instance, true);
 			instance.GlobalTransform = placeholder.GlobalTransform;
 			instance.SetOwner(GetTree().CurrentScene); // Ensure the instance is owned by the current scene
 
@@ -76,8 +100,14 @@ public partial class ItemManager : Node3D
 				}
 			}
 		}
+	}
 
-		if (removePlaceholdersOnSpawn)
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true)]
+	private void ClientRemovePlaceholders()
+	{
+		if (placeholdersPath == null) return;
+		Node3D placeholders = GetNodeOrNull<Node3D>(placeholdersPath);
+		if (placeholders != null && IsInstanceValid(placeholders))
 		{
 			placeholders.QueueFree();
 		}
@@ -88,7 +118,7 @@ public partial class ItemManager : Node3D
 		if (string.IsNullOrEmpty(item.interactableId))
 		{
 			item.interactableId = $"{item.Name}_{Guid.NewGuid():N}"; // Generate unique ID
-			//item.Name = id; // breaks peer-to-peer?
+																	 //item.Name = id; // breaks peer-to-peer?
 		}
 
 		interactables[item.interactableId] = item;
@@ -164,8 +194,9 @@ public partial class ItemManager : Node3D
 
 		if (instance != null)
 		{
-			this.AddChild(instance, true);
-			instance.Position = spawnPosition;
+			spawnerParent.AddChild(instance, true);
+			instance.GlobalTransform = new Transform3D(Basis.Identity, spawnPosition);
+
 			if (instance is Interactable item)
 			{
 				AssignId(item);
@@ -339,7 +370,7 @@ public partial class ItemManager : Node3D
 		proxy.TopLevel = true;
 		proxy.SyncToPhysics = false; //control its transform manually
 		proxy.GlobalTransform = item.joint.EndCustomLocation.GlobalTransform;
-		this.AddChild(proxy, true); // Add to the scene
+		spawnerParent.AddChild(proxy, true); // Add to the scene
 
 		item.AttachToProxyPrep(proxy, carrier);
 

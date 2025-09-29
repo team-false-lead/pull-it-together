@@ -84,9 +84,11 @@ collision_mask = 15
 unique_name_in_owner = true
 script = ExtResource("1_00jar")
 placeholdersPath = NodePath("../Placeholders")
+spawnerPath = NodePath("ItemSpawner")
 
 [node name="ItemSpawner" type="MultiplayerSpawner" parent="Interactables"]
-spawn_path = NodePath("..")
+_spawnable_scenes = PackedStringArray("uid://b575wgt5fc8yc", "uid://c10ybnoe2rhv4", "uid://b638mtt6nax88", "uid://ba3m0401u3th5")
+spawn_path = NodePath(".")
 
 [node name="Placeholders" type="Node3D" parent="."]
 
