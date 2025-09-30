@@ -112,12 +112,12 @@ public partial class ItemManager : Node3D
 		}
 	}
 
-	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true)]
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
 	private void ClientRemovePlaceholders()
 	{
 		if (placeholdersPath == null) return;
 		Node3D placeholders = GetNodeOrNull<Node3D>(placeholdersPath);
-		if (placeholders != null && IsInstanceValid(placeholders))
+		if (placeholders != null)
 		{
 			placeholders.QueueFree();
 		}
