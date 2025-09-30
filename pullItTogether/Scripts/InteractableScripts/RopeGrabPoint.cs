@@ -36,6 +36,11 @@ public partial class RopeGrabPoint : Interactable
         joint.EndCustomLocation = this;
         CallDeferred(nameof(DeferredResetJoint));
         GD.Print(joint.EndBody);
+
+        if (!multiplayer.IsServer())
+        {
+            DisableRopeVisual();
+        }
     }
 
     public override void _PhysicsProcess(double delta)
@@ -46,6 +51,21 @@ public partial class RopeGrabPoint : Interactable
             GlobalTransform = resetPoint.GlobalTransform;
             Freeze = true;
             GravityScale = 0;
+        }
+    }
+
+    private void DisableRopeVisual()
+    {
+        if (rope != null)
+        {
+            rope.Visible = false;
+            foreach (var segment in rope.GetChildren())
+            {
+                if (segment is MeshInstance3D mesh)
+                {
+                    mesh.Visible = false;
+                }
+            }
         }
     }
 
@@ -165,7 +185,7 @@ public partial class RopeGrabPoint : Interactable
         }
 
         if (Carrier != carrier) return false;
-        
+
         if (itemManager == null) InitReferences();
         itemManager.DoReleaseRope(GetInteractableId());
 
