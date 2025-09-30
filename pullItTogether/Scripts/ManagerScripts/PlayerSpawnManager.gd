@@ -50,7 +50,7 @@ func _spawn_player(peer_id: int) -> Node:
 		var existing := players[peer_id]
 		_place_at_spawn(existing)
 		_configure_local_view(existing, peer_id)
-		return existing
+		return null
 
 	var player : Node3D = player_scene.instantiate()
 	player.name = "Player%d" % peer_id
@@ -62,9 +62,14 @@ func _spawn_player(peer_id: int) -> Node:
 		if players.has(peer_id):
 			players.erase(peer_id),
 	CONNECT_ONE_SHOT)
+	
+	player.tree_entered.connect(func():
+		_place_at_spawn(player)
+		_configure_local_view(player, peer_id),
+	CONNECT_ONE_SHOT)
 
-	_place_at_spawn(player)
-	_configure_local_view(player, peer_id)
+	#_place_at_spawn(player)
+	#_configure_local_view(player, peer_id)
 	#var target_pos := _get_spawn_position()
 	
 	#player.tree_entered.connect(func():
@@ -77,9 +82,7 @@ func _spawn_player(peer_id: int) -> Node:
 
 func _place_at_spawn(player: Node3D) -> void:
 	var target_pos := _get_spawn_position()
-	var trans := player.global_transform
-	trans.origin = target_pos
-	player.global_transform = trans
+	player.global_position = target_pos
 	
 	if "velocity" in player:
 		player.velocity = Vector3.ZERO
