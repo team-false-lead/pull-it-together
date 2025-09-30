@@ -148,23 +148,26 @@ public partial class RopeGrabPoint : Interactable
     // override drop to remove proxy and re-enable collisions
     public override bool TryDrop(CharacterBody3D carrier)
     {
-        if (Carrier != carrier) return false;
-
-        if (itemManager == null) InitReferences();
-        var id = GetInteractableId();
         if (multiplayerActive && !multiplayer.IsServer())
         {
-            var error = itemManager.RpcId(1, nameof(ItemManager.RequestReleaseRope), id);
-            if (error != Error.Ok)
+            if (itemManager == null) InitReferences();
+            var id = GetInteractableId();
+            if (multiplayerActive && !multiplayer.IsServer())
             {
-                GD.PrintErr("RopeGrabPoint: Failed to request rope release via RPC. Error: " + error);
-                return false;
+                var error = itemManager.RpcId(1, nameof(ItemManager.RequestReleaseRope), id);
+                if (error != Error.Ok)
+                {
+                    GD.PrintErr("RopeGrabPoint: Failed to request rope release via RPC. Error: " + error);
+                    return false;
+                }
+                return true;
             }
         }
-        else
-        {
-            itemManager.DoReleaseRope(id);
-        }
+
+        if (Carrier != carrier) return false;
+        
+        if (itemManager == null) InitReferences();
+        itemManager.DoReleaseRope(GetInteractableId());
 
         return true;
     }
