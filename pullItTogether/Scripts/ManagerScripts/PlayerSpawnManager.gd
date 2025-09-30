@@ -23,7 +23,8 @@ func _spawn_player(peer_id: int) -> Node:
 		push_error("PlayerSpawner: player_scene not assigned") 
 		return null
 
-	var player := player_scene.instantiate()
+	var player : Node3D = player_scene.instantiate()
+	player.name = "Player%d" % peer_id
 	player.set_multiplayer_authority(peer_id)
 	player.add_to_group("players")
 	
@@ -37,8 +38,9 @@ func _spawn_player(peer_id: int) -> Node:
 	
 	player.tree_entered.connect(func():
 		if "global_position" in player:
-			player.global_position = target_pos
-	, CONNECT_ONE_SHOT)
+			player.global_position = target_pos, 
+	CONNECT_ONE_SHOT)
+	_configure_local_view(player, peer_id)
 	return player
 
 func _configure_local_view(player: Node, peer_id: int) -> void:
@@ -55,18 +57,17 @@ func spawn_peer(peer_id: int) -> void:
 func despawn_player(peer_id: int) -> void:
 	if not players.has(peer_id):
 		return
-	var player := players[peer_id]
+	var player : Node3D = players[peer_id]
 	var sync:= player.get_node_or_null("MultiplayerSynchronizer") as MultiplayerSynchronizer
 	if sync:
-		sync.replication_enabled = false
-		sync.replication_config = null
-		sync.root_path = NodePath("")
+		sync.set_replication_active(false)
+	await get_tree().process_frame
 	player.queue_free()
 	players.erase(peer_id)
 
 func despawn_all() -> void:
 	for id in players.keys():
-		despawn_player(id)
+		await despawn_player(id)
 
 func _on_peer_disconnected(peer_id: int) -> void:
 	if players.has(peer_id):
