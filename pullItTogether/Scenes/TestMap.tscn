@@ -1,9 +1,10 @@
-[gd_scene load_steps=21 format=3 uid="uid://b7pp3skomvnhc"]
+[gd_scene load_steps=22 format=3 uid="uid://b7pp3skomvnhc"]
 
 [ext_resource type="Script" uid="uid://d2gutl4cngqlt" path="res://Scripts/ManagerScripts/ItemManager.cs" id="1_00jar"]
 [ext_resource type="PackedScene" uid="uid://woij3e5klul2" path="res://Scenes/TransitionArea.tscn" id="3_00jar"]
 [ext_resource type="PackedScene" uid="uid://c10ybnoe2rhv4" path="res://Scenes/Interactables/RopeBoxVerlet.tscn" id="3_0314m"]
 [ext_resource type="PackedScene" uid="uid://ba3m0401u3th5" path="res://Scenes/Interactables/WoodPlank.tscn" id="4_qg828"]
+[ext_resource type="PackedScene" uid="uid://bfwhlqlt010kj" path="res://Scenes/Interactables/WagonTest1.tscn" id="5_0314m"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_xh66l"]
 sky_horizon_color = Color(0.662243, 0.671743, 0.686743, 1)
@@ -205,3 +206,9 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.98111, 4.37407, 1.78256)
 
 [node name="WoodPlank3" parent="Placeholders" instance=ExtResource("4_qg828")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.76184, 4.37407, 1.78256)
+
+[node name="WagonTest1" parent="Placeholders" instance=ExtResource("5_0314m")]
+transform = Transform3D(-0.987835, 0, -0.155504, 0, 1, 0, 0.155504, 0, -0.987835, -5.95615, 2.57766, 4.1258)
+
+[node name="WagonTest2" parent="Placeholders" instance=ExtResource("5_0314m")]
+transform = Transform3D(-0.988633, 0, 0.150346, 0, 1, 0, -0.150346, 0, -0.988633, -12.0476, 2.57766, 6.20935)
