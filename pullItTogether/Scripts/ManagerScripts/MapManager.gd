@@ -121,8 +121,8 @@ func request_reload_map() -> void:
 	await get_tree().process_frame
 	await load_map()
 	
-	if _spawner and _spawner.has_method("set_spawning_enabled"):
-		_spawner.set_spawning_enabled(true)
+	#if _spawner and _spawner.has_method("set_spawning_enabled"):
+	#	_spawner.set_spawning_enabled(true)
 		
 	#var ids := multiplayer.get_peers()
 	#if not ids.has(1):
