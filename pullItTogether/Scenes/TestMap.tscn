@@ -208,7 +208,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.98111, 4.37407, 1.78256)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.76184, 4.37407, 1.78256)
 
 [node name="WagonTest1" parent="Placeholders" instance=ExtResource("5_0314m")]
-transform = Transform3D(-0.987835, 0, -0.155504, 0, 1, 0, 0.155504, 0, -0.987835, -5.95615, 2.57766, 4.1258)
+transform = Transform3D(-0.987835, 0, -0.155504, 0, 1, 0, 0.155504, 0, -0.987835, -5.95615, 2.89585, 4.1258)
 
 [node name="WagonTest2" parent="Placeholders" instance=ExtResource("5_0314m")]
-transform = Transform3D(-0.988633, 0, 0.150346, 0, 1, 0, -0.150346, 0, -0.988633, -12.0476, 2.57766, 6.20935)
+transform = Transform3D(-0.988633, 0, 0.150346, 0, 1, 0, -0.150346, 0, -0.988633, -12.0476, 2.77637, 6.20935)

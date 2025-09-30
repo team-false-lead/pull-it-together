@@ -48,7 +48,7 @@ replication_config = SubResource("SceneReplicationConfig_dxh6e")
 [node name="Box" type="RigidBody3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 0.627572, 0, 0, 0.178698)
 collision_layer = 4
-collision_mask = 13
+collision_mask = 9
 mass = 65.0
 can_sleep = false
 angular_damp = 25.0
@@ -75,13 +75,8 @@ text = "Wagon Placeholder"
 [node name="VerletRopeRigid" type="Node3D" parent="."]
 transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 0, 0, 0)
 script = ExtResource("3_3hgbo")
-SimulationSegments = 6
-CollisionWidthMargin = 0.02
 CollisionLayer = 8
 CollisionMask = 13
-IsStartPinned = false
-RopeWidth = 0.1
-UseVisibleOnScreenNotifier = false
 metadata/_custom_type_script = "uid://dja12uyulc7ee"
 
 [node name="VerletJointRigid" type="Node" parent="VerletRopeRigid" node_paths=PackedStringArray("VerletRope", "StartBody", "StartCustomLocation", "EndBody", "EndCustomLocation")]
