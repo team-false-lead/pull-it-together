@@ -30,6 +30,7 @@ public partial class PlayerController : CharacterBody3D
 
 	// Interaction parameters
 	private Interactable heldObject = null;
+	private bool HeldValid() => heldObject != null && IsInstanceValid(heldObject) && !heldObject.IsQueuedForDeletion() && heldObject.IsInsideTree();
 	[Export] public NodePath inventorySlotPath;
 	[Export] public float interactRange = 3.0f;
 	[Export] public int interactLayer = 4;
@@ -79,6 +80,17 @@ public partial class PlayerController : CharacterBody3D
 		}
 
 		interactMaskUint = (uint)(1 << (interactLayer - 1));// Convert layer number to bitmask
+		var mapManager = GetTree().CurrentScene.GetNodeOrNull<Node>("%MapManager");
+		if (mapManager != null)
+		{
+			mapManager.Connect("map_reloaded", new Callable(this, nameof(OnMapReloaded)));
+		}
+	}
+
+	private void OnMapReloaded()
+	{
+		SafeForgetHeld();
+
 	}
 
 	// Check if this player instance is controlled by the local user
@@ -104,6 +116,9 @@ public partial class PlayerController : CharacterBody3D
 	public override void _PhysicsProcess(double delta)
 	{
 		if (!IsLocalControlled()) return; // local player processes movement
+
+		if (heldObject != null && !HeldValid())
+            SafeForgetHeld();
 
 		Vector3 velocity = Velocity;
 
@@ -206,6 +221,12 @@ public partial class PlayerController : CharacterBody3D
 		bobPos.Y = Mathf.Sin(timer * bobFrequency) * bobAmplitude;
 		bobPos.X = Mathf.Cos(timer * bobFrequency * 0.5f) * bobAmplitude;
 		return bobPos;
+	}
+
+	private void SafeForgetHeld()
+	{
+		RemoveTetherAnchor();
+		heldObject = null;
 	}
 
 	public Node3D GetInventorySlot()
@@ -322,6 +343,8 @@ public partial class PlayerController : CharacterBody3D
 	// Drop the currently held object
 	public void DropObject()
 	{
+		if (!HeldValid()) { SafeForgetHeld();  return;}
+
 		if (heldObject != null)
 		{
 			heldObject.TryDrop(this);
@@ -332,6 +355,7 @@ public partial class PlayerController : CharacterBody3D
 	// Use the held object on itself or on a target
 	public void UseHeldObject()
 	{
+		if (!HeldValid()) { SafeForgetHeld();  return;}
 		if (heldObject == null) return;
 
 		//check if looking at another interactable first
