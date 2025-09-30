@@ -45,6 +45,7 @@ public partial class TransitionArea : Area3D
     public async Task ResetAfterSeconds(float seconds, Node mapManager)
     {
         await ToSignal(GetTree().CreateTimer(seconds), SceneTreeTimer.SignalName.Timeout);
+        label.Text = "GO HERE";
         mapManager.Call("request_reload_map");
         //GetTree().ChangeSceneToFile("res://Scenes/TestMap.tscn"); // No clue if this messes with the multiplayer stuff
     }
