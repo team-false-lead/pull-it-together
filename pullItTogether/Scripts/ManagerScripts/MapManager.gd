@@ -20,9 +20,9 @@ func _ready() -> void:
 func _set_multiplayer_false() -> void:
 	is_multiplayer_session = false
 
-# Server rebuild level instance
-func reload_current_map() -> Node:
-	return await load_map()
+# Server rebuild level instance instead
+#func reload_current_map() -> Node:
+#	return await load_map()
 
 func load_map() -> Node:
 	if _loading:
@@ -99,14 +99,41 @@ func despawn_player(peer_id: int) -> void:
 		push_warning("MapManager: despawn_player() called but spawner not ready")
 		
 # Server RPC
-@rpc("any_peer", "call_local") func request_reload_map() -> void:
+@rpc("any_peer", "call_local") 
+func request_reload_map() -> void:
 	if multiplayer.has_multiplayer_peer() and not multiplayer.is_server():
 		rpc_id(1, "request_reload_map")
 		return
 	await  get_tree().process_frame
-	await reload_current_map()
+	await _server_reload_current_map()
+
+func _get_all_players() -> Array:
+	var ids := multiplayer.get_peers()
+	ids.append(1) # host
+	return ids
 	
+func _check_players_exist() -> bool:
+	return level_instance != null and is_instance_valid(level_instance) and level_instance.find_child("PlayersContainer", true, false) != null
+
+func _safe_despawn_all() -> void:
+	for id in _get_all_players():
+		despawn_player(id)
+		
+func _safe_spawn_all() -> void:
+	for id in _get_all_players():
+		spawn_player(id)
+
+func _server_reload_current_map() -> void:
+	_safe_despawn_all()
+	await get_tree().process_frame
+	await get_tree().process_frame
+	await get_tree().process_frame # just incase
+	
+	await load_map()
+	await get_tree().process_frame
+	
+	_safe_spawn_all()
 	rpc("confirm_reload")
-	
+
 @rpc("authority") func confirm_reload() -> void:
 	print("Map reloaded for client.")
