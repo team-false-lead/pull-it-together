@@ -1,10 +1,11 @@
-[gd_scene load_steps=15 format=3 uid="uid://b7pp3skomvnhc"]
+[gd_scene load_steps=16 format=3 uid="uid://b7pp3skomvnhc"]
 
 [ext_resource type="Script" uid="uid://d2gutl4cngqlt" path="res://Scripts/ManagerScripts/ItemManager.cs" id="1_00jar"]
 [ext_resource type="Script" uid="uid://wudugmq7kbma" path="res://Scripts/ManagerScripts/PlayerSpawnManager.gd" id="1_k5f4k"]
 [ext_resource type="PackedScene" uid="uid://ckpgu08xdcwp4" path="res://Scenes/Player.tscn" id="2_k5f4k"]
 [ext_resource type="PackedScene" uid="uid://c10ybnoe2rhv4" path="res://Scenes/Interactables/RopeBoxVerlet.tscn" id="3_0314m"]
 [ext_resource type="PackedScene" uid="uid://ba3m0401u3th5" path="res://Scenes/Interactables/WoodPlank.tscn" id="4_qg828"]
+[ext_resource type="PackedScene" uid="uid://rgaq6sxofk4f" path="res://Scenes/Interactables/WagonTestRaycast.tscn" id="6_00jar"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_xh66l"]
 sky_horizon_color = Color(0.662243, 0.671743, 0.686743, 1)
@@ -120,3 +121,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.46775, 3.43957, -2.10603)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.3259, 0)
 layers = 32
 material = SubResource("StandardMaterial3D_okv1i")
+
+[node name="WagonTestRaycast" parent="." instance=ExtResource("6_00jar")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.60021, 5.51558, -2.35473)
