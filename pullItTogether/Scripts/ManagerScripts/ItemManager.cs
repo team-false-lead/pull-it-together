@@ -61,7 +61,12 @@ public partial class ItemManager : Node3D
 			Rpc(nameof(ClientRemovePlaceholders));
 			ClientRemovePlaceholders();
 		}
+		else
+		{
+			CallDeferred(nameof(ClientRemovePlaceholders));
+		}
 
+		multiplayer.PeerConnected += OnPeerConnected;
 		spawnerParent.ChildEnteredTree += OnChildEnteredTree;
 
 		GD.Print($"[ItemManager], isServer={isServer}, authority={GetMultiplayerAuthority()}");
@@ -168,6 +173,14 @@ public partial class ItemManager : Node3D
 			AssignId(item);
 			interactables[item.interactableId] = item;
 		}
+	}
+
+	private void OnPeerConnected(long id)
+	{
+		if (!multiplayer.IsServer()) return;
+
+		GD.Print("ItemManager: Peer connected with ID " + id);
+		RpcId(id, nameof(ClientRemovePlaceholders));
 	}
 
 	private Interactable FindInteractableById(string id)
