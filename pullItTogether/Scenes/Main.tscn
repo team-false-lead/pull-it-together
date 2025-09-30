@@ -17,10 +17,11 @@ font_size = 25
 
 [node name="Main" type="Node3D"]
 
-[node name="GameManager" type="Node" parent="." node_paths=PackedStringArray("network_manager", "map_manager", "main_canvas", "main_menu", "multiplayer_select_menu", "local_multiplayer_menu", "public_multiplayer_menu", "local_host_button", "local_join_button", "local_back_to_menu_button", "local_address_input", "local_port", "local_LAN_label", "local_max_players", "steam_status_label", "public_refresh_button", "public_create_lobby_button", "public_back_button", "public_list_container", "manual_join_id", "manual_join_button")]
+[node name="GameManager" type="Node" parent="." node_paths=PackedStringArray("network_manager", "map_manager", "spawn_manager", "main_canvas", "main_menu", "multiplayer_select_menu", "local_multiplayer_menu", "public_multiplayer_menu", "local_host_button", "local_join_button", "local_back_to_menu_button", "local_address_input", "local_port", "local_LAN_label", "local_max_players", "steam_status_label", "public_refresh_button", "public_create_lobby_button", "public_back_button", "public_list_container", "manual_join_id", "manual_join_button")]
 script = ExtResource("1_pbw6q")
 network_manager = NodePath("../NetworkManager")
 map_manager = NodePath("../MapManager")
+spawn_manager = NodePath("../MapManager/PlayersContainer/PlayerSpawner")
 main_canvas = NodePath("../CanvasLayer")
 main_menu = NodePath("../CanvasLayer/MainControl/MainMenu")
 multiplayer_select_menu = NodePath("../CanvasLayer/MainControl/MultiplayerSelectMenu")

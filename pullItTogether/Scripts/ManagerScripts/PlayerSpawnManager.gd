@@ -5,7 +5,7 @@ class_name PlayerSpawnManager
 @export var spawn_point: Node3D
 
 var players: Dictionary[int, Node3D] = {}
-var spawning_enabled := true
+var spawning_enabled := false
 
 func _ready() -> void:
 	if not is_in_group("player_spawner"):
@@ -27,7 +27,20 @@ func _ready() -> void:
 
 func set_spawning_enabled(enabled: bool) -> void:
 	spawning_enabled = enabled
-
+	if not multiplayer.is_server():
+		return
+	if enabled:
+		if not multiplayer.peer_connected.is_connected(_on_peer_connected):
+			multiplayer.peer_connected.connect(_on_peer_connected)
+		if not multiplayer.peer_disconnected.is_connected(_on_peer_disconnected):
+			multiplayer.peer_disconnected.connect(_on_peer_disconnected)
+		
+		var ids := multiplayer.get_peers()
+		if not ids.has(1):
+			ids.append(1)
+		for id in ids:
+			spawn(id) 
+			
 func _spawn_player(peer_id: int) -> Node:
 	if player_scene == null:
 		push_error("PlayerSpawner: player_scene not assigned") 

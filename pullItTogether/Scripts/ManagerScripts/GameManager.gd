@@ -9,6 +9,7 @@ signal singleplayer_session_started()
 # need to clean this up and get rid of not used, etc.
 @export var network_manager: Node
 @export var map_manager: Node
+@export var spawn_manager: PlayerSpawnManager
 
 @export_category("Canvas / Menus")
 @export var main_canvas: CanvasLayer
@@ -55,6 +56,9 @@ func _enter_tree() -> void:
 		OS.set_environment("SteamGameId", app_id)
 
 func _ready() -> void:
+	if spawn_manager:
+		spawn_manager.set_spawning_enabled(false)
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	# Menu defaults
 	if main_canvas:
 		main_canvas.show()
@@ -144,8 +148,10 @@ func show_public_menu() -> void:
 # ---------- Single Player ----------
 func _on_single_player_pressed() -> void:
 	if map_manager and map_manager.has_method("load_map"):
-		map_manager.call("load_map")
+		await map_manager.call("load_map")
 	if main_canvas: main_canvas.hide()
+	if spawn_manager:
+		spawn_manager.set_spawning_enabled(true)
 	emit_signal("singleplayer_session_started")
 
 # ---------- Local Network flow ----------
@@ -163,6 +169,7 @@ func _on_local_host_pressed() -> void:
 		push_error("NetworkManager not assigned"); return
 	if not network_manager.host_local(addr, port, maxp):
 		push_error("Failed to host local ENet")
+	
 
 func _on_local_join_pressed() -> void:
 	var addr := default_addr
@@ -326,8 +333,10 @@ func _update_runtime_ui() -> void:
 # ---------- Network events ----------
 func _on_session_started(role: String) -> void:
 	if map_manager and map_manager.has_method("load_map"):
-		map_manager.call("load_map")
+		await map_manager.call("load_map")
 	if main_canvas: main_canvas.hide()
+	if spawn_manager:
+		spawn_manager.set_spawning_enabled(true)
 	print("Session started as: ", role)
 
 
