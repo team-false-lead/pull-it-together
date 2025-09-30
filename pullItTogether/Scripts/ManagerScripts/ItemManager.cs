@@ -127,7 +127,7 @@ public partial class ItemManager : Node3D
 			placeholders.QueueFree();
 		}
 	}
-	
+
 	private void PreAssignIdIfInteractable(Node node)
 	{
 		if (node is Interactable item && string.IsNullOrEmpty(item.interactableId))
@@ -153,7 +153,7 @@ public partial class ItemManager : Node3D
 		}
 
 		interactables[item.interactableId] = item;
-		
+
 		item.TreeExited += () =>
 		{
 			if (interactables.ContainsKey(item.interactableId))
@@ -255,7 +255,7 @@ public partial class ItemManager : Node3D
 		}
 		instance.SetOwner(GetTree().CurrentScene); // Ensure the instance is owned by the current scene
 		instance.GlobalTransform = new Transform3D(Basis.Identity, spawnPosition);
-		
+
 		//if (instance != null)
 		//{
 		//	if (instance is Interactable item)
@@ -386,7 +386,7 @@ public partial class ItemManager : Node3D
 		if (item == null) { GD.Print("Item null"); return; }
 
 		item.StopFollowingSlot();
-		if(item.GetParent<Node3D>() != spawnerParent)
+		if (item.GetParent<Node3D>() != spawnerParent)
 		{
 			item.GetParent<Node3D>().RemoveChild(item);
 			spawnerParent.AddChild(item, true);
@@ -519,5 +519,36 @@ public partial class ItemManager : Node3D
 		}
 
 		item.DetachFromProxy();
+	}
+
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true)] // Allow any peer to request force drop all
+	public void RequestForceDropAll()
+	{
+		if (isMultiplayerSession && !Multiplayer.IsServer())
+		{
+			RpcId(1, nameof(RequestForceDropAll));
+			return;
+		}
+		RequestForceDropAll();
+	}
+
+	public void ForceDropAll()
+	{
+		foreach (var kv in new List<KeyValuePair<string, Interactable>>(interactables))
+		{
+			var item = kv.Value;
+			if (item == null || !IsInstanceValid(item)) continue;
+			if (item.Carrier == null) continue;
+
+			var pos = item.GlobalTransform.Origin;
+			if (item is RopeGrabPoint)
+			{
+				DoReleaseRope(item.interactableId);
+			}
+			else
+			{
+				DoDropItem(item.interactableId, pos);
+			}
+		}
 	}
 }

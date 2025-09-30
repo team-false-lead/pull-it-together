@@ -182,7 +182,7 @@ transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -0.241
 collision_mask = 15
 size = Vector3(1, 4.29089, 38.4169)
 
-[node name="Interactables" type="Node3D" parent="."]
+[node name="Interactables" type="Node3D" parent="." groups=["item_manager"]]
 unique_name_in_owner = true
 script = ExtResource("1_00jar")
 placeholdersPath = NodePath("../Placeholders")

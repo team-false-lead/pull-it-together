@@ -115,6 +115,10 @@ func request_reload_map() -> void:
 	#await _server_reload_current_map()
 	if _spawner and _spawner.has_method("set_spawning_enabled"):
 		_spawner.set_spawning_enabled(false)
+	var item_manager := get_tree().get_first_node_in_group("item_manager")
+	if item_manager:
+		item_manager.RequestForceDropAll()
+	await get_tree().process_frame
 	await load_map()
 	
 	if _spawner and _spawner.has_method("set_spawning_enabled"):
@@ -189,6 +193,11 @@ func _safe_spawn_all() -> void:
 			_spawner.spawn_peer(id)
 
 func _server_reload_current_map() -> void:
+	var item_manager := get_tree().get_first_node_in_group("item_manager")
+	if item_manager:
+		item_manager.RequestForceDropAll()
+	await get_tree().process_frame
+	
 	await _safe_despawn_all()
 	_disable_syncers(level_instance)
 	await get_tree().process_frame
