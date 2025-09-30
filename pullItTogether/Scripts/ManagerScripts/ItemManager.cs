@@ -544,7 +544,6 @@ public partial class ItemManager : Node3D
 			if (item is RopeGrabPoint)
 			{
 				DoReleaseRope(item.interactableId);
-				(item.Carrier as PlayerController)?.RemoveTetherAnchor();
 			}
 			else
 			{

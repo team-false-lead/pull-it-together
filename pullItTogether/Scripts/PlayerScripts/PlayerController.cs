@@ -324,17 +324,8 @@ public partial class PlayerController : CharacterBody3D
 	{
 		if (heldObject != null)
 		{
-			if (IsInstanceValid(heldObject) && !heldObject.IsQueuedForDeletion())
-			{
-				heldObject.TryDrop(this);
-				heldObject = null;
-			}
-			else
-			{
-				RemoveTetherAnchor(); // In case the held object was a rope grab point
-				heldObject = null; // The held object was destroyed during use
-			}
-			
+			heldObject.TryDrop(this);
+			heldObject = null;
 		}
 	}
 
