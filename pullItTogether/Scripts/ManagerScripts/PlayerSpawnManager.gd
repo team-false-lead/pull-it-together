@@ -58,7 +58,7 @@ func despawn_player(peer_id: int) -> void:
 	var player := players[peer_id]
 	var sync:= player.get_node_or_null("MultiplayerSynchronizer") as MultiplayerSynchronizer
 	if sync:
-		sync.enabled = false
+		sync.replication_enabled = false
 		sync.replication_config = null
 		sync.root_path = NodePath("")
 	player.queue_free()

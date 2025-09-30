@@ -135,7 +135,7 @@ func _disable_syncers(node: Node) -> void:
 		_disable_syncers(child)
 		if child is MultiplayerSynchronizer:
 			var syncer := child as MultiplayerSynchronizer
-			syncer.enabled = false
+			syncer.replication_enabled = false
 			syncer.replication_config = null
 			syncer.root_path = NodePath("")
 
