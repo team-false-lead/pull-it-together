@@ -6,6 +6,7 @@ public partial class RopeProxy : AnimatableBody3D
 {
 	private Node3D followTarget;
 	public bool isTweening = false;
+	private MultiplayerApi multiplayer => GetTree().GetMultiplayer();
 
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
@@ -19,14 +20,22 @@ public partial class RopeProxy : AnimatableBody3D
 	public override void _PhysicsProcess(double delta)
 	{
 		//tween controlled in item manager
-		if (followTarget != null && !isTweening && TopLevel)
-		{
-			GlobalTransform = followTarget.GlobalTransform;
-		}
-	}	
+		if (!multiplayer.IsServer() || isTweening || followTarget == null) return;
+		GlobalTransform = followTarget.GlobalTransform;
+	}
 
 	public void SetFollowTarget(Node3D target)
 	{
 		followTarget = target;
+		if (multiplayer.IsServer())
+		{
+			SetPhysicsProcess(true);
+		}
+	}
+
+	public void ClearFollowTarget()
+	{
+		followTarget = null;
+		SetPhysicsProcess(false);
 	}
 }

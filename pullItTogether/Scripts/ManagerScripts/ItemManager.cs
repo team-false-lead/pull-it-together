@@ -13,6 +13,7 @@ public partial class ItemManager : Node3D
 	private MultiplayerSpawner spawner;
 	private Node spawnerParent;
 
+	private static string NewIDFor(Node node) => $"{node.Name}_{Guid.NewGuid():N}";
 	private Dictionary<String, Interactable> interactables = new();
 	private Dictionary<string, NodePath> ropeProxyByItem = new();
 	private Node mapManager;
@@ -61,7 +62,7 @@ public partial class ItemManager : Node3D
 			ClientRemovePlaceholders();
 		}
 
-		this.ChildEnteredTree += OnChildEnteredTree;
+		spawnerParent.ChildEnteredTree += OnChildEnteredTree;
 
 		GD.Print($"[ItemManager], isServer={isServer}, authority={GetMultiplayerAuthority()}");
 	}
@@ -83,20 +84,29 @@ public partial class ItemManager : Node3D
 			if (scene == null) { GD.PrintErr("ItemManager: Failed to load scene at path " + scenePath); continue; }
 
 			var instance = scene.Instantiate<Node3D>();
-			spawnerParent.AddChild(instance, true);
-			instance.GlobalTransform = placeholder.GlobalTransform;
-			instance.SetOwner(GetTree().CurrentScene); // Ensure the instance is owned by the current scene
 
+			PreAssignIdIfInteractable(instance);
 			if (instance is Interactable item)
 			{
 				AssignId(item);
+				//interactables[item.interactableId] = item;
 			}
+
+			spawnerParent.AddChild(instance, true);
+			foreach (var c in instance.GetChildren())
+			{
+				if (c is Interactable interactable)
+					AssignId(interactable);
+			}
+			instance.GlobalTransform = placeholder.GlobalTransform;
+			instance.SetOwner(GetTree().CurrentScene); // Ensure the instance is owned by the current scene
 
 			foreach (var childNode in instance.GetChildren())
 			{
-				if (childNode is RopeGrabPoint ropeGrabPoint)
+				if (childNode is Interactable ropeGrabPoint)
 				{
 					AssignId(ropeGrabPoint);
+					interactables[ropeGrabPoint.interactableId] = ropeGrabPoint;
 				}
 			}
 		}
@@ -112,6 +122,22 @@ public partial class ItemManager : Node3D
 			placeholders.QueueFree();
 		}
 	}
+	
+	private void PreAssignIdIfInteractable(Node node)
+	{
+		if (node is Interactable item && string.IsNullOrEmpty(item.interactableId))
+		{
+			item.interactableId = NewIDFor(item);
+		}
+		foreach (var child in node.GetChildren())
+		{
+			PreAssignIdIfInteractable(child);
+			//if (child is Interactable childInteractable && string.IsNullOrEmpty(childInteractable.interactableId))
+			//{
+			//	childInteractable.interactableId = NewIDFor(childInteractable);
+			//}
+		}
+	}
 
 	private void AssignId(Interactable item)
 	{
@@ -122,6 +148,15 @@ public partial class ItemManager : Node3D
 		}
 
 		interactables[item.interactableId] = item;
+		
+		item.TreeExited += () =>
+		{
+			if (interactables.ContainsKey(item.interactableId))
+			{
+				interactables.Remove(item.interactableId);
+				GD.Print("ItemManager: Tree Exited, Removed interactable with ID " + item.interactableId);
+			}
+		};
 	}
 
 	private void OnChildEnteredTree(Node newChild)
@@ -131,6 +166,7 @@ public partial class ItemManager : Node3D
 		if (newChild is Interactable item)
 		{
 			AssignId(item);
+			interactables[item.interactableId] = item;
 		}
 	}
 
@@ -190,18 +226,31 @@ public partial class ItemManager : Node3D
 		if (itemScene == null) { GD.Print("Item scene null"); return; }
 
 		var instance = itemScene.Instantiate<RigidBody3D>();
-		instance.SetOwner(GetTree().CurrentScene); // Ensure the instance is owned by the current scene
+		PreAssignIdIfInteractable(instance);
+		spawnerParent.AddChild(instance, true);
 
-		if (instance != null)
+		if (instance is Interactable item)
 		{
-			spawnerParent.AddChild(instance, true);
-			instance.GlobalTransform = new Transform3D(Basis.Identity, spawnPosition);
-
-			if (instance is Interactable item)
-			{
-				AssignId(item);
-			}
+			AssignId(item);
+			//interactables[item.interactableId] = item;
 		}
+
+		foreach (var child in instance.GetChildren())
+		{
+			if (child is Interactable interactable)
+				AssignId(interactable);
+		}
+		instance.SetOwner(GetTree().CurrentScene); // Ensure the instance is owned by the current scene
+		instance.GlobalTransform = new Transform3D(Basis.Identity, spawnPosition);
+		
+		//if (instance != null)
+		//{
+		//	if (instance is Interactable item)
+		//	{
+		//		AssignId(item);
+		//		interactables[item.interactableId] = item;
+		//	}
+		//}
 	}
 
 	// item pickup request
@@ -244,20 +293,33 @@ public partial class ItemManager : Node3D
 		var slot = carrier.GetInventorySlot();
 		if (slot == null) { GD.Print("Slot null"); return; }
 
+		if (item.GetParent<Node3D>() != spawnerParent)
+		{
+			item.GetParent<Node3D>().RemoveChild(item); // Remove from current parent
+			spawnerParent.AddChild(item, true); // Reattach to world interactables node
+			foreach (var child in item.GetChildren())
+			{
+				if (child is Interactable interactable)
+					AssignId(interactable);
+			}
+			item.SetOwner(GetTree().CurrentScene); // Ensure the instance is owned by the current scene
+		}
+
 		item.savedMask = item.CollisionMask;
 		item.savedLayer = item.CollisionLayer;
 
-		item.GetParent<Node3D>().RemoveChild(item); // Remove from current parent
-		slot.AddChild(item, true); // Add to carrier's inventory slot
+		//item.GetParent<Node3D>().RemoveChild(item); // Remove from current parent
+		//slot.AddChild(item, true); // Add to carrier's inventory slot
 
 		//CallDeferred(nameof(FinishItemAttach), item.GetPath());
 
-		item.TopLevel = false; // Make non-top-level to inherit carrier's transform
-		item.Position = Vector3.Zero;
-		item.Rotation = Vector3.Zero;
+		//item.TopLevel = false; // Make non-top-level to inherit carrier's transform
+		//item.Position = Vector3.Zero;
+		//item.Rotation = Vector3.Zero;
 		//item.Scale = Vector3.One * (1 / GetParent<Node3D>().Scale.X); // Reset scale relative to carrier
 
 		// Prepare item for being carried
+		item.TopLevel = true; // Make non-top-level to inherit carrier's transform
 		item.Freeze = true;
 		item.GravityScale = 0;
 		item.LinearVelocity = Vector3.Zero;
@@ -266,6 +328,9 @@ public partial class ItemManager : Node3D
 		// Disable collisions
 		item.CollisionLayer = 0;
 		item.CollisionMask = 0;
+
+		item.GlobalTransform = slot.GlobalTransform;
+		item.StartFollowingSlot(slot);
 	}
 
 	// Finalize item attachment after being added to carrier's inventory slot
@@ -307,8 +372,21 @@ public partial class ItemManager : Node3D
 		var item = FindInteractableById(itemId);
 		if (item == null) { GD.Print("Item null"); return; }
 
-		item.GetParent<Node3D>().RemoveChild(item); // Remove from carrier's inventory slot
-		this.AddChild(item, true); // Reattach to world interactables node
+		item.StopFollowingSlot();
+		if(item.GetParent<Node3D>() != spawnerParent)
+		{
+			item.GetParent<Node3D>().RemoveChild(item);
+			spawnerParent.AddChild(item, true);
+			foreach (var child in item.GetChildren())
+			{
+				if (child is Interactable interactable)
+					AssignId(interactable);
+			}
+			item.SetOwner(GetTree().CurrentScene);
+		}
+
+		//item.GetParent<Node3D>().RemoveChild(item); // Remove from carrier's inventory slot
+		//spawnerParent.AddChild(item, true); // Reattach to world interactables node
 
 		item.TopLevel = true; // Make top-level to have independent transform
 		item.Freeze = false; // Re-enable physics interactions
@@ -370,7 +448,9 @@ public partial class ItemManager : Node3D
 		proxy.TopLevel = true;
 		proxy.SyncToPhysics = false; //control its transform manually
 		proxy.GlobalTransform = item.joint.EndCustomLocation.GlobalTransform;
+
 		spawnerParent.AddChild(proxy, true); // Add to the scene
+		proxy.SetOwner(GetTree().CurrentScene); // Ensure the instance is owned by the current scene
 
 		item.AttachToProxyPrep(proxy, carrier);
 
@@ -386,13 +466,14 @@ public partial class ItemManager : Node3D
 		await ToSignal(tween, "finished");
 
 		proxyScript.isTweening = false;
-		proxy.Reparent(slot, keepGlobalTransform: false);
-		ropeProxyByItem[item.interactableId] = proxy.GetPath();
-		//slot.AddChild(proxy, true); // Add to carrier's inventory slot
-		proxy.TopLevel = true;
-		proxy.Transform = Transform3D.Identity;
-		proxy.SyncToPhysics = true;
-		
+		proxy.SyncToPhysics = false;
+		//proxy.Reparent(slot, keepGlobalTransform: false);
+		//ropeProxyByItem[item.interactableId] = proxy.GetPath();
+		////slot.AddChild(proxy, true); // Add to carrier's inventory slot
+		//proxy.TopLevel = true;
+		//proxy.Transform = Transform3D.Identity;
+		//proxy.SyncToPhysics = true;
+
 		item.AttachToProxy(proxy);
 
 		ropeProxyByItem[item.interactableId] = proxy.GetPath();
@@ -415,8 +496,10 @@ public partial class ItemManager : Node3D
 		if (ropeProxyByItem.TryGetValue(item.interactableId, out var proxyPath))
 		{
 			var proxy = GetNodeOrNull<AnimatableBody3D>(proxyPath);
+			var proxyScript = proxy as RopeProxy;
 			if (proxy != null)
 			{
+				proxyScript.ClearFollowTarget();
 				proxy.QueueFree();
 			}
 			ropeProxyByItem.Remove(item.interactableId);

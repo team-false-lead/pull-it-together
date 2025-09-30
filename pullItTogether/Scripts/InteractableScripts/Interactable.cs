@@ -4,7 +4,7 @@ using System;
 /// Interactable is the base class for all objects that can be picked up, dropped, and interacted with by the player.
 public abstract partial class Interactable : RigidBody3D
 {
-    [Export]public string interactableId { get; set; } = "";
+    [Export] public string interactableId = "";
     public string GetInteractableId() => string.IsNullOrEmpty(interactableId) ? Name : interactableId;
     public uint savedLayer, savedMask;
     protected Node mapManager;
@@ -15,6 +15,52 @@ public abstract partial class Interactable : RigidBody3D
     public virtual bool CanBeCarried() { return true; }
     public CharacterBody3D Carrier { get; set; } = null;
 
+    private Node3D followTarget;
+    private bool isFollowing;
+
+    public override void _Ready()
+    {
+        var sync = GetNodeOrNull<MultiplayerSynchronizer>("MultiplayerSynchronizer");
+        if (sync == null)
+        {
+            GD.PrintErr("Interactable: MultiplayerSynchronizer not found on " + Name);
+        }
+        else
+        {
+            GD.Print("Interactable: MultiplayerSynchronizer rootPath: " + sync.RootPath);
+        }
+
+        if (string.IsNullOrEmpty(interactableId) && !multiplayer.IsServer())
+        {
+            GD.Print("Warning: Interactable " + Name + " waiting for ID replication.");
+        }
+    }
+
+    public void StartFollowingSlot(Node3D slot)
+    {
+        followTarget = slot;
+        isFollowing = true;
+        if (multiplayer.IsServer())
+        {
+            SetPhysicsProcess(true);
+        }
+    }
+
+    public void StopFollowingSlot()
+    {
+        followTarget = null;
+        isFollowing = false;
+        SetPhysicsProcess(false);
+    }
+
+    public override void _PhysicsProcess(double delta)
+    {
+        if (isFollowing && followTarget != null && multiplayer.IsServer())
+        {
+            GlobalTransform = followTarget.GlobalTransform;
+        }
+    }
+
     // Attempt to pick up the object
     public virtual bool TryPickup(CharacterBody3D carrier)
     {
@@ -22,7 +68,7 @@ public abstract partial class Interactable : RigidBody3D
 
         if (itemManager == null) InitReferences();
         var id = GetInteractableId();
-        
+
         if (multiplayerActive && !multiplayer.IsServer())
         {
             var error = itemManager.RpcId(1, nameof(ItemManager.RequestPickupItem), id);
@@ -37,7 +83,7 @@ public abstract partial class Interactable : RigidBody3D
         {
             itemManager.DoPickupItem(id, multiplayer.GetUniqueId());
         }
-        
+
 
         //host handles held logic
 
