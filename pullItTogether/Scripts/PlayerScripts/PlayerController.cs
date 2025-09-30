@@ -70,7 +70,7 @@ public partial class PlayerController : CharacterBody3D
 		}
 		else
 		{
-			Input.SetMouseMode(Input.MouseModeEnum.Visible);
+			//Input.SetMouseMode(Input.MouseModeEnum.Visible);
 		}
 
 		if (collisionPusher != null)

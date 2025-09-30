@@ -40,6 +40,8 @@ func load_map() -> Node:
 		return null
 
 	if level_instance and is_instance_valid(level_instance):
+		_disable_syncers(level_instance)
+		await get_tree().process_frame
 		level_instance.queue_free()
 		level_instance = null
 		for c in self.get_children():
@@ -127,12 +129,26 @@ func _safe_despawn_all() -> void:
 	else:
 		for id in _get_all_players():
 			despawn_player(id)
-		
+
+func _disable_syncers(node: Node) -> void:
+	for child in node.get_children():
+		_disable_syncers(child)
+		if child is MultiplayerSynchronizer:
+			var syncer := child as MultiplayerSynchronizer
+			syncer.enabled = false
+			syncer.replication_config = null
+			syncer.root_path = NodePath("")
+
 func _safe_spawn_all() -> void:
 	for id in _get_all_players():
 		spawn_player(id)
 
 func _server_reload_current_map() -> void:
+	_ensure_spawner()
+	if level_instance and is_instance_valid(level_instance):
+		_disable_syncers(level_instance)
+	await get_tree().process_frame
+	
 	_safe_despawn_all()
 	await get_tree().process_frame
 	await get_tree().process_frame

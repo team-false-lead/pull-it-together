@@ -29,9 +29,9 @@ func _spawn_player(peer_id: int) -> Node:
 	
 	players[peer_id] = player
 	player.tree_exited.connect(func():
-		if player.has(peer_id):
+		if players.has(peer_id):
 			players.erase(peer_id),
-			CONNECT_ONE_SHOT)
+	CONNECT_ONE_SHOT)
 
 	var target_pos := _get_spawn_position()
 	
@@ -41,6 +41,14 @@ func _spawn_player(peer_id: int) -> Node:
 	, CONNECT_ONE_SHOT)
 	return player
 
+func _configure_local_view(player: Node, peer_id: int) -> void:
+	var is_local := (peer_id == multiplayer.get_unique_id())
+	var cam := player.get_node_or_null("Head/Camera3D") as Camera3D
+	if cam:
+		cam.current = is_local
+	if is_local:
+		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+
 func spawn_peer(peer_id: int) -> void:
 	super.spawn(peer_id)
 
@@ -48,9 +56,11 @@ func despawn_player(peer_id: int) -> void:
 	if not players.has(peer_id):
 		return
 	var player := players[peer_id]
-	var sync:= player.get_node_or_null("MultiplayerSynchronizer")
+	var sync:= player.get_node_or_null("MultiplayerSynchronizer") as MultiplayerSynchronizer
 	if sync:
+		sync.enabled = false
 		sync.replication_config = null
+		sync.root_path = NodePath("")
 	player.queue_free()
 	players.erase(peer_id)
 
