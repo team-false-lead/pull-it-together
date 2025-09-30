@@ -40,7 +40,7 @@ properties/6/replication_mode = 1
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_mvpk7"]
 
-[node name="RopeBoxVerlet" type="Node3D"]
+[node name="WagonTest1" type="Node3D"]
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 replication_config = SubResource("SceneReplicationConfig_dxh6e")
