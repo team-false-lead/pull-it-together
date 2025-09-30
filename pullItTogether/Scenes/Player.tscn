@@ -39,11 +39,12 @@ albedo_color = Color(0.054902, 0.67451, 0.976471, 1)
 
 [sub_resource type="SphereMesh" id="SphereMesh_gntrk"]
 
-[node name="Player" type="CharacterBody3D" node_paths=PackedStringArray("head", "camera", "collisionPusher")]
+[node name="Player" type="CharacterBody3D" node_paths=PackedStringArray("head", "camera", "collisionPusher") groups=["players"]]
 collision_layer = 2
 script = ExtResource("1_kyqiw")
 head = NodePath("Head")
 camera = NodePath("Head/Camera3D")
+inventorySlotPath = NodePath("Head/Camera3D/Inventory/InventorySlot1")
 collisionPusher = NodePath("AnimatableBody3D")
 
 [node name="PlayerCameraSync" type="Node" parent="." node_paths=PackedStringArray("Camera")]
