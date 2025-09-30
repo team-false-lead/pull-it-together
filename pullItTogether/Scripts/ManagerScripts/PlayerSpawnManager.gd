@@ -46,6 +46,12 @@ func _spawn_player(peer_id: int) -> Node:
 		push_error("PlayerSpawner: player_scene not assigned") 
 		return null
 
+	if players.has(peer_id) and is_instance_valid(players[peer_id]):
+		var existing := players[peer_id]
+		_place_at_spawn(existing)
+		_configure_local_view(existing, peer_id)
+		return existing
+
 	var player : Node3D = player_scene.instantiate()
 	player.name = "Player%d" % peer_id
 	player.set_multiplayer_authority(peer_id)
@@ -57,15 +63,30 @@ func _spawn_player(peer_id: int) -> Node:
 			players.erase(peer_id),
 	CONNECT_ONE_SHOT)
 
-	var target_pos := _get_spawn_position()
-	
-	player.tree_entered.connect(func():
-		if "global_position" in player:
-			player.global_position = target_pos, 
-	CONNECT_ONE_SHOT)
-	
+	_place_at_spawn(player)
 	_configure_local_view(player, peer_id)
+	#var target_pos := _get_spawn_position()
+	
+	#player.tree_entered.connect(func():
+	#	if "global_position" in player:
+	#		player.global_position = target_pos, 
+	#CONNECT_ONE_SHOT)
+	
+	#_configure_local_view(player, peer_id)
 	return player
+
+func _place_at_spawn(player: Node3D) -> void:
+	var target_pos := _get_spawn_position()
+	var trans := player.global_transform
+	trans.origin = target_pos
+	player.global_transform = trans
+	
+	if "velocity" in player:
+		player.velocity = Vector3.ZERO
+	if "linear_velocity" in player:
+		player.linear_velocity = Vector3.ZERO
+	if "angular_velocity" in player:
+		player.angular_velocity = Vector3.ZERO
 
 func _configure_local_view(player: Node, peer_id: int) -> void:
 	var is_local := (peer_id == multiplayer.get_unique_id())

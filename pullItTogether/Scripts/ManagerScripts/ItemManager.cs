@@ -521,7 +521,7 @@ public partial class ItemManager : Node3D
 		item.DetachFromProxy();
 	}
 
-	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true)] // Allow any peer to request force drop all
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)] // Allow any peer to request force drop all
 	public void RequestForceDropAll()
 	{
 		if (isMultiplayerSession && !Multiplayer.IsServer())
@@ -529,12 +529,12 @@ public partial class ItemManager : Node3D
 			RpcId(1, nameof(RequestForceDropAll));
 			return;
 		}
-		RequestForceDropAll();
+		ForceDropAll();
 	}
 
 	public void ForceDropAll()
 	{
-		foreach (var kv in new List<KeyValuePair<string, Interactable>>(interactables))
+		foreach (var kv in interactables)
 		{
 			var item = kv.Value;
 			if (item == null || !IsInstanceValid(item)) continue;
