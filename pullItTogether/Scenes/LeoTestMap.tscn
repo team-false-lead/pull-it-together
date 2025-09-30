@@ -1,11 +1,15 @@
-[gd_scene load_steps=24 format=3 uid="uid://b7pp3skomvnhc"]
+[gd_scene load_steps=23 format=3 uid="uid://kniibi0u6nwu"]
 
-[ext_resource type="Script" uid="uid://d2gutl4cngqlt" path="res://Scripts/ManagerScripts/ItemManager.cs" id="1_00jar"]
 [ext_resource type="Script" uid="uid://wudugmq7kbma" path="res://Scripts/ManagerScripts/PlayerSpawnManager.gd" id="1_k5f4k"]
 [ext_resource type="PackedScene" uid="uid://ckpgu08xdcwp4" path="res://Scenes/Player.tscn" id="2_k5f4k"]
 [ext_resource type="PackedScene" uid="uid://woij3e5klul2" path="res://Scenes/TransitionArea.tscn" id="3_00jar"]
 [ext_resource type="PackedScene" uid="uid://c10ybnoe2rhv4" path="res://Scenes/Interactables/RopeBoxVerlet.tscn" id="3_0314m"]
 [ext_resource type="PackedScene" uid="uid://ba3m0401u3th5" path="res://Scenes/Interactables/WoodPlank.tscn" id="4_qg828"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_okv1i"]
+transparency = 1
+vertex_color_use_as_albedo = true
+albedo_color = Color(0, 1, 1, 0.301961)
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_xh66l"]
 sky_horizon_color = Color(0.662243, 0.671743, 0.686743, 1)
@@ -35,43 +39,52 @@ albedo_color = Color(0, 0.4, 0.8, 1)
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_0f350"]
 albedo_color = Color(0, 0.4, 0.8, 1)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_00jar"]
-size = Vector3(50, 21.1472, 1)
+[sub_resource type="BoxShape3D" id="BoxShape3D_j0g0q"]
+size = Vector3(50, 50, 1)
 
-[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_j0g0q"]
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_00jar"]
 angle_min = -45.0
 angle_max = 45.0
 direction = Vector3(0, -1, 0)
 initial_velocity_min = 0.1
 initial_velocity_max = 10.0
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_00jar"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ffatf"]
 albedo_color = Color(0.9745, 0.49, 1, 1)
 
-[sub_resource type="BoxMesh" id="BoxMesh_e11n1"]
-material = SubResource("StandardMaterial3D_00jar")
+[sub_resource type="BoxMesh" id="BoxMesh_j0g0q"]
+material = SubResource("StandardMaterial3D_ffatf")
 size = Vector3(0.1, 0.2, 0.05)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_e11n1"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_1vfol"]
 albedo_color = Color(0.9405, 1, 0.49, 1)
 
 [sub_resource type="BoxMesh" id="BoxMesh_h5s6u"]
-material = SubResource("StandardMaterial3D_e11n1")
+material = SubResource("StandardMaterial3D_1vfol")
 size = Vector3(0.1, 0.2, 0.05)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ya8by"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_vo8jx"]
 albedo_color = Color(0.49, 1, 0.915, 1)
 
-[sub_resource type="BoxMesh" id="BoxMesh_ya8by"]
-material = SubResource("StandardMaterial3D_ya8by")
+[sub_resource type="BoxMesh" id="BoxMesh_62i8n"]
+material = SubResource("StandardMaterial3D_vo8jx")
 size = Vector3(0.1, 0.2, 0.05)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_okv1i"]
-transparency = 1
-vertex_color_use_as_albedo = true
-albedo_color = Color(0, 1, 1, 0.301961)
+[node name="Map" type="Node3D"]
 
-[node name="TestMap" type="Node3D"]
+[node name="PlayerSpawner" type="MultiplayerSpawner" parent="." node_paths=PackedStringArray("spawn_point") groups=["player_spawner"]]
+spawn_path = NodePath("../PlayersContainer")
+script = ExtResource("1_k5f4k")
+player_scene = ExtResource("2_k5f4k")
+spawn_point = NodePath("SpawnPoint01")
+
+[node name="SpawnPoint01" type="Node3D" parent="PlayerSpawner"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.46775, 3.43957, -2.10603)
+
+[node name="CSGCylinder3D" type="CSGCylinder3D" parent="PlayerSpawner/SpawnPoint01"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.3259, 0)
+layers = 32
+material = SubResource("StandardMaterial3D_okv1i")
 
 [node name="Environment" type="Node3D" parent="."]
 
@@ -82,11 +95,11 @@ environment = SubResource("Environment_qg828")
 transform = Transform3D(1, 0, 0, 0, 0.628194, 0.778057, 0, -0.778057, 0.628194, 0, 3, 0)
 
 [node name="CSGBox3D" type="CSGBox3D" parent="Environment"]
-transform = Transform3D(2.25, 0, 0, 0, 2.25, 0, 0, 0, 2.25, -0.0229278, 1.03091, -33.101)
+transform = Transform3D(2.25, 0, 0, 0, 2.25, 0, 0, 0, 2.25, 0, 1, -30)
 material_override = SubResource("StandardMaterial3D_k5f4k")
 use_collision = true
 collision_mask = 15
-size = Vector3(15, 0.166, 44.3384)
+size = Vector3(15, 0.166, 43.9808)
 
 [node name="CSGBox3D2" type="CSGBox3D" parent="Environment"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.71713, -4.30189)
@@ -112,17 +125,19 @@ material_override = SubResource("StandardMaterial3D_0f350")
 use_collision = true
 collision_mask = 15
 
-[node name="TransitionArea" parent="Environment" node_paths=PackedStringArray("label", "pinkConfetti", "yellowConfetti", "cyanConfetti") instance=ExtResource("3_00jar")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -57.8781)
-collision_mask = 4
-label = NodePath("../Label3D")
-pinkConfetti = NodePath("../GPUParticles3DPink")
-yellowConfetti = NodePath("../GPUParticles3DYellow")
-cyanConfetti = NodePath("../GPUParticles3DCyan")
+[node name="Label3D" type="Label3D" parent="Environment"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5, -65)
+text = "GO HERE"
+font_size = 500
+outline_size = 50
 
-[node name="CollisionShape3D2" type="CollisionShape3D" parent="Environment/TransitionArea"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 11.7913, 0)
-shape = SubResource("BoxShape3D_00jar")
+[node name="TransitionArea" parent="Environment" instance=ExtResource("3_00jar")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -57.8781)
+collision_mask = 2
+script = null
+
+[node name="CollisionShape3D" parent="Environment/TransitionArea" index="0"]
+shape = SubResource("BoxShape3D_j0g0q")
 
 [node name="GPUParticles3DPink" type="GPUParticles3D" parent="Environment"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 11.5627, -62.1943)
@@ -131,8 +146,8 @@ amount = 100
 lifetime = 3.0
 one_shot = true
 explosiveness = 1.0
-process_material = SubResource("ParticleProcessMaterial_j0g0q")
-draw_pass_1 = SubResource("BoxMesh_e11n1")
+process_material = SubResource("ParticleProcessMaterial_00jar")
+draw_pass_1 = SubResource("BoxMesh_j0g0q")
 
 [node name="GPUParticles3DYellow" type="GPUParticles3D" parent="Environment"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 11.5627, -62.1943)
@@ -141,7 +156,7 @@ amount = 100
 lifetime = 3.0
 one_shot = true
 explosiveness = 1.0
-process_material = SubResource("ParticleProcessMaterial_j0g0q")
+process_material = SubResource("ParticleProcessMaterial_00jar")
 draw_pass_1 = SubResource("BoxMesh_h5s6u")
 
 [node name="GPUParticles3DCyan" type="GPUParticles3D" parent="Environment"]
@@ -151,81 +166,25 @@ amount = 100
 lifetime = 3.0
 one_shot = true
 explosiveness = 1.0
-process_material = SubResource("ParticleProcessMaterial_j0g0q")
-draw_pass_1 = SubResource("BoxMesh_ya8by")
-
-[node name="Label3D" type="Label3D" parent="Environment"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5, -65)
-text = "GO HERE"
-font_size = 500
-outline_size = 50
-
-[node name="CSGBox3D6" type="CSGBox3D" parent="Environment"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17.3578, 3.10037, -34.1259)
-use_collision = true
-collision_mask = 15
-size = Vector3(1, 4.29089, 102.743)
-
-[node name="CSGBox3D7" type="CSGBox3D" parent="Environment"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -17.2435, 3.10037, -34.1259)
-use_collision = true
-collision_mask = 15
-size = Vector3(1, 4.29089, 102.743)
-
-[node name="CSGBox3D8" type="CSGBox3D" parent="Environment"]
-transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -0.241772, 3.10037, 16.344)
-use_collision = true
-collision_mask = 15
-size = Vector3(1, 4.29089, 38.4169)
-
-[node name="CSGBox3D9" type="CSGBox3D" parent="Environment"]
-transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -0.241772, 3.10037, -82.2744)
-use_collision = true
-collision_mask = 15
-size = Vector3(1, 4.29089, 38.4169)
-
-[node name="CSGBox3D10" type="CSGBox3D" parent="Environment"]
-transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -0.241772, -0.746437, -59.1748)
-collision_mask = 15
-size = Vector3(1, 4.29089, 38.4169)
+process_material = SubResource("ParticleProcessMaterial_00jar")
+draw_pass_1 = SubResource("BoxMesh_62i8n")
 
 [node name="Interactables" type="Node3D" parent="."]
 unique_name_in_owner = true
-script = ExtResource("1_00jar")
-placeholdersPath = NodePath("../Placeholders")
-spawnerPath = NodePath("ItemSpawner")
 
-[node name="ItemSpawner" type="MultiplayerSpawner" parent="Interactables"]
-_spawnable_scenes = PackedStringArray("uid://b575wgt5fc8yc", "uid://c10ybnoe2rhv4", "uid://b638mtt6nax88", "uid://ba3m0401u3th5")
-spawn_path = NodePath("..")
-
-[node name="Placeholders" type="Node3D" parent="."]
-
-[node name="RopeBox2" parent="Placeholders" instance=ExtResource("3_0314m")]
+[node name="RopeBox2" parent="Interactables" instance=ExtResource("3_0314m")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.49154, 2.21766, -7.71141)
 
-[node name="WoodPlank" parent="Placeholders" instance=ExtResource("4_qg828")]
+[node name="WoodPlank" parent="Interactables" instance=ExtResource("4_qg828")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.88892, 4.37407, 1.78256)
 
-[node name="WoodPlank2" parent="Placeholders" instance=ExtResource("4_qg828")]
+[node name="WoodPlank2" parent="Interactables" instance=ExtResource("4_qg828")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.98111, 4.37407, 1.78256)
 
-[node name="WoodPlank3" parent="Placeholders" instance=ExtResource("4_qg828")]
+[node name="WoodPlank3" parent="Interactables" instance=ExtResource("4_qg828")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.76184, 4.37407, 1.78256)
 
 [node name="PlayersContainer" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.90816, 0)
 
-[node name="PlayerSpawner" type="MultiplayerSpawner" parent="PlayersContainer" node_paths=PackedStringArray("spawn_point") groups=["player_spawner"]]
-spawn_path = NodePath("..")
-script = ExtResource("1_k5f4k")
-player_scene = ExtResource("2_k5f4k")
-spawn_point = NodePath("SpawnPoint01")
-
-[node name="SpawnPoint01" type="Node3D" parent="PlayersContainer/PlayerSpawner"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.46775, 3.43957, -2.10603)
-
-[node name="CSGCylinder3D" type="CSGCylinder3D" parent="PlayersContainer/PlayerSpawner/SpawnPoint01"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.3259, 0)
-layers = 32
-material = SubResource("StandardMaterial3D_okv1i")
+[editable path="Environment/TransitionArea"]

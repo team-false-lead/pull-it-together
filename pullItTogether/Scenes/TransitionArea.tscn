@@ -1,0 +1,13 @@
+[gd_scene load_steps=3 format=3 uid="uid://woij3e5klul2"]
+
+[ext_resource type="Script" uid="uid://blmba7n0d1ppe" path="res://Scripts/MiscScripts/TransitionArea.cs" id="1_fypj5"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_chkuj"]
+
+[node name="TransitionArea" type="Area3D"]
+script = ExtResource("1_fypj5")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("BoxShape3D_chkuj")
+
+[connection signal="body_entered" from="." to="." method="OnBodyEntered"]

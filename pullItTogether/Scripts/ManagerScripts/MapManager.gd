@@ -12,12 +12,18 @@ var _loading := false
 
 var is_multiplayer_session: bool = true
 
+signal map_reloaded
+
 func _ready() -> void:
 	game_manager.connect("singleplayer_session_started", Callable(self, "_set_multiplayer_false"))
 
 func _set_multiplayer_false() -> void:
 	is_multiplayer_session = false
-	
+
+# Server rebuild level instance
+func reload_current_map() -> Node:
+	return await load_map()
+
 func load_map() -> Node:
 	if _loading:
 		return level_instance
@@ -55,6 +61,7 @@ func load_map() -> Node:
 		push_error("MapManager: PlayerSpawner not found in loaded level.")
 		
 	_loading = false
+	emit_signal("map_reloaded")
 	return level_instance
 
 func _find_spawner(root: Node) -> Node:
@@ -90,3 +97,16 @@ func despawn_player(peer_id: int) -> void:
 		_spawner.despawn_player(peer_id)
 	else:
 		push_warning("MapManager: despawn_player() called but spawner not ready")
+		
+# Server RPC
+@rpc("any_peer", "call_local") func request_reload_map() -> void:
+	if multiplayer.has_multiplayer_peer() and not multiplayer.is_server():
+		rpc_id(1, "request_reload_map")
+		return
+	await  get_tree().process_frame
+	await reload_current_map()
+	
+	rpc("confirm_reload")
+	
+@rpc("authority") func confirm_reload() -> void:
+	print("Map reloaded for client.")
