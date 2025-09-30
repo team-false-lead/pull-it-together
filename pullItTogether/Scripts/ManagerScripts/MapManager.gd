@@ -98,7 +98,7 @@ func despawn_player(peer_id: int) -> void:
 	else:
 		push_warning("MapManager: despawn_player() called but spawner not ready")
 		
-# Server RPC
+# Server RPC --------------------------------
 @rpc("any_peer", "call_local") 
 func request_reload_map() -> void:
 	if multiplayer.has_multiplayer_peer() and not multiplayer.is_server():
@@ -109,15 +109,24 @@ func request_reload_map() -> void:
 
 func _get_all_players() -> Array:
 	var ids := multiplayer.get_peers()
-	ids.append(1) # host
+	if not ids.has(1):
+		ids.append(1) # host
 	return ids
 	
-func _check_players_exist() -> bool:
-	return level_instance != null and is_instance_valid(level_instance) and level_instance.find_child("PlayersContainer", true, false) != null
+func _ensure_spawner() -> void:
+	if _spawner == null and level_instance:
+		_spawner = _find_spawner(level_instance)
+	
+#func _check_players_exist() -> bool:
+#	return level_instance != null and is_instance_valid(level_instance) and level_instance.find_child("PlayersContainer", true, false) != null
 
 func _safe_despawn_all() -> void:
-	for id in _get_all_players():
-		despawn_player(id)
+	_ensure_spawner()
+	if _spawner and _spawner.is_inside_tree() and _spawner.has_method("despawn_all"):
+		_spawner.despawn_all()
+	else:
+		for id in _get_all_players():
+			despawn_player(id)
 		
 func _safe_spawn_all() -> void:
 	for id in _get_all_players():
