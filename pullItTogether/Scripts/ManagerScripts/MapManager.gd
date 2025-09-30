@@ -123,7 +123,8 @@ func request_reload_map() -> void:
 	
 	if _spawner and _spawner.has_method("set_spawning_enabled"):
 		_spawner.set_spawning_enabled(true)
-		
+	if _spawner and _spawner.has_method("reposition_all"):
+		_spawner.reposition_all()
 	#var ids := multiplayer.get_peers()
 	#if not ids.has(1):
 	#	ids.append(1)

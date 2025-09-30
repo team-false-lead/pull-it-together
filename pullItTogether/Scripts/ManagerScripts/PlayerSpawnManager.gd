@@ -15,25 +15,28 @@ func _ready() -> void:
 	await get_tree().process_frame
 
 	if multiplayer.is_server() and spawning_enabled:
-		var ids := multiplayer.get_peers()
-		if not ids.has(1):
-			ids.append(1)
-		for id in ids:
-			spawn_peer(id)
+		ensure_host_spawned()
+	#	var ids := multiplayer.get_peers()
+	#	if not ids.has(1):
+	#		ids.append(1)
+	#	for id in ids:
+	#		spawn_peer(id)
 	
-	if multiplayer.is_server() and spawning_enabled:
-		multiplayer.peer_connected.connect(_on_peer_connected)
-		multiplayer.peer_disconnected.connect(_on_peer_disconnected)
+	#if multiplayer.is_server() and spawning_enabled:
+	#	multiplayer.peer_connected.connect(_on_peer_connected)
+	#	multiplayer.peer_disconnected.connect(_on_peer_disconnected)
 
 func set_spawning_enabled(enabled: bool) -> void:
 	spawning_enabled = enabled
 	if not multiplayer.is_server():
 		return
 	if enabled:
-		if not multiplayer.peer_connected.is_connected(_on_peer_connected):
-			multiplayer.peer_connected.connect(_on_peer_connected)
-		if not multiplayer.peer_disconnected.is_connected(_on_peer_disconnected):
-			multiplayer.peer_disconnected.connect(_on_peer_disconnected)
+		ensure_host_spawned()
+		reposition_all()
+	#	if not multiplayer.peer_connected.is_connected(_on_peer_connected):
+	#		multiplayer.peer_connected.connect(_on_peer_connected)
+	#	if not multiplayer.peer_disconnected.is_connected(_on_peer_disconnected):
+	#		multiplayer.peer_disconnected.connect(_on_peer_disconnected)
 		
 		var ids := multiplayer.get_peers()
 		if not ids.has(1):
@@ -80,6 +83,17 @@ func _spawn_player(peer_id: int) -> Node:
 	#_configure_local_view(player, peer_id)
 	return player
 
+func ensure_host_spawned() -> void:
+	if not spawning_enabled:
+		return
+	if not players.has(1) or not is_instance_valid(players[1]):
+		super.spawn(1)
+
+func reposition_all() -> void:
+	for p in players.values():
+		if is_instance_valid(p):
+			_place_at_spawn(p)
+
 func _place_at_spawn(player: Node3D) -> void:
 	var target_pos := _get_spawn_position()
 	player.global_position = target_pos
@@ -124,15 +138,15 @@ func despawn_all() -> void:
 	for id in players.keys().duplicate():
 		await despawn_player(id)
 
-func _on_peer_connected(peer_id: int) -> void:
-	if not multiplayer.is_server() or not spawning_enabled:
-		return
-	spawn_peer(peer_id)
+#func _on_peer_connected(peer_id: int) -> void:
+#	if not multiplayer.is_server() or not spawning_enabled:
+#		return
+#	spawn_peer(peer_id)
 
-func _on_peer_disconnected(peer_id: int) -> void:
-	if players.has(peer_id):
-		players[peer_id].queue_free()
-		players.erase(peer_id)
+#func _on_peer_disconnected(peer_id: int) -> void:
+#	if players.has(peer_id):
+#		players[peer_id].queue_free()
+#		players.erase(peer_id)
 
 func _get_spawn_position() -> Vector3:
 	if spawn_point and spawn_point.is_inside_tree():
