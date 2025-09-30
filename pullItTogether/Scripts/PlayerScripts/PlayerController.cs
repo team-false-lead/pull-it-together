@@ -30,6 +30,7 @@ public partial class PlayerController : CharacterBody3D
 
 	// Interaction parameters
 	private Interactable heldObject = null;
+	[Export] public NodePath inventorySlotPath;
 	[Export] public float interactRange = 3.0f;
 	[Export] public int interactLayer = 4;
 
@@ -186,7 +187,7 @@ public partial class PlayerController : CharacterBody3D
 			var target = GetInteractableLookedAt();
 			if (target != null)
 			{
-				GD.Print(target.ToString());
+				//GD.Print(target.ToString());
 				PickupObject(target);
 			}
 		}
@@ -205,6 +206,12 @@ public partial class PlayerController : CharacterBody3D
 		bobPos.Y = Mathf.Sin(timer * bobFrequency) * bobAmplitude;
 		bobPos.X = Mathf.Cos(timer * bobFrequency * 0.5f) * bobAmplitude;
 		return bobPos;
+	}
+
+	public Node3D GetInventorySlot()
+	{
+		if (inventorySlotPath == null || inventorySlotPath == String.Empty) return null;
+		return GetNode<Node3D>(inventorySlotPath);
 	}
 
 	// Handle the "use" action input
@@ -229,7 +236,7 @@ public partial class PlayerController : CharacterBody3D
 		var state = GetWorld3D().DirectSpaceState;
 		var query = PhysicsRayQueryParameters3D.Create(origin, to);
 		query.CollisionMask = interactMaskUint;
-		query.Exclude = new Array<Rid> { GetRid() }; // ignore self
+		query.Exclude = new Array<Rid> { GetRid(), collisionPusher.GetRid() }; // ignore self
 
 		var hit = state.IntersectRay(query);
 		return hit;
@@ -259,7 +266,7 @@ public partial class PlayerController : CharacterBody3D
 	{
 		while (node != null)
 		{
-			if (node is Interactable interactable)
+			if (node is Interactable interactable && !string.IsNullOrEmpty(interactable.interactableId))
 				return interactable;
 			node = node.GetParent();
 		}
@@ -317,7 +324,7 @@ public partial class PlayerController : CharacterBody3D
 	{
 		if (heldObject != null)
 		{
-			heldObject.Drop(this);
+			heldObject.TryDrop(this);
 			heldObject = null;
 		}
 	}

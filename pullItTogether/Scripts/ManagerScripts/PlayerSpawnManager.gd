@@ -23,6 +23,7 @@ func _spawn_player(peer_id: int) -> Node:
 	var player := player_scene.instantiate()
 	player.set_multiplayer_authority(peer_id)
 	players[peer_id] = player
+	player.add_to_group("players")
 
 	var target_pos := _get_spawn_position()
 	
