@@ -122,27 +122,38 @@ func _ensure_spawner() -> void:
 #func _check_players_exist() -> bool:
 #	return level_instance != null and is_instance_valid(level_instance) and level_instance.find_child("PlayersContainer", true, false) != null
 
-func _safe_despawn_all() -> void:
-	_ensure_spawner()
-	if _spawner and _spawner.is_inside_tree() and _spawner.has_method("despawn_all"):
-		await _spawner.despawn_all()
-	else:
-		for player in get_tree().get_nodes_in_group("players"):
-			var sync := player.get_node_or_null("MultiplayerSynchronizer") as MultiplayerSynchronizer
-			if sync:
-				sync.set_replication_active(false)
-			await get_tree().process_frame
-			player.queue_free()
-
 func _disable_syncers(node: Node) -> void:
 	for child in node.get_children():
 		_disable_syncers(child)
 		if child is MultiplayerSynchronizer:
-			var syncer := child as MultiplayerSynchronizer
-			syncer.set_replication_active(false)
+			var sync := child as MultiplayerSynchronizer
+			sync.replication_config = SceneReplicationConfig.new()
+			await get_tree().process_frame
+
+func _force_free_all_player() -> void:
+	for player in get_tree().get_nodes_in_group("players"):
+		var sync := player.get_node_or_null("MultiplayerSynchronizer") as MultiplayerSynchronizer
+		if sync:
+			sync.replication_config = SceneReplicationConfig.new()
+		await get_tree().process_frame
+		player.queue_free()
+		await get_tree().process_frame
+
+func _safe_despawn_all() -> void:
+	_ensure_spawner()
+	if _spawner and _spawner.has_method("set_spawning_enabled"):
+		_spawner.set_spawning_enabled(false)
+	
+	if _spawner and _spawner.is_inside_tree() and _spawner.has_method("despawn_all"):
+		await _spawner.despawn_all()
+	else:
+		_force_free_all_player()
 
 func _safe_spawn_all() -> void:
 	_ensure_spawner()
+	if _spawner and _spawner.has_method("set_spawning_enabled"):
+		_spawner.set_spawning_enabled(true)
+	
 	for id in _get_all_players():
 		if _spawner and _spawner.has_method("spawn_peer"):
 			_spawner.spawn_peer(id)

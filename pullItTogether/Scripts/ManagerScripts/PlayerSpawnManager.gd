@@ -5,6 +5,7 @@ class_name PlayerSpawnManager
 @export var spawn_point: Node3D
 
 var players: Dictionary[int, Node3D] = {}
+var spawning_enabled := true
 
 func _ready() -> void:
 	if not is_in_group("player_spawner"):
@@ -13,10 +14,15 @@ func _ready() -> void:
 	spawn_function = _spawn_player
 	await get_tree().process_frame
 
-	if is_multiplayer_authority():
+	if is_multiplayer_authority() and spawning_enabled:
 		spawn(multiplayer.get_unique_id())
-		multiplayer.peer_connected.connect(spawn)
+	
+	if spawning_enabled:
+		multiplayer.peer_connected.connect(_on_peer_connected)
 		multiplayer.peer_disconnected.connect(_on_peer_disconnected)
+
+func set_spawning_enabled(enabled: bool) -> void:
+	spawning_enabled = enabled
 
 func _spawn_player(peer_id: int) -> Node:
 	if player_scene == null:
@@ -40,6 +46,7 @@ func _spawn_player(peer_id: int) -> Node:
 		if "global_position" in player:
 			player.global_position = target_pos, 
 	CONNECT_ONE_SHOT)
+	
 	_configure_local_view(player, peer_id)
 	return player
 
@@ -52,7 +59,8 @@ func _configure_local_view(player: Node, peer_id: int) -> void:
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 func spawn_peer(peer_id: int) -> void:
-	super.spawn(peer_id)
+	if spawning_enabled:
+		super.spawn(peer_id)
 
 func despawn_player(peer_id: int) -> void:
 	if not players.has(peer_id):
@@ -60,7 +68,7 @@ func despawn_player(peer_id: int) -> void:
 	var player : Node3D = players[peer_id]
 	var sync:= player.get_node_or_null("MultiplayerSynchronizer") as MultiplayerSynchronizer
 	if sync:
-		sync.set_replication_active(false)
+		sync.replication_config = SceneReplicationConfig.new()
 	await get_tree().process_frame
 	player.queue_free()
 	players.erase(peer_id)
@@ -68,6 +76,10 @@ func despawn_player(peer_id: int) -> void:
 func despawn_all() -> void:
 	for id in players.keys():
 		await despawn_player(id)
+
+func _on_peer_connected(peer_id: int) -> void:
+	if spawning_enabled:
+		spawn(peer_id)
 
 func _on_peer_disconnected(peer_id: int) -> void:
 	if players.has(peer_id):
