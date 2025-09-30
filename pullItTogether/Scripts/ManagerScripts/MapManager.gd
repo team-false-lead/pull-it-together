@@ -124,11 +124,11 @@ func request_reload_map() -> void:
 	if _spawner and _spawner.has_method("set_spawning_enabled"):
 		_spawner.set_spawning_enabled(true)
 		
-	var ids := multiplayer.get_peers()
-	if not ids.has(1):
-		ids.append(1)
-	for id in ids:
-		_spawner.spawn(id)
+	#var ids := multiplayer.get_peers()
+	#if not ids.has(1):
+	#	ids.append(1)
+	#for id in ids:
+	#	_spawner.spawn(id)
 	rpc("confirm_reload")
 
 func _get_all_players() -> Array:

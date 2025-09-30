@@ -19,7 +19,7 @@ func _ready() -> void:
 		if not ids.has(1):
 			ids.append(1)
 		for id in ids:
-			spawn(id)
+			spawn_peer(id)
 	
 	if multiplayer.is_server() and spawning_enabled:
 		multiplayer.peer_connected.connect(_on_peer_connected)
@@ -46,11 +46,11 @@ func _spawn_player(peer_id: int) -> Node:
 		push_error("PlayerSpawner: player_scene not assigned") 
 		return null
 
-	if players.has(peer_id) and is_instance_valid(players[peer_id]):
-		var existing := players[peer_id]
-		_place_at_spawn(existing)
-		_configure_local_view(existing, peer_id)
-		return null
+	#if players.has(peer_id) and is_instance_valid(players[peer_id]):
+	#	var existing := players[peer_id]
+	#	_place_at_spawn(existing)
+	#	_configure_local_view(existing, peer_id)
+	#	return null
 
 	var player : Node3D = player_scene.instantiate()
 	player.name = "Player%d" % peer_id
@@ -100,7 +100,12 @@ func _configure_local_view(player: Node, peer_id: int) -> void:
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 func spawn_peer(peer_id: int) -> void:
-	if spawning_enabled:
+	if not spawning_enabled:
+		return
+	if players.has(peer_id) and is_instance_valid(players[peer_id]):
+		_place_at_spawn(players[peer_id])
+		_configure_local_view(players[peer_id], peer_id)
+	else:
 		super.spawn(peer_id)
 
 func despawn_player(peer_id: int) -> void:
@@ -122,7 +127,7 @@ func despawn_all() -> void:
 func _on_peer_connected(peer_id: int) -> void:
 	if not multiplayer.is_server() or not spawning_enabled:
 		return
-	spawn(peer_id)
+	spawn_peer(peer_id)
 
 func _on_peer_disconnected(peer_id: int) -> void:
 	if players.has(peer_id):
