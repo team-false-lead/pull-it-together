@@ -1,9 +1,16 @@
-[gd_scene load_steps=6 format=3 uid="uid://cv44tvj0o5jcf"]
+[gd_scene load_steps=9 format=3 uid="uid://cv44tvj0o5jcf"]
 
 [ext_resource type="Script" uid="uid://d35fcmqkvt0n3" path="res://Scripts/ManagerScripts/GameManager.gd" id="1_pbw6q"]
 [ext_resource type="Script" uid="uid://1yk74iatudu6" path="res://Scripts/ManagerScripts/NetworkManager.gd" id="2_v1gob"]
 [ext_resource type="Script" uid="uid://crunxsujs24e1" path="res://Scripts/ManagerScripts/MapManager.gd" id="3_jw32o"]
 [ext_resource type="PackedScene" uid="uid://b7pp3skomvnhc" path="res://Scenes/TestMap.tscn" id="4_50glp"]
+[ext_resource type="Script" uid="uid://wudugmq7kbma" path="res://Scripts/ManagerScripts/PlayerSpawnManager.gd" id="5_v1gob"]
+[ext_resource type="PackedScene" uid="uid://ckpgu08xdcwp4" path="res://Scenes/Player.tscn" id="6_jw32o"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_50glp"]
+transparency = 1
+vertex_color_use_as_albedo = true
+albedo_color = Color(0, 1, 1, 0.301961)
 
 [sub_resource type="LabelSettings" id="LabelSettings_nfy72"]
 font_size = 25
@@ -40,8 +47,27 @@ script = ExtResource("2_v1gob")
 [node name="MapManager" type="Node" parent="." node_paths=PackedStringArray("game_manager")]
 unique_name_in_owner = true
 script = ExtResource("3_jw32o")
+player_container_path = NodePath("PlayersContainer")
+spawner_path = NodePath("PlayersContainer/PlayerSpawner")
 game_manager = NodePath("../GameManager")
 level_scene = ExtResource("4_50glp")
+
+[node name="PlayersContainer" type="Node3D" parent="MapManager"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.90816, 0)
+
+[node name="PlayerSpawner" type="MultiplayerSpawner" parent="MapManager/PlayersContainer" node_paths=PackedStringArray("spawn_point") groups=["player_spawner"]]
+spawn_path = NodePath("..")
+script = ExtResource("5_v1gob")
+player_scene = ExtResource("6_jw32o")
+spawn_point = NodePath("SpawnPoint01")
+
+[node name="SpawnPoint01" type="Node3D" parent="MapManager/PlayersContainer/PlayerSpawner"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.46775, 3.43957, -2.10603)
+
+[node name="CSGCylinder3D" type="CSGCylinder3D" parent="MapManager/PlayersContainer/PlayerSpawner/SpawnPoint01"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.3259, 0)
+layers = 32
+material = SubResource("StandardMaterial3D_50glp")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 

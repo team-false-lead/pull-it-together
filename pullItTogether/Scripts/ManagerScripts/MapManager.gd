@@ -1,13 +1,16 @@
 extends Node
 class_name MapManager
 
+@export var player_container_path: NodePath
+@export var spawner_path: NodePath
 @export var game_manager: Node
 @export var level_scene : PackedScene
 #@export var container_path : NodePath
 @export var interactables_node = null
-
 @export var level_instance: Node = null
+
 var _spawner: Node = null
+var _players_container: Node = null
 var _loading := false
 
 var is_multiplayer_session: bool = true
@@ -15,6 +18,8 @@ var is_multiplayer_session: bool = true
 signal map_reloaded
 
 func _ready() -> void:
+	_players_container = get_node(player_container_path)
+	_spawner = get_node(spawner_path)
 	game_manager.connect("singleplayer_session_started", Callable(self, "_set_multiplayer_false"))
 
 func _set_multiplayer_false() -> void:
@@ -40,12 +45,12 @@ func load_map() -> Node:
 		return null
 
 	if level_instance and is_instance_valid(level_instance):
-		_disable_syncers(level_instance)
+		await _disable_syncers(level_instance)
 		await get_tree().process_frame
 		level_instance.queue_free()
 		level_instance = null
-		for c in self.get_children():
-			c.queue_free()
+		#for c in self.get_children():
+		#	c.queue_free()
 		await get_tree().process_frame
 		#_spawner = null
 
@@ -58,9 +63,9 @@ func load_map() -> Node:
 
 	await get_tree().process_frame
 	
-	_spawner = _find_spawner(level_instance)
-	if _spawner == null:
-		push_error("MapManager: PlayerSpawner not found in loaded level.")
+	#_spawner = _find_spawner(level_instance)
+	#if _spawner == null:
+	#	push_error("MapManager: PlayerSpawner not found in loaded level.")
 		
 	_loading = false
 	emit_signal("map_reloaded")
@@ -106,8 +111,15 @@ func request_reload_map() -> void:
 	if multiplayer.has_multiplayer_peer() and not multiplayer.is_server():
 		rpc_id(1, "request_reload_map")
 		return
-	await  get_tree().process_frame
-	await _server_reload_current_map()
+	#await  get_tree().process_frame
+	#await _server_reload_current_map()
+	if _spawner and _spawner.has_method("set_spawning_enabled"):
+		_spawner.set_spawning_enabled(false)
+	await load_map()
+	
+	if _spawner and _spawner.has_method("set_spawning_enabled"):
+		_spawner.set_spawning_enabled(true)
+	rpc("confirm_reload")
 
 func _get_all_players() -> Array:
 	var ids := multiplayer.get_peers()
@@ -135,12 +147,18 @@ func _collect_syncers(root: Node) -> Array[MultiplayerSynchronizer]:
 	return out
 
 func _disable_syncers(root: Node) -> void:
+	if root == null or not is_instance_valid(root):
+		return
 	var syncers := _collect_syncers(root)
-	for s in syncers:
-		s.replication_config = SceneReplicationConfig.new()
-		
-	for s in syncers:
-		s.queue_free()
+	for s: MultiplayerSynchronizer in syncers:
+		if is_instance_valid(s):
+			s.replication_config = SceneReplicationConfig.new()
+	await get_tree().process_frame
+	
+	for s: MultiplayerSynchronizer in syncers:
+		if is_instance_valid(s):
+			s.queue_free()
+	await get_tree().process_frame
 
 func _force_free_all_player() -> void:
 	var players := get_tree().get_nodes_in_group("players").duplicate()
