@@ -122,22 +122,34 @@ func _ensure_spawner() -> void:
 #func _check_players_exist() -> bool:
 #	return level_instance != null and is_instance_valid(level_instance) and level_instance.find_child("PlayersContainer", true, false) != null
 
-func _disable_syncers(node: Node) -> void:
-	for child in node.get_children():
-		_disable_syncers(child)
-		if child is MultiplayerSynchronizer:
-			var sync := child as MultiplayerSynchronizer
-			sync.replication_config = SceneReplicationConfig.new()
-			await get_tree().process_frame
+func _collect_syncers(root: Node) -> Array[MultiplayerSynchronizer]:
+	var stack: Array[Node] = [root]
+	stack.push_back(root)
+	var out: Array[MultiplayerSynchronizer] = []
+	while stack.size() >0:
+		var n : Node = stack.pop_back() as Node
+		for child in n.get_children():
+			stack.push_back(child)
+			if child is MultiplayerSynchronizer:
+				out.append(child as MultiplayerSynchronizer)
+	return out
+
+func _disable_syncers(root: Node) -> void:
+	var syncers := _collect_syncers(root)
+	for s in syncers:
+		s.replication_config = SceneReplicationConfig.new()
+		
+	for s in syncers:
+		s.queue_free()
 
 func _force_free_all_player() -> void:
-	for player in get_tree().get_nodes_in_group("players"):
-		var sync := player.get_node_or_null("MultiplayerSynchronizer") as MultiplayerSynchronizer
+	var players := get_tree().get_nodes_in_group("players").duplicate()
+	for p in players:
+		var sync := p.get_node_or_null("MultiplayerSynchronizer") as MultiplayerSynchronizer
 		if sync:
 			sync.replication_config = SceneReplicationConfig.new()
-		await get_tree().process_frame
-		player.queue_free()
-		await get_tree().process_frame
+	for p in players:
+		p.queue_free()
 
 func _safe_despawn_all() -> void:
 	_ensure_spawner()
@@ -159,17 +171,12 @@ func _safe_spawn_all() -> void:
 			_spawner.spawn_peer(id)
 
 func _server_reload_current_map() -> void:
-	_ensure_spawner()
-	#if level_instance and is_instance_valid(level_instance):
-	#	_disable_syncers(level_instance)
-	await get_tree().process_frame
-	
 	await _safe_despawn_all()
+	_disable_syncers(level_instance)
 	await get_tree().process_frame
+	level_instance.queue_free()
 	await get_tree().process_frame
-	await get_tree().process_frame # just incase
-	
-	await load_map()
+	level_instance = await load_map()
 	await get_tree().process_frame
 	
 	_safe_spawn_all()

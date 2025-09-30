@@ -14,10 +14,14 @@ func _ready() -> void:
 	spawn_function = _spawn_player
 	await get_tree().process_frame
 
-	if is_multiplayer_authority() and spawning_enabled:
-		spawn(multiplayer.get_unique_id())
+	if multiplayer.is_server() and spawning_enabled:
+		var ids := multiplayer.get_peers()
+		if not ids.has(1):
+			ids.append(1)
+		for id in ids:
+			spawn(id)
 	
-	if spawning_enabled:
+	if multiplayer.is_server() and spawning_enabled:
 		multiplayer.peer_connected.connect(_on_peer_connected)
 		multiplayer.peer_disconnected.connect(_on_peer_disconnected)
 
@@ -69,17 +73,19 @@ func despawn_player(peer_id: int) -> void:
 	var sync:= player.get_node_or_null("MultiplayerSynchronizer") as MultiplayerSynchronizer
 	if sync:
 		sync.replication_config = SceneReplicationConfig.new()
+		sync.queue_free()
 	await get_tree().process_frame
 	player.queue_free()
 	players.erase(peer_id)
 
 func despawn_all() -> void:
-	for id in players.keys():
+	for id in players.keys().duplicate():
 		await despawn_player(id)
 
 func _on_peer_connected(peer_id: int) -> void:
-	if spawning_enabled:
-		spawn(peer_id)
+	if not multiplayer.is_server() or not spawning_enabled:
+		return
+	spawn(peer_id)
 
 func _on_peer_disconnected(peer_id: int) -> void:
 	if players.has(peer_id):
