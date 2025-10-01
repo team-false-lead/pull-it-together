@@ -1,6 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://rgaq6sxofk4f"]
-
-[ext_resource type="Script" uid="uid://03khlwewr3x2" path="res://Scripts/WagonScripts/RaycastWagon.gd" id="1_5rxyb"]
+[gd_scene load_steps=9 format=3 uid="uid://rgaq6sxofk4f"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_vlqqi"]
 
@@ -16,7 +14,7 @@ albedo_color = Color(0.918998, 0.83316, 0.672293, 1)
 size = Vector3(2.625, 2.5, 5.775)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_5rxyb"]
-size = Vector3(2.5, 0.5, 5.5)
+size = Vector3(2.5, 1.5, 5.5)
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_5rxyb"]
 top_radius = 0.7
@@ -28,15 +26,12 @@ albedo_color = Color(0.514254, 0.350825, 0.246575, 1)
 
 [node name="WagonTestRaycast" type="Node3D"]
 
-[node name="RigidBody3D" type="RigidBody3D" parent="." node_paths=PackedStringArray("wheels")]
+[node name="RigidBody3D" type="RigidBody3D" parent="."]
 collision_layer = 4
 collision_mask = 9
-mass = 500.0
-script = ExtResource("1_5rxyb")
-wheels = [NodePath("Wheels/FrontLeft"), NodePath("Wheels/Back Left"), NodePath("Wheels/FrontRight"), NodePath("Wheels/BackRight")]
-spring_strength = 1000.0
-spring_dampen = 500.0
-rest_distance = 1.25
+mass = 1000.0
+center_of_mass_mode = 1
+center_of_mass = Vector3(0, -3, 0)
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="RigidBody3D"]
 transform = Transform3D(2.5, 0, 0, 0, 0.5, 0, 0, 0, 5.5, 0, 0, 0)
@@ -58,6 +53,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
 shape = SubResource("BoxShape3D_vlqqi")
 
 [node name="BaseCollision" type="CollisionShape3D" parent="RigidBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
 shape = SubResource("BoxShape3D_5rxyb")
 
 [node name="Wheels" type="Node3D" parent="RigidBody3D"]
