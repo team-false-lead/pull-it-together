@@ -44,7 +44,8 @@ collision_layer = 2
 script = ExtResource("1_kyqiw")
 head = NodePath("Head")
 camera = NodePath("Head/Camera3D")
-inventorySlotPath = NodePath("Head/Camera3D/Inventory/InventorySlot1")
+fovChange = 1.1
+bobAmplitude = 0.04
 collisionPusher = NodePath("AnimatableBody3D")
 
 [node name="PlayerCameraSync" type="Node" parent="." node_paths=PackedStringArray("Camera")]
