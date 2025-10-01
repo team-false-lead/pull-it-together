@@ -13,6 +13,12 @@ public abstract partial class Interactable : RigidBody3D
     protected Node3D levelInteractablesNode;
     protected ItemManager itemManager;
     public virtual bool CanBeCarried() { return true; }
+    [Export]
+    private bool IsBeingCarried
+    {
+        get { return Carrier != null; }
+        set { return; } // lmao
+    }
     public CharacterBody3D Carrier { get; set; } = null;
 
     private Node3D followTarget;
@@ -64,7 +70,7 @@ public abstract partial class Interactable : RigidBody3D
     // Attempt to pick up the object
     public virtual bool TryPickup(CharacterBody3D carrier)
     {
-        if (Carrier != null || !CanBeCarried()) return false;
+        if (IsBeingCarried || !CanBeCarried()) return false;
 
         if (itemManager == null) InitReferences();
         var id = GetInteractableId();
