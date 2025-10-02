@@ -51,7 +51,7 @@ environment = SubResource("Environment_qg828")
 transform = Transform3D(1, 0, 0, 0, 0.628194, 0.778057, 0, -0.778057, 0.628194, 0, 3, 0)
 
 [node name="CSGBox3D" type="CSGBox3D" parent="Environment"]
-transform = Transform3D(2.25, 0, 0, 0, 2.25, 0, 0, 0, 2.25, -0.0229278, 1.03091, -0.0953117)
+transform = Transform3D(2.25, 0, 0, 0, 1.6113, -1.57042, 0, 1.57042, 1.6113, -0.0229278, 1.03091, -0.0953117)
 material_override = SubResource("StandardMaterial3D_k5f4k")
 use_collision = true
 collision_mask = 15
@@ -123,4 +123,4 @@ layers = 32
 material = SubResource("StandardMaterial3D_okv1i")
 
 [node name="WagonTestRaycast" parent="." instance=ExtResource("6_00jar")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.60021, 5.51558, -2.35473)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.60021, 12.871, -7.07991)
