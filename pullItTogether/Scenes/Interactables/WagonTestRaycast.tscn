@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://rgaq6sxofk4f"]
+[gd_scene load_steps=12 format=3 uid="uid://rgaq6sxofk4f"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_vlqqi"]
 friction = 0.75
@@ -20,7 +20,7 @@ size = Vector3(1, 0.2, 1.05)
 size = Vector3(0.042, 2.5, 5.775)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_5rxyb"]
-size = Vector3(2.5, 1.5, 5.5)
+size = Vector3(2.5, 0.5, 5.5)
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_5rxyb"]
 top_radius = 0.7
@@ -29,6 +29,10 @@ height = 0.1
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_bxu3g"]
 albedo_color = Color(0.514254, 0.350825, 0.246575, 1)
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_vlqqi"]
+height = 0.79
+radius = 0.7
 
 [node name="WagonTestRaycast" type="Node3D"]
 
@@ -75,7 +79,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.28, 1.5, 0)
 shape = SubResource("BoxShape3D_vlqqi")
 
 [node name="BaseCollision" type="CollisionShape3D" parent="RigidBody3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.00366962, 0)
 shape = SubResource("BoxShape3D_5rxyb")
 
 [node name="TopCollision" type="CollisionShape3D" parent="RigidBody3D"]
@@ -120,3 +124,19 @@ surface_material_override/0 = SubResource("StandardMaterial3D_bxu3g")
 [node name="LipCollision" type="CollisionShape3D" parent="RigidBody3D"]
 transform = Transform3D(1, 0, 0, 0, 0.171821, 0, 0, 0, 0.149358, 0, -0.213154, -3.15114)
 shape = SubResource("BoxShape3D_5rxyb")
+
+[node name="FLeftWheelCollision" type="CollisionShape3D" parent="RigidBody3D"]
+transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, -0.97, -0.536, -2)
+shape = SubResource("CylinderShape3D_vlqqi")
+
+[node name="BLeftWheelCollision" type="CollisionShape3D" parent="RigidBody3D"]
+transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, -0.97, -0.536, 1.99924)
+shape = SubResource("CylinderShape3D_vlqqi")
+
+[node name="FRightWheelCollision" type="CollisionShape3D" parent="RigidBody3D"]
+transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 0.968145, -0.536, -2)
+shape = SubResource("CylinderShape3D_vlqqi")
+
+[node name="BRightWheelCollision" type="CollisionShape3D" parent="RigidBody3D"]
+transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 0.968145, -0.536, 1.99924)
+shape = SubResource("CylinderShape3D_vlqqi")
