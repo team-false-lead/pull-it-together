@@ -37,8 +37,6 @@ public partial class PlayerController : CharacterBody3D
 
 	// Collision parameters
 	[Export] public AnimatableBody3D collisionPusher;
-	[Export] public int wagonLayer = 3;
-	[Export] public float wagonPushReductionFactor = 0.5f;
 	private uint interactMaskUint = 8;
 
 	// Rope tether parameters when carrying rope grab point
@@ -56,7 +54,7 @@ public partial class PlayerController : CharacterBody3D
 	public override void _Ready()
 	{
 		// Only the local player should capture the mouse and hide self
-		if (IsMultiplayerAuthority())
+		if (IsMultiplayerAuthority() && IsLocalControlled())
 		{
 			Input.SetMouseMode(Input.MouseModeEnum.Captured);
 
@@ -69,10 +67,6 @@ public partial class PlayerController : CharacterBody3D
 				}
 			}
 		}
-		else
-		{
-			//Input.SetMouseMode(Input.MouseModeEnum.Visible);
-		}
 
 		if (collisionPusher != null)
 		{
@@ -80,6 +74,7 @@ public partial class PlayerController : CharacterBody3D
 		}
 
 		interactMaskUint = (uint)(1 << (interactLayer - 1));// Convert layer number to bitmask
+
 		var mapManager = GetTree().CurrentScene.GetNodeOrNull<Node>("%MapManager");
 		if (mapManager != null)
 		{
@@ -87,10 +82,10 @@ public partial class PlayerController : CharacterBody3D
 		}
 	}
 
+	// Called when the map is reloaded, checks if held object is still valid
 	private void OnMapReloaded()
 	{
-		SafeForgetHeld();
-
+		HandleInvalidHeldObject();
 	}
 
 	// Check if this player instance is controlled by the local user
@@ -116,9 +111,6 @@ public partial class PlayerController : CharacterBody3D
 	public override void _PhysicsProcess(double delta)
 	{
 		if (!IsLocalControlled()) return; // local player processes movement
-
-		if (heldObject != null && !HeldValid())
-            SafeForgetHeld();
 
 		Vector3 velocity = Velocity;
 
@@ -202,7 +194,7 @@ public partial class PlayerController : CharacterBody3D
 			var target = GetInteractableLookedAt();
 			if (target != null)
 			{
-				GD.Print(target.ToString());
+				//GD.Print(target.ToString()); // debug
 				PickupObject(target);
 			}
 		}
@@ -223,12 +215,17 @@ public partial class PlayerController : CharacterBody3D
 		return bobPos;
 	}
 
-	private void SafeForgetHeld()
+	// disconnects wagon tether and forgets held object if invalid
+	private bool HandleInvalidHeldObject()
 	{
+		if (HeldValid()) return false;
+
 		RemoveTetherAnchor();
 		heldObject = null;
+		return true;
 	}
 
+	// get the inventory slot node for holding items
 	public Node3D GetInventorySlot()
 	{
 		if (inventorySlotPath == null || inventorySlotPath == String.Empty) return null;
@@ -334,7 +331,7 @@ public partial class PlayerController : CharacterBody3D
 			DropObject();
 		}
 
-		if (obj.TryPickup(this))
+		if (obj.TryPickup(this) == true)
 		{
 			heldObject = obj;
 		}
@@ -343,11 +340,10 @@ public partial class PlayerController : CharacterBody3D
 	// Drop the currently held object
 	public void DropObject()
 	{
-		if (!HeldValid()) { SafeForgetHeld();  return;}
+		if (HandleInvalidHeldObject()) return; // if invalid item was handled return
 
-		if (heldObject != null)
+		if (heldObject.TryDrop(this) == true)
 		{
-			heldObject.TryDrop(this);
 			heldObject = null;
 		}
 	}
@@ -355,8 +351,7 @@ public partial class PlayerController : CharacterBody3D
 	// Use the held object on itself or on a target
 	public void UseHeldObject()
 	{
-		if (!HeldValid()) { SafeForgetHeld();  return;}
-		if (heldObject == null) return;
+		if (HandleInvalidHeldObject()) return; // if invalid item was handled return
 
 		//check if looking at another interactable first
 		var target = GetInteractableLookedAt();
