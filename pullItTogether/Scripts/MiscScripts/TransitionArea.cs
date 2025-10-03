@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Threading.Tasks;
 
+// temporary script for transition areas that trigger confetti and map reload
 public partial class TransitionArea : Area3D
 {
     [Export]
@@ -21,6 +22,7 @@ public partial class TransitionArea : Area3D
         BodyEntered += OnBodyEntered;
     }
 
+    // trigger confetti, change label text, and try map reload
     private void OnBodyEntered(Node3D node)
     {
         if (hasTriggered) return; // Prevent multiple triggers
@@ -42,6 +44,7 @@ public partial class TransitionArea : Area3D
         var execute = ResetAfterSeconds(3, mapManager); // Warning isn't important because this is super temporary code
     }
 
+    // wait a few seconds, reset label, then try map reload
     public async Task ResetAfterSeconds(float seconds, Node mapManager)
     {
         await ToSignal(GetTree().CreateTimer(seconds), SceneTreeTimer.SignalName.Timeout);
