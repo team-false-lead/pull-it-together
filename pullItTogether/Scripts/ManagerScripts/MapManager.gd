@@ -18,7 +18,7 @@ signal map_deloaded
 func _ready() -> void:
 	game_manager.singleplayer_session_started.connect(func(): _set_multiplayer_session(false))
 	network_manager.session_started.connect(func(_role): _set_multiplayer_session(true))
-	network_manager.session_ended.connect(func(_role): _set_multiplayer_session(false))
+	network_manager.session_ended.connect(func(): _set_multiplayer_session(false))
 
 func _set_multiplayer_session(status: bool) -> void:
 	is_multiplayer_session = status

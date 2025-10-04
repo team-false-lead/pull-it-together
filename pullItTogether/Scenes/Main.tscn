@@ -45,12 +45,11 @@ manual_join_button = NodePath("../CanvasLayer/MainControl/PublicMultiplayerMenu/
 [node name="NetworkManager" type="Node" parent="."]
 script = ExtResource("2_v1gob")
 
-[node name="MapManager" type="Node" parent="." node_paths=PackedStringArray("game_manager")]
+[node name="MapManager" type="Node" parent="." node_paths=PackedStringArray("game_manager", "network_manager")]
 unique_name_in_owner = true
 script = ExtResource("3_jw32o")
-player_container_path = NodePath("PlayersContainer")
-spawner_path = NodePath("PlayersContainer/PlayerSpawner")
 game_manager = NodePath("../GameManager")
+network_manager = NodePath("../NetworkManager")
 level_scene = ExtResource("4_50glp")
 
 [node name="PlayersContainer" type="Node3D" parent="MapManager"]

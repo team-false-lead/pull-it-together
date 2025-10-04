@@ -22,6 +22,8 @@ func _ready() -> void:
 # Set spawning enabled/disabled and connect signals/spawn existing players if server
 func set_spawning_enabled(enabled: bool) -> void:
 	spawning_enabled = enabled
+	await get_tree().process_frame # wait a frame to ensure multiplayer is ready
+
 	if not multiplayer.is_server(): # only the server spawns players
 		return
 
@@ -32,6 +34,7 @@ func set_spawning_enabled(enabled: bool) -> void:
 			multiplayer.peer_disconnected.connect(_on_peer_disconnected)
 		
 		# spawn existing players including host
+		await get_tree().process_frame
 		var ids := multiplayer.get_peers()
 		if not ids.has(1):
 			ids.append(1)
