@@ -34,7 +34,7 @@ albedo_color = Color(0.514254, 0.350825, 0.246575, 1)
 height = 0.79
 radius = 0.7
 
-[node name="WagonTestRaycast" type="Node3D"]
+[node name="WagonTest" type="Node3D"]
 
 [node name="RigidBody3D" type="RigidBody3D" parent="."]
 collision_layer = 4

@@ -5,7 +5,7 @@
 [ext_resource type="PackedScene" uid="uid://ckpgu08xdcwp4" path="res://Scenes/Player.tscn" id="2_k5f4k"]
 [ext_resource type="PackedScene" uid="uid://c10ybnoe2rhv4" path="res://Scenes/Interactables/RopeBoxVerlet.tscn" id="3_0314m"]
 [ext_resource type="PackedScene" uid="uid://ba3m0401u3th5" path="res://Scenes/Interactables/WoodPlank.tscn" id="4_qg828"]
-[ext_resource type="PackedScene" uid="uid://rgaq6sxofk4f" path="res://Scenes/Interactables/WagonTestRaycast.tscn" id="6_00jar"]
+[ext_resource type="PackedScene" uid="uid://rgaq6sxofk4f" path="res://Scenes/Interactables/WagonTest.tscn" id="6_00jar"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_xh66l"]
 sky_horizon_color = Color(0.662243, 0.671743, 0.686743, 1)
@@ -51,7 +51,7 @@ environment = SubResource("Environment_qg828")
 transform = Transform3D(1, 0, 0, 0, 0.628194, 0.778057, 0, -0.778057, 0.628194, 0, 3, 0)
 
 [node name="CSGBox3D" type="CSGBox3D" parent="Environment"]
-transform = Transform3D(2.25, 0, 0, 0, 1.6113, -1.57042, 0, 1.57042, 1.6113, -0.0229278, 1.03091, -0.0953117)
+transform = Transform3D(2.25, 0, 0, 0, 2.25, 0, 0, 0, 2.25, -0.0229278, 1.03091, -0.0953117)
 material_override = SubResource("StandardMaterial3D_k5f4k")
 use_collision = true
 collision_mask = 15
