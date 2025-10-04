@@ -326,8 +326,12 @@ func _on_gs_lobby_match_list(lobbies: Array) -> void:
 		})
 	emit_signal("lobby_list_updated", out)
 
-# GodotSteam lobby data updated (not used)
+# GodotSteam lobby data updated (not used currently), lobby name/metadata changes
 #func _on_gs_lobby_data_update(_success: bool, _lobby_id: int, _member_id: int) -> void:
+#	pass
+
+# GodotSteam lobby chat update (not used currently), member join/leave updates?
+#func _on_lobby_chat_update(_lobby_id: int, _member_id: int, _state_change: int) -> void:
 #	pass
 
 # ---------- Transport runtime checks ----------
@@ -365,10 +369,12 @@ func _on_session_started(role: String) -> void:
 
 # disable spawning and show menu on session end
 func _on_session_ended() -> void:
-	if main_canvas: main_canvas.show()
-	_show_main_menu()
+	if map_manager and map_manager.has_method("deload_map"):
+		await map_manager.call("deload_map") # reset map to initial state
 	if spawn_manager:
 		spawn_manager.set_spawning_enabled(false)
+	if main_canvas: main_canvas.show()
+	_show_main_menu()
 
 # peer connected/disconnected handled in spawn manager
 
