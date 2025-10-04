@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://ckpgu08xdcwp4"]
+[gd_scene load_steps=15 format=3 uid="uid://ckpgu08xdcwp4"]
 
 [ext_resource type="Script" uid="uid://cor1xxd0lnxxg" path="res://Scripts/PlayerScripts/PlayerController.cs" id="1_kyqiw"]
 [ext_resource type="Script" uid="uid://dmbbfw34d8nf1" path="res://Scripts/PlayerScripts/PlayerCameraSync.cs" id="2_gntrk"]
@@ -39,6 +39,12 @@ albedo_color = Color(0.054902, 0.67451, 0.976471, 1)
 albedo_color = Color(0.054902, 0.67451, 0.976471, 1)
 
 [sub_resource type="SphereMesh" id="SphereMesh_gntrk"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_gntrk"]
+bg_color = Color(9.62615e-07, 0.720765, 0.318998, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dewec"]
+bg_color = Color(0.817582, 0.785842, 0, 1)
 
 [node name="Player" type="CharacterBody3D" node_paths=PackedStringArray("head", "camera", "collisionPusher") groups=["players"]]
 collision_layer = 2
@@ -121,3 +127,56 @@ offset_bottom = 32.0
 grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("3_gntrk")
+
+[node name="HealthBar" type="Control" parent="HUD"]
+anchors_preset = 0
+offset_left = 25.0
+offset_top = 565.0
+offset_right = 279.0
+offset_bottom = 592.0
+mouse_filter = 2
+
+[node name="RichTextLabel" type="RichTextLabel" parent="HUD/HealthBar"]
+layout_mode = 2
+offset_right = 68.0
+offset_bottom = 27.0
+text = "Health:"
+
+[node name="ProgressBar" type="ProgressBar" parent="HUD/HealthBar"]
+layout_mode = 2
+offset_left = 63.0
+offset_right = 254.0
+offset_bottom = 27.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_vertical = 1
+theme_override_styles/fill = SubResource("StyleBoxFlat_gntrk")
+value = 100.0
+show_percentage = false
+
+[node name="EnergyBar" type="Control" parent="HUD"]
+anchors_preset = 0
+offset_left = 25.0
+offset_top = 598.0
+offset_right = 279.0
+offset_bottom = 625.0
+mouse_filter = 2
+
+[node name="RichTextLabel" type="RichTextLabel" parent="HUD/EnergyBar"]
+layout_mode = 0
+offset_right = 68.0
+offset_bottom = 40.0
+text = "Energy:"
+
+[node name="ProgressBar" type="ProgressBar" parent="HUD/EnergyBar"]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 63.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_vertical = 1
+theme_override_styles/fill = SubResource("StyleBoxFlat_dewec")
+value = 100.0
+show_percentage = false
