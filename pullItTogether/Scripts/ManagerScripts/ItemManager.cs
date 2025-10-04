@@ -17,6 +17,37 @@ public partial class ItemManager : Node3D
 	// Initialize the ItemManager, set up multiplayer, and spawn items from placeholders
 	public override void _Ready()
 	{
+		//// Get the MapManager node from the current scene and check multiplayer status
+		//mapManager = GetTree().CurrentScene.GetNodeOrNull<Node>("%MapManager");
+		//if (mapManager != null)
+		//{
+		//	isMultiplayerSession = mapManager.Get("is_multiplayer_session").As<bool>() && multiplayer.HasMultiplayerPeer();
+		//}
+		//else
+		//{
+		//	GD.PrintErr("ItemManager: MapManager not found in scene tree!");
+		//}
+//
+		//// If not in a multiplayer session, spawn items from placeholders immediately
+		//// If in a multiplayer session, only the server spawns items and informs clients
+		//// Clients remove placeholders when they join
+		//bool isServerOrOffline = !isMultiplayerSession || multiplayer.IsServer();
+		//if (isServerOrOffline)
+		//{
+		//	SpawnFromPlaceholders();
+		//	Rpc(nameof(ClientRemovePlaceholders)); // inform clients to remove placeholders
+		//	ClientRemovePlaceholders(); // also remove from host
+		//}
+		//// clients will remove placeholders when they join via OnPeerConnected
+
+		multiplayer.PeerConnected += OnPeerConnected;
+		this.ChildEnteredTree += OnChildEnteredTree;
+		CallDeferred(nameof(InitializeAfterReady));
+		//GD.Print($"[ItemManager], isServer={isServer}, authority={GetMultiplayerAuthority()}"); // Debug authority
+	}
+	
+	private void InitializeAfterReady()
+	{
 		// Get the MapManager node from the current scene and check multiplayer status
 		mapManager = GetTree().CurrentScene.GetNodeOrNull<Node>("%MapManager");
 		if (mapManager != null)
@@ -35,15 +66,20 @@ public partial class ItemManager : Node3D
 		if (isServerOrOffline)
 		{
 			SpawnFromPlaceholders();
-			Rpc(nameof(ClientRemovePlaceholders)); // inform clients to remove placeholders
+			if (multiplayer.HasMultiplayerPeer())
+				Rpc(nameof(ClientRemovePlaceholders)); // inform clients to remove placeholders
 			ClientRemovePlaceholders(); // also remove from host
 		}
 		// clients will remove placeholders when they join via OnPeerConnected
+	}
 
-		multiplayer.PeerConnected += OnPeerConnected;
-		this.ChildEnteredTree += OnChildEnteredTree;
-
-		//GD.Print($"[ItemManager], isServer={isServer}, authority={GetMultiplayerAuthority()}"); // Debug authority
+	// Clean up event connections and dictionaries when the ItemManager is removed from the scene tree
+	public override void _ExitTree()
+	{
+		multiplayer.PeerConnected -= OnPeerConnected;
+		this.ChildEnteredTree -= OnChildEnteredTree;
+		interactables.Clear();
+		ropeProxyByItem.Clear();
 	}
 
 	// Spawn interactable items based on placeholder nodes in the scene
@@ -55,7 +91,7 @@ public partial class ItemManager : Node3D
 			GD.Print("ItemManager: No placeholders path set, skipping items spawn.");
 			return;
 		}
-		
+
 		foreach (var child in placeholders.GetChildren())
 		{
 			if (child is not Node3D placeholder) continue; // Only process Node3D children
