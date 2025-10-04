@@ -134,22 +134,31 @@ public partial class ItemManager : Node3D
 																	 //item.Name = id; // breaks peer-to-peer? and it keeps auto moving this line really far right
 		}
 
-		if (!interactables.ContainsKey(item.interactableId)) // only add if not already tracked
+		// Ensure the ID is unique and track the item
+		if (interactables.TryGetValue(item.interactableId, out var existing))
 		{
-			interactables[item.interactableId] = item;
-
-			item.TreeExited += () =>
+			// Handle case where ID already exists but the instance is invalid (e.g., was freed)
+			if (IsInstanceValid(existing))
 			{
-				if (interactables.Remove(item.interactableId))
-				{
-					GD.Print("ItemManager: Tree Exited, Removed interactable with ID " + item.interactableId);
-				}
-			};
+				if (existing == item) return; // already tracked
+				GD.PrintErr("ItemManager: Duplicate interactable ID: " + item.interactableId);
+				return;
+			}
+			// Replace invalid reference with the new item
+			interactables[item.interactableId] = item;
+			return;
 		}
-		else
+		// New ID, add to dictionary
+		interactables[item.interactableId] = item;
+
+		// Set up cleanup on item removal
+		item.TreeExited += () =>
 		{
-			GD.PrintErr("ItemManager: Duplicate interactable ID detected: " + item.interactableId);
-		}
+			if (interactables.Remove(item.interactableId))
+			{
+				GD.Print("ItemManager: Tree Exited, Removed interactable with ID " + item.interactableId);
+			}
+		};
 	}
 
 	// Client-side removal of placeholder nodes
@@ -171,7 +180,9 @@ public partial class ItemManager : Node3D
 
 		if (newChild is Interactable item)
 		{
-			AssignId(item);
+			// Ensure the item has a unique ID and is tracked 
+			if (string.IsNullOrEmpty(item.interactableId) || !interactables.TryGetValue(item.interactableId, out var existing) || !IsInstanceValid(existing))
+				AssignId(item);
 		}
 	}
 
@@ -246,6 +257,7 @@ public partial class ItemManager : Node3D
 
 		Vector3 dropPosition = GetDropPosition(requestingItem); // drop in front of the user of the item
 		instance.GlobalTransform = new Transform3D(Basis.Identity, dropPosition);
+		requestingItem.QueueFree(); // remove the used item
 	}
 
 	// item pickup request

@@ -334,13 +334,14 @@ public partial class PlayerController : CharacterBody3D
 		if (obj.TryPickup(this) == true)
 		{
 			heldObject = obj;
+			//GD.Print("Picked up object: " + obj.interactableId);
 		}
 	}
 
 	// Drop the currently held object
 	public void DropObject()
 	{
-		if (HandleInvalidHeldObject()) return; // if invalid item was handled return
+		if (HandleInvalidHeldObject()) { GD.Print("Invalid held object"); return; } // if invalid item was handled return
 
 		if (heldObject.TryDrop(this) == true)
 		{

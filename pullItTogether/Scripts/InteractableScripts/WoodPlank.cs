@@ -27,7 +27,7 @@ public partial class WoodPlank : Interactable
             itemManager.DoSpawnItem(id);
         }
 
-        QueueFree(); // Remove this plank after use
+        //QueueFree(); // Remove this plank after use
     }
 
     //add logic for using on wheels

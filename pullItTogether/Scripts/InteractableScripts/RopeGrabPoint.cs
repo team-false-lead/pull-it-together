@@ -178,7 +178,7 @@ public partial class RopeGrabPoint : Interactable
     // override drop to remove proxy and re-enable collisions
     public override bool TryDrop(CharacterBody3D carrier)
     {
-        if (Carrier != carrier) return false;
+        //if (Carrier != carrier) return false; // allow drop even if not carrier, in case of desync
 
         if (itemManager == null) InitReferences();
         var id = GetInteractableId();

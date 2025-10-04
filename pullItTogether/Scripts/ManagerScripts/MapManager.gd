@@ -25,6 +25,7 @@ func _set_multiplayer_session(status: bool) -> void:
 
 # Load the map, free existing if any.
 func load_map() -> Node:
+	#print("[MapManager] caller= ", get_tree().get_caller_id()) # stops being broken as soon as i add this line
 	if _loading_map:
 		return level_instance
 	_loading_map = true
