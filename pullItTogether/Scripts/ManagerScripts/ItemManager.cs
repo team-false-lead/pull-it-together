@@ -17,35 +17,13 @@ public partial class ItemManager : Node3D
 	// Initialize the ItemManager, set up multiplayer, and spawn items from placeholders
 	public override void _Ready()
 	{
-		//// Get the MapManager node from the current scene and check multiplayer status
-		//mapManager = GetTree().CurrentScene.GetNodeOrNull<Node>("%MapManager");
-		//if (mapManager != null)
-		//{
-		//	isMultiplayerSession = mapManager.Get("is_multiplayer_session").As<bool>() && multiplayer.HasMultiplayerPeer();
-		//}
-		//else
-		//{
-		//	GD.PrintErr("ItemManager: MapManager not found in scene tree!");
-		//}
-//
-		//// If not in a multiplayer session, spawn items from placeholders immediately
-		//// If in a multiplayer session, only the server spawns items and informs clients
-		//// Clients remove placeholders when they join
-		//bool isServerOrOffline = !isMultiplayerSession || multiplayer.IsServer();
-		//if (isServerOrOffline)
-		//{
-		//	SpawnFromPlaceholders();
-		//	Rpc(nameof(ClientRemovePlaceholders)); // inform clients to remove placeholders
-		//	ClientRemovePlaceholders(); // also remove from host
-		//}
-		//// clients will remove placeholders when they join via OnPeerConnected
-
 		multiplayer.PeerConnected += OnPeerConnected;
 		this.ChildEnteredTree += OnChildEnteredTree;
 		CallDeferred(nameof(InitializeAfterReady));
 		//GD.Print($"[ItemManager], isServer={isServer}, authority={GetMultiplayerAuthority()}"); // Debug authority
 	}
 	
+	// Deferred initialization to ensure the scene is fully loaded
 	private void InitializeAfterReady()
 	{
 		// Get the MapManager node from the current scene and check multiplayer status
