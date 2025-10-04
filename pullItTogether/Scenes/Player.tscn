@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3 uid="uid://ckpgu08xdcwp4"]
+[gd_scene load_steps=17 format=3 uid="uid://ckpgu08xdcwp4"]
 
 [ext_resource type="Script" uid="uid://cor1xxd0lnxxg" path="res://Scripts/PlayerScripts/PlayerController.cs" id="1_kyqiw"]
 [ext_resource type="Script" uid="uid://dmbbfw34d8nf1" path="res://Scripts/PlayerScripts/PlayerCameraSync.cs" id="2_gntrk"]
@@ -42,23 +42,23 @@ albedo_color = Color(0.054902, 0.67451, 0.976471, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_gntrk"]
 bg_color = Color(9.62615e-07, 0.720765, 0.318998, 1)
-border_width_left = 4
-border_width_top = 4
-border_width_right = 4
-border_width_bottom = 4
 border_color = Color(0, 0, 0, 1)
 border_blend = true
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dewec"]
-bg_color = Color(0.817582, 0.785842, 0, 1)
-border_width_left = 4
-border_width_top = 4
-border_width_right = 4
-border_width_bottom = 4
+bg_color = Color(0.799794, 0.764326, 0, 1)
 border_color = Color(0, 0, 0, 1)
 border_blend = true
 
-[node name="Player" type="CharacterBody3D" node_paths=PackedStringArray("head", "camera", "collisionPusher", "healthBar", "energyBar") groups=["players"]]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_5ixxa"]
+bg_color = Color(0.6, 0.6, 0.6, 0)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_nn08x"]
+bg_color = Color(0.386757, 0.386757, 0.386757, 1)
+border_color = Color(0, 0, 0, 1)
+border_blend = true
+
+[node name="Player" type="CharacterBody3D" node_paths=PackedStringArray("head", "camera", "collisionPusher", "healthBar", "energyBar", "fatigueBar") groups=["players"]]
 collision_layer = 2
 script = ExtResource("1_kyqiw")
 head = NodePath("Head")
@@ -67,6 +67,7 @@ inventorySlotPath = NodePath("Head/Camera3D/Inventory/InventorySlot1")
 collisionPusher = NodePath("AnimatableBody3D")
 healthBar = NodePath("HUD/HealthBar/HealthProgressBar")
 energyBar = NodePath("HUD/EnergyBar/EnergyProgressBar")
+fatigueBar = NodePath("HUD/EnergyBar/FatigueProgressBar")
 
 [node name="PlayerCameraSync" type="Node" parent="." node_paths=PackedStringArray("Camera")]
 script = ExtResource("2_gntrk")
@@ -156,6 +157,14 @@ offset_right = 68.0
 offset_bottom = 27.0
 text = "Health:"
 
+[node name="BlackBackground" type="ColorRect" parent="HUD/HealthBar"]
+layout_mode = 0
+offset_left = 61.0
+offset_top = -2.0
+offset_right = 256.0
+offset_bottom = 29.0
+color = Color(0, 0, 0, 1)
+
 [node name="HealthProgressBar" type="ProgressBar" parent="HUD/HealthBar"]
 layout_mode = 2
 offset_left = 63.0
@@ -182,6 +191,14 @@ offset_right = 68.0
 offset_bottom = 40.0
 text = "Energy:"
 
+[node name="BlackBackground" type="ColorRect" parent="HUD/EnergyBar"]
+layout_mode = 0
+offset_left = 61.0
+offset_top = -2.0
+offset_right = 256.0
+offset_bottom = 29.0
+color = Color(0, 0, 0, 1)
+
 [node name="EnergyProgressBar" type="ProgressBar" parent="HUD/EnergyBar"]
 layout_mode = 1
 anchors_preset = -1
@@ -193,4 +210,18 @@ grow_vertical = 2
 size_flags_vertical = 1
 theme_override_styles/fill = SubResource("StyleBoxFlat_dewec")
 value = 100.0
+show_percentage = false
+
+[node name="FatigueProgressBar" type="ProgressBar" parent="HUD/EnergyBar"]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 63.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_vertical = 1
+theme_override_styles/background = SubResource("StyleBoxFlat_5ixxa")
+theme_override_styles/fill = SubResource("StyleBoxFlat_nn08x")
+fill_mode = 1
 show_percentage = false

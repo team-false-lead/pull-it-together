@@ -54,6 +54,7 @@ public partial class PlayerController : CharacterBody3D
 	private float currentEnergy;
 	private float currentFatigue = 0f; // aka the maximum energy reduction
 	[Export] private ProgressBar energyBar;
+	[Export] private ProgressBar fatigueBar;
 
 	public override void _EnterTree()
 	{
@@ -91,8 +92,10 @@ public partial class PlayerController : CharacterBody3D
 		// Set the health and energy values to the max
 		currentHealth = maxHealth;
 		currentEnergy = maxEnergy;
+		currentFatigue = 0;
 		healthBar.MaxValue = healthBar.Value = maxHealth; // double-to-float shenaningans :pensive:
-		energyBar.MaxValue = energyBar.Value = maxEnergy;
+		energyBar.MaxValue = energyBar.Value = fatigueBar.MaxValue = maxEnergy;
+		fatigueBar.Value = 0;
 	}
 
 	// Check if this player instance is controlled by the local user
@@ -472,6 +475,7 @@ public partial class PlayerController : CharacterBody3D
 		else if (currentFatigue >= maxEnergy)
 			currentFatigue = maxEnergy;
 		ChangeCurrentEnergy(0); // Update energy bar
+		fatigueBar.Value = currentFatigue;
 		GD.Print("Current fatigue: " + currentFatigue);
 		// Idk if we're doing anything else with this
     }
