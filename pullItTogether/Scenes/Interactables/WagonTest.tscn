@@ -7,6 +7,7 @@
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_vlqqi"]
 friction = 0.1
+bounce = 0.25
 
 [sub_resource type="BoxMesh" id="BoxMesh_vlqqi"]
 
@@ -120,37 +121,28 @@ shape = SubResource("BoxShape3D_5rxyb")
 
 [node name="Wheels" type="Node3D" parent="RigidBody3D"]
 
-[node name="FrontLeft" type="RayCast3D" parent="RigidBody3D/Wheels"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.31992, 0, -2)
-target_position = Vector3(0, -1.25, 0)
-
-[node name="Wheel" type="MeshInstance3D" parent="RigidBody3D/Wheels/FrontLeft"]
-transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 0, -0.537599, 0)
+[node name="Wheel" type="MeshInstance3D" parent="RigidBody3D/Wheels"]
+transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, -1.31992, -0.537599, -2)
 mesh = SubResource("CylinderMesh_5rxyb")
+skeleton = NodePath("")
 surface_material_override/0 = SubResource("StandardMaterial3D_bxu3g")
 
-[node name="Back Left" type="RayCast3D" parent="RigidBody3D/Wheels"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.31992, 0, 2)
-
-[node name="Wheel" type="MeshInstance3D" parent="RigidBody3D/Wheels/Back Left"]
-transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 0, -0.537599, 0)
+[node name="Wheel2" type="MeshInstance3D" parent="RigidBody3D/Wheels"]
+transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, -1.31992, -0.537599, 2)
 mesh = SubResource("CylinderMesh_5rxyb")
+skeleton = NodePath("")
 surface_material_override/0 = SubResource("StandardMaterial3D_bxu3g")
 
-[node name="FrontRight" type="RayCast3D" parent="RigidBody3D/Wheels"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.32, 0, -2)
-
-[node name="Wheel" type="MeshInstance3D" parent="RigidBody3D/Wheels/FrontRight"]
-transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 0, -0.537599, 0)
+[node name="Wheel3" type="MeshInstance3D" parent="RigidBody3D/Wheels"]
+transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 1.32, -0.537599, -2)
 mesh = SubResource("CylinderMesh_5rxyb")
+skeleton = NodePath("")
 surface_material_override/0 = SubResource("StandardMaterial3D_bxu3g")
 
-[node name="BackRight" type="RayCast3D" parent="RigidBody3D/Wheels"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.32, 0, 2)
-
-[node name="Wheel" type="MeshInstance3D" parent="RigidBody3D/Wheels/BackRight"]
-transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 0, -0.537599, 0)
+[node name="Wheel4" type="MeshInstance3D" parent="RigidBody3D/Wheels"]
+transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 1.32, -0.537599, 2)
 mesh = SubResource("CylinderMesh_5rxyb")
+skeleton = NodePath("")
 surface_material_override/0 = SubResource("StandardMaterial3D_bxu3g")
 
 [node name="LipCollision" type="CollisionShape3D" parent="RigidBody3D"]
