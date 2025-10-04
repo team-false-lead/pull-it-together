@@ -6,7 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://b638mtt6nax88" path="res://Scenes/Interactables/RopeProxy.tscn" id="4_f8cd6"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_vlqqi"]
-friction = 0.1
+friction = 0.08
 bounce = 0.25
 
 [sub_resource type="BoxMesh" id="BoxMesh_vlqqi"]
@@ -37,7 +37,7 @@ height = 0.1
 albedo_color = Color(0.514254, 0.350825, 0.246575, 1)
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_vlqqi"]
-height = 0.79
+height = 0.2
 radius = 0.7
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_roc07"]
@@ -77,6 +77,7 @@ physics_material_override = SubResource("PhysicsMaterial_vlqqi")
 center_of_mass_mode = 1
 center_of_mass = Vector3(0, -3, 0)
 can_sleep = false
+constant_force = Vector3(0, 100, 0)
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="RigidBody3D"]
 transform = Transform3D(2.5, 0, 0, 0, 0.5, 0, 0, 0, 5.5, 0, 0, 0)
@@ -150,19 +151,19 @@ transform = Transform3D(1, 0, 0, 0, 0.171821, 0, 0, 0, 0.149358, 0, -0.213154, -
 shape = SubResource("BoxShape3D_5rxyb")
 
 [node name="FLeftWheelCollision" type="CollisionShape3D" parent="RigidBody3D"]
-transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, -0.97, -0.536, -2)
+transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, -1.27028, -0.536, -2)
 shape = SubResource("CylinderShape3D_vlqqi")
 
 [node name="BLeftWheelCollision" type="CollisionShape3D" parent="RigidBody3D"]
-transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, -0.97, -0.536, 1.99924)
+transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, -1.27028, -0.536, 1.99924)
 shape = SubResource("CylinderShape3D_vlqqi")
 
 [node name="FRightWheelCollision" type="CollisionShape3D" parent="RigidBody3D"]
-transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 0.968145, -0.536, -2)
+transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 1.27024, -0.536, -2)
 shape = SubResource("CylinderShape3D_vlqqi")
 
 [node name="BRightWheelCollision" type="CollisionShape3D" parent="RigidBody3D"]
-transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 0.968145, -0.536, 1.99924)
+transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 1.27024, -0.536, 1.99924)
 shape = SubResource("CylinderShape3D_vlqqi")
 
 [node name="RopeStartPoint" type="Node3D" parent="RigidBody3D"]

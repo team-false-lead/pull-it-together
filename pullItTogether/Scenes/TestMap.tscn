@@ -70,7 +70,7 @@ use_collision = true
 collision_mask = 15
 
 [node name="CSGBox3D4" type="CSGBox3D" parent="Environment"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.49368, 1.71713, -0.133514)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.10133, 0.798777, -0.133514)
 material_override = SubResource("StandardMaterial3D_wqkje")
 use_collision = true
 collision_mask = 15
@@ -92,6 +92,7 @@ _spawnable_scenes = PackedStringArray("uid://b575wgt5fc8yc", "uid://c10ybnoe2rhv
 spawn_path = NodePath("..")
 
 [node name="Placeholders" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00160074, 0.0105863, 0.0148365)
 
 [node name="WagonTest" parent="Placeholders" instance=ExtResource("6_00jar")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.60021, 12.2002, 8.18356)
