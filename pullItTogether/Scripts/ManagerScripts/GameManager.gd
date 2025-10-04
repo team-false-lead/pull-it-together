@@ -360,20 +360,28 @@ func _update_runtime_ui() -> void:
 # ---------- Network events ----------
 #load map and enable spawning on session start
 func _on_session_started(role: String) -> void:
+	# wait for multiplayer to be fully ready
+	while not multiplayer.has_multiplayer_peer():
+		await get_tree().process_frame
+
 	if map_manager and map_manager.has_method("load_map"):
 		await map_manager.call("load_map")
-	if main_canvas: main_canvas.hide()
+	await get_tree().process_frame
 	if spawn_manager:
 		spawn_manager.set_spawning_enabled(true)
+	if main_canvas: 
+		main_canvas.hide()
+	
 	print("Session started as: ", role)
 
 # disable spawning and show menu on session end
 func _on_session_ended() -> void:
-	if map_manager and map_manager.has_method("deload_map"):
-		await map_manager.call("deload_map") # reset map to initial state
 	if spawn_manager:
 		spawn_manager.set_spawning_enabled(false)
-	if main_canvas: main_canvas.show()
+	if map_manager:
+		await map_manager.call("deload_map") # reset map to initial state
+	if main_canvas: 
+		main_canvas.show()
 	_show_main_menu()
 
 # peer connected/disconnected handled in spawn manager
