@@ -360,10 +360,6 @@ func _update_runtime_ui() -> void:
 # ---------- Network events ----------
 #load map and enable spawning on session start
 func _on_session_started(role: String) -> void:
-	# wait for multiplayer to be fully ready
-	while not multiplayer.has_multiplayer_peer():
-		await get_tree().process_frame
-
 	if map_manager and map_manager.has_method("load_map"):
 		await map_manager.call("load_map")
 	await get_tree().process_frame
