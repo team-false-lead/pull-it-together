@@ -47,14 +47,15 @@ public partial class PlayerController : CharacterBody3D
 	private float tetherStrength;
 
 	// Health and energy parameters
+	[Export] private string hudScenePath;
 	private float maxHealth = 100f;
 	private float currentHealth;
-	[Export] private ProgressBar healthBar;
+	private ProgressBar healthBar;
 	private float maxEnergy = 100f;
 	private float currentEnergy;
 	private float currentFatigue = 0f; // aka the maximum energy reduction
-	[Export] private ProgressBar energyBar;
-	[Export] private ProgressBar fatigueBar;
+	private ProgressBar energyBar;
+	private ProgressBar fatigueBar;
 
 	public override void _EnterTree()
 	{
@@ -63,7 +64,8 @@ public partial class PlayerController : CharacterBody3D
 
 	public override void _Ready()
 	{
-		// Only the local player should capture the mouse and hide self
+		// Only the local player should capture the mouse, hide self, and have their own
+		// version of their HUD.
 		if (IsMultiplayerAuthority())
 		{
 			Input.SetMouseMode(Input.MouseModeEnum.Captured);
@@ -76,7 +78,23 @@ public partial class PlayerController : CharacterBody3D
 					node.Visible = false;
 				}
 			}
-		}
+
+            // Load the player HUD
+            Control HUD = (Control)ResourceLoader.Load<PackedScene>(hudScenePath).Instantiate();
+            AddChild(HUD);
+            // Hard-coded values for now
+            healthBar = HUD.GetNode<ProgressBar>("HealthBar/HealthProgressBar");
+            energyBar = HUD.GetNode<ProgressBar>("EnergyBar/EnergyProgressBar");
+            fatigueBar = HUD.GetNode<ProgressBar>("EnergyBar/FatigueProgressBar");
+
+            // Set health and energy values to their default
+            currentHealth = maxHealth;
+            currentEnergy = maxEnergy;
+            currentFatigue = 0;
+            healthBar.MaxValue = healthBar.Value = maxHealth; // double-to-float shenaningans :pensive:
+            energyBar.MaxValue = energyBar.Value = fatigueBar.MaxValue = maxEnergy;
+            fatigueBar.Value = 0;
+        }
 		else
 		{
 			Input.SetMouseMode(Input.MouseModeEnum.Visible);
@@ -88,14 +106,6 @@ public partial class PlayerController : CharacterBody3D
 		}
 
 		interactMaskUint = (uint)(1 << (interactLayer - 1));// Convert layer number to bitmask
-
-		// Set the health and energy values to the max
-		currentHealth = maxHealth;
-		currentEnergy = maxEnergy;
-		currentFatigue = 0;
-		healthBar.MaxValue = healthBar.Value = maxHealth; // double-to-float shenaningans :pensive:
-		energyBar.MaxValue = energyBar.Value = fatigueBar.MaxValue = maxEnergy;
-		fatigueBar.Value = 0;
 	}
 
 	// Check if this player instance is controlled by the local user

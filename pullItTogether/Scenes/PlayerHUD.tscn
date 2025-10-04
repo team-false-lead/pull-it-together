@@ -1,0 +1,128 @@
+[gd_scene load_steps=6 format=3 uid="uid://cx0brpfq1upti"]
+
+[ext_resource type="Texture2D" uid="uid://b7s337s1vub8l" path="res://Textures/temp-crosshair.png" id="1_g363m"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_gntrk"]
+bg_color = Color(9.62615e-07, 0.720765, 0.318998, 1)
+border_color = Color(0, 0, 0, 1)
+border_blend = true
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dewec"]
+bg_color = Color(0.799794, 0.764326, 0, 1)
+border_color = Color(0, 0, 0, 1)
+border_blend = true
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_5ixxa"]
+bg_color = Color(0.6, 0.6, 0.6, 0)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_nn08x"]
+bg_color = Color(0.386757, 0.386757, 0.386757, 1)
+border_color = Color(0, 0, 0, 1)
+border_blend = true
+
+[node name="HUD" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Crosshair" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -32.0
+offset_top = -32.0
+offset_right = 32.0
+offset_bottom = 32.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_g363m")
+
+[node name="HealthBar" type="Control" parent="."]
+anchors_preset = 0
+offset_left = 25.0
+offset_top = 565.0
+offset_right = 279.0
+offset_bottom = 592.0
+mouse_filter = 2
+
+[node name="RichTextLabel" type="RichTextLabel" parent="HealthBar"]
+layout_mode = 2
+offset_right = 68.0
+offset_bottom = 27.0
+text = "Health:"
+
+[node name="BlackBackground" type="ColorRect" parent="HealthBar"]
+layout_mode = 0
+offset_left = 61.0
+offset_top = -2.0
+offset_right = 256.0
+offset_bottom = 29.0
+color = Color(0, 0, 0, 1)
+
+[node name="HealthProgressBar" type="ProgressBar" parent="HealthBar"]
+layout_mode = 2
+offset_left = 63.0
+offset_right = 254.0
+offset_bottom = 27.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_vertical = 1
+theme_override_styles/fill = SubResource("StyleBoxFlat_gntrk")
+value = 100.0
+show_percentage = false
+
+[node name="EnergyBar" type="Control" parent="."]
+anchors_preset = 0
+offset_left = 25.0
+offset_top = 598.0
+offset_right = 279.0
+offset_bottom = 625.0
+mouse_filter = 2
+
+[node name="RichTextLabel" type="RichTextLabel" parent="EnergyBar"]
+layout_mode = 0
+offset_right = 68.0
+offset_bottom = 40.0
+text = "Energy:"
+
+[node name="BlackBackground" type="ColorRect" parent="EnergyBar"]
+layout_mode = 0
+offset_left = 61.0
+offset_top = -2.0
+offset_right = 256.0
+offset_bottom = 29.0
+color = Color(0, 0, 0, 1)
+
+[node name="EnergyProgressBar" type="ProgressBar" parent="EnergyBar"]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 63.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_vertical = 1
+theme_override_styles/fill = SubResource("StyleBoxFlat_dewec")
+value = 100.0
+show_percentage = false
+
+[node name="FatigueProgressBar" type="ProgressBar" parent="EnergyBar"]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 63.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_vertical = 1
+theme_override_styles/background = SubResource("StyleBoxFlat_5ixxa")
+theme_override_styles/fill = SubResource("StyleBoxFlat_nn08x")
+fill_mode = 1
+show_percentage = false
