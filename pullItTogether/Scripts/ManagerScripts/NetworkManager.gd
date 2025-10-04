@@ -3,21 +3,23 @@ class_name NetworkManager
 
 enum PeerMode { STEAM, LOCAL, NONE }
 
-signal session_started(role)      # "host" | "client"
+signal session_started(role) # "host" | "client"
 signal session_ended()
 signal peer_connected(id)
 signal peer_disconnected(id)
 
 var peer : MultiplayerPeer = null
-var mode : int = PeerMode.NONE
+var mode : int = PeerMode.NONE # 0=STEAM, 1=LOCAL, 2=NONE
 var _signals_hooked := false
 
+# ---------- General ----------
 func get_peer() -> MultiplayerPeer:
 	return peer
 
 func update_multiplayer_peer() -> void:
 	multiplayer.multiplayer_peer = peer
 
+# 0=STEAM, 1=LOCAL, 2=NONE
 func set_peer_mode(peer_mode : int) -> void:
 	mode = peer_mode
 	match mode:
@@ -34,6 +36,7 @@ func reset_peer() -> void:
 
 # ---------- Steam (Expresso Bits) ----------
 func host_steam() -> bool:
+	leave() # reset any existing session
 	set_peer_mode(PeerMode.STEAM)
 	var sp: SteamMultiplayerPeer = peer
 	var err: int = sp.create_host(0)  # 0 = virtual port
@@ -46,6 +49,7 @@ func host_steam() -> bool:
 	return true
 
 func join_steam(host_steam_id_64 : int) -> bool:
+	leave() # reset any existing session
 	set_peer_mode(PeerMode.STEAM)
 	var sp: SteamMultiplayerPeer = peer
 	var err: int
@@ -62,7 +66,9 @@ func join_steam(host_steam_id_64 : int) -> bool:
 	return true
 
 # ---------- Local ENet ----------
+# default to localhost (same machine), change address as needed
 func host_local(address : String = "127.0.0.1", port : int = 2450, max_clients : int = 4) -> bool:
+	leave() # reset any existing session
 	set_peer_mode(PeerMode.LOCAL)
 	peer.set_bind_ip(address)
 	var err: int = peer.create_server(port, max_clients)
@@ -75,7 +81,9 @@ func host_local(address : String = "127.0.0.1", port : int = 2450, max_clients :
 	print("LAN IP: %s\nPort: %d" % [address, port])
 	return true
 
+# default to localhost (same machine), change address as needed
 func join_local(address : String = "127.0.0.1", port : int = 2450) -> bool:
+	leave() # reset any existing session
 	set_peer_mode(PeerMode.LOCAL)
 	var err: int = peer.create_client(address, port)
 	if err != OK:
@@ -87,17 +95,28 @@ func join_local(address : String = "127.0.0.1", port : int = 2450) -> bool:
 	return true
 
 # ---------- Common ----------
+# leave session
 func leave() -> void:
+	# Disconnect signals
+	if _signals_hooked:
+		var mp: MultiplayerAPI = multiplayer
+		if mp.peer_connected.is_connected(_on_peer_connected):
+			mp.peer_connected.disconnect(_on_peer_connected)
+		if mp.peer_disconnected.is_connected(_on_peer_disconnected):
+			mp.peer_disconnected.disconnect(_on_peer_disconnected)
+	_signals_hooked = false
+
+	# Close peer connection
 	if peer and peer.has_method("close"):
 		peer.close()
 	multiplayer.multiplayer_peer = null
 	emit_signal("session_ended")
 	peer = null
 	mode = PeerMode.NONE
-	_signals_hooked = false
 
 func _attach_peer() -> void:
-	multiplayer.multiplayer_peer = peer
+	#connect signals
+	update_multiplayer_peer()
 	if not _signals_hooked:
 		var mp: MultiplayerAPI = multiplayer
 		mp.peer_connected.connect(_on_peer_connected)

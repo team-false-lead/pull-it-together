@@ -128,11 +128,13 @@ func _on_peer_connected(peer_id: int) -> void:
 	if not multiplayer.is_server() or not spawning_enabled:
 		return
 	spawn_peer(peer_id)
+	print("Peer connected: ", peer_id)
 
 func _on_peer_disconnected(peer_id: int) -> void:
 	if players.has(peer_id):
 		players[peer_id].queue_free()
 		players.erase(peer_id)
+		print("Peer disconnected: ", peer_id)
 
 func _get_spawn_position() -> Vector3:
 	if spawn_point and spawn_point.is_inside_tree():
