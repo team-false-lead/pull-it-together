@@ -2,7 +2,7 @@ extends Node
 class_name GameManager
 ## Combined Menu + Lobby + Steam callbacks
 ## P2P transport via Expresso Bits (SteamMultiplayerPeer)
-## lobby discovery via GodotSteam (if installed)
+## lobby discovery via GodotSteam
 
 signal singleplayer_session_started()
 # ---------- Scene References ----------
@@ -36,7 +36,8 @@ signal singleplayer_session_started()
 @export var manual_join_id: LineEdit                
 @export var manual_join_button: Button
 
-# ---------- Config ----------
+# ---------- Network Config ----------
+@export_category("Network Config")
 @export var lobby_prefix: String = "Pull It Together "
 var user_friendly_name: String
 @export var default_addr: String = "127.0.0.1"
@@ -46,7 +47,7 @@ var user_friendly_name: String
 var _steam_ok := false               
 
 # ---------- Internal ----------
-signal lobby_list_updated(items: Array) 	# [{lobby_id, name, host_id64, members, max}]
+signal lobby_list_updated(items: Array) 
 var _gs_signals_connected := false
 
 # ---------- Lifecycle ----------
@@ -209,7 +210,6 @@ func create_steam_lobby() -> void:
 	if not _steam_ok:
 		push_error("Steam not initialized; cannot create lobby.")
 		return
-	_connect_gs_signals() 
 	var GS = Engine.get_singleton("Steam")
 	GS.createLobby(2, default_max_players) # 2 = public
 
@@ -217,7 +217,6 @@ func refresh_steam_lobby_list() -> void:
 	if not _steam_ok:
 		push_error("Steam not initialized; cannot request lobby list.")
 		return
-	_connect_gs_signals() 
 	var GS = Engine.get_singleton("Steam")
 	GS.requestLobbyList()
 	print("refreshing lobbies...")
@@ -339,6 +338,11 @@ func _on_session_started(role: String) -> void:
 		spawn_manager.set_spawning_enabled(true)
 	print("Session started as: ", role)
 
+func _on_session_ended() -> void:
+	if main_canvas: main_canvas.show()
+	_show_main_menu()
+	if spawn_manager:
+		spawn_manager.set_spawning_enabled(false)
 
 func _on_peer_connected(id: int) -> void:
 	#if map_manager and map_manager.has_method("spawn_player"):
