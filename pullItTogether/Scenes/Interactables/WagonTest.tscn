@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3 uid="uid://rgaq6sxofk4f"]
+[gd_scene load_steps=19 format=3 uid="uid://rgaq6sxofk4f"]
 
 [ext_resource type="Script" uid="uid://dja12uyulc7ee" path="res://addons/verlet_rope_4/Physics/VerletRopeRigid.cs" id="1_24ylq"]
 [ext_resource type="Script" uid="uid://cuw8dk3lkvm2n" path="res://addons/verlet_rope_4/Physics/Joints/VerletJointRigid.cs" id="2_by6hu"]
@@ -6,7 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://b638mtt6nax88" path="res://Scenes/Interactables/RopeProxy.tscn" id="4_f8cd6"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_vlqqi"]
-friction = 0.75
+friction = 0.1
 
 [sub_resource type="BoxMesh" id="BoxMesh_vlqqi"]
 
@@ -43,12 +43,35 @@ radius = 0.7
 
 [sub_resource type="SphereMesh" id="SphereMesh_m5r0p"]
 
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_q3xkn"]
+properties/0/path = NodePath(".:position")
+properties/0/spawn = true
+properties/0/replication_mode = 1
+properties/1/path = NodePath(".:rotation")
+properties/1/spawn = true
+properties/1/replication_mode = 1
+properties/2/path = NodePath("GrabPoint:interactableId")
+properties/2/spawn = true
+properties/2/replication_mode = 1
+properties/3/path = NodePath("Box:position")
+properties/3/spawn = true
+properties/3/replication_mode = 1
+properties/4/path = NodePath("Box:rotation")
+properties/4/spawn = true
+properties/4/replication_mode = 1
+properties/5/path = NodePath("VerletRopeRigid:position")
+properties/5/spawn = true
+properties/5/replication_mode = 1
+properties/6/path = NodePath("VerletRopeRigid:rotation")
+properties/6/spawn = true
+properties/6/replication_mode = 1
+
 [node name="WagonTest" type="Node3D"]
 
 [node name="RigidBody3D" type="RigidBody3D" parent="."]
 collision_layer = 4
 collision_mask = 9
-mass = 1000.0
+mass = 900.0
 physics_material_override = SubResource("PhysicsMaterial_vlqqi")
 center_of_mass_mode = 1
 center_of_mass = Vector3(0, -3, 0)
@@ -151,7 +174,16 @@ transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 0.9681
 shape = SubResource("CylinderShape3D_vlqqi")
 
 [node name="RopeStartPoint" type="Node3D" parent="RigidBody3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.179746, -3.35201)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.7, -0.179746, -3.35201)
+
+[node name="GrabPointResetSlot" type="Node3D" parent="RigidBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.593533, 0.0238122, -5.69558)
+
+[node name="RopeStartPoint2" type="Node3D" parent="RigidBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.770333, -0.179746, -3.35201)
+
+[node name="GrabPointResetSlot2" type="Node3D" parent="RigidBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.876799, 0.0238122, -5.69558)
 
 [node name="VerletRopeRigid" type="Node3D" parent="."]
 script = ExtResource("1_24ylq")
@@ -173,12 +205,12 @@ EndCustomLocation = NodePath("../../GrabPoint")
 metadata/_custom_type_script = "uid://cuw8dk3lkvm2n"
 
 [node name="GrabPoint" type="RigidBody3D" parent="." node_paths=PackedStringArray("resetPoint", "rope", "joint")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0402171, -0.0263452, -5.69641)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.61327, -0.0263452, -5.69641)
 collision_layer = 8
 mass = 0.1
 script = ExtResource("3_q3xkn")
 ropeProxyScene = ExtResource("4_f8cd6")
-resetPoint = NodePath("../GrabPointResetSlot")
+resetPoint = NodePath("../RigidBody3D/GrabPointResetSlot")
 rope = NodePath("../VerletRopeRigid")
 joint = NodePath("../VerletRopeRigid/VerletJointRigid")
 
@@ -196,5 +228,48 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25, 0)
 billboard = 2
 text = "Rope"
 
-[node name="GrabPointResetSlot" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00681132, 0.0238122, -5.69558)
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
+replication_config = SubResource("SceneReplicationConfig_q3xkn")
+
+[node name="VerletRopeRigid2" type="Node3D" parent="."]
+script = ExtResource("1_24ylq")
+SimulationSegments = 6
+CollisionLayer = 8
+CollisionMask = 13
+IsStartPinned = false
+RopeWidth = 0.1
+UseVisibleOnScreenNotifier = false
+metadata/_custom_type_script = "uid://dja12uyulc7ee"
+
+[node name="VerletJointRigid2" type="Node" parent="VerletRopeRigid2" node_paths=PackedStringArray("VerletRope", "StartBody", "StartCustomLocation", "EndBody", "EndCustomLocation")]
+script = ExtResource("2_by6hu")
+VerletRope = NodePath("..")
+StartBody = NodePath("../../RigidBody3D")
+StartCustomLocation = NodePath("../../RigidBody3D/RopeStartPoint2")
+EndBody = NodePath("../../GrabPoint2")
+EndCustomLocation = NodePath("../../GrabPoint2")
+metadata/_custom_type_script = "uid://cuw8dk3lkvm2n"
+
+[node name="GrabPoint2" type="RigidBody3D" parent="." node_paths=PackedStringArray("resetPoint", "rope", "joint")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.641263, -0.0263452, -5.69641)
+collision_layer = 8
+mass = 0.1
+script = ExtResource("3_q3xkn")
+ropeProxyScene = ExtResource("4_f8cd6")
+resetPoint = NodePath("../RigidBody3D/GrabPointResetSlot2")
+rope = NodePath("../VerletRopeRigid2")
+joint = NodePath("../VerletRopeRigid2/VerletJointRigid2")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GrabPoint2"]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, 0)
+shape = SubResource("SphereShape3D_roc07")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GrabPoint2"]
+transform = Transform3D(0.25, 0, 0, 0, 0.25, 0, 0, 0, 0.25, 0, 0, 0)
+mesh = SubResource("SphereMesh_m5r0p")
+skeleton = NodePath("")
+
+[node name="Label3D" type="Label3D" parent="GrabPoint2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25, 0)
+billboard = 2
+text = "Rope"

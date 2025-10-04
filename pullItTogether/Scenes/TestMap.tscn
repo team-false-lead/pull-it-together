@@ -93,6 +93,9 @@ spawn_path = NodePath("..")
 
 [node name="Placeholders" type="Node3D" parent="."]
 
+[node name="WagonTest" parent="Placeholders" instance=ExtResource("6_00jar")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.60021, 12.2002, 8.18356)
+
 [node name="RopeBox2" parent="Placeholders" instance=ExtResource("3_0314m")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.49154, 2.21766, -7.71141)
 
@@ -121,6 +124,3 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.46775, 3.43957, -2.10603)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.3259, 0)
 layers = 32
 material = SubResource("StandardMaterial3D_okv1i")
-
-[node name="WagonTest" parent="." instance=ExtResource("6_00jar")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.60021, 2.66553, 8.18356)
