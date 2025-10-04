@@ -195,7 +195,7 @@ func _on_local_join_pressed() -> void:
 		port = int(local_port.text)
 	if not network_manager:
 		push_error("NetworkManager not assigned"); return
-	if not network_manager.join_local(addr, port):
+	if not await network_manager.join_local(addr, port):
 		push_error("Failed to join local ENet %s:%s" % [addr, port])
 
 # ---------- Steam lobby (GodotSteam) + transport (Expresso Bits) ----------
@@ -258,7 +258,7 @@ func join_steam_lobby_by_lobby_id(lobby_id: int) -> void:
 func join_steam_lobby(host_steam_id_64: int) -> void:
 	if not network_manager:
 		push_error("NetworkManager not assigned"); return
-	if not network_manager.join_steam(host_steam_id_64):
+	if not await network_manager.join_steam(host_steam_id_64):
 		push_error("Failed to join Steam host %s" % host_steam_id_64)
 
 # GodotSteam signal handlers

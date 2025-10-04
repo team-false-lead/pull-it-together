@@ -82,8 +82,6 @@ func host_local(address : String = "127.0.0.1", port : int = 2450, max_clients :
 		_signals_hooked = false
 		return false
 	_attach_peer()
-	if not await _wait_for_connection(10.0):
-		return false
 	emit_signal("session_started", "local host")
 	print("Hosting with LAN IP: %s\nPort: %d" % [address, port])
 	return true
@@ -100,6 +98,8 @@ func join_local(address : String = "127.0.0.1", port : int = 2450) -> bool:
 		_signals_hooked = false
 		return false
 	_attach_peer()
+	if not await _wait_for_connection(10.0):
+		return false
 	emit_signal("session_started", "local client")
 	print("Connecting to IP: %s\nPort: %d" % [address, port])
 	return true
@@ -138,7 +138,7 @@ func _attach_peer() -> void:
 # try wait for connection 
 func _wait_for_connection(timeout: float = 10.0) -> bool:
 	var timer := 0.0
-	while multiplayer.get_connection_status() != MultiplayerPeer.CONNECTION_CONNECTED:
+	while multiplayer.multiplayer_peer.get_connection_status() != MultiplayerPeer.CONNECTION_CONNECTED:
 		await get_tree().process_frame
 		timer += get_process_delta_time()
 		if timer >= timeout:
