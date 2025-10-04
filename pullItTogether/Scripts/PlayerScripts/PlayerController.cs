@@ -46,6 +46,14 @@ public partial class PlayerController : CharacterBody3D
 	private float tetherBuffer;
 	private float tetherStrength;
 
+	// Health and energy parameters
+	private float maxHealth = 100f;
+	private float currentHealth;
+	[Export] private ProgressBar healthBar;
+	private float maxEnergy = 100f;
+	private float currentEnergy;
+	private float currentFatigue = 0f; // aka the maximum energy reduction
+	[Export] private ProgressBar energyBar;
 
 	public override void _EnterTree()
 	{
@@ -79,6 +87,12 @@ public partial class PlayerController : CharacterBody3D
 		}
 
 		interactMaskUint = (uint)(1 << (interactLayer - 1));// Convert layer number to bitmask
+
+		// Set the health and energy values to the max
+		currentHealth = maxHealth;
+		currentEnergy = maxEnergy;
+		healthBar.MaxValue = healthBar.Value = maxHealth; // double-to-float shenaningans :pensive:
+		energyBar.MaxValue = energyBar.Value = maxEnergy;
 	}
 
 	// Check if this player instance is controlled by the local user
@@ -197,7 +211,21 @@ public partial class PlayerController : CharacterBody3D
 		{
 			collisionPusher.GlobalTransform = GlobalTransform;
 		}
-	}
+
+		// Leo's really cool health/energy/fatigue testing code
+		if (Input.IsKeyPressed(Key.Kp1)) // When Numpad 1 is pressed, reduce health
+			ChangeCurrentHealth(-10);
+		else if (Input.IsKeyPressed(Key.Kp2)) // When Numpad 2 is pressed, restore health
+            ChangeCurrentHealth(10);
+        else if (Input.IsKeyPressed(Key.Kp4)) // When Numpad 4 is pressed, reduce energy
+            ChangeCurrentEnergy(-10);
+        else if (Input.IsKeyPressed(Key.Kp5)) // When Numpad 5 is pressed, restore energy
+            ChangeCurrentEnergy(10);
+        else if (Input.IsKeyPressed(Key.Kp7)) // When Numpad 7 is pressed, reduce fatigue
+            ChangeFatigue(-10);
+        else if (Input.IsKeyPressed(Key.Kp8)) // When Numpad 8 is pressed, restore fatigue
+            ChangeFatigue(10);
+    }
 
 	// Simple head bobbing effect
 	private Vector3 headBob(float timer)
@@ -408,4 +436,43 @@ public partial class PlayerController : CharacterBody3D
 
 		return velocity;
 	}
+
+	public void ChangeCurrentHealth(float diff)
+	{
+		currentHealth = Mathf.Min(currentHealth + diff, maxHealth);
+		if (currentHealth <= 0)
+		{
+			currentHealth = 0;
+            // The rest of the death code goes here
+        }
+        healthBar.Value = currentHealth;
+        GD.Print("Current health: " + currentHealth);
+    }
+
+	public void ChangeCurrentEnergy(float diff)
+    {
+		// If the player is out of energy to spend, have the energy cost affect health instead
+        if (currentEnergy <= 0 && diff < 0)
+			ChangeCurrentHealth(diff);
+		else
+        {
+            currentEnergy = Mathf.Min(currentEnergy + diff, maxEnergy - currentFatigue);
+			if (currentEnergy <= 0) 
+				currentEnergy = 0;
+            energyBar.Value = currentEnergy;
+            GD.Print("Current energy: " + currentEnergy);
+        }
+    }
+
+	public void ChangeFatigue(float diff)
+	{
+		currentFatigue = currentFatigue + diff;
+		if (currentFatigue <= 0) 
+			currentFatigue = 0;
+		else if (currentFatigue >= maxEnergy)
+			currentFatigue = maxEnergy;
+		ChangeCurrentEnergy(0); // Update energy bar
+		GD.Print("Current fatigue: " + currentFatigue);
+		// Idk if we're doing anything else with this
+    }
 }

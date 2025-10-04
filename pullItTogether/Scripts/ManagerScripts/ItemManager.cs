@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 /// ItemManager handles spawning, picking up, and dropping interactable items in the game world.
@@ -316,7 +317,7 @@ public partial class ItemManager : Node3D
 					AssignId(interactable);
 			}
 			item.SetOwner(GetTree().CurrentScene); // Ensure the instance is owned by the current scene
-		}
+        }
 
 		item.savedMask = item.CollisionMask;
 		item.savedLayer = item.CollisionLayer;
@@ -344,7 +345,7 @@ public partial class ItemManager : Node3D
 
 		item.GlobalTransform = slot.GlobalTransform;
 		item.StartFollowingSlot(slot);
-	}
+    }
 
 	// Finalize item attachment after being added to carrier's inventory slot
 	//private void FinishItemAttach(NodePath itemPath)
@@ -411,7 +412,7 @@ public partial class ItemManager : Node3D
 		item.AngularVelocity = Vector3.Zero;
 
 		item.GlobalTransform = new Transform3D(item.GlobalTransform.Basis, dropPosition); // Set position in the world
-	}
+    }
 
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer)] // Allow any peer to request rope holding
 	public async void RequestHoldRope(string itemId, String proxyScenePath)
