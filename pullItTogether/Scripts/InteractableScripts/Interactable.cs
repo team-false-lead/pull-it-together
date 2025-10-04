@@ -63,7 +63,9 @@ public abstract partial class Interactable : RigidBody3D
     {
         if (isFollowing && followTarget != null && multiplayer.IsServer())
         {
-            GlobalTransform = followTarget.GlobalTransform;
+            //GlobalTransform = followTarget.GlobalTransform;
+            GlobalPosition = followTarget.GlobalPosition;
+            GlobalRotation = followTarget.GlobalRotation;
         }
     }
 
