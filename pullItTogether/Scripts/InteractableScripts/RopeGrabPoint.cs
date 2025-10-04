@@ -26,8 +26,6 @@ public partial class RopeGrabPoint : Interactable
         {
             GlobalTransform = resetPoint.GlobalTransform;
         }
-        savedLayer = CollisionLayer;
-        savedMask = CollisionMask;
 
         Freeze = true; // start frozen
         GravityScale = 0;
@@ -35,14 +33,19 @@ public partial class RopeGrabPoint : Interactable
         joint.EndBody = this;
         joint.EndCustomLocation = this;
         CallDeferred(nameof(DeferredResetJoint));
-        GD.Print(joint.EndBody);
+        //GD.Print(joint.EndBody);
 
-        if (!multiplayer.IsServer())
+        // Save initial collision layers and masks
+        savedLayer = CollisionLayer;
+        savedMask = CollisionMask;
+
+        if (!multiplayer.IsServer()) // temp until fix for rope jitter and update refresh
         {
             DisableRopeVisual();
         }
     }
 
+    // if not held, reset to reset point
     public override void _PhysicsProcess(double delta)
     {
         // if held, follow the proxy in the inventory slot
@@ -54,6 +57,7 @@ public partial class RopeGrabPoint : Interactable
         }
     }
 
+    //temp until fix for rope jitter and update refresh
     private void DisableRopeVisual()
     {
         if (rope != null)
@@ -69,6 +73,7 @@ public partial class RopeGrabPoint : Interactable
         }
     }
 
+    // prepare to attach to proxy - disable collisions, hide, freeze, set rope collisions
     public void AttachToProxyPrep(Node3D proxyNode, CharacterBody3D carrier)
     {
         proxy = proxyNode as AnimatableBody3D;
@@ -93,6 +98,7 @@ public partial class RopeGrabPoint : Interactable
         isHeld = true;
     }
 
+    // attach to the proxy - set joint end body to proxy and reset joint
     public void AttachToProxy(AnimatableBody3D proxyNode)
     {
         proxy = proxyNode;
@@ -105,6 +111,7 @@ public partial class RopeGrabPoint : Interactable
         }
     }
 
+    // detach from proxy - reset joint, restore collisions, show, freeze, reset position
     public void DetachFromProxy()
     {
         joint.EndBody = this;
@@ -132,6 +139,7 @@ public partial class RopeGrabPoint : Interactable
         Carrier = null;
     }
 
+    // need to reset the joint after changing any settings
     private void DeferredResetJoint()
     {
         if (joint != null)
@@ -148,18 +156,20 @@ public partial class RopeGrabPoint : Interactable
 
         if (itemManager == null) InitReferences();
         var id = GetInteractableId();
+
+        // Request hold via RPC if not server
         if (multiplayerActive && !multiplayer.IsServer())
         {
-            var error = itemManager.RpcId(1, nameof(ItemManager.RequestHoldRope), id, ropeProxyScene.ResourcePath);
+            var error = itemManager.RpcId(1, nameof(ItemManager.RequestHoldRope), id);
             if (error != Error.Ok)
             {
-                GD.PrintErr("RopeGrabPoint: Failed to request item hold via RPC. Error: " + error);
+                GD.PrintErr("RopeGrabPoint: Failed to request hold rope via RPC. Error: " + error);
                 return false;
             }
         }
-        else
+        else // Server or single-player handles hold directly
         {
-            var execute = itemManager.DoHoldRope(id, ropeProxyScene.ResourcePath, multiplayer.GetUniqueId());
+            var execute = itemManager.DoHoldRope(id, multiplayer.GetUniqueId());
         }
 
         return true;
@@ -168,26 +178,25 @@ public partial class RopeGrabPoint : Interactable
     // override drop to remove proxy and re-enable collisions
     public override bool TryDrop(CharacterBody3D carrier)
     {
-        if (multiplayerActive && !multiplayer.IsServer())
-        {
-            if (itemManager == null) InitReferences();
-            var id = GetInteractableId();
-            if (multiplayerActive && !multiplayer.IsServer())
-            {
-                var error = itemManager.RpcId(1, nameof(ItemManager.RequestReleaseRope), id);
-                if (error != Error.Ok)
-                {
-                    GD.PrintErr("RopeGrabPoint: Failed to request rope release via RPC. Error: " + error);
-                    return false;
-                }
-                return true;
-            }
-        }
-
         if (Carrier != carrier) return false;
 
         if (itemManager == null) InitReferences();
-        itemManager.DoReleaseRope(GetInteractableId());
+        var id = GetInteractableId();
+
+        // Request drop via RPC if not server
+        if (multiplayerActive && !multiplayer.IsServer())
+        {
+            var error = itemManager.RpcId(1, nameof(ItemManager.RequestReleaseRope), id);
+            if (error != Error.Ok)
+            {
+                GD.PrintErr("RopeGrabPoint: Failed to request rope release via RPC. Error: " + error);
+                return false;
+            }
+        }
+        else // Server or single-player handles drop directly
+        {
+            itemManager.DoReleaseRope(id);
+        }
 
         return true;
     }

@@ -4,37 +4,30 @@ using System;
 /// a wooden plank that can be used to create a campfire and eventually fix wheels
 public partial class WoodPlank : Interactable
 {
-    [Export] public PackedScene campfireScene;
-
     //spawn campfire when used on self
     public override void TryUseSelf(CharacterBody3D user)
     {
-        if (campfireScene == null) return;
+        if (SpawnOnUseScene == null) return;
 
-        // Spawn campfire at drop position
-        //var interactablesNode = InitWorldInteractablesNode(user);
-        //var spawnedCampfire = campfireScene.Instantiate<Node3D>();
-        Vector3 dropPosition = GetDropPosition(user);
-        String campfireScenePath = campfireScene.ResourcePath;
+        if (itemManager == null) InitReferences();
+        var id = GetInteractableId(); //get unique id, default to name
 
+        // Request spawn via RPC if not server
         if (multiplayerActive && !multiplayer.IsServer())
         {
-            var error = itemManager.RpcId(1, nameof(ItemManager.RequestSpawnItem), campfireScenePath, dropPosition);
+            var error = itemManager.RpcId(1, nameof(ItemManager.RequestSpawnItem), id);
             if (error != Error.Ok)
             {
                 GD.PrintErr("WoodPlank: Failed to request campfire spawn via RPC. Error: " + error);
                 return;
             }
         }
-        else
+        else // Server or single-player handles spawn directly
         {
-            itemManager.RequestSpawnItem(campfireScenePath, dropPosition);
+            itemManager.DoSpawnItem(id);
         }
-        
 
-        // spawnedCampfire.Position = GetDropPosition(user);
-        //interactablesNode.AddChild(spawnedCampfire);
-        QueueFree(); // Remove the plank after use
+        QueueFree(); // Remove this plank after use
     }
 
     //add logic for using on wheels
