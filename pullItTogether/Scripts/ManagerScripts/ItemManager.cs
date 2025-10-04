@@ -259,7 +259,7 @@ public partial class ItemManager : Node3D
 	{
 		GD.Print("ItemManager: DoPickupItem called for " + itemId);
 
-		var item = FindInteractableById(itemId); 
+		var item = FindInteractableById(itemId);
 		if (item == null) { GD.Print("Item null"); return; }
 
 		PlayerController carrier = GetPlayerControllerById(requesterId);
@@ -292,6 +292,7 @@ public partial class ItemManager : Node3D
 		item.CollisionMask = 0;
 
 		item.StartFollowingSlot(slot);
+		item.Carrier = carrier;
 	}
 
 	// item drop request
@@ -332,6 +333,7 @@ public partial class ItemManager : Node3D
 
 		Vector3 dropPosition = GetDropPosition(item);
 		item.GlobalTransform = new Transform3D(item.GlobalTransform.Basis, dropPosition); // Set position in the world
+		item.Carrier = null;
 	}
 
 	// Calculate a safe drop position in front of the carrier // still can fall through floor
@@ -345,10 +347,9 @@ public partial class ItemManager : Node3D
 		Vector2 center = vp.GetVisibleRect().Size * 0.5f;
 
 		//raycast from camera to drop in front of carrier
-		PlayerController carrierScript = carrier as PlayerController;
-		Vector3 origin = carrierScript.camera.ProjectRayOrigin(center);
-		Vector3 dir = carrierScript.camera.ProjectRayNormal(center);
-		Vector3 to = origin + dir * carrierScript.interactRange;
+		Vector3 origin = carrier.camera.GlobalTransform.Origin;
+		Vector3 dir = -carrier.camera.GlobalTransform.Basis.Z.Normalized();
+		Vector3 to = origin + dir * carrier.interactRange;
 
 		// Raycast to find a safe drop position
 		var state = GetWorld3D().DirectSpaceState;

@@ -341,7 +341,7 @@ public partial class PlayerController : CharacterBody3D
 	// Drop the currently held object
 	public void DropObject()
 	{
-		if (HandleInvalidHeldObject()) { GD.Print("Invalid held object"); return; } // if invalid item was handled return
+		if (HandleInvalidHeldObject()) return; // if invalid item was handled return, weird auto call on join?
 
 		if (heldObject.TryDrop(this) == true)
 		{

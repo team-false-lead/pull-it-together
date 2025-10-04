@@ -30,10 +30,11 @@ public abstract partial class Interactable : RigidBody3D
             GD.PrintErr("Interactable: MultiplayerSynchronizer not found on " + Name);
         }
 
-        if (string.IsNullOrEmpty(interactableId) && !multiplayer.IsServer())
-        {
-            GD.Print("Warning: Interactable " + Name + " waiting for ID replication.");
-        }
+        // debug warning
+        //if (string.IsNullOrEmpty(interactableId) && !multiplayer.IsServer())
+        //{
+        //    GD.Print("Warning: Interactable " + Name + " waiting for ID replication.");
+        //}
 
         // Save initial collision layers and masks
         savedLayer = CollisionLayer;
