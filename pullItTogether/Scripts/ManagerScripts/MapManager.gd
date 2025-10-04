@@ -74,7 +74,8 @@ func request_reload_map() -> void:
 	emit_signal("map_will_reload")
 	await get_tree().process_frame
 	await load_map()
-	rpc("confirm_reload")
+	if multiplayer.has_multiplayer_peer():
+		rpc("confirm_reload")
 
 @rpc("any_peer", "call_local") 
 func confirm_reload() -> void:

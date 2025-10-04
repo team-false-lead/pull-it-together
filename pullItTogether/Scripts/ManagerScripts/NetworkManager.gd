@@ -31,9 +31,6 @@ func set_peer_mode(peer_mode : PeerMode) -> void:
 			peer = null
 	print_rich("Peer Mode Set To: [color=yellow]", PeerMode.keys()[mode], "[/color]")
 
-func reset_peer() -> void:
-	leave()
-
 # ---------- Steam (Expresso Bits) ----------
 func host_steam() -> bool:
 	leave() # reset any existing session
@@ -42,7 +39,9 @@ func host_steam() -> bool:
 	var err: int = sp.create_host(0)  # 0 = virtual port
 	if err != OK:
 		push_error("Steam create_host() failed: %s" % err)
-		leave()
+		peer = null
+		mode = PeerMode.NONE
+		_signals_hooked = false
 		return false
 	_attach_peer()
 	emit_signal("session_started", "public host")
@@ -59,7 +58,9 @@ func join_steam(host_steam_id_64 : int) -> bool:
 		err = sp.create_client(host_steam_id_64, 0)
 	if err != OK:
 		push_error("Steam client connect failed: %s" % err)
-		leave()
+		peer = null
+		mode = PeerMode.NONE
+		_signals_hooked = false
 		return false
 	_attach_peer()
 	emit_signal("session_started", "public client")
@@ -74,7 +75,9 @@ func host_local(address : String = "127.0.0.1", port : int = 2450, max_clients :
 	var err: int = peer.create_server(port, max_clients)
 	if err != OK:
 		push_error("ENet create_server() failed: %s" % err)
-		leave()
+		peer = null
+		mode = PeerMode.NONE
+		_signals_hooked = false
 		return false
 	_attach_peer()
 	emit_signal("session_started", "local host")
@@ -88,7 +91,9 @@ func join_local(address : String = "127.0.0.1", port : int = 2450) -> bool:
 	var err: int = peer.create_client(address, port)
 	if err != OK:
 		push_error("ENet create_client() failed: %s" % err)
-		leave()
+		peer = null
+		mode = PeerMode.NONE
+		_signals_hooked = false
 		return false
 	_attach_peer()
 	emit_signal("session_started", "local client")
