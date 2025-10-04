@@ -122,5 +122,5 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.3259, 0)
 layers = 32
 material = SubResource("StandardMaterial3D_okv1i")
 
-[node name="WagonTestRaycast" parent="." instance=ExtResource("6_00jar")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.60021, 12.871, -7.07991)
+[node name="WagonTest" parent="." instance=ExtResource("6_00jar")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.60021, 2.66553, 8.18356)
