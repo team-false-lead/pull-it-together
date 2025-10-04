@@ -17,3 +17,7 @@ mono_crash.*.json
 
 # Steamworks SDK (keep private) need for playtests
 # steam_api64.dll
+
+# Visual Studio / Rider
+.vs/
+.vscode/
