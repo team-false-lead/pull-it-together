@@ -21,7 +21,9 @@ public partial class RopeProxy : AnimatableBody3D
 	{
 		//tween controlled in item manager
 		if (!multiplayer.IsServer() || isTweening || followTarget == null) return;
-		GlobalTransform = followTarget.GlobalTransform;
+		//GlobalTransform = followTarget.GlobalTransform;
+		GlobalPosition = followTarget.GlobalPosition;
+		GlobalRotation = followTarget.GlobalRotation;
 	}
 
 	public void SetFollowTarget(Node3D target)
