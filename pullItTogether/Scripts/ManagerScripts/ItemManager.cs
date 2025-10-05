@@ -472,11 +472,11 @@ public partial class ItemManager : Node3D
 		proxyScript.isTweening = true;
 		proxyScript.SetFollowTarget(slot);
 
-		var targetPos = slot.GlobalTransform;
+		var targetPos = slot.GlobalPosition;
 		var tween = GetTree().CreateTween();
 
 		tween.SetTrans(Tween.TransitionType.Sine).SetEase(Tween.EaseType.InOut);
-		tween.TweenProperty(proxy, "global_transform", targetPos, 0.25f);
+		tween.TweenProperty(proxy, "global_position", targetPos, 0.25f);
 		await ToSignal(tween, "finished");
 
 		proxyScript.isTweening = false;

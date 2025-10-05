@@ -207,16 +207,19 @@ public partial class PlayerController : CharacterBody3D
 		// Handle interaction input
 		if (Input.IsActionJustPressed("use"))// LMB
 			OnUsedPressed();
-		if (Input.IsActionJustPressed("drop"))// Q
-			DropObject();
 		if (Input.IsActionJustPressed("pickup")) // E
 		{
-			var target = GetInteractableLookedAt();
-			if (target != null)
+			if (heldObject == null)
 			{
-				//GD.Print(target.ToString());
-				PickupObject(target);
-			}
+                var target = GetInteractableLookedAt();
+                if (target != null)
+                {
+                    //GD.Print(target.ToString());
+                    PickupObject(target);
+                }
+            }
+			else
+				DropObject();
 		}
 
 		// update pusher to match player position
