@@ -61,8 +61,10 @@ public abstract partial class Interactable : RigidBody3D
     {
         if (isFollowing && followTarget != null)
         {
-            GlobalTransform = followTarget.GlobalTransform; // Snap to target position and rotation
-            Scale = savedScale; // Maintain original scale
+            //GlobalTransform = followTarget.GlobalTransform; // Snap to target position and rotation
+            //Scale = savedScale; // Maintain original scale
+            GlobalPosition = followTarget.GlobalPosition;
+            GlobalRotation = followTarget.GlobalRotation;
         }
         //else reset to normal physics behavior
     }

@@ -30,10 +30,10 @@ public partial class WoodPlank : Interactable
         //QueueFree(); // Remove this plank after use
     }
 
-    //add logic for using on wheels
-    //public override void TryUseOnEntity(CharacterBody3D user, Entity target)
-    //{
-    //    // add logic for use on wheels
-    //}
+	//add logic for using on wheels
+	//public override void TryUseOnEntity(CharacterBody3D user, Entity target)
+	//{
+	//    // add logic for use on wheels
+	//}
 
 }

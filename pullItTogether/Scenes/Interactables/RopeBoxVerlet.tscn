@@ -27,6 +27,15 @@ properties/5/replication_mode = 1
 properties/6/path = NodePath("VerletRopeRigid:rotation")
 properties/6/spawn = true
 properties/6/replication_mode = 1
+properties/7/path = NodePath("GrabPoint:collision_mask")
+properties/7/spawn = true
+properties/7/replication_mode = 1
+properties/8/path = NodePath("GrabPoint:collision_layer")
+properties/8/spawn = true
+properties/8/replication_mode = 1
+properties/9/path = NodePath("GrabPoint:visible")
+properties/9/spawn = true
+properties/9/replication_mode = 1
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_0sswb"]
 
