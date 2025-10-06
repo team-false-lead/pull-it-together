@@ -53,7 +53,6 @@ public partial class PlayerController : CharacterBody3D
 	private ProgressBar healthBar;
 	private float maxEnergy = 100f;
 	private float currentEnergy;
-	private float currentFatigue = 0f; // aka the maximum energy reduction
 	private ProgressBar energyBar;
 	private ProgressBar fatigueBar;
 
@@ -90,7 +89,6 @@ public partial class PlayerController : CharacterBody3D
             // Set health and energy values to their default
             currentHealth = maxHealth;
             currentEnergy = maxEnergy;
-            currentFatigue = 0;
             healthBar.MaxValue = healthBar.Value = maxHealth; // double-to-float shenaningans :pensive:
             energyBar.MaxValue = energyBar.Value = fatigueBar.MaxValue = maxEnergy;
             fatigueBar.Value = 0;
@@ -472,7 +470,7 @@ public partial class PlayerController : CharacterBody3D
 			ChangeCurrentHealth(diff);
 		else
         {
-            currentEnergy = Mathf.Min(currentEnergy + diff, maxEnergy - currentFatigue);
+            currentEnergy = Mathf.Min(currentEnergy + diff, maxEnergy);
 			if (currentEnergy <= 0) 
 				currentEnergy = 0;
             energyBar.Value = currentEnergy;
@@ -482,14 +480,14 @@ public partial class PlayerController : CharacterBody3D
 
 	public void ChangeFatigue(float diff)
 	{
-		currentFatigue = currentFatigue + diff;
-		if (currentFatigue <= 0) 
-			currentFatigue = 0;
-		else if (currentFatigue >= maxEnergy)
-			currentFatigue = maxEnergy;
+		maxEnergy = maxEnergy + diff;
+		if (maxEnergy <= 0)
+            maxEnergy = 0;
+		else if (maxEnergy > 100)
+            maxEnergy = 100;
 		ChangeCurrentEnergy(0); // Update energy bar
-		fatigueBar.Value = currentFatigue;
-		GD.Print("Current fatigue: " + currentFatigue);
+		fatigueBar.Value = Mathf.Abs(maxEnergy - 100);
+		GD.Print("Current fatigue: " + Mathf.Abs(maxEnergy - 100));
 		// Idk if we're doing anything else with this
     }
 }
