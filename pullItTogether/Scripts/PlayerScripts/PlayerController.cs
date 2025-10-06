@@ -36,7 +36,9 @@ public partial class PlayerController : CharacterBody3D
 	[Export] public int interactLayer = 4;
 
 	// Collision parameters
-	[Export] public AnimatableBody3D collisionPusher;
+	[Export] public Node3D collisionPusher;
+	public AnimatableBody3D collisionPusherAB;
+	public Interactable collisionPusherInteractable;
 	private uint interactMaskUint = 8;
 
 	// Rope tether parameters when carrying rope grab point
@@ -70,7 +72,12 @@ public partial class PlayerController : CharacterBody3D
 
 		if (collisionPusher != null)
 		{
-			collisionPusher.SyncToPhysics = true;
+			collisionPusherAB = collisionPusher as AnimatableBody3D;
+			collisionPusherInteractable = collisionPusher as Interactable;
+		}
+		if (collisionPusherAB != null)
+		{
+			collisionPusherAB.SyncToPhysics = true;
 		}
 
 		interactMaskUint = (uint)(1 << (interactLayer - 1));// Convert layer number to bitmask
@@ -203,9 +210,9 @@ public partial class PlayerController : CharacterBody3D
 		}
 
 		// update pusher to match player position
-		if (collisionPusher != null)
+		if (collisionPusherAB != null)
 		{
-			collisionPusher.GlobalTransform = GlobalTransform;
+			collisionPusherAB.GlobalTransform = GlobalTransform;
 		}
 	}
 
@@ -257,10 +264,15 @@ public partial class PlayerController : CharacterBody3D
 		var state = GetWorld3D().DirectSpaceState;
 		var query = PhysicsRayQueryParameters3D.Create(origin, to);
 		query.CollisionMask = interactMaskUint;
-		query.Exclude = new Array<Rid> { GetRid(), collisionPusher.GetRid() }; // ignore self
+		query.Exclude = new Array<Rid> { GetRid() }; // ignore self
 
 		var hit = state.IntersectRay(query);
 		return hit;
+	}
+
+	public Interactable GetOwnInteractable()
+	{
+		return collisionPusherInteractable;
 	}
 
 	// Get the Interactable the player is currently looking at
@@ -296,35 +308,35 @@ public partial class PlayerController : CharacterBody3D
 
 	// Template logic for later Entity interactions
 	//// Get the Entity the player is currently looking at
-	//private Entity GetEntityLookedAt()
-	//{
-	//	if (camera == null) return null;
-	//
-	//	var hit = RayCastForward();
-	//	if (hit.Count == 0) return null;
-	//
-	//	// "collider" can be Node or RigidBody/Area/CollisionObject3D etc.
-	//	if (hit.TryGetValue("collider", out var colliderVariant))
-	//	{
-	//		var godotObj = ((Variant)colliderVariant).AsGodotObject();
-	//		if (godotObj is Node colliderNode)
-	//			return FindEntity(colliderNode);
-	//	}
-	//
-	//	return null;
-	//}
-	//
-	//// Traverse up the node tree to find an Entity component
-	//private Entity FindEntity(Node node)
-	//{
-	//	while (node != null)
-	//	{
-	//		if (node is Interactable interactable)
-	//			return interactable;
-	//		node = node.GetParent();
-	//	}
-	//	return null;
-	//}
+	private Entity GetEntityLookedAt()
+	{
+		if (camera == null) return null;
+	
+		var hit = RayCastForward();
+		if (hit.Count == 0) return null;
+	
+		// "collider" can be Node or RigidBody/Area/CollisionObject3D etc.
+		if (hit.TryGetValue("collider", out var colliderVariant))
+		{
+			var godotObj = ((Variant)colliderVariant).AsGodotObject();
+			if (godotObj is Node colliderNode)
+				return FindEntity(colliderNode);
+		}
+	
+		return null;
+	}
+	
+	// Traverse up the node tree to find an Entity component
+	private Entity FindEntity(Node node)
+	{
+		while (node != null)
+		{
+			if (node is Entity entity)
+				return entity;
+			node = node.GetParent();
+		}
+		return null;
+	}
 
 	// pickup currently looked at object, drop current held object if any
 	public void PickupObject(Interactable obj)
@@ -358,10 +370,10 @@ public partial class PlayerController : CharacterBody3D
 		if (HandleInvalidHeldObject()) return; // if invalid item was handled return
 
 		//check if looking at another interactable first
-		var target = GetInteractableLookedAt();
-		if (target != null) //target is interactable
+		var targetInteractable = GetInteractableLookedAt();
+		if (targetInteractable != null) //target is interactable
 		{
-			heldObject.TryUseOnInteractable(this, target);
+			heldObject.TryUseOnInteractable(this, targetInteractable);
 			if (!IsInstanceValid(heldObject) || heldObject.IsQueuedForDeletion())
 			{
 				heldObject = null; // The held object was destroyed during use
@@ -370,19 +382,16 @@ public partial class PlayerController : CharacterBody3D
 		}
 
 		//check if looking at an entity second
-		//if (target == null)
-		//{
-		//	target = GetEntityLookedAt();
-		//}
-		//if (target != null) //target is entity
-		//{
-		//	heldObject.TryUseOnEntity(this, target);
-		//	if (!IsInstanceValid(heldObject) || heldObject.IsQueuedForDeletion())
-		//	{
-		//		heldObject = null; // The held object was destroyed during use
-		//	}
-		//	return;
-		//}
+		var targetEntity = GetEntityLookedAt();
+		if (targetEntity != null) //target is entity
+		{
+			heldObject.TryUseOnEntity(this, targetEntity);
+			if (!IsInstanceValid(heldObject) || heldObject.IsQueuedForDeletion())
+			{
+				heldObject = null; // The held object was destroyed during use
+			}
+			return;
+		}
 
 		//use on self if no target found
 		heldObject.TryUseSelf(this);

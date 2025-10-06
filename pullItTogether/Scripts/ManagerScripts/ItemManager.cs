@@ -9,6 +9,7 @@ public partial class ItemManager : Node3D
 	[Export] public NodePath placeholdersPath;
 
 	private Dictionary<string, Interactable> interactables = new();
+	private Dictionary<string, Entity> entities = new();
 	private Dictionary<string, NodePath> ropeProxyByItem = new();
 	private Node mapManager;
 	private bool isMultiplayerSession;
@@ -22,7 +23,7 @@ public partial class ItemManager : Node3D
 		CallDeferred(nameof(InitializeAfterReady));
 		//GD.Print($"[ItemManager], isServer={isServer}, authority={GetMultiplayerAuthority()}"); // Debug authority
 	}
-	
+
 	// Deferred initialization to ensure the scene is fully loaded
 	private void InitializeAfterReady()
 	{
@@ -57,6 +58,7 @@ public partial class ItemManager : Node3D
 		multiplayer.PeerConnected -= OnPeerConnected;
 		this.ChildEnteredTree -= OnChildEnteredTree;
 		interactables.Clear();
+		entities.Clear();
 		ropeProxyByItem.Clear();
 	}
 
@@ -82,7 +84,7 @@ public partial class ItemManager : Node3D
 
 			var instance = placeholderScene.Instantiate<Node3D>();
 
-			PreAssignIdIfInteractable(instance);// assign IDs before adding to scene
+			PreAssignId(instance);// assign IDs before adding to scene
 
 			this.AddChild(instance, true);
 			instance.GlobalTransform = placeholder.GlobalTransform;
@@ -90,21 +92,27 @@ public partial class ItemManager : Node3D
 		}
 	}
 
-	// Recursively assign IDs to interactable items in a node and its children
-	private void PreAssignIdIfInteractable(Node node)
+	// Recursively assign IDs to interactable or Entity items in a node and its children
+	private void PreAssignId(Node node)
 	{
-		if (node is Interactable item)
+		if (node is Interactable item) // assign interactable ids
 		{
-			AssignId(item);
+			AssignInteractableId(item);
 		}
-		foreach (var child in node.GetChildren())
+
+		if (node is Entity entity)// also assign entity ids
 		{
-			PreAssignIdIfInteractable(child);
+			AssignEntityId(entity);
+		}
+
+		foreach (var child in node.GetChildren()) // recurse into children
+		{
+			PreAssignId(child);
 		}
 	}
 
 	// Assign a unique ID to an interactable item if it doesn't already have one, and track it in the dictionary
-	private void AssignId(Interactable item)
+	private void AssignInteractableId(Interactable item)
 	{
 		if (string.IsNullOrEmpty(item.interactableId))
 		{
@@ -139,6 +147,41 @@ public partial class ItemManager : Node3D
 		};
 	}
 
+	// Assign a unique ID to an entity if it doesn't already have one, and track it in the dictionary
+	private void AssignEntityId(Entity entity)
+	{
+		if (string.IsNullOrEmpty(entity.entityId))
+		{
+			entity.entityId = $"{entity.Name}_{Guid.NewGuid():N}"; // Generate unique ID
+		}
+
+		// Ensure the ID is unique and track the item
+		if (entities.TryGetValue(entity.entityId, out var existing))
+		{
+			// Handle case where ID already exists but the instance is invalid (e.g., was freed)
+			if (IsInstanceValid(existing))
+			{
+				if (existing == entity) return; // already tracked
+				GD.PrintErr("ItemManager: Duplicate entity ID: " + entity.entityId);
+				return;
+			}
+			// Replace invalid reference with the new item
+			entities[entity.entityId] = entity;
+			return;
+		}
+		// New ID, add to dictionary
+		entities[entity.entityId] = entity;
+
+		// Set up cleanup on item removal
+		entity.TreeExited += () =>
+		{
+			if (entities.Remove(entity.entityId))
+			{
+				GD.Print("ItemManager: Tree Exited, Removed entity with ID " + entity.entityId);
+			}
+		};
+	}
+
 	// Client-side removal of placeholder nodes
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
 	private void ClientRemovePlaceholders()
@@ -160,7 +203,13 @@ public partial class ItemManager : Node3D
 		{
 			// Ensure the item has a unique ID and is tracked 
 			if (string.IsNullOrEmpty(item.interactableId) || !interactables.TryGetValue(item.interactableId, out var existing) || !IsInstanceValid(existing))
-				AssignId(item);
+				AssignInteractableId(item);
+		}
+
+		if (newChild is Entity entity)
+		{
+			if (string.IsNullOrEmpty(entity.entityId) || !entities.TryGetValue(entity.entityId, out var existing) || !IsInstanceValid(existing))
+				AssignEntityId(entity);
 		}
 	}
 
@@ -171,6 +220,12 @@ public partial class ItemManager : Node3D
 
 		GD.Print("ItemManager: Peer connected with ID " + id);
 		RpcId(id, nameof(ClientRemovePlaceholders));
+		PlayerController player = GetPlayerControllerById(id);
+		Interactable playerInteractable = player.GetOwnInteractable();
+		if (playerInteractable != null)
+		{
+			PreAssignId(playerInteractable); // ensure their own interactable has an ID assigned
+		}
 	}
 
 	//find the interactable item by its unique id
@@ -228,7 +283,7 @@ public partial class ItemManager : Node3D
 		if (itemToSpawnScene == null) { GD.Print("SpawnOnUseScene null"); return; }
 
 		var instance = itemToSpawnScene.Instantiate<RigidBody3D>(); // assuming all interactables and entities are RigidBody3D or derived
-		PreAssignIdIfInteractable(instance);
+		PreAssignId(instance);
 
 		this.AddChild(instance, true);
 		instance.SetOwner(GetTree().CurrentScene); // Ensure the instance is owned by the current scene
@@ -371,14 +426,14 @@ public partial class ItemManager : Node3D
 		{
 			dropPosition = to; // No hit, drop at max range
 			normal = Vector3.Up; // Default to up if no hit
-		}	
-		
+		}
+
 		// Offset by clearance to avoid clipping into surfaces
 		float clearance = item.dropClearance;
-		dropPosition += normal * clearance; 
+		dropPosition += normal * clearance;
 
-        return dropPosition;
-    }
+		return dropPosition;
+	}
 
 	// rope hold request
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer)] // Allow any peer to request rope holding
@@ -512,4 +567,38 @@ public partial class ItemManager : Node3D
 			}
 		}
 	}
+
+	// logic for feeding food item to player request
+	public void RequestFeedTarget(string itemId, PlayerController targetPlayer)
+	{
+		GD.Print("ItemManager: RequestFeedTarget called for " + itemId + " to " + targetPlayer.Name);
+		if (isMultiplayerSession && !multiplayer.IsServer()) return; // Only the server should handle feeding
+		FeedTarget(itemId, targetPlayer);
+	}
+
+	// logic for feeding food item to target player
+	public void FeedTarget(string itemId, PlayerController targetPlayer)
+	{
+		var food = FindInteractableById(itemId) as Food;
+		if (food == null) return;
+
+		if (food.isCooked)
+		{
+			//restore cooked values
+			// i dont have hp/energy variables on this branch yet
+			//targetPlayer.RestoreHealth(food.healthAddedCooked);
+			GD.Print("Food: " + food.Name + " fed to " + targetPlayer.Name);
+			GD.Print("Food: Restoring " + food.healthAddedCooked + " health and " + food.potentialEnergyAddedCooked + " energy.");
+		}
+		else
+		{
+			//restore raw values
+			GD.Print("Food: " + food.Name + " fed to " + targetPlayer.Name);
+			GD.Print("Food: Restoring " + food.healthAddedRaw + " health and " + food.potentialEnergyAddedRaw + " energy.");
+		}
+
+		food.QueueFree(); // remove the food item after feeding
+	}
+	
+
 }

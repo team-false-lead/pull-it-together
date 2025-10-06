@@ -1,7 +1,8 @@
-[gd_scene load_steps=12 format=3 uid="uid://ckpgu08xdcwp4"]
+[gd_scene load_steps=13 format=3 uid="uid://ckpgu08xdcwp4"]
 
 [ext_resource type="Script" uid="uid://cor1xxd0lnxxg" path="res://Scripts/PlayerScripts/PlayerController.cs" id="1_kyqiw"]
 [ext_resource type="Script" uid="uid://dmbbfw34d8nf1" path="res://Scripts/PlayerScripts/PlayerCameraSync.cs" id="2_gntrk"]
+[ext_resource type="Script" uid="uid://1bwso462ry2q" path="res://Scripts/InteractableScripts/PlayerInteractable.cs" id="3_gntrk"]
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_hyhp3"]
 properties/0/path = NodePath(".:position")
@@ -94,6 +95,7 @@ mesh = SubResource("SphereMesh_gntrk")
 [node name="AnimatableBody3D" type="AnimatableBody3D" parent="."]
 collision_layer = 8
 collision_mask = 12
+script = ExtResource("3_gntrk")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="AnimatableBody3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.216008, 0)
