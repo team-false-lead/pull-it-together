@@ -49,6 +49,10 @@ bobAmplitude = 0.04
 inventorySlotPath = NodePath("Head/Camera3D/Inventory/InventorySlot1")
 collisionPusher = NodePath("AnimatableBody3D")
 hudScenePath = "res://Scenes/PlayerHUD.tscn"
+walkingEnergyReduction = 2.0
+sprintingEnergyReduction = 4.0
+jumpingEnergyReduction = 5.0
+energyRegen = 2.0
 
 [node name="PlayerCameraSync" type="Node" parent="." node_paths=PackedStringArray("Camera")]
 script = ExtResource("2_gntrk")

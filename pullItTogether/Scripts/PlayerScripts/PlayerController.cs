@@ -55,6 +55,10 @@ public partial class PlayerController : CharacterBody3D
 	private float currentEnergy;
 	private ProgressBar energyBar;
 	private ProgressBar fatigueBar;
+	[Export] private float walkingEnergyReduction;
+	[Export] private float sprintingEnergyReduction;
+	[Export] private float jumpingEnergyReduction;
+	[Export] private float energyRegen;
 
 	public override void _EnterTree()
 	{
@@ -131,6 +135,7 @@ public partial class PlayerController : CharacterBody3D
 		if (!IsLocalControlled()) return; // local player processes movement
 
 		Vector3 velocity = Velocity;
+		float energyChange = 0;
 
 		// Add the gravity.
 		if (!IsOnFloor())
@@ -142,6 +147,7 @@ public partial class PlayerController : CharacterBody3D
 		if (Input.IsActionJustPressed("jump") && IsOnFloor())
 		{
 			velocity.Y = jumpVelocity;
+			energyChange -= jumpingEnergyReduction;
 		}
 
 		// Handle sprint input and FOV change
@@ -149,11 +155,13 @@ public partial class PlayerController : CharacterBody3D
 		{
 			speed = sprintSpeed;
 			camera.Fov = Mathf.Lerp(camera.Fov, fov * fovChange, (float)delta * fovChangeSpeed);
+			energyChange -= sprintingEnergyReduction * (float)delta;
 		}
 		else
 		{
 			speed = walkSpeed;
 			camera.Fov = Mathf.Lerp(camera.Fov, fov, (float)delta * fovChangeSpeed);
+			energyChange -= walkingEnergyReduction * (float)delta;
 		}
 
 		// Get the input direction and handle the movement/deceleration.
@@ -226,19 +234,29 @@ public partial class PlayerController : CharacterBody3D
 			collisionPusher.GlobalTransform = GlobalTransform;
 		}
 
+		// When not moving, recover energy.
+		if (direction == Vector3.Zero && IsOnFloor())
+		{
+			ChangeCurrentEnergy(energyRegen * (float)delta);
+		}
+		else if (direction != Vector3.Zero)
+		{
+			ChangeCurrentEnergy(energyChange);
+		}
+
 		// Leo's really cool health/energy/fatigue testing code
 		if (Input.IsKeyPressed(Key.Kp1)) // When Numpad 1 is pressed, reduce health
 			ChangeCurrentHealth(-10);
 		else if (Input.IsKeyPressed(Key.Kp2)) // When Numpad 2 is pressed, restore health
-            ChangeCurrentHealth(10);
-        else if (Input.IsKeyPressed(Key.Kp4)) // When Numpad 4 is pressed, reduce energy
-            ChangeCurrentEnergy(-10);
-        else if (Input.IsKeyPressed(Key.Kp5)) // When Numpad 5 is pressed, restore energy
-            ChangeCurrentEnergy(10);
-        else if (Input.IsKeyPressed(Key.Kp7)) // When Numpad 7 is pressed, reduce fatigue
-            ChangeFatigue(-10);
-        else if (Input.IsKeyPressed(Key.Kp8)) // When Numpad 8 is pressed, restore fatigue
-            ChangeFatigue(10);
+			ChangeCurrentHealth(10);
+		else if (Input.IsKeyPressed(Key.Kp4)) // When Numpad 4 is pressed, reduce energy
+			ChangeCurrentEnergy(-10);
+		else if (Input.IsKeyPressed(Key.Kp5)) // When Numpad 5 is pressed, restore energy
+			ChangeCurrentEnergy(10);
+		else if (Input.IsKeyPressed(Key.Kp7)) // When Numpad 7 is pressed, reduce fatigue
+			ChangeFatigue(-10);
+		else if (Input.IsKeyPressed(Key.Kp8)) // When Numpad 8 is pressed, restore fatigue
+			ChangeFatigue(10);
     }
 
 	// Simple head bobbing effect
