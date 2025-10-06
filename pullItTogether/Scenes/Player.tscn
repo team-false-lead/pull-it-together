@@ -1,6 +1,7 @@
-[gd_scene load_steps=12 format=3 uid="uid://ckpgu08xdcwp4"]
+[gd_scene load_steps=13 format=3 uid="uid://ckpgu08xdcwp4"]
 
 [ext_resource type="Script" uid="uid://cor1xxd0lnxxg" path="res://Scripts/PlayerScripts/PlayerController.cs" id="1_kyqiw"]
+[ext_resource type="PackedScene" uid="uid://cx0brpfq1upti" path="res://Scenes/PlayerHUD.tscn" id="2_dewec"]
 [ext_resource type="Script" uid="uid://dmbbfw34d8nf1" path="res://Scripts/PlayerScripts/PlayerCameraSync.cs" id="2_gntrk"]
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_hyhp3"]
@@ -48,7 +49,7 @@ fovChange = 1.1
 bobAmplitude = 0.04
 inventorySlotPath = NodePath("Head/Camera3D/Inventory/InventorySlot1")
 collisionPusher = NodePath("AnimatableBody3D")
-hudScenePath = "res://Scenes/PlayerHUD.tscn"
+hudScene = ExtResource("2_dewec")
 walkingEnergyReduction = 2.0
 sprintingEnergyReduction = 4.0
 jumpingEnergyReduction = 5.0

@@ -47,7 +47,7 @@ public partial class PlayerController : CharacterBody3D
 	private float tetherStrength;
 
 	// Health and energy parameters
-	[Export] private string hudScenePath;
+	[Export] private PackedScene hudScene;
 	private float maxHealth = 100f;
 	private float currentHealth;
 	private ProgressBar healthBar;
@@ -83,7 +83,7 @@ public partial class PlayerController : CharacterBody3D
 			}
 
             // Load the player HUD
-            Control HUD = (Control)ResourceLoader.Load<PackedScene>(hudScenePath).Instantiate();
+            Control HUD = (Control)hudScene.Instantiate();
             AddChild(HUD);
             // Hard-coded values for now
             healthBar = HUD.GetNode<ProgressBar>("HealthBar/HealthProgressBar");
@@ -254,9 +254,9 @@ public partial class PlayerController : CharacterBody3D
 		else if (Input.IsKeyPressed(Key.Kp5)) // When Numpad 5 is pressed, restore energy
 			ChangeCurrentEnergy(10);
 		else if (Input.IsKeyPressed(Key.Kp7)) // When Numpad 7 is pressed, reduce fatigue
-			ChangeFatigue(-10);
+			ChangeMaxEnergy(-10);
 		else if (Input.IsKeyPressed(Key.Kp8)) // When Numpad 8 is pressed, restore fatigue
-			ChangeFatigue(10);
+			ChangeMaxEnergy(10);
     }
 
 	// Simple head bobbing effect
@@ -478,7 +478,7 @@ public partial class PlayerController : CharacterBody3D
             // The rest of the death code goes here
         }
         healthBar.Value = currentHealth;
-        GD.Print("Current health: " + currentHealth);
+        //GD.Print("Current health: " + currentHealth);
     }
 
 	public void ChangeCurrentEnergy(float diff)
@@ -492,11 +492,11 @@ public partial class PlayerController : CharacterBody3D
 			if (currentEnergy <= 0) 
 				currentEnergy = 0;
             energyBar.Value = currentEnergy;
-            GD.Print("Current energy: " + currentEnergy);
+            //GD.Print("Current energy: " + currentEnergy);
         }
     }
 
-	public void ChangeFatigue(float diff)
+	public void ChangeMaxEnergy(float diff)
 	{
 		maxEnergy = maxEnergy + diff;
 		if (maxEnergy <= 0)
@@ -505,7 +505,7 @@ public partial class PlayerController : CharacterBody3D
             maxEnergy = 100;
 		ChangeCurrentEnergy(0); // Update energy bar
 		fatigueBar.Value = Mathf.Abs(maxEnergy - 100);
-		GD.Print("Current fatigue: " + Mathf.Abs(maxEnergy - 100));
+		//GD.Print("Current fatigue: " + Mathf.Abs(maxEnergy - 100));
 		// Idk if we're doing anything else with this
     }
 }
