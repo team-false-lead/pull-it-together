@@ -38,7 +38,7 @@ public partial class PlayerController : CharacterBody3D
 	// Collision parameters
 	[Export] public Node3D collisionPusher;
 	public AnimatableBody3D collisionPusherAB;
-	public Interactable collisionPusherInteractable;
+	[Export] public Interactable interactableRB;
 	private uint interactMaskUint = 8;
 
 	// Rope tether parameters when carrying rope grab point
@@ -73,7 +73,6 @@ public partial class PlayerController : CharacterBody3D
 		if (collisionPusher != null)
 		{
 			collisionPusherAB = collisionPusher as AnimatableBody3D;
-			collisionPusherInteractable = collisionPusher as Interactable;
 		}
 		if (collisionPusherAB != null)
 		{
@@ -150,7 +149,7 @@ public partial class PlayerController : CharacterBody3D
 		Vector2 inputDir = Input.GetVector("left", "right", "forward", "back"); // WASD
 		Vector3 direction = (head.Transform.Basis * new Vector3(inputDir.X, 0, inputDir.Y)).Normalized();
 
-	 	// intertia
+		// intertia
 		if (IsOnFloor()) // full control when on the ground
 		{
 			if (direction != Vector3.Zero)
@@ -198,13 +197,13 @@ public partial class PlayerController : CharacterBody3D
 		{
 			if (heldObject == null)
 			{
-                var target = GetInteractableLookedAt();
-                if (target != null)
-                {
-                    //GD.Print(target.ToString());
-                    PickupObject(target);
-                }
-            }
+				var target = GetInteractableLookedAt();
+				if (target != null)
+				{
+					//GD.Print(target.ToString());
+					PickupObject(target);
+				}
+			}
 			else
 				DropObject();
 		}
@@ -214,6 +213,34 @@ public partial class PlayerController : CharacterBody3D
 		{
 			collisionPusherAB.GlobalTransform = GlobalTransform;
 		}
+		if (interactableRB != null)
+		{
+			interactableRB.GlobalTransform = GlobalTransform;
+		}
+
+		//get looked at object for debug and highlighting later
+		var lookedAtObject = RayCastForward();
+		if (lookedAtObject.Count > 0)
+		{
+			if (lookedAtObject.TryGetValue("collider", out var colliderVariant))
+			{
+			var godotObj = ((Variant)colliderVariant).AsGodotObject();
+				if (godotObj is Node colliderNode)
+				{
+					var interactable = FindInteractable(colliderNode);
+					var entity = FindEntity(colliderNode);
+					if (interactable != null)
+					{
+						GD.Print("Looking at interactable: " + interactable.GetInteractableId());
+					}
+					if (entity != null)
+					{
+						GD.Print("Looking at entity: " + entity.GetEntityId());
+					}
+				}
+			}
+		}
+		
 	}
 
 	// Simple head bobbing effect
@@ -264,7 +291,7 @@ public partial class PlayerController : CharacterBody3D
 		var state = GetWorld3D().DirectSpaceState;
 		var query = PhysicsRayQueryParameters3D.Create(origin, to);
 		query.CollisionMask = interactMaskUint;
-		query.Exclude = new Array<Rid> { GetRid() }; // ignore self
+		query.Exclude = new Array<Rid> { GetRid(), collisionPusherAB.GetRid(), interactableRB.GetRid() }; // ignore self
 
 		var hit = state.IntersectRay(query);
 		return hit;
@@ -272,7 +299,7 @@ public partial class PlayerController : CharacterBody3D
 
 	public Interactable GetOwnInteractable()
 	{
-		return collisionPusherInteractable;
+		return interactableRB;
 	}
 
 	// Get the Interactable the player is currently looking at
@@ -331,7 +358,7 @@ public partial class PlayerController : CharacterBody3D
 	{
 		while (node != null)
 		{
-			if (node is Entity entity)
+			if (node is Entity entity && !string.IsNullOrEmpty(entity.entityId))
 				return entity;
 			node = node.GetParent();
 		}

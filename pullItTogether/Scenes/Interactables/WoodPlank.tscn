@@ -1,7 +1,7 @@
 [gd_scene load_steps=6 format=3 uid="uid://ba3m0401u3th5"]
 
 [ext_resource type="Script" uid="uid://jr4alxp0f2wt" path="res://Scripts/InteractableScripts/WoodPlank.cs" id="1_0kels"]
-[ext_resource type="PackedScene" uid="uid://b575wgt5fc8yc" path="res://Scenes/Interactables/Campfire.tscn" id="2_xx7ku"]
+[ext_resource type="PackedScene" uid="uid://b575wgt5fc8yc" path="res://Scenes/Entities/Campfire.tscn" id="2_xx7ku"]
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_0kels"]
 properties/0/path = NodePath(".:position")

@@ -3,7 +3,7 @@ using System;
 
 public partial class Campfire : Entity
 {
-    [Export] private int usesLeft = 3; //export to use on multiPlayer syncer
+    [Export] public int usesLeft = 3; //export to use on multiPlayer syncer
     
     // By default, entities do not accept being used on them
     //override to accept food items
@@ -19,14 +19,22 @@ public partial class Campfire : Entity
     // Logic for accepting use from food items
     public override void AcceptUseFrom(CharacterBody3D user, Interactable source)
     {
-        GD.Print("Campfire: Accepted use from " + source.Name);
-        //add logic for cooking food here
-        //remove and replace held item with cooked version
-        //assume food item has a cookedMesh assigned
-        usesLeft--;
-        if (usesLeft <= 0)
+        if (itemManager == null) InitReferences();
+        var id = GetEntityId(); //get unique id, default to name
+
+        // Request spawn via RPC if not server
+        if (multiplayerActive && !multiplayer.IsServer())
         {
-            QueueFree(); // Remove campfire after uses are exhausted
+            var error = itemManager.RpcId(1, nameof(ItemManager.RequestCookFood), id, source.GetInteractableId());
+            if (error != Error.Ok)
+            {
+                GD.PrintErr("Campfire: Failed to request cooking via RPC. Error: " + error);
+                return;
+            }
+        }
+        else // Server or single-player handles spawn directly
+        {
+            itemManager.DoCookFood(id, source.GetInteractableId());
         }
     }
 
