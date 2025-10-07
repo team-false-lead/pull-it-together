@@ -16,6 +16,7 @@ public partial class PlayerController : CharacterBody3D
 	public float jumpVelocity = 4.5f;
 	public float inertiaAirValue = 3.0f;
 	public float inertiaGroundValue = 7.0f;
+	private bool isSprinting;
 
 	// Camera and look parameters
 	[Export] public Node3D head;
@@ -127,6 +128,11 @@ public partial class PlayerController : CharacterBody3D
 			camera.RotateX(-mouseMotion.Relative.Y * mouseSensitivity);
 			camera.RotationDegrees = new Vector3(Mathf.Clamp(camera.RotationDegrees.X, -85, 85), camera.RotationDegrees.Y, camera.RotationDegrees.Z);
 		}
+
+		if (Input.IsActionPressed("sprint") && IsOnFloor() && !isSprinting)
+			isSprinting = true;
+		else if (!Input.IsActionPressed("sprint") && isSprinting)
+			isSprinting = false;
 	}
 
 	// Handles movement, jumping, sprinting, head bobbing, and interaction input, probably needs to be split up later
@@ -153,12 +159,16 @@ public partial class PlayerController : CharacterBody3D
 		}
 
 		// Handle sprint input and FOV change
-		if (Input.IsActionPressed("sprint"))
+		if (isSprinting)
 		{
 			speed = sprintSpeed;
 			camera.Fov = Mathf.Lerp(camera.Fov, fov * fovChange, (float)delta * fovChangeSpeed);
-			energyChange -= sprintingEnergyReduction * (float)delta;
-			maxEnergyChange -= sprintingEnergyReduction * 0.3f * (float)delta;
+
+			if (IsOnFloor()) // Don't decrease energy in midair
+            {
+                energyChange -= sprintingEnergyReduction * (float)delta;
+                maxEnergyChange -= sprintingEnergyReduction * 0.3f * (float)delta;
+            }
 		}
 		else
 		{

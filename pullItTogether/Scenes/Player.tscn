@@ -52,7 +52,7 @@ collisionPusher = NodePath("AnimatableBody3D")
 hudScene = ExtResource("2_dewec")
 maxEnergyReductionRate = 0.2
 sprintingEnergyReduction = 4.0
-jumpingEnergyCost = 5.0
+jumpingEnergyCost = 10.0
 energyRegen = 2.0
 
 [node name="PlayerCameraSync" type="Node" parent="." node_paths=PackedStringArray("Camera")]
