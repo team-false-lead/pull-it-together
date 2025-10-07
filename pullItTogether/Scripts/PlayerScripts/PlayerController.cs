@@ -55,9 +55,9 @@ public partial class PlayerController : CharacterBody3D
 	private float currentEnergy;
 	private ProgressBar energyBar;
 	private ProgressBar fatigueBar;
-	[Export] private float walkingEnergyReduction;
+	[Export] private float maxEnergyReductionRate;
 	[Export] private float sprintingEnergyReduction;
-	[Export] private float jumpingEnergyReduction;
+	[Export] private float jumpingEnergyCost;
 	[Export] private float energyRegen;
 
 	public override void _EnterTree()
@@ -135,6 +135,7 @@ public partial class PlayerController : CharacterBody3D
 		if (!IsLocalControlled()) return; // local player processes movement
 
 		Vector3 velocity = Velocity;
+		float maxEnergyChange = -maxEnergyReductionRate * (float)delta;
 		float energyChange = 0;
 
 		// Add the gravity.
@@ -147,7 +148,8 @@ public partial class PlayerController : CharacterBody3D
 		if (Input.IsActionJustPressed("jump") && IsOnFloor())
 		{
 			velocity.Y = jumpVelocity;
-			energyChange -= jumpingEnergyReduction;
+			energyChange -= jumpingEnergyCost;
+			maxEnergyChange -= jumpingEnergyCost * 0.3f;
 		}
 
 		// Handle sprint input and FOV change
@@ -156,12 +158,12 @@ public partial class PlayerController : CharacterBody3D
 			speed = sprintSpeed;
 			camera.Fov = Mathf.Lerp(camera.Fov, fov * fovChange, (float)delta * fovChangeSpeed);
 			energyChange -= sprintingEnergyReduction * (float)delta;
+			maxEnergyChange -= sprintingEnergyReduction * 0.3f * (float)delta;
 		}
 		else
 		{
 			speed = walkSpeed;
 			camera.Fov = Mathf.Lerp(camera.Fov, fov, (float)delta * fovChangeSpeed);
-			energyChange -= walkingEnergyReduction * (float)delta;
 		}
 
 		// Get the input direction and handle the movement/deceleration.
@@ -234,15 +236,13 @@ public partial class PlayerController : CharacterBody3D
 			collisionPusher.GlobalTransform = GlobalTransform;
 		}
 
-		// When not moving, recover energy.
-		if (direction == Vector3.Zero && IsOnFloor())
-		{
-			ChangeCurrentEnergy(energyRegen * (float)delta);
-		}
-		else if (direction != Vector3.Zero)
-		{
-			ChangeCurrentEnergy(energyChange);
-		}
+		// If the player isn't doing anything that would spend energy, regain energy
+		if (energyChange == 0)
+			energyChange = energyRegen * (float)delta;
+
+		// Update the player's current energy
+		ChangeCurrentEnergy(energyChange);
+		ChangeMaxEnergy(maxEnergyChange);
 
 		// Leo's really cool health/energy/fatigue testing code
 		if (Input.IsKeyPressed(Key.Kp1)) // When Numpad 1 is pressed, reduce health
