@@ -55,8 +55,9 @@ public partial class ItemManager : Node3D
 
 	public override void _PhysicsProcess(double delta)
 	{
-		if (Input.IsActionJustPressed("drop")) // Q
+		if (Input.IsActionJustPressed("drop")) // Q  // actually not drop but print dictionary contents for debugging
 		{
+			if (isMultiplayerSession && !multiplayer.IsServer()) return;
 			PrintDictionaryContents();
 		}
 	}
@@ -664,22 +665,23 @@ public partial class ItemManager : Node3D
 
 	// logic for feeding food item to player request
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer)] // Allow any peer to request feeding
-	public void RequestFeedTarget(string itemId, long targetPeerId)
+	public void RequestFeedTarget(string itemId, string targetPeerId)
 	{
 		GD.Print("ItemManager: RequestFeedTarget called for " + itemId + " to peer ID " + targetPeerId);
+		GD.Print("ItemManager: isMultiplayerSession=" + isMultiplayerSession + ", IsServer=" + multiplayer.IsServer());
 		if (isMultiplayerSession && !multiplayer.IsServer()) return; // Only the server should handle feeding
-
-		PlayerController targetPlayer = GetPlayerControllerById(targetPeerId);
-		if (targetPlayer == null) { GD.Print("Target Player null"); return; }
-
-		DoFeedTarget(itemId, targetPlayer);
+		DoFeedTarget(itemId, targetPeerId);
 	}
 
 	// logic for feeding food item to target player
-	public void DoFeedTarget(string itemId, PlayerController targetPlayer)
+	public void DoFeedTarget(string itemId, string targetPeerId)
 	{
 		var food = FindInteractableById(itemId) as Food;
 		if (food == null) return;
+		
+		long targetPeerIdLong = long.Parse(targetPeerId);
+		PlayerController targetPlayer = GetPlayerControllerById(targetPeerIdLong);
+		if (targetPlayer == null) { GD.Print("Target Player null"); return; }
 
 		GD.Print("Food: " + food.Name + " is cooked: " + food.isCooked);
 		if (food.isCooked)

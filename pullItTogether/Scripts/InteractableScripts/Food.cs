@@ -20,7 +20,7 @@ public partial class Food : Interactable
         var id = GetInteractableId(); //get unique id, default to name
 
         var targetPC = user as PlayerController;
-        long targetPeerId = targetPC.GetMultiplayerAuthority();
+        string targetPeerId = targetPC.GetMultiplayerAuthority().ToString();
 
         // Request feeding via RPC if not server
         if (multiplayerActive && !multiplayer.IsServer())
@@ -35,42 +35,42 @@ public partial class Food : Interactable
         }
         else // Server or single-player handles feeding directly
         {
-            itemManager.DoFeedTarget(id, targetPC);
+            itemManager.DoFeedTarget(id, targetPeerId);
         }
     }
 
     // Logic for using the food item on an interactable Player (feeding)
-    public override void TryUseOnInteractable(CharacterBody3D user, Interactable target)
-    {//
-        //if (user == null) return;
+    //public override void TryUseOnInteractable(CharacterBody3D user, Interactable target)
+    //{
+    //    if (user == null) return;
 //
-        //if (CanUseOnInteractable(user, target) == false)
-        //{
-        //    GD.Print("Food: Cannot use " + Name + " on " + target.Name);
-        //    return;
-        //}
+    //    if (CanUseOnInteractable(user, target) == false)
+    //    {
+    //        GD.Print("Food: Cannot use " + Name + " on " + target.Name);
+    //        return;
+    //    }
 //
-        //if (itemManager == null) InitReferences();
-        //var id = GetInteractableId(); //get unique id, default to name
+    //    if (itemManager == null) InitReferences();
+    //    var id = GetInteractableId(); //get unique id, default to name
 //
-        //var targetPC = target.GetPlayerController();
-        //long targetPeerId = targetPC.GetMultiplayerAuthority();
+    //    var targetPC = target.GetPlayerController();
+    //    long targetPeerId = targetPC.GetMultiplayerAuthority();
 //
-        //// Request feed via RPC if not server
-        //if (multiplayerActive && !multiplayer.IsServer())
-        //{
-        //    var error = itemManager.RpcId(1, nameof(ItemManager.RequestFeedTarget), id, targetPeerId);
-        //    if (error != Error.Ok)
-        //    {
-        //        GD.PrintErr("FoodTemplate: Failed to request feed item via RPC. Error: " + error);
-        //        return;
-        //    }
-        //}
-        //else // Server or single-player handles feeding directly
-        //{
-        //    itemManager.DoFeedTarget(id, targetPC);
-        //}
-    }//
+    //    // Request feed via RPC if not server
+    //    if (multiplayerActive && !multiplayer.IsServer())
+    //    {
+    //        var error = itemManager.RpcId(1, nameof(ItemManager.RequestFeedTarget), id, targetPeerId);
+    //        if (error != Error.Ok)
+    //        {
+    //            GD.PrintErr("FoodTemplate: Failed to request feed item via RPC. Error: " + error);
+    //            return;
+    //        }
+    //    }
+    //    else // Server or single-player handles feeding directly
+    //    {
+    //        itemManager.DoFeedTarget(id, targetPC);
+    //    }
+    //}
 
     //logic for cooking lives on campfire
     //public virtual void TryUseOnEntity(CharacterBody3D user, Entity target)

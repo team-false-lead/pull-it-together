@@ -33,13 +33,13 @@ public partial class PlayerController : CharacterBody3D
 	private bool HeldValid() => heldObject != null && IsInstanceValid(heldObject) && !heldObject.IsQueuedForDeletion() && heldObject.IsInsideTree();
 	[Export] public NodePath inventorySlotPath;
 	[Export] public float interactRange = 3.0f;
-	[Export] public int interactLayer = 4;
+	//[Export] public int interactLayer = 4;
 
 	// Collision parameters
 	[Export] public Node3D collisionPusher;
 	public AnimatableBody3D collisionPusherAB;
 	[Export] public Interactable interactableRB;
-	private uint interactMaskUint = 8;
+	private uint interactMaskUint = 40;
 
 	// Rope tether parameters when carrying rope grab point
 	private Node3D tetherAnchor;
@@ -79,7 +79,7 @@ public partial class PlayerController : CharacterBody3D
 			collisionPusherAB.SyncToPhysics = true;
 		}
 
-		interactMaskUint = (uint)(1 << (interactLayer - 1));// Convert layer number to bitmask
+		//interactMaskUint = (uint)(1 << (interactLayer - 1));// Convert layer number to bitmask
 
 		var mapManager = GetTree().CurrentScene.GetNodeOrNull<Node>("%MapManager");
 		if (mapManager != null)
@@ -229,14 +229,15 @@ public partial class PlayerController : CharacterBody3D
 				{
 					var interactable = FindInteractable(colliderNode);
 					var entity = FindEntity(colliderNode);
-					if (interactable != null)
-					{
-						GD.Print("Looking at interactable: " + interactable.GetInteractableId());
-					}
-					if (entity != null)
-					{
-						GD.Print("Looking at entity: " + entity.GetEntityId());
-					}
+					//debug prints for now
+					//if (interactable != null)
+					//{
+					//	GD.Print("Looking at interactable: " + interactable.GetInteractableId());
+					//}
+					//if (entity != null)
+					//{
+					//	GD.Print("Looking at entity: " + entity.GetEntityId());
+					//}
 				}
 			}
 		}

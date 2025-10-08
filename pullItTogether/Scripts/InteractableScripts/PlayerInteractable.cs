@@ -20,14 +20,16 @@ public partial class PlayerInteractable : Interactable
     {
         GD.Print("PlayerInteractable: AcceptUseFrom called with source " + source.Name);
         if (itemManager == null) InitReferences();
-        var sourceId = GetInteractableId(); //get unique id, default to name
+        var sourceId = source.GetInteractableId(); //get unique id, default to name
         var thisPC = GetPlayerController();
-        long targetPeerId = thisPC.GetMultiplayerAuthority();
+        string targetPeerId = thisPC.GetMultiplayerAuthority().ToString();
 
         // Request spawn via RPC if not server
         if (multiplayerActive && !multiplayer.IsServer())
         {
+            GD.Print("PlayerInteractable: Sending RPC to feed target " + thisPC.Name);
             var error = itemManager.RpcId(1, nameof(ItemManager.RequestFeedTarget), sourceId, targetPeerId);
+            GD.Print("PlayerInteractable: RPC sent" + error);
             if (error != Error.Ok)
             {
                 GD.PrintErr("PlayerInteractable: Failed to request feeding via RPC. Error: " + error);
@@ -36,7 +38,8 @@ public partial class PlayerInteractable : Interactable
         }
         else // Server or single-player handles spawn directly
         {
-            itemManager.DoFeedTarget(sourceId, thisPC);
+            GD.Print("PlayerInteractable: Directly feeding target " + thisPC.Name);
+            itemManager.DoFeedTarget(sourceId, targetPeerId);
         }
     }
 
