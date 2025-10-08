@@ -9,7 +9,7 @@ public partial class PlayerInteractable : Interactable
     // By default, objects do not accept being used on them
     public override bool CanAcceptUseFrom(CharacterBody3D user, Interactable source)
     {
-        if (source.IsInGroup("Food"))
+        if (source.IsInGroup("food"))
         {
             return true;
         }

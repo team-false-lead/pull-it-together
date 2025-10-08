@@ -1,6 +1,6 @@
-[gd_scene load_steps=5 format=3 uid="uid://b575wgt5fc8yc"]
+[gd_scene load_steps=5 format=3 uid="uid://cnvpf5wbcbse1"]
 
-[ext_resource type="Script" uid="uid://cs7tk8faukvvy" path="res://Scripts/EntityScripts/Campfire.cs" id="1_dcn0c"]
+[ext_resource type="Script" uid="uid://xr0o4x6waeh4" path="res://Scripts/EntityScripts/Wheel.cs" id="1_7i257"]
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_on6pt"]
 properties/0/path = NodePath(".:position")
@@ -9,38 +9,35 @@ properties/0/replication_mode = 1
 properties/1/path = NodePath(".:rotation")
 properties/1/spawn = true
 properties/1/replication_mode = 1
-properties/2/path = NodePath(".:usesLeft")
+properties/2/path = NodePath(".:entityId")
 properties/2/spawn = true
 properties/2/replication_mode = 1
-properties/3/path = NodePath(".:entityId")
-properties/3/spawn = true
-properties/3/replication_mode = 1
 
-[sub_resource type="CylinderShape3D" id="CylinderShape3D_on6pt"]
-resource_local_to_scene = true
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_4nodm"]
 height = 0.5
 radius = 0.75
 
-[sub_resource type="CylinderMesh" id="CylinderMesh_aiyb2"]
-resource_local_to_scene = true
+[sub_resource type="CylinderMesh" id="CylinderMesh_7i257"]
+top_radius = 0.75
 bottom_radius = 0.75
 height = 0.5
 
-[node name="Campfire" type="RigidBody3D"]
+[node name="Wheel" type="RigidBody3D"]
+transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 0, 0, 0)
 collision_layer = 8
 collision_mask = 29
-script = ExtResource("1_dcn0c")
+script = ExtResource("1_7i257")
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 replication_config = SubResource("SceneReplicationConfig_on6pt")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
-shape = SubResource("CylinderShape3D_on6pt")
+shape = SubResource("CylinderShape3D_4nodm")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="CollisionShape3D"]
-mesh = SubResource("CylinderMesh_aiyb2")
+mesh = SubResource("CylinderMesh_7i257")
 
 [node name="Label3D" type="Label3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.602306, 0)
 billboard = 2
-text = "Campfire"
+text = "Wheel"

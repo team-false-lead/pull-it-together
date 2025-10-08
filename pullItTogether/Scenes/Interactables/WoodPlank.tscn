@@ -31,9 +31,9 @@ size = Vector3(0.1, 0.5, 2)
 resource_local_to_scene = true
 size = Vector3(0.1, 0.5, 2)
 
-[node name="WoodPlank" type="RigidBody3D"]
+[node name="WoodPlank" type="RigidBody3D" groups=["plank"]]
 collision_layer = 8
-collision_mask = 13
+collision_mask = 29
 script = ExtResource("1_0kels")
 SpawnOnUseScene = ExtResource("2_xx7ku")
 

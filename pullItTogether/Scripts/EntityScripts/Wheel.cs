@@ -1,15 +1,18 @@
 using Godot;
 using System;
 
-public partial class Campfire : Entity
+public partial class Wheel : Entity
 {
-    [Export] public int usesLeft = 3; //export to use on multiPlayer syncer
-    
+    [Export] public float currentHealth = 10f; //export to use on multiPlayer syncer
+    [Export] public float maxHealth = 100f;
+    [Export] public bool isBroken = false;
+    [Export] public float repairAmount = 34f;
+
     // By default, entities do not accept being used on them
     //override to accept food items
     public override bool CanAcceptUseFrom(CharacterBody3D user, Interactable source)
     {
-        if (source.IsInGroup("food"))
+        if (source.IsInGroup("plank"))
         {
             return true;
         }
@@ -25,16 +28,16 @@ public partial class Campfire : Entity
         // Request spawn via RPC if not server
         if (multiplayerActive && !multiplayer.IsServer())
         {
-            var error = itemManager.RpcId(1, nameof(ItemManager.RequestCookFood), id, source.GetInteractableId());
+            var error = itemManager.RpcId(1, nameof(ItemManager.RequestRepairWheel), id, source.GetInteractableId());
             if (error != Error.Ok)
             {
-                GD.PrintErr("Campfire: Failed to request cooking via RPC. Error: " + error);
+                GD.PrintErr("Wheel: Failed to request repairing via RPC. Error: " + error);
                 return;
             }
         }
         else // Server or single-player handles spawn directly
         {
-            itemManager.DoCookFood(id, source.GetInteractableId());
+            itemManager.DoRepairWheel(id, source.GetInteractableId());
         }
     }
 

@@ -1,4 +1,4 @@
-[gd_scene load_steps=25 format=3 uid="uid://b7pp3skomvnhc"]
+[gd_scene load_steps=26 format=3 uid="uid://b7pp3skomvnhc"]
 
 [ext_resource type="Script" uid="uid://d2gutl4cngqlt" path="res://Scripts/ManagerScripts/ItemManager.cs" id="1_00jar"]
 [ext_resource type="PackedScene" uid="uid://woij3e5klul2" path="res://Scenes/Maps/TransitionArea.tscn" id="3_00jar"]
@@ -8,6 +8,7 @@
 [ext_resource type="PackedScene" uid="uid://bfwhlqlt010kj" path="res://Scenes/Interactables/WagonTest1.tscn" id="5_0314m"]
 [ext_resource type="PackedScene" uid="uid://ddg3vj41j0u45" path="res://Scenes/Interactables/Food.tscn" id="6_00jar"]
 [ext_resource type="PackedScene" uid="uid://b575wgt5fc8yc" path="res://Scenes/Entities/Campfire.tscn" id="7_j0g0q"]
+[ext_resource type="PackedScene" uid="uid://cnvpf5wbcbse1" path="res://Scenes/Entities/Wheel.tscn" id="9_xj7ls"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_xh66l"]
 sky_horizon_color = Color(0.662243, 0.671743, 0.686743, 1)
@@ -226,3 +227,9 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.202507, 1.71766, 0.803963)
 
 [node name="Campfire" parent="Placeholders" instance=ExtResource("7_j0g0q")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.2946, 1.46766, 1.95325)
+
+[node name="Wheel" parent="Placeholders" instance=ExtResource("9_xj7ls")]
+transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 10.1942, 1.96766, 1.42996)
+
+[node name="Wheel2" parent="Placeholders" instance=ExtResource("9_xj7ls")]
+transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 9.66434, 1.96766, -1.04574)

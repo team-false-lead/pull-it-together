@@ -27,7 +27,8 @@ enabled=PackedStringArray("res://addons/verlet_rope_4/plugin.cfg")
 
 players=""
 item_manager=""
-Food=""
+plank=""
+food=""
 
 [input]
 

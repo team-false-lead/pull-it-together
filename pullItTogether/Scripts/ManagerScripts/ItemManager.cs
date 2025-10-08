@@ -653,13 +653,13 @@ public partial class ItemManager : Node3D
 			food.isCooked = true;
 		}
 		//add logic for cooking food here
-        //remove and replace held item with cooked version
-        //assume food item has a cookedMesh assigned
-        campfire.usesLeft--;
-        if (campfire.usesLeft <= 0)
-        {
-            campfire.QueueFree(); // Remove campfire after uses are exhausted
-        }
+		//remove and replace held item with cooked version
+		//assume food item has a cookedMesh assigned
+		campfire.usesLeft--;
+		if (campfire.usesLeft <= 0)
+		{
+			campfire.QueueFree(); // Remove campfire after uses are exhausted
+		}
 	}
 
 
@@ -678,7 +678,7 @@ public partial class ItemManager : Node3D
 	{
 		var food = FindInteractableById(itemId) as Food;
 		if (food == null) return;
-		
+
 		long targetPeerIdLong = long.Parse(targetPeerId);
 		PlayerController targetPlayer = GetPlayerControllerById(targetPeerIdLong);
 		if (targetPlayer == null) { GD.Print("Target Player null"); return; }
@@ -701,6 +701,38 @@ public partial class ItemManager : Node3D
 
 		food.QueueFree(); // remove the food item after feeding
 	}
-	
 
+	// logic for repairing wheel request
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer)] // Allow any peer to request repairing wheel
+	public void RequestRepairWheel(string wheelId, string plankId)
+	{
+		GD.Print("ItemManager: RequestRepairWheel called for " + wheelId);
+		if (isMultiplayerSession && !multiplayer.IsServer()) return; // Only the server should handle repairing
+		DoRepairWheel(wheelId, plankId);
+	}
+
+	public void DoRepairWheel(string wheelId, string plankId)
+	{
+		var plank = FindInteractableById(plankId) as Interactable;
+		if (plank == null) { GD.Print("Plank null"); return; }
+
+		var wheel = FindEntityById(wheelId) as Wheel;
+		if (wheel == null) { GD.Print("Wheel null"); return; }
+
+		GD.Print("Wheel: Accepted use from " + plank.Name);
+		GD.Print("Wheel: Current Health " + wheel.currentHealth + "/" + wheel.maxHealth);
+		wheel.currentHealth += wheel.repairAmount;
+		GD.Print("Wheel: Updated Health " + wheel.currentHealth + "/" + wheel.maxHealth);
+		if (wheel.currentHealth >= wheel.maxHealth)
+		{
+			wheel.currentHealth = wheel.maxHealth;
+			GD.Print("Wheel: " + wheel.Name + " has been fully repaired!");
+		}
+		else
+		{
+			GD.Print("Wheel: " + wheel.Name + " repaired to " + wheel.currentHealth + "/" + wheel.maxHealth);
+		}
+		//add logic for repairing wheel here
+		plank.QueueFree(); // remove the used plank
+	}
 }
