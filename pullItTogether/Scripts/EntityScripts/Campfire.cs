@@ -1,10 +1,11 @@
 using Godot;
 using System;
 
+// a campfire that can cook food items
 public partial class Campfire : Entity
 {
     [Export] public int usesLeft = 3; //export to use on multiPlayer syncer
-    
+
     // By default, entities do not accept being used on them
     //override to accept food items
     public override bool CanAcceptUseFrom(CharacterBody3D user, Interactable source)

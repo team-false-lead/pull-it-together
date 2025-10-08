@@ -651,6 +651,7 @@ public partial class ItemManager : Node3D
 		if (!food.isCooked)
 		{
 			food.isCooked = true;
+			food.currentMesh.Mesh = food.cookedMesh.Mesh; // idk how to change this mesh on peers
 		}
 		//add logic for cooking food here
 		//remove and replace held item with cooked version
@@ -711,6 +712,7 @@ public partial class ItemManager : Node3D
 		DoRepairWheel(wheelId, plankId);
 	}
 
+	// logic for repairing wheel
 	public void DoRepairWheel(string wheelId, string plankId)
 	{
 		var plank = FindInteractableById(plankId) as Interactable;
@@ -734,5 +736,11 @@ public partial class ItemManager : Node3D
 		}
 		//add logic for repairing wheel here
 		plank.QueueFree(); // remove the used plank
+	}
+
+	// logic for damaging wheel request 
+	public void DoDamageWheel(string wheelId, int damageAmount)
+	{
+		//GD.Print("ItemManager: DoDamageWheel called for " + wheelId);
 	}
 }

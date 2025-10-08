@@ -1,6 +1,7 @@
 using Godot;
 using System;
 
+// a wheel that can be repaired with wooden planks
 public partial class Wheel : Entity
 {
     [Export] public float currentHealth = 10f; //export to use on multiPlayer syncer
@@ -25,7 +26,7 @@ public partial class Wheel : Entity
         if (itemManager == null) InitReferences();
         var id = GetEntityId(); //get unique id, default to name
 
-        // Request spawn via RPC if not server
+        // Request repair via RPC if not server
         if (multiplayerActive && !multiplayer.IsServer())
         {
             var error = itemManager.RpcId(1, nameof(ItemManager.RequestRepairWheel), id, source.GetInteractableId());
@@ -35,7 +36,7 @@ public partial class Wheel : Entity
                 return;
             }
         }
-        else // Server or single-player handles spawn directly
+        else // Server or single-player handles repair directly
         {
             itemManager.DoRepairWheel(id, source.GetInteractableId());
         }
