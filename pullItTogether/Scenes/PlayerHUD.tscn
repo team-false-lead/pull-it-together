@@ -45,11 +45,13 @@ grow_vertical = 2
 texture = ExtResource("1_g363m")
 
 [node name="HealthBar" type="Control" parent="."]
-anchors_preset = 0
-offset_left = 25.0
-offset_top = 565.0
-offset_right = 279.0
-offset_bottom = 592.0
+layout_mode = 1
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 15.0
+offset_top = -75.0
+offset_right = 350.0
+grow_vertical = 0
 mouse_filter = 2
 
 [node name="RichTextLabel" type="RichTextLabel" parent="HealthBar"]
@@ -71,19 +73,20 @@ layout_mode = 2
 offset_left = 63.0
 offset_right = 254.0
 offset_bottom = 27.0
-grow_horizontal = 2
-grow_vertical = 2
 size_flags_vertical = 1
 theme_override_styles/fill = SubResource("StyleBoxFlat_gntrk")
 value = 100.0
 show_percentage = false
 
 [node name="EnergyBar" type="Control" parent="."]
-anchors_preset = 0
-offset_left = 25.0
-offset_top = 598.0
-offset_right = 279.0
-offset_bottom = 625.0
+layout_mode = 1
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 15.0
+offset_top = -40.0
+offset_right = 269.0
+offset_bottom = -13.0
+grow_vertical = 0
 mouse_filter = 2
 
 [node name="RichTextLabel" type="RichTextLabel" parent="EnergyBar"]
