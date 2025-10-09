@@ -46,6 +46,7 @@ texture = ExtResource("1_g363m")
 
 [node name="HealthBar" type="Control" parent="."]
 layout_mode = 1
+anchors_preset = 2
 anchor_top = 1.0
 anchor_bottom = 1.0
 offset_left = 15.0
@@ -80,6 +81,7 @@ show_percentage = false
 
 [node name="EnergyBar" type="Control" parent="."]
 layout_mode = 1
+anchors_preset = 2
 anchor_top = 1.0
 anchor_bottom = 1.0
 offset_left = 15.0

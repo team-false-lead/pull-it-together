@@ -247,7 +247,7 @@ public partial class PlayerController : CharacterBody3D
 		}
 
 		// If the player isn't doing anything that would spend energy, regain energy
-		if (energyChange == 0)
+		if (energyChange == 0 && IsOnFloor())
 			energyChange = energyRegen * (float)delta;
 
 		// Update the player's current energy
