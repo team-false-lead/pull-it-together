@@ -5,7 +5,7 @@
 [ext_resource type="PackedScene" uid="uid://ckpgu08xdcwp4" path="res://Scenes/Player.tscn" id="2_k5f4k"]
 [ext_resource type="PackedScene" uid="uid://c10ybnoe2rhv4" path="res://Scenes/Interactables/RopeBoxVerlet.tscn" id="3_0314m"]
 [ext_resource type="PackedScene" uid="uid://ba3m0401u3th5" path="res://Scenes/Interactables/WoodPlank.tscn" id="4_qg828"]
-[ext_resource type="PackedScene" uid="uid://rgaq6sxofk4f" path="res://Scenes/Interactables/WagonTest.tscn" id="6_00jar"]
+[ext_resource type="PackedScene" uid="uid://rgaq6sxofk4f" path="res://Scenes/Interactables/WagonPrototype.tscn" id="6_00jar"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_xh66l"]
 sky_horizon_color = Color(0.662243, 0.671743, 0.686743, 1)
