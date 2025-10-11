@@ -11,8 +11,7 @@ public partial class RopeProxy : AnimatableBody3D
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
-		SyncToPhysics = true;
-		//slot = GetParent<Node3D>();
+		SyncToPhysics = false; // we control its transform manually in item manager
 		TopLevel = true;
 	}
 
@@ -20,24 +19,19 @@ public partial class RopeProxy : AnimatableBody3D
 	public override void _PhysicsProcess(double delta)
 	{
 		//tween controlled in item manager
-		if (!multiplayer.IsServer() || isTweening || followTarget == null) return;
-		//GlobalTransform = followTarget.GlobalTransform;
-		GlobalPosition = followTarget.GlobalPosition;
-		GlobalRotation = followTarget.GlobalRotation;
+		if (!multiplayer.IsServer() || isTweening || followTarget == null || !IsInstanceValid(followTarget)) return;
+		var targetTransform = followTarget.GlobalTransform;
+		targetTransform.Basis = GlobalTransform.Basis; // Keep current rotation and scale
+		GlobalTransform = targetTransform; // Snap to target position
 	}
 
 	public void SetFollowTarget(Node3D target)
 	{
 		followTarget = target;
-		if (multiplayer.IsServer())
-		{
-			SetPhysicsProcess(true);
-		}
 	}
 
 	public void ClearFollowTarget()
 	{
 		followTarget = null;
-		SetPhysicsProcess(false);
 	}
 }
