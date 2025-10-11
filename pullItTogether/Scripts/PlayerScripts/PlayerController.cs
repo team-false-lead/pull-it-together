@@ -46,6 +46,9 @@ public partial class PlayerController : CharacterBody3D
 	private float tetherBuffer;
 	private float tetherStrength;
 
+	// Pause menu parameters
+	private bool isPaused;
+	[Export] private PauseMenu pauseMenu;
 
 	public override void _EnterTree()
 	{
@@ -67,6 +70,11 @@ public partial class PlayerController : CharacterBody3D
 					node.Visible = false;
 				}
 			}
+
+			pauseMenu.ResumeButton.Pressed += () =>
+			{
+				TogglePaused(false);
+			};
 		}
 		else
 		{
@@ -98,6 +106,9 @@ public partial class PlayerController : CharacterBody3D
 			camera.RotateX(-mouseMotion.Relative.Y * mouseSensitivity);
 			camera.RotationDegrees = new Vector3(Mathf.Clamp(camera.RotationDegrees.X, -85, 85), camera.RotationDegrees.Y, camera.RotationDegrees.Z);
 		}
+
+		if (Input.IsActionJustPressed("pause"))
+			TogglePaused(!isPaused);
 	}
 
 	// Handles movement, jumping, sprinting, head bobbing, and interaction input, probably needs to be split up later
@@ -113,60 +124,64 @@ public partial class PlayerController : CharacterBody3D
 			velocity += GetGravity() * (float)delta;
 		}
 
-		// Handle Jump.
-		if (Input.IsActionJustPressed("jump") && IsOnFloor())
+		// Do not process movement inputs when controls are paused.
+		if (!isPaused)
 		{
-			velocity.Y = jumpVelocity;
-		}
+            // Handle Jump.
+            if (Input.IsActionJustPressed("jump") && IsOnFloor())
+            {
+                velocity.Y = jumpVelocity;
+            }
 
-		// Handle sprint input and FOV change
-		if (Input.IsActionPressed("sprint"))
-		{
-			speed = sprintSpeed;
-			camera.Fov = Mathf.Lerp(camera.Fov, fov * fovChange, (float)delta * fovChangeSpeed);
-		}
-		else
-		{
-			speed = walkSpeed;
-			camera.Fov = Mathf.Lerp(camera.Fov, fov, (float)delta * fovChangeSpeed);
-		}
+            // Handle sprint input and FOV change
+            if (Input.IsActionPressed("sprint"))
+            {
+                speed = sprintSpeed;
+                camera.Fov = Mathf.Lerp(camera.Fov, fov * fovChange, (float)delta * fovChangeSpeed);
+            }
+            else
+            {
+                speed = walkSpeed;
+                camera.Fov = Mathf.Lerp(camera.Fov, fov, (float)delta * fovChangeSpeed);
+            }
 
-		// Get the input direction and handle the movement/deceleration.
-		// As good practice, you should replace UI actions with custom gameplay actions.
-		Vector2 inputDir = Input.GetVector("left", "right", "forward", "back"); // WASD
-		Vector3 direction = (head.Transform.Basis * new Vector3(inputDir.X, 0, inputDir.Y)).Normalized();
+            // Get the input direction and handle the movement/deceleration.
+            // As good practice, you should replace UI actions with custom gameplay actions.
+            Vector2 inputDir = Input.GetVector("left", "right", "forward", "back"); // WASD
+            Vector3 direction = (head.Transform.Basis * new Vector3(inputDir.X, 0, inputDir.Y)).Normalized();
 
-	 	// intertia
-		if (IsOnFloor()) // full control when on the ground
-		{
-			if (direction != Vector3.Zero)
-			{
-				velocity.X = direction.X * speed;
-				velocity.Z = direction.Z * speed;
-			}
-			else
-			{
-				velocity.X = Mathf.Lerp(velocity.X, direction.X * speed, (float)delta * inertiaGroundValue);
-				velocity.Z = Mathf.Lerp(velocity.Z, direction.Z * speed, (float)delta * inertiaGroundValue);
-			}
-		}
-		else // inertia when in the air
-		{
-			velocity.X = Mathf.Lerp(velocity.X, direction.X * speed, (float)delta * inertiaAirValue);
-			velocity.Z = Mathf.Lerp(velocity.Z, direction.Z * speed, (float)delta * inertiaAirValue);
-		}
+            // intertia
+            if (IsOnFloor()) // full control when on the ground
+            {
+                if (direction != Vector3.Zero)
+                {
+                    velocity.X = direction.X * speed;
+                    velocity.Z = direction.Z * speed;
+                }
+                else
+                {
+                    velocity.X = Mathf.Lerp(velocity.X, direction.X * speed, (float)delta * inertiaGroundValue);
+                    velocity.Z = Mathf.Lerp(velocity.Z, direction.Z * speed, (float)delta * inertiaGroundValue);
+                }
+            }
+            else // inertia when in the air
+            {
+                velocity.X = Mathf.Lerp(velocity.X, direction.X * speed, (float)delta * inertiaAirValue);
+                velocity.Z = Mathf.Lerp(velocity.Z, direction.Z * speed, (float)delta * inertiaAirValue);
+            }
 
-		// Handle head bobbing
-		if (IsOnFloor() && direction != Vector3.Zero)
-		{
-			bobTimer += (float)delta * velocity.Length();
-			camera.Position = headBob(bobTimer);
-		}
-		else
-		{
-			bobTimer = 0.0f;
-			camera.Position = Vector3.Zero;
-		}
+            // Handle head bobbing
+            if (IsOnFloor() && direction != Vector3.Zero)
+            {
+                bobTimer += (float)delta * velocity.Length();
+                camera.Position = headBob(bobTimer);
+            }
+            else
+            {
+                bobTimer = 0.0f;
+                camera.Position = Vector3.Zero;
+            }
+        }
 
 		// add tether force if holding rope
 		if (tetherAnchor != null)
@@ -410,5 +425,21 @@ public partial class PlayerController : CharacterBody3D
 		}
 
 		return velocity;
+	}
+
+	public void TogglePaused(bool isPaused, bool openPauseMenu = true)
+	{
+		this.isPaused = isPaused;
+		if (openPauseMenu && isPaused)
+        {
+            pauseMenu.Visible = true;
+			Input.MouseMode = Input.MouseModeEnum.Visible;
+        }
+		else
+		{
+            pauseMenu.Visible = false;
+            Input.MouseMode = Input.MouseModeEnum.Captured;
+
+        }
 	}
 }

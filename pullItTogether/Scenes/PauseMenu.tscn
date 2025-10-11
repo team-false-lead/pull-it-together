@@ -1,14 +1,18 @@
-[gd_scene load_steps=2 format=3 uid="uid://cncbaoc3e5h5f"]
+[gd_scene load_steps=3 format=3 uid="uid://cncbaoc3e5h5f"]
 
 [ext_resource type="Theme" uid="uid://vwc7nhn1ef0l" path="res://Resources/pause_menu.tres" id="1_lj4oq"]
+[ext_resource type="Script" uid="uid://fvofr5fqkk6a" path="res://Scripts/PlayerScripts/PauseMenu.cs" id="1_qwhev"]
 
-[node name="PauseMenu" type="Control"]
+[node name="PauseMenu" type="Control" node_paths=PackedStringArray("resumeButton", "exitButton")]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("1_qwhev")
+resumeButton = NodePath("VBoxContainer/ResumeButton")
+exitButton = NodePath("VBoxContainer/ExitLobbyButton")
 
 [node name="BackgroundDarkening" type="ColorRect" parent="."]
 layout_mode = 1
