@@ -18,5 +18,7 @@ mono_crash.*.json
 # Steamworks SDK (keep private) need for playtests
 # steam_api64.dll
 
-# Annoying Visual Studio files
+# Visual Studio
 .vs/
+.vscode/
+
