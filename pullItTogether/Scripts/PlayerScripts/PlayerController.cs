@@ -466,7 +466,11 @@ public partial class PlayerController : CharacterBody3D
 
 	public void ExitLobby()
 	{
-        GetTree().CurrentScene.GetNodeOrNull<Node>("MapManager").CallDeferred("despawn_player", Multiplayer.GetUniqueId());
-
+        GetTree().CurrentScene.GetNodeOrNull<Node>("NetworkManager").CallDeferred("leave");
+		// TEMP: if this player is the host, quit the application
+		if (Multiplayer.IsServer())
+		{
+			GetTree().Quit();
+		}
     }
 }
