@@ -1,0 +1,60 @@
+[gd_scene load_steps=2 format=3 uid="uid://cncbaoc3e5h5f"]
+
+[ext_resource type="Theme" uid="uid://vwc7nhn1ef0l" path="res://Resources/pause_menu.tres" id="1_lj4oq"]
+
+[node name="PauseMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="BackgroundDarkening" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.313726)
+
+[node name="PausedLabel" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.1
+anchor_right = 0.5
+anchor_bottom = 0.1
+offset_left = -123.5
+offset_right = 123.5
+offset_bottom = 88.0
+grow_horizontal = 2
+theme_override_font_sizes/font_size = 64
+text = "PAUSED"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 13
+anchor_left = 0.5
+anchor_right = 0.5
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+alignment = 1
+
+[node name="ResumeButton" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+theme = ExtResource("1_lj4oq")
+text = "Resume"
+
+[node name="OptionsButton" type="Button" parent="VBoxContainer"]
+visible = false
+layout_mode = 2
+theme = ExtResource("1_lj4oq")
+text = "Options"
+
+[node name="ExitLobbyButton" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+theme = ExtResource("1_lj4oq")
+text = "Exit Lobby"
