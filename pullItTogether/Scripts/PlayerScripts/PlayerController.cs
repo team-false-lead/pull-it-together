@@ -61,6 +61,11 @@ public partial class PlayerController : CharacterBody3D
 	[Export] private float jumpingEnergyCost;
 	[Export] private float energyRegen;
 
+	public bool IsDowned
+	{
+		get { return currentHealth <= 0; }
+	}
+
 	public override void _EnterTree()
 	{
 
