@@ -143,7 +143,7 @@ public partial class PlayerController : CharacterBody3D
 	{
 		if (!IsLocalControlled()) return;
 
-		if (@event is InputEventMouseMotion mouseMotion)
+		if (@event is InputEventMouseMotion mouseMotion && !isPaused)
 		{
 			head.RotateY(-mouseMotion.Relative.X * mouseSensitivity);
 			camera.RotateX(-mouseMotion.Relative.Y * mouseSensitivity);
@@ -182,18 +182,8 @@ public partial class PlayerController : CharacterBody3D
             if (Input.IsActionJustPressed("jump") && IsOnFloor())
             {
                 velocity.Y = jumpVelocity;
-            }
-
-            // Handle sprint input and FOV change
-            if (Input.IsActionPressed("sprint"))
-            {
-                speed = sprintSpeed;
-                camera.Fov = Mathf.Lerp(camera.Fov, fov * fovChange, (float)delta * fovChangeSpeed);
-            }
-            else
-            {
-                speed = walkSpeed;
-                camera.Fov = Mathf.Lerp(camera.Fov, fov, (float)delta * fovChangeSpeed);
+				energyChange -= jumpingEnergyCost;
+				maxEnergyChange -= jumpingEnergyCost * 0.25f;
             }
 
             // Get the input direction and handle the movement/deceleration.
@@ -234,17 +224,22 @@ public partial class PlayerController : CharacterBody3D
             }
 
 			// Handle sprint input and FOV change
-			if (isSprinting)
+			if (isSprinting && direction != Vector3.Zero)
 			{
 				speed = sprintSpeed;
-				camera.Fov = Mathf.Lerp(camera.Fov, fov * fovChange, (float)delta * fovChangeSpeed);
+                camera.Fov = Mathf.Lerp(camera.Fov, fov * fovChange, (float)delta * fovChangeSpeed);
 
-				if (IsOnFloor()) // Don't decrease energy in midair
-				{
-					energyChange -= sprintingEnergyReduction * (float)delta;
+                if (IsOnFloor()) // Don't decrease energy in midair or while idle
+                {
+                    energyChange -= sprintingEnergyReduction * (float)delta;
 					maxEnergyChange -= sprintingEnergyReduction * 0.3f * (float)delta;
 				}
-			}
+            }
+            else
+            {
+                speed = walkSpeed;
+                camera.Fov = Mathf.Lerp(camera.Fov, fov, (float)delta * fovChangeSpeed);
+            }
         }
 		else
 		{
@@ -259,6 +254,8 @@ public partial class PlayerController : CharacterBody3D
                 velocity.X = Mathf.Lerp(velocity.X, 0, (float)delta * inertiaAirValue);
                 velocity.Z = Mathf.Lerp(velocity.Z, 0, (float)delta * inertiaAirValue);
             }
+
+            camera.Fov = Mathf.Lerp(camera.Fov, fov, (float)delta * fovChangeSpeed);
         }
 
         // add tether force if holding rope
@@ -570,7 +567,7 @@ public partial class PlayerController : CharacterBody3D
 			GetTree().Quit();
 		}
     }
-	
+
 	public void ChangeCurrentHealth(float diff)
 	{
 		currentHealth = Mathf.Min(currentHealth + diff, maxHealth);
