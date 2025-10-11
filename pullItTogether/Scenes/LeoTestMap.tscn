@@ -1,0 +1,190 @@
+[gd_scene load_steps=23 format=3 uid="uid://kniibi0u6nwu"]
+
+[ext_resource type="Script" uid="uid://wudugmq7kbma" path="res://Scripts/ManagerScripts/PlayerSpawnManager.gd" id="1_k5f4k"]
+[ext_resource type="PackedScene" uid="uid://ckpgu08xdcwp4" path="res://Scenes/Player.tscn" id="2_k5f4k"]
+[ext_resource type="PackedScene" uid="uid://woij3e5klul2" path="res://Scenes/TransitionArea.tscn" id="3_00jar"]
+[ext_resource type="PackedScene" uid="uid://c10ybnoe2rhv4" path="res://Scenes/Interactables/RopeBoxVerlet.tscn" id="3_0314m"]
+[ext_resource type="PackedScene" uid="uid://ba3m0401u3th5" path="res://Scenes/Interactables/WoodPlank.tscn" id="4_qg828"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_okv1i"]
+transparency = 1
+vertex_color_use_as_albedo = true
+albedo_color = Color(0, 1, 1, 0.301961)
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_xh66l"]
+sky_horizon_color = Color(0.662243, 0.671743, 0.686743, 1)
+ground_horizon_color = Color(0.662243, 0.671743, 0.686743, 1)
+
+[sub_resource type="Sky" id="Sky_n6t57"]
+sky_material = SubResource("ProceduralSkyMaterial_xh66l")
+
+[sub_resource type="Environment" id="Environment_qg828"]
+background_mode = 2
+sky = SubResource("Sky_n6t57")
+tonemap_mode = 2
+glow_enabled = true
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_k5f4k"]
+albedo_color = Color(0, 0.6, 0, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_6phgx"]
+albedo_color = Color(0.8, 0, 0, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_81xng"]
+albedo_color = Color(1, 0.8, 0, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_wqkje"]
+albedo_color = Color(0, 0.4, 0.8, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_0f350"]
+albedo_color = Color(0, 0.4, 0.8, 1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_j0g0q"]
+size = Vector3(50, 50, 1)
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_00jar"]
+angle_min = -45.0
+angle_max = 45.0
+direction = Vector3(0, -1, 0)
+initial_velocity_min = 0.1
+initial_velocity_max = 10.0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ffatf"]
+albedo_color = Color(0.9745, 0.49, 1, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_j0g0q"]
+material = SubResource("StandardMaterial3D_ffatf")
+size = Vector3(0.1, 0.2, 0.05)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_1vfol"]
+albedo_color = Color(0.9405, 1, 0.49, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_h5s6u"]
+material = SubResource("StandardMaterial3D_1vfol")
+size = Vector3(0.1, 0.2, 0.05)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_vo8jx"]
+albedo_color = Color(0.49, 1, 0.915, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_62i8n"]
+material = SubResource("StandardMaterial3D_vo8jx")
+size = Vector3(0.1, 0.2, 0.05)
+
+[node name="Map" type="Node3D"]
+
+[node name="PlayerSpawner" type="MultiplayerSpawner" parent="." node_paths=PackedStringArray("spawn_point") groups=["player_spawner"]]
+spawn_path = NodePath("../PlayersContainer")
+script = ExtResource("1_k5f4k")
+player_scene = ExtResource("2_k5f4k")
+spawn_point = NodePath("SpawnPoint01")
+
+[node name="SpawnPoint01" type="Node3D" parent="PlayerSpawner"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.46775, 3.43957, -2.10603)
+
+[node name="CSGCylinder3D" type="CSGCylinder3D" parent="PlayerSpawner/SpawnPoint01"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.3259, 0)
+layers = 32
+material = SubResource("StandardMaterial3D_okv1i")
+
+[node name="Environment" type="Node3D" parent="."]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="Environment"]
+environment = SubResource("Environment_qg828")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="Environment"]
+transform = Transform3D(1, 0, 0, 0, 0.628194, 0.778057, 0, -0.778057, 0.628194, 0, 3, 0)
+
+[node name="CSGBox3D" type="CSGBox3D" parent="Environment"]
+transform = Transform3D(2.25, 0, 0, 0, 2.25, 0, 0, 0, 2.25, 0, 1, -30)
+material_override = SubResource("StandardMaterial3D_k5f4k")
+use_collision = true
+collision_mask = 15
+size = Vector3(15, 0.166, 43.9808)
+
+[node name="CSGBox3D2" type="CSGBox3D" parent="Environment"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.71713, -4.30189)
+material_override = SubResource("StandardMaterial3D_6phgx")
+use_collision = true
+collision_mask = 15
+
+[node name="CSGBox3D3" type="CSGBox3D" parent="Environment"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.71713, -0.133514)
+material_override = SubResource("StandardMaterial3D_81xng")
+use_collision = true
+collision_mask = 15
+
+[node name="CSGBox3D4" type="CSGBox3D" parent="Environment"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.49368, 1.71713, -0.133514)
+material_override = SubResource("StandardMaterial3D_wqkje")
+use_collision = true
+collision_mask = 15
+
+[node name="CSGBox3D5" type="CSGBox3D" parent="Environment"]
+transform = Transform3D(0.72953, 0, 0.683949, 0, 1, 0, -0.683949, 0, 0.72953, -0.0974936, 2.71713, -0.29213)
+material_override = SubResource("StandardMaterial3D_0f350")
+use_collision = true
+collision_mask = 15
+
+[node name="Label3D" type="Label3D" parent="Environment"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5, -65)
+text = "GO HERE"
+font_size = 500
+outline_size = 50
+
+[node name="TransitionArea" parent="Environment" instance=ExtResource("3_00jar")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -57.8781)
+collision_mask = 2
+script = null
+
+[node name="CollisionShape3D" parent="Environment/TransitionArea" index="0"]
+shape = SubResource("BoxShape3D_j0g0q")
+
+[node name="GPUParticles3DPink" type="GPUParticles3D" parent="Environment"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 11.5627, -62.1943)
+emitting = false
+amount = 100
+lifetime = 3.0
+one_shot = true
+explosiveness = 1.0
+process_material = SubResource("ParticleProcessMaterial_00jar")
+draw_pass_1 = SubResource("BoxMesh_j0g0q")
+
+[node name="GPUParticles3DYellow" type="GPUParticles3D" parent="Environment"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 11.5627, -62.1943)
+emitting = false
+amount = 100
+lifetime = 3.0
+one_shot = true
+explosiveness = 1.0
+process_material = SubResource("ParticleProcessMaterial_00jar")
+draw_pass_1 = SubResource("BoxMesh_h5s6u")
+
+[node name="GPUParticles3DCyan" type="GPUParticles3D" parent="Environment"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 11.5627, -62.1943)
+emitting = false
+amount = 100
+lifetime = 3.0
+one_shot = true
+explosiveness = 1.0
+process_material = SubResource("ParticleProcessMaterial_00jar")
+draw_pass_1 = SubResource("BoxMesh_62i8n")
+
+[node name="Interactables" type="Node3D" parent="."]
+unique_name_in_owner = true
+
+[node name="RopeBox2" parent="Interactables" instance=ExtResource("3_0314m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.49154, 2.21766, -7.71141)
+
+[node name="WoodPlank" parent="Interactables" instance=ExtResource("4_qg828")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.88892, 4.37407, 1.78256)
+
+[node name="WoodPlank2" parent="Interactables" instance=ExtResource("4_qg828")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.98111, 4.37407, 1.78256)
+
+[node name="WoodPlank3" parent="Interactables" instance=ExtResource("4_qg828")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.76184, 4.37407, 1.78256)
+
+[node name="PlayersContainer" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.90816, 0)
+
+[editable path="Environment/TransitionArea"]

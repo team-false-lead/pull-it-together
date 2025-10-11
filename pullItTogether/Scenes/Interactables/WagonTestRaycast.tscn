@@ -1,0 +1,63 @@
+[gd_scene load_steps=8 format=3 uid="uid://cqfb7e1refufa"]
+
+[ext_resource type="Script" uid="uid://crciwka04anf" path="res://Scripts/MiscScripts/RaycastWagon.gd" id="1_5rxyb"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_vlqqi"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_vlqqi"]
+albedo_color = Color(0.384329, 0.237842, 1.29953e-06, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_5rxyb"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_5rxyb"]
+albedo_color = Color(0.918998, 0.83316, 0.672293, 1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_vlqqi"]
+size = Vector3(2.625, 2.5, 5.775)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_5rxyb"]
+size = Vector3(2.5, 0.5, 5.5)
+
+[node name="WagonTestRaycast" type="Node3D"]
+
+[node name="RigidBody3D" type="RigidBody3D" parent="." node_paths=PackedStringArray("wheels")]
+collision_layer = 4
+collision_mask = 9
+script = ExtResource("1_5rxyb")
+wheels = [NodePath("Wheels/FrontLeft"), NodePath("Wheels/Back Left"), NodePath("Wheels/FrontRight"), NodePath("Wheels/BackRight")]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="RigidBody3D"]
+transform = Transform3D(2.5, 0, 0, 0, 0.5, 0, 0, 0, 5.5, 0, 0, 0)
+mesh = SubResource("BoxMesh_vlqqi")
+surface_material_override/0 = SubResource("StandardMaterial3D_vlqqi")
+
+[node name="MeshInstance3D3" type="MeshInstance3D" parent="RigidBody3D/MeshInstance3D"]
+transform = Transform3D(1.05, 0, 0, 0, 5, 0, 0, 0, 1.05, 0, 3, 0)
+mesh = SubResource("BoxMesh_5rxyb")
+surface_material_override/0 = SubResource("StandardMaterial3D_5rxyb")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="RigidBody3D/MeshInstance3D"]
+transform = Transform3D(0.7, 0, 0, 0, 0.5, 0, 0, 0, -0.11, 0, 0, -0.554278)
+mesh = SubResource("BoxMesh_vlqqi")
+surface_material_override/0 = SubResource("StandardMaterial3D_vlqqi")
+
+[node name="TopCollision" type="CollisionShape3D" parent="RigidBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
+shape = SubResource("BoxShape3D_vlqqi")
+
+[node name="BaseCollision" type="CollisionShape3D" parent="RigidBody3D"]
+shape = SubResource("BoxShape3D_5rxyb")
+
+[node name="Wheels" type="Node3D" parent="RigidBody3D"]
+
+[node name="FrontLeft" type="RayCast3D" parent="RigidBody3D/Wheels"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.31992, 0, -2)
+
+[node name="Back Left" type="RayCast3D" parent="RigidBody3D/Wheels"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.31992, 0, 2)
+
+[node name="FrontRight" type="RayCast3D" parent="RigidBody3D/Wheels"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.32, 0, -2)
+
+[node name="BackRight" type="RayCast3D" parent="RigidBody3D/Wheels"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.32, 0, 2)

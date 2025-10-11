@@ -4,9 +4,11 @@ using System;
 /// Interactable is the base class for all objects that can be picked up, dropped, and interacted with by the player.
 public abstract partial class Interactable : RigidBody3D
 {
+    [Export] public PackedScene SpawnOnUseScene; // Optional scene to spawn when used
+    [Export] public float dropClearance = 0.5f; // per item drop clearance roughly based on size
     [Export] public string interactableId = "";
-    public string GetInteractableId() => string.IsNullOrEmpty(interactableId) ? Name : interactableId;
     public uint savedLayer, savedMask;
+    public Vector3 savedScale;
     protected Node mapManager;
     protected bool multiplayerActive; 
     protected MultiplayerApi multiplayer => GetTree().GetMultiplayer();
@@ -18,6 +20,8 @@ public abstract partial class Interactable : RigidBody3D
     private Node3D followTarget;
     private bool isFollowing;
 
+    //checks for multiplayer synchronizer on ready
+    //if no id and not server, warn that waiting for id replication
     public override void _Ready()
     {
         var sync = GetNodeOrNull<MultiplayerSynchronizer>("MultiplayerSynchronizer");
@@ -25,42 +29,44 @@ public abstract partial class Interactable : RigidBody3D
         {
             GD.PrintErr("Interactable: MultiplayerSynchronizer not found on " + Name);
         }
-        else
-        {
-            GD.Print("Interactable: MultiplayerSynchronizer rootPath: " + sync.RootPath);
-        }
 
-        if (string.IsNullOrEmpty(interactableId) && !multiplayer.IsServer())
-        {
-            GD.Print("Warning: Interactable " + Name + " waiting for ID replication.");
-        }
+        // debug warning
+        //if (string.IsNullOrEmpty(interactableId) && !multiplayer.IsServer())
+        //{
+        //    GD.Print("Warning: Interactable " + Name + " waiting for ID replication.");
+        //}
+
+        // Save initial collision layers and masks
+        savedLayer = CollisionLayer;
+        savedMask = CollisionMask;
+        savedScale = Scale;
     }
 
+    // Start following a target inventory slot
     public void StartFollowingSlot(Node3D slot)
     {
         followTarget = slot;
         isFollowing = true;
-        if (multiplayer.IsServer())
-        {
-            SetPhysicsProcess(true);
-        }
     }
 
+    // Stop following the inventory slot
     public void StopFollowingSlot()
     {
         followTarget = null;
         isFollowing = false;
-        SetPhysicsProcess(false);
     }
 
+    // Follow the target slot if set, maintaining current rotation and scale
     public override void _PhysicsProcess(double delta)
     {
-        if (isFollowing && followTarget != null && multiplayer.IsServer())
+        if (isFollowing && followTarget != null)
         {
-            //GlobalTransform = followTarget.GlobalTransform;
+            //GlobalTransform = followTarget.GlobalTransform; // Snap to target position and rotation
+            //Scale = savedScale; // Maintain original scale
             GlobalPosition = followTarget.GlobalPosition;
             GlobalRotation = followTarget.GlobalRotation;
         }
+        //else reset to normal physics behavior
     }
 
     // Attempt to pick up the object
@@ -69,25 +75,24 @@ public abstract partial class Interactable : RigidBody3D
         if (Carrier != null || !CanBeCarried()) return false;
 
         if (itemManager == null) InitReferences();
-        var id = GetInteractableId();
+        var id = GetInteractableId(); //get unique id, default to name
 
+        // Request pickup via RPC if not server, 
         if (multiplayerActive && !multiplayer.IsServer())
         {
-            var error = itemManager.RpcId(1, nameof(ItemManager.RequestPickupItem), id);
-            GD.Print("Rpc error: " + error);
+            var error = itemManager.RpcId(1, nameof(ItemManager.RequestPickupItem), id); // Request pickup via RPC, 1 is server ID
             if (error != Error.Ok)
             {
                 GD.PrintErr("Interactable: Failed to request item pickup via RPC. Error: " + error);
-                return false;
+                return false; //failed pickup request
             }
         }
-        else
+        else // Server or single-player handles pickup directly
         {
             itemManager.DoPickupItem(id, multiplayer.GetUniqueId());
         }
 
-
-        //host handles held logic
+        //server handles pickup logic
 
         Carrier = carrier;
         return true;
@@ -98,41 +103,42 @@ public abstract partial class Interactable : RigidBody3D
     {
         if (Carrier != carrier) return false;
 
-        Vector3 dropPosition = GetDropPosition(carrier);
-
         if (itemManager == null) InitReferences();
+        var id = GetInteractableId(); //get unique id, default to name
 
-        var id = GetInteractableId();
+        // Calculate drop position in front of carrier
+        //Vector3 dropPosition = GetDropPosition(carrier);
+
+        // Request drop via RPC if not server
         if (multiplayerActive && !multiplayer.IsServer())
         {
-            var error = itemManager.RpcId(1, nameof(ItemManager.RequestDropItem), id, dropPosition);
+            var error = itemManager.RpcId(1, nameof(ItemManager.RequestDropItem), id);// Request drop via RPC, 1 is server ID
             if (error != Error.Ok)
             {
                 GD.PrintErr("Interactable: Failed to request item drop via RPC. Error: " + error);
-                return false;
+                return false; //failed drop request
             }
         }
-        else
+        else // Server or single-player handles drop directly
         {
-            itemManager.DoDropItem(id, dropPosition);
+            itemManager.DoDropItem(id);
         }
 
-        //host handles drop logic
+        //server handles drop logic
 
         Carrier = null;
         return true;
     }
 
-    // Find the world interactables node to reattach to when dropped
+    // Initialize references to MapManager and ItemManager
     protected void InitReferences()
     {
         mapManager = GetTree().CurrentScene.GetNodeOrNull<Node>("%MapManager");
         if (mapManager != null)
         {
-            //levelInstance = mapManager.Get("level_instance").As<Node3D>();
             levelInteractablesNode = mapManager.Get("interactables_node").As<Node3D>();
             itemManager = levelInteractablesNode as ItemManager;
-            multiplayerActive = itemManager != null && mapManager.Get("is_multiplayer_session").As<bool>() && GetTree().GetMultiplayer().HasMultiplayerPeer();
+            multiplayerActive = mapManager.Get("is_multiplayer_session").As<bool>() && multiplayer.HasMultiplayerPeer();
         }
         else
         {
@@ -140,30 +146,17 @@ public abstract partial class Interactable : RigidBody3D
         }
     }
 
-    // Calculate a safe drop position in front of the carrier
-    public Vector3 GetDropPosition(CharacterBody3D carrier)
+    // Get the unique ID of this interactable, defaulting to its node name if not set
+    public string GetInteractableId()
     {
-        // screen center
-        var vp = carrier.GetViewport();
-        Vector2 center = vp.GetVisibleRect().Size * 0.5f;
-
-        //raycast from camera to drop in front of carrier
-        PlayerController carrierScript = carrier as PlayerController;
-        Vector3 origin = carrierScript.camera.ProjectRayOrigin(center);
-        Vector3 dir = carrierScript.camera.ProjectRayNormal(center);
-        Vector3 to = origin + dir * carrierScript.interactRange;
-
-        // Raycast to find a safe drop position
-        var state = GetWorld3D().DirectSpaceState;
-        var query = PhysicsRayQueryParameters3D.Create(origin, to);
-        query.CollisionMask = savedMask; // Use saved mask to avoid dropping inside other objects
-        query.Exclude = new Godot.Collections.Array<Rid> { GetRid(), carrier.GetRid() }; // ignore self and carrier
-        var hit = state.IntersectRay(query);
-        Vector3 dropPosition = hit.Count > 0 ? (Vector3)hit["position"] : to; // Drop at hit point or max range
-        dropPosition += Vector3.Up * 0.25f;
-        
-        return dropPosition;
+        if (string.IsNullOrEmpty(interactableId))
+        {
+            return Name;
+        }
+        return interactableId;
     }
+
+    //get drop position moved to item manager for multiplayer sync
 
     // By default, objects can use themselves
     public virtual bool CanUseSelf(CharacterBody3D user) { return true; }
