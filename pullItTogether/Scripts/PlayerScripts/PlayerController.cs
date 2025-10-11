@@ -75,6 +75,8 @@ public partial class PlayerController : CharacterBody3D
 			{
 				TogglePaused(false);
 			};
+
+			pauseMenu.ExitButton.Pressed += ExitLobby;
 		}
 		else
 		{
@@ -182,9 +184,23 @@ public partial class PlayerController : CharacterBody3D
                 camera.Position = Vector3.Zero;
             }
         }
+		else
+		{
+            if (IsOnFloor()) // full control when on the ground
+            {
+                velocity.X = Mathf.Lerp(velocity.X, 0, (float)delta * inertiaGroundValue);
+                velocity.Z = Mathf.Lerp(velocity.Z, 0, (float)delta * inertiaGroundValue);
+                
+            }
+            else // inertia when in the air
+            {
+                velocity.X = Mathf.Lerp(velocity.X, 0, (float)delta * inertiaAirValue);
+                velocity.Z = Mathf.Lerp(velocity.Z, 0, (float)delta * inertiaAirValue);
+            }
+        }
 
-		// add tether force if holding rope
-		if (tetherAnchor != null)
+        // add tether force if holding rope
+        if (tetherAnchor != null)
 		{
 			velocity = TetherToRopeAnchor(delta, velocity);
 		}
@@ -427,6 +443,11 @@ public partial class PlayerController : CharacterBody3D
 		return velocity;
 	}
 
+	/// <summary>
+	/// Enables/disables controls and the pause menu depending on provided parameters.
+	/// </summary>
+	/// <param name="isPaused">Whether or not to pause controls.</param>
+	/// <param name="openPauseMenu">If isPaused is true, whether or not to open the pause menu.</param>
 	public void TogglePaused(bool isPaused, bool openPauseMenu = true)
 	{
 		this.isPaused = isPaused;
@@ -442,4 +463,10 @@ public partial class PlayerController : CharacterBody3D
 
         }
 	}
+
+	public void ExitLobby()
+	{
+        GetTree().CurrentScene.GetNodeOrNull<Node>("MapManager").CallDeferred("despawn_player", Multiplayer.GetUniqueId());
+
+    }
 }
