@@ -1,6 +1,7 @@
 [gd_scene load_steps=14 format=3 uid="uid://ckpgu08xdcwp4"]
 
 [ext_resource type="Script" uid="uid://cor1xxd0lnxxg" path="res://Scripts/PlayerScripts/PlayerController.cs" id="1_kyqiw"]
+[ext_resource type="PackedScene" uid="uid://cx0brpfq1upti" path="res://Scenes/PlayerHUD.tscn" id="2_dewec"]
 [ext_resource type="Script" uid="uid://dmbbfw34d8nf1" path="res://Scripts/PlayerScripts/PlayerCameraSync.cs" id="2_gntrk"]
 [ext_resource type="Script" uid="uid://1bwso462ry2q" path="res://Scripts/InteractableScripts/PlayerInteractable.cs" id="3_gntrk"]
 
@@ -55,6 +56,11 @@ bobAmplitude = 0.04
 inventorySlotPath = NodePath("Head/Camera3D/Inventory/InventorySlot1")
 collisionPusher = NodePath("AnimatableBody3D")
 interactableRB = NodePath("PlayerInteractable")
+hudScene = ExtResource("2_dewec")
+maxEnergyReductionRate = 0.2
+sprintingEnergyReduction = 4.0
+jumpingEnergyCost = 10.0
+energyRegen = 2.0
 
 [node name="PlayerCameraSync" type="Node" parent="." node_paths=PackedStringArray("Camera")]
 script = ExtResource("2_gntrk")

@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 /// ItemManager handles spawning, picking up, and dropping interactable items in the game world.
@@ -385,7 +386,7 @@ public partial class ItemManager : Node3D
 			item.GetParent<Node3D>().RemoveChild(item); // Remove from current parent
 			this.AddChild(item, true); // Reattach to this node, will get assigned an ID if needed
 			item.SetOwner(GetTree().CurrentScene); // Ensure the instance is owned by the current scene
-		}
+        }
 
 		// Save current collision settings
 		item.savedMask = item.CollisionMask;
