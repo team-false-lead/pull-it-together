@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://ckpgu08xdcwp4"]
+[gd_scene load_steps=15 format=3 uid="uid://ckpgu08xdcwp4"]
 
 [ext_resource type="Script" uid="uid://cor1xxd0lnxxg" path="res://Scripts/PlayerScripts/PlayerController.cs" id="1_kyqiw"]
 [ext_resource type="PackedScene" uid="uid://cx0brpfq1upti" path="res://Scenes/PlayerHUD.tscn" id="2_dewec"]
