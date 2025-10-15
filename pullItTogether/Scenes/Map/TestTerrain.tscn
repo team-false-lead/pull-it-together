@@ -66,7 +66,6 @@ collision_mode = 3
 collision_shape_size = 64
 collision_radius = 80
 top_level = true
-metadata/_edit_lock_ = true
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 0.628194, 0.778057, 0, -0.778057, 0.628194, 0, 3, 0)
