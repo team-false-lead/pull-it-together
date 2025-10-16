@@ -89,7 +89,7 @@ public partial class RopeGrabPoint : Interactable
 
 
         PlayerController carrierScript = carrier as PlayerController;
-        uint carrierLayerBit = carrierScript.collisionPusher.CollisionLayer;
+        uint carrierLayerBit = carrierScript.collisionPusherAB.CollisionLayer;
         //rope.CollisionLayer = 0;
         rope.CollisionMask = savedRopeMask & ~carrierLayerBit & ~savedLayer; // drop player and self from rope collisions
         carrierScript.SetTetherAnchor(joint.StartCustomLocation, rope.RopeLength, carrierTetherBuffer, carrierTetherStrength);
