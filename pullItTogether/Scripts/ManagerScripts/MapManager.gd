@@ -1,92 +1,84 @@
 extends Node
 class_name MapManager
 
-@export var game_manager: Node
+@export var game_manager: GameManager
+@export var network_manager: NetworkManager
 @export var level_scene : PackedScene
-#@export var container_path : NodePath
-@export var interactables_node = null
 
-@export var level_instance: Node = null
-var _spawner: Node = null
-var _loading := false
+var interactables_node: Node = null
+var level_instance: Node = null
+var _loading_map : bool = false
 
-var is_multiplayer_session: bool = true
+var is_multiplayer_session: bool = false # prob remove later for cleanup
+
+signal map_will_reload
+signal map_reloaded
+signal map_deloaded
 
 func _ready() -> void:
-	game_manager.connect("singleplayer_session_started", Callable(self, "_set_multiplayer_false"))
+	game_manager.singleplayer_session_started.connect(func(): _set_multiplayer_session(false))
+	network_manager.session_started.connect(func(_role): _set_multiplayer_session(true))
+	network_manager.session_ended.connect(func(): _set_multiplayer_session(false))
 
-func _set_multiplayer_false() -> void:
-	is_multiplayer_session = false
-	
+func _set_multiplayer_session(status: bool) -> void:
+	is_multiplayer_session = status
+
+# Load the map, free existing if any.
 func load_map() -> Node:
-	if _loading:
+	#print("[MapManager] caller= ", get_tree().get_caller_id()) # stops being broken as soon as i add this line
+	if _loading_map:
 		return level_instance
-	_loading = true
-	
-	#var parent := get_node_or_null(container_path)
-	#if parent == null: 
-	#parent = self
+	_loading_map = true
 
-	#var scene: PackedScene = level
 	if level_scene == null:
 		push_error("MapManager: no map assigned")
-		_loading = false
+		_loading_map = false
 		return null
 
-	if level_instance and is_instance_valid(level_instance):
-		level_instance.queue_free()
-		level_instance = null
-		for c in self.get_children():
-			c.queue_free()
-		await get_tree().process_frame
-		#_spawner = null
+	# free existing level if any
+	if level_instance:
+		deload_map()
 
+	# instantiate new level
 	level_instance = level_scene.instantiate()
-	level_instance.name = "LevelInstance"
+	#level_instance.name = "LevelInstance" # not needed
 	self.add_child(level_instance)
+
+	# get interactables node for item manager, default to level root if not found
 	interactables_node = level_instance.get_node_or_null("%Interactables")
 	if interactables_node == null:
 		interactables_node = level_instance
 
 	await get_tree().process_frame
-	
-	_spawner = _find_spawner(level_instance)
-	if _spawner == null:
-		push_error("MapManager: PlayerSpawner not found in loaded level.")
-		
-	_loading = false
+	_loading_map = false
+	emit_signal("map_reloaded")
 	return level_instance
 
-func _find_spawner(root: Node) -> Node:
-	var n := root.find_child("PlayerSpawner", true, false)
-	if n: return n
-	for node in get_tree().get_nodes_in_group("player_spawner"):
-		if root.is_ancestor_of(node):
-			return node
-	for c in root.get_children():
-		if c is MultiplayerSpawner or c.get_class() == "PlayerSpawner":
-			return c
-		var deep := _find_spawner(c)
-		if deep: return deep
-	return null
-
-# Only the host should spawn; defer until ready.
-func spawn_player(peer_id: int) -> void:
-	if not multiplayer.is_server():
-		return
-	var tries := 0
-	while (_spawner == null or not _spawner.is_inside_tree() or not multiplayer.has_multiplayer_peer()) and tries < 60:
+# Free the current map instance if any
+func deload_map() -> void:
+	if level_instance and is_instance_valid(level_instance):
+		level_instance.queue_free()
 		await get_tree().process_frame
-		if _spawner == null and level_instance:
-			_spawner = _find_spawner(level_instance)
-		tries += 1
-	if _spawner and _spawner.has_method("spawn"):
-		_spawner.spawn(peer_id)
-
-func despawn_player(peer_id: int) -> void:
-	if not multiplayer.is_server():
+		level_instance = null
+		interactables_node = null
+		emit_signal("map_deloaded")
+#removed spawner functions as they live on PlayerSpawnManager now
+		
+# Server RPC reloading map --------------------------------
+@rpc("any_peer", "call_local") 
+func request_reload_map() -> void:
+	# If not the server, relay the request
+	if multiplayer.has_multiplayer_peer() and not multiplayer.is_server():
+		rpc_id(1, "request_reload_map")
 		return
-	if _spawner and _spawner.is_inside_tree() and _spawner.has_method("despawn_player"):
-		_spawner.despawn_player(peer_id)
-	else:
-		push_warning("MapManager: despawn_player() called but spawner not ready")
+	
+	emit_signal("map_will_reload")
+	await get_tree().process_frame
+	await deload_map()
+	await load_map()
+	if multiplayer.has_multiplayer_peer():
+		rpc("confirm_reload")
+
+@rpc("any_peer", "call_local") 
+func confirm_reload() -> void:
+	print("Map reloaded for client.")

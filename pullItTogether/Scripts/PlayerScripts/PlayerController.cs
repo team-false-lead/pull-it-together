@@ -16,6 +16,7 @@ public partial class PlayerController : CharacterBody3D
 	public float jumpVelocity = 4.5f;
 	public float inertiaAirValue = 3.0f;
 	public float inertiaGroundValue = 7.0f;
+	private bool isSprinting;
 
 	// Camera and look parameters
 	[Export] public Node3D head;
@@ -30,14 +31,13 @@ public partial class PlayerController : CharacterBody3D
 
 	// Interaction parameters
 	private Interactable heldObject = null;
+	private bool HeldValid() => heldObject != null && IsInstanceValid(heldObject) && !heldObject.IsQueuedForDeletion() && heldObject.IsInsideTree();
 	[Export] public NodePath inventorySlotPath;
 	[Export] public float interactRange = 3.0f;
 	[Export] public int interactLayer = 4;
 
 	// Collision parameters
 	[Export] public AnimatableBody3D collisionPusher;
-	[Export] public int wagonLayer = 3;
-	[Export] public float wagonPushReductionFactor = 0.5f;
 	private uint interactMaskUint = 8;
 
 	// Rope tether parameters when carrying rope grab point
@@ -46,6 +46,19 @@ public partial class PlayerController : CharacterBody3D
 	private float tetherBuffer;
 	private float tetherStrength;
 
+	// Health and energy parameters
+	[Export] private PackedScene hudScene;
+	private float maxHealth = 100f;
+	private float currentHealth;
+	private ProgressBar healthBar;
+	private float maxEnergy = 100f;
+	private float currentEnergy;
+	private ProgressBar energyBar;
+	private ProgressBar fatigueBar;
+	[Export] private float maxEnergyReductionRate;
+	[Export] private float sprintingEnergyReduction;
+	[Export] private float jumpingEnergyCost;
+	[Export] private float energyRegen;
 
 	public override void _EnterTree()
 	{
@@ -55,7 +68,7 @@ public partial class PlayerController : CharacterBody3D
 	public override void _Ready()
 	{
 		// Only the local player should capture the mouse and hide self
-		if (IsMultiplayerAuthority())
+		if (IsMultiplayerAuthority() && IsLocalControlled())
 		{
 			Input.SetMouseMode(Input.MouseModeEnum.Captured);
 
@@ -67,7 +80,22 @@ public partial class PlayerController : CharacterBody3D
 					node.Visible = false;
 				}
 			}
-		}
+
+            // Load the player HUD
+            Control HUD = (Control)hudScene.Instantiate();
+            AddChild(HUD);
+            // Hard-coded values for now
+            healthBar = HUD.GetNode<ProgressBar>("HealthBar/HealthProgressBar");
+            energyBar = HUD.GetNode<ProgressBar>("EnergyBar/EnergyProgressBar");
+            fatigueBar = HUD.GetNode<ProgressBar>("EnergyBar/FatigueProgressBar");
+
+            // Set health and energy values to their default
+            currentHealth = maxHealth;
+            currentEnergy = maxEnergy;
+            healthBar.MaxValue = healthBar.Value = maxHealth; // double-to-float shenaningans :pensive:
+            energyBar.MaxValue = energyBar.Value = fatigueBar.MaxValue = maxEnergy;
+            fatigueBar.Value = 0;
+        }
 		else
 		{
 			Input.SetMouseMode(Input.MouseModeEnum.Visible);
@@ -79,6 +107,18 @@ public partial class PlayerController : CharacterBody3D
 		}
 
 		interactMaskUint = (uint)(1 << (interactLayer - 1));// Convert layer number to bitmask
+
+		var mapManager = GetTree().CurrentScene.GetNodeOrNull<Node>("%MapManager");
+		if (mapManager != null)
+		{
+			mapManager.Connect("map_reloaded", new Callable(this, nameof(OnMapReloaded)));
+		}
+	}
+
+	// Called when the map is reloaded, checks if held object is still valid
+	private void OnMapReloaded()
+	{
+		HandleInvalidHeldObject();
 	}
 
 	// Check if this player instance is controlled by the local user
@@ -98,6 +138,11 @@ public partial class PlayerController : CharacterBody3D
 			camera.RotateX(-mouseMotion.Relative.Y * mouseSensitivity);
 			camera.RotationDegrees = new Vector3(Mathf.Clamp(camera.RotationDegrees.X, -85, 85), camera.RotationDegrees.Y, camera.RotationDegrees.Z);
 		}
+
+		if (Input.IsActionPressed("sprint") && IsOnFloor() && !isSprinting)
+			isSprinting = true;
+		else if (!Input.IsActionPressed("sprint") && isSprinting)
+			isSprinting = false;
 	}
 
 	// Handles movement, jumping, sprinting, head bobbing, and interaction input, probably needs to be split up later
@@ -106,6 +151,8 @@ public partial class PlayerController : CharacterBody3D
 		if (!IsLocalControlled()) return; // local player processes movement
 
 		Vector3 velocity = Velocity;
+		float maxEnergyChange = -maxEnergyReductionRate * (float)delta;
+		float energyChange = 0;
 
 		// Add the gravity.
 		if (!IsOnFloor())
@@ -117,13 +164,21 @@ public partial class PlayerController : CharacterBody3D
 		if (Input.IsActionJustPressed("jump") && IsOnFloor())
 		{
 			velocity.Y = jumpVelocity;
+			energyChange -= jumpingEnergyCost;
+			maxEnergyChange -= jumpingEnergyCost * 0.3f;
 		}
 
 		// Handle sprint input and FOV change
-		if (Input.IsActionPressed("sprint"))
+		if (isSprinting)
 		{
 			speed = sprintSpeed;
 			camera.Fov = Mathf.Lerp(camera.Fov, fov * fovChange, (float)delta * fovChangeSpeed);
+
+			if (IsOnFloor()) // Don't decrease energy in midair
+            {
+                energyChange -= sprintingEnergyReduction * (float)delta;
+                maxEnergyChange -= sprintingEnergyReduction * 0.3f * (float)delta;
+            }
 		}
 		else
 		{
@@ -200,7 +255,29 @@ public partial class PlayerController : CharacterBody3D
 		{
 			collisionPusher.GlobalTransform = GlobalTransform;
 		}
-	}
+
+		// If the player isn't doing anything that would spend energy, regain energy
+		if (energyChange == 0 && IsOnFloor())
+			energyChange = energyRegen * (float)delta;
+
+		// Update the player's current energy
+		ChangeCurrentEnergy(energyChange);
+		ChangeMaxEnergy(maxEnergyChange);
+
+		// Leo's really cool health/energy/fatigue testing code
+		if (Input.IsKeyPressed(Key.Kp1)) // When Numpad 1 is pressed, reduce health
+			ChangeCurrentHealth(-10);
+		else if (Input.IsKeyPressed(Key.Kp2)) // When Numpad 2 is pressed, restore health
+			ChangeCurrentHealth(10);
+		else if (Input.IsKeyPressed(Key.Kp4)) // When Numpad 4 is pressed, reduce energy
+			ChangeCurrentEnergy(-10);
+		else if (Input.IsKeyPressed(Key.Kp5)) // When Numpad 5 is pressed, restore energy
+			ChangeCurrentEnergy(10);
+		else if (Input.IsKeyPressed(Key.Kp7)) // When Numpad 7 is pressed, reduce fatigue
+			ChangeMaxEnergy(-10);
+		else if (Input.IsKeyPressed(Key.Kp8)) // When Numpad 8 is pressed, restore fatigue
+			ChangeMaxEnergy(10);
+    }
 
 	// Simple head bobbing effect
 	private Vector3 headBob(float timer)
@@ -211,6 +288,17 @@ public partial class PlayerController : CharacterBody3D
 		return bobPos;
 	}
 
+	// disconnects wagon tether and forgets held object if invalid
+	private bool HandleInvalidHeldObject()
+	{
+		if (HeldValid()) return false;
+
+		RemoveTetherAnchor();
+		heldObject = null;
+		return true;
+	}
+
+	// get the inventory slot node for holding items
 	public Node3D GetInventorySlot()
 	{
 		if (inventorySlotPath == null || inventorySlotPath == String.Empty) return null;
@@ -316,18 +404,20 @@ public partial class PlayerController : CharacterBody3D
 			DropObject();
 		}
 
-		if (obj.TryPickup(this))
+		if (obj.TryPickup(this) == true)
 		{
 			heldObject = obj;
+			//GD.Print("Picked up object: " + obj.interactableId);
 		}
 	}
 
 	// Drop the currently held object
 	public void DropObject()
 	{
-		if (heldObject != null)
+		if (HandleInvalidHeldObject()) return; // if invalid item was handled return, weird auto call on join?
+
+		if (heldObject.TryDrop(this) == true)
 		{
-			heldObject.TryDrop(this);
 			heldObject = null;
 		}
 	}
@@ -335,7 +425,7 @@ public partial class PlayerController : CharacterBody3D
 	// Use the held object on itself or on a target
 	public void UseHeldObject()
 	{
-		if (heldObject == null) return;
+		if (HandleInvalidHeldObject()) return; // if invalid item was handled return
 
 		//check if looking at another interactable first
 		var target = GetInteractableLookedAt();
@@ -411,4 +501,44 @@ public partial class PlayerController : CharacterBody3D
 
 		return velocity;
 	}
+
+	public void ChangeCurrentHealth(float diff)
+	{
+		currentHealth = Mathf.Min(currentHealth + diff, maxHealth);
+		if (currentHealth <= 0)
+		{
+			currentHealth = 0;
+            // The rest of the death code goes here
+        }
+        healthBar.Value = currentHealth;
+        //GD.Print("Current health: " + currentHealth);
+    }
+
+	public void ChangeCurrentEnergy(float diff)
+    {
+		// If the player is out of energy to spend, have the energy cost affect health instead
+        if (currentEnergy <= 0 && diff < 0)
+			ChangeCurrentHealth(diff);
+		else
+        {
+            currentEnergy = Mathf.Min(currentEnergy + diff, maxEnergy);
+			if (currentEnergy <= 0) 
+				currentEnergy = 0;
+            energyBar.Value = currentEnergy;
+            //GD.Print("Current energy: " + currentEnergy);
+        }
+    }
+
+	public void ChangeMaxEnergy(float diff)
+	{
+		maxEnergy = maxEnergy + diff;
+		if (maxEnergy <= 0)
+            maxEnergy = 0;
+		else if (maxEnergy > 100)
+            maxEnergy = 100;
+		ChangeCurrentEnergy(0); // Update energy bar
+		fatigueBar.Value = Mathf.Abs(maxEnergy - 100);
+		//GD.Print("Current fatigue: " + Mathf.Abs(maxEnergy - 100));
+		// Idk if we're doing anything else with this
+    }
 }
