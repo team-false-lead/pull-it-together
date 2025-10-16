@@ -6,7 +6,7 @@ public partial class Food : Interactable
 {
     [Export] public bool isCooked = false;
     [Export] public MeshInstance3D currentMesh;
-    [Export] public MeshInstance3D cookedMesh = new MeshInstance3D { Mesh = new BoxMesh() }; // actually this should be shader color thing
+    [Export] public Label3D label3D;
     [Export] public float healthAddedRaw = 25f; // Amount of health restored 
     [Export] public float healthAddedCooked = 50f; // Amount of health restored when cooked
     [Export] public float potentialEnergyAddedRaw = 25f; // Amount of energy restored

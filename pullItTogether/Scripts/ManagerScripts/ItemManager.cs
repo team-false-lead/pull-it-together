@@ -652,7 +652,19 @@ public partial class ItemManager : Node3D
 		if (!food.isCooked)
 		{
 			food.isCooked = true;
-			food.currentMesh.Mesh = food.cookedMesh.Mesh; // idk how to change this mesh on peers
+			food.label3D.Text = "(Cooked)";
+			//var mat = food.currentMesh.GetActiveMaterial(0) as StandardMaterial3D;
+			//if (mat == null)
+			//{
+			//	mat = new StandardMaterial3D(); // create new if none found
+			//	food.currentMesh.SetSurfaceOverrideMaterial(0, mat);
+			//}
+			//else
+			//{
+			//	mat = mat.Duplicate() as StandardMaterial3D; // duplicate to avoid changing original
+			//	food.currentMesh.SetSurfaceOverrideMaterial(0, mat);
+			//}
+			//mat.AlbedoColor = new Color(0.3f, 0.18f, 0.1f); // darken color to indicate cooked
 		}
 		//add logic for cooking food here
 		//remove and replace held item with cooked version
@@ -689,16 +701,22 @@ public partial class ItemManager : Node3D
 		if (food.isCooked)
 		{
 			//restore cooked values
-			// i dont have hp/energy variables on this branch yet
-			//targetPlayer.RestoreHealth(food.healthAddedCooked);
 			GD.Print("Food: " + food.Name + " fed to " + targetPlayer.Name);
 			GD.Print("Food: Restoring " + food.healthAddedCooked + " health and " + food.potentialEnergyAddedCooked + " energy.");
+			//targetPlayer.ChangeCurrentHealth(food.healthAddedCooked);
+			//targetPlayer.ChangeMaxEnergy(food.potentialEnergyAddedCooked);
+			targetPlayer.RpcId(targetPeerIdLong, nameof(PlayerController.ChangeCurrentHealth), food.healthAddedCooked);
+			targetPlayer.RpcId(targetPeerIdLong, nameof(PlayerController.ChangeMaxEnergy), food.potentialEnergyAddedCooked);
 		}
 		else
 		{
 			//restore raw values
 			GD.Print("Food: " + food.Name + " fed to " + targetPlayer.Name);
 			GD.Print("Food: Restoring " + food.healthAddedRaw + " health and " + food.potentialEnergyAddedRaw + " energy.");
+			//targetPlayer.ChangeCurrentHealth(food.healthAddedRaw);
+			//targetPlayer.ChangeMaxEnergy(food.potentialEnergyAddedRaw);
+			targetPlayer.RpcId(targetPeerIdLong, nameof(PlayerController.ChangeCurrentHealth), food.healthAddedRaw);
+			targetPlayer.RpcId(targetPeerIdLong, nameof(PlayerController.ChangeMaxEnergy), food.potentialEnergyAddedRaw);
 		}
 
 		food.QueueFree(); // remove the food item after feeding

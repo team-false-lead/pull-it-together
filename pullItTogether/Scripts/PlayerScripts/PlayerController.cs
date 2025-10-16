@@ -51,16 +51,17 @@ public partial class PlayerController : CharacterBody3D
 	// Health and energy parameters
 	[Export] private PackedScene hudScene;
 	private float maxHealth = 100f;
-	private float currentHealth;
+	[Export] public float currentHealth;
 	private ProgressBar healthBar;
-	private float maxEnergy = 100f;
-	private float currentEnergy;
+	[Export] public float maxEnergy = 100f;
+	[Export] public float currentEnergy;
 	private ProgressBar energyBar;
 	private ProgressBar fatigueBar;
 	[Export] private float maxEnergyReductionRate;
 	[Export] private float sprintingEnergyReduction;
 	[Export] private float jumpingEnergyCost;
 	[Export] private float energyRegen;
+	[Signal] public delegate void ChangeHUDEventHandler();
 
 	public override void _EnterTree()
 	{
@@ -83,25 +84,27 @@ public partial class PlayerController : CharacterBody3D
 				}
 			}
 
-            // Load the player HUD
-            Control HUD = (Control)hudScene.Instantiate();
-            AddChild(HUD);
-            // Hard-coded values for now
-            healthBar = HUD.GetNode<ProgressBar>("HealthBar/HealthProgressBar");
-            energyBar = HUD.GetNode<ProgressBar>("EnergyBar/EnergyProgressBar");
-            fatigueBar = HUD.GetNode<ProgressBar>("EnergyBar/FatigueProgressBar");
+			// Load the player HUD
+			Control HUD = (Control)hudScene.Instantiate();
+			AddChild(HUD);
+			// Hard-coded values for now
+			healthBar = HUD.GetNode<ProgressBar>("HealthBar/HealthProgressBar");
+			energyBar = HUD.GetNode<ProgressBar>("EnergyBar/EnergyProgressBar");
+			fatigueBar = HUD.GetNode<ProgressBar>("EnergyBar/FatigueProgressBar");
 
-            // Set health and energy values to their default
-            currentHealth = maxHealth;
-            currentEnergy = maxEnergy;
-            healthBar.MaxValue = healthBar.Value = maxHealth; // double-to-float shenaningans :pensive:
-            energyBar.MaxValue = energyBar.Value = fatigueBar.MaxValue = maxEnergy;
-            fatigueBar.Value = 0;
-        }
+			// Set health and energy values to their default
+			currentHealth = maxHealth;
+			currentEnergy = maxEnergy;
+			healthBar.MaxValue = healthBar.Value = maxHealth; // double-to-float shenaningans :pensive:
+			energyBar.MaxValue = energyBar.Value = fatigueBar.MaxValue = maxEnergy;
+			fatigueBar.Value = 0;
+		}
 		else
 		{
 			Input.SetMouseMode(Input.MouseModeEnum.Visible);
 		}
+
+		Connect("ChangeHUD", new Callable(this, nameof(UpdateLocalHud)));
 
 		if (collisionPusher != null)
 		{
@@ -539,43 +542,60 @@ public partial class PlayerController : CharacterBody3D
 		return velocity;
 	}
 
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
 	public void ChangeCurrentHealth(float diff)
 	{
 		currentHealth = Mathf.Min(currentHealth + diff, maxHealth);
 		if (currentHealth <= 0)
 		{
 			currentHealth = 0;
-            // The rest of the death code goes here
-        }
-        healthBar.Value = currentHealth;
-        //GD.Print("Current health: " + currentHealth);
-    }
+			// The rest of the death code goes here
+		}
+		EmitSignal("ChangeHUD");
+		//UpdateLocalHud();
+		//healthBar.Value = currentHealth;
+		//GD.Print("Current health: " + currentHealth);
+	}
 
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
 	public void ChangeCurrentEnergy(float diff)
-    {
+	{
 		// If the player is out of energy to spend, have the energy cost affect health instead
-        if (currentEnergy <= 0 && diff < 0)
+		if (currentEnergy <= 0 && diff < 0)
 			ChangeCurrentHealth(diff);
 		else
-        {
-            currentEnergy = Mathf.Min(currentEnergy + diff, maxEnergy);
-			if (currentEnergy <= 0) 
+		{
+			currentEnergy = Mathf.Min(currentEnergy + diff, maxEnergy);
+			if (currentEnergy <= 0)
 				currentEnergy = 0;
-            energyBar.Value = currentEnergy;
-            //GD.Print("Current energy: " + currentEnergy);
-        }
-    }
+			EmitSignal("ChangeHUD");
+			//UpdateLocalHud();
+			//energyBar.Value = currentEnergy;
+			//GD.Print("Current energy: " + currentEnergy);
+		}
+	}
 
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
 	public void ChangeMaxEnergy(float diff)
 	{
 		maxEnergy = maxEnergy + diff;
 		if (maxEnergy <= 0)
-            maxEnergy = 0;
+			maxEnergy = 0;
 		else if (maxEnergy > 100)
-            maxEnergy = 100;
+			maxEnergy = 100;
 		ChangeCurrentEnergy(0); // Update energy bar
-		fatigueBar.Value = Mathf.Abs(maxEnergy - 100);
+		EmitSignal("ChangeHUD");
+		//UpdateLocalHud();
+		//fatigueBar.Value = Mathf.Abs(maxEnergy - 100);
 		//GD.Print("Current fatigue: " + Mathf.Abs(maxEnergy - 100));
 		// Idk if we're doing anything else with this
+	}
+	
+	private void UpdateLocalHud()
+	{
+		if (!(IsLocalControlled() && IsMultiplayerAuthority())) return; // only local player updates hud
+		healthBar.Value = currentHealth;
+		energyBar.Value = currentEnergy;
+		fatigueBar.Value = Mathf.Abs(maxEnergy - 100);
     }
 }

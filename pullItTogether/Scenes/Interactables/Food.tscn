@@ -24,16 +24,20 @@ properties/5/replication_mode = 1
 properties/6/path = NodePath(".:isCooked")
 properties/6/spawn = true
 properties/6/replication_mode = 1
+properties/7/path = NodePath("Label3D:text")
+properties/7/spawn = true
+properties/7/replication_mode = 1
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_64b1x"]
 
 [sub_resource type="SphereMesh" id="SphereMesh_vowr0"]
 
-[node name="Food" type="RigidBody3D" node_paths=PackedStringArray("currentMesh") groups=["food"]]
+[node name="Food" type="RigidBody3D" node_paths=PackedStringArray("currentMesh", "label3D") groups=["food"]]
 collision_layer = 8
 collision_mask = 29
 script = ExtResource("1_gjvgb")
 currentMesh = NodePath("CollisionShape3D/MeshInstance3D")
+label3D = NodePath("Label3D")
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 replication_config = SubResource("SceneReplicationConfig_lwjo8")
