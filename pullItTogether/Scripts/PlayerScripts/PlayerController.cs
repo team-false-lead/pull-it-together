@@ -150,7 +150,7 @@ public partial class PlayerController : CharacterBody3D
 	{
 		if (!IsLocalControlled()) return; // local player processes movement
 
-		Vector3 velocity = Velocity;
+        Vector3 velocity = Velocity;
 		float maxEnergyChange = -maxEnergyReductionRate * (float)delta;
 		float energyChange = 0;
 

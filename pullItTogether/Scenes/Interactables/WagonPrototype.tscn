@@ -1,7 +1,7 @@
 [gd_scene load_steps=20 format=3 uid="uid://b2cc2nt2bpja0"]
 
 [ext_resource type="Script" uid="uid://dja12uyulc7ee" path="res://addons/verlet_rope_4/Physics/VerletRopeRigid.cs" id="1_24ylq"]
-[ext_resource type="Script" uid="uid://bjej3fnje5py" path="res://Scripts/Wagon/Wagon.cs" id="1_f8cd6"]
+[ext_resource type="Script" uid="uid://toi5sicfb28n" path="res://Scripts/Wagon/Wagon.cs" id="1_f8cd6"]
 [ext_resource type="Script" uid="uid://cuw8dk3lkvm2n" path="res://addons/verlet_rope_4/Physics/Joints/VerletJointRigid.cs" id="2_by6hu"]
 [ext_resource type="Script" uid="uid://576r8y5ml8oo" path="res://Scripts/InteractableScripts/RopeGrabPoint.cs" id="3_q3xkn"]
 [ext_resource type="PackedScene" uid="uid://b638mtt6nax88" path="res://Scenes/Interactables/RopeProxy.tscn" id="4_f8cd6"]
@@ -55,18 +55,21 @@ properties/1/replication_mode = 1
 properties/2/path = NodePath("GrabPoint:interactableId")
 properties/2/spawn = true
 properties/2/replication_mode = 1
-properties/3/path = NodePath("Box:position")
+properties/3/path = NodePath("VerletRopeRigid:position")
 properties/3/spawn = true
 properties/3/replication_mode = 1
-properties/4/path = NodePath("Box:rotation")
+properties/4/path = NodePath("VerletRopeRigid:rotation")
 properties/4/spawn = true
 properties/4/replication_mode = 1
-properties/5/path = NodePath("VerletRopeRigid:position")
+properties/5/path = NodePath("GrabPoint2:interactableId")
 properties/5/spawn = true
 properties/5/replication_mode = 1
-properties/6/path = NodePath("VerletRopeRigid:rotation")
+properties/6/path = NodePath("VerletRopeRigid2:position")
 properties/6/spawn = true
 properties/6/replication_mode = 1
+properties/7/path = NodePath("VerletRopeRigid2:rotation")
+properties/7/spawn = true
+properties/7/replication_mode = 1
 
 [node name="RigidBody3D" type="RigidBody3D"]
 collision_layer = 4
