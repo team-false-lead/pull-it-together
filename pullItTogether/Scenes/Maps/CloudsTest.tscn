@@ -1,6 +1,6 @@
 [gd_scene load_steps=30 format=3 uid="uid://mkxvqqji54tk"]
 
-[ext_resource type="CompositorEffect" uid="uid://clvuhw8nikbyg" path="res://addons/SunshineClouds2/NewCloudsGD.tres" id="1_6ybj7"]
+[ext_resource type="CompositorEffect" uid="uid://dlxi7oopffhow" path="res://NewCloudsGD.tres" id="1_6ybj7"]
 [ext_resource type="PackedScene" uid="uid://woij3e5klul2" path="res://Scenes/Maps/TransitionArea.tscn" id="1_wdhi7"]
 [ext_resource type="Script" uid="uid://d2gutl4cngqlt" path="res://Scripts/ManagerScripts/ItemManager.cs" id="2_m2x2q"]
 [ext_resource type="Script" uid="uid://u1f0pfpkqwoc" path="res://Scripts/MiscScripts/ItemSpawnRegistry.cs" id="3_kqdf4"]
@@ -196,15 +196,19 @@ size = Vector3(1, 4.29089, 38.4169)
 
 [node name="Superstorm" type="Node3D" parent="Environment"]
 
-[node name="SunshineCloudsDriverGD" type="Node" parent="Environment/Superstorm"]
+[node name="SunshineCloudsDriverGD" type="Node" parent="Environment/Superstorm" node_paths=PackedStringArray("tracked_directional_lights", "tracked_point_effectors")]
 script = ExtResource("12_qx88x")
 update_continuously = true
 clouds_resource = ExtResource("1_6ybj7")
 ambience_sample_environment = SubResource("Environment_qg828")
+tracked_directional_lights = [NodePath("../../DirectionalLight3D")]
+tracked_directional_light_shadow_steps = Array[int]([12])
+tracked_point_effectors = [NodePath("../SunshineCloudsEffector")]
 metadata/_custom_type_script = "uid://djusduuxf0voj"
 
 [node name="SunshineCloudsEffector" type="Node3D" parent="Environment/Superstorm"]
 script = ExtResource("11_3diyf")
+Radius = 4000.0
 metadata/_custom_type_script = "uid://bxlm4e5qfb7uu"
 
 [node name="Interactables" type="Node3D" parent="." groups=["item_manager"]]

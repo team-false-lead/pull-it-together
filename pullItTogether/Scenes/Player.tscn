@@ -97,6 +97,7 @@ mesh = SubResource("SphereMesh_ndhuy")
 [node name="Camera3D" type="Camera3D" parent="Head"]
 cull_mask = 1047583
 current = true
+far = 40000.0
 
 [node name="EyesMesh" type="MeshInstance3D" parent="Head/Camera3D" groups=["self_hide"]]
 transform = Transform3D(0.69, 0, 0, 0, 0.27, 0, 0, 0, 0.57, 0, 0.0681075, -0.250253)
