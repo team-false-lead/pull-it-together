@@ -1,10 +1,11 @@
-[gd_scene load_steps=22 format=3 uid="uid://b7pp3skomvnhc"]
+[gd_scene load_steps=23 format=3 uid="uid://b7pp3skomvnhc"]
 
 [ext_resource type="Script" uid="uid://d2gutl4cngqlt" path="res://Scripts/ManagerScripts/ItemManager.cs" id="1_00jar"]
 [ext_resource type="PackedScene" uid="uid://woij3e5klul2" path="res://Scenes/TransitionArea.tscn" id="3_00jar"]
 [ext_resource type="PackedScene" uid="uid://c10ybnoe2rhv4" path="res://Scenes/Interactables/RopeBoxVerlet.tscn" id="3_0314m"]
 [ext_resource type="PackedScene" uid="uid://ba3m0401u3th5" path="res://Scenes/Interactables/WoodPlank.tscn" id="4_qg828"]
 [ext_resource type="PackedScene" uid="uid://bfwhlqlt010kj" path="res://Scenes/Interactables/WagonTest1.tscn" id="5_0314m"]
+[ext_resource type="PackedScene" uid="uid://b2cc2nt2bpja0" path="res://Scenes/Interactables/WagonPrototype.tscn" id="6_00jar"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_xh66l"]
 sky_horizon_color = Color(0.662243, 0.671743, 0.686743, 1)
@@ -189,7 +190,7 @@ script = ExtResource("1_00jar")
 placeholdersPath = NodePath("../Placeholders")
 
 [node name="ItemSpawner" type="MultiplayerSpawner" parent="Interactables"]
-_spawnable_scenes = PackedStringArray("uid://b575wgt5fc8yc", "uid://c10ybnoe2rhv4", "uid://b638mtt6nax88", "uid://ba3m0401u3th5", "uid://bfwhlqlt010kj")
+_spawnable_scenes = PackedStringArray("uid://b575wgt5fc8yc", "uid://c10ybnoe2rhv4", "uid://b638mtt6nax88", "uid://ba3m0401u3th5", "uid://bfwhlqlt010kj", "uid://b2cc2nt2bpja0")
 spawn_path = NodePath("..")
 
 [node name="Placeholders" type="Node3D" parent="."]
@@ -211,3 +212,6 @@ transform = Transform3D(-0.987835, 0, -0.155504, 0, 1, 0, 0.155504, 0, -0.987835
 
 [node name="WagonTest2" parent="Placeholders" instance=ExtResource("5_0314m")]
 transform = Transform3D(-0.988633, 0, 0.150346, 0, 1, 0, -0.150346, 0, -0.988633, -12.0476, 2.77637, 6.20935)
+
+[node name="RigidBody3D" parent="Placeholders" instance=ExtResource("6_00jar")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.21733, 2.45366, 0)

@@ -462,6 +462,20 @@ public partial class PlayerController : CharacterBody3D
 		}
 	}
 
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+	public void RequestSetTetherAnchorPath(NodePath anchorPath, float maxDist, float buffer, float strength)
+	{
+		var anchorNode = GetNodeOrNull<Node3D>(anchorPath);
+		if (anchorNode != null)
+		{
+			SetTetherAnchor(anchorNode, maxDist, buffer, strength);
+		}
+		else
+		{
+			GD.PushWarning("RequestSetTetherAnchorPath: Anchor node path error" + anchorPath.ToString());
+		}
+	}
+
 	// Set up a tether anchor point for rope mechanics
 	public void SetTetherAnchor(Node3D anchor, float maxDist, float buffer, float strength)
 	{
@@ -470,6 +484,13 @@ public partial class PlayerController : CharacterBody3D
 		tetherBuffer = buffer;
 		tetherStrength = strength;
 	}
+
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+	public void RequestClearTether()
+	{
+		RemoveTetherAnchor();
+	}
+
 
 	// Remove the tether anchor
 	public void RemoveTetherAnchor()
