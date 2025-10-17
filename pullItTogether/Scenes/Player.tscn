@@ -1,8 +1,9 @@
-[gd_scene load_steps=13 format=3 uid="uid://ckpgu08xdcwp4"]
+[gd_scene load_steps=15 format=3 uid="uid://ckpgu08xdcwp4"]
 
 [ext_resource type="Script" uid="uid://cor1xxd0lnxxg" path="res://Scripts/PlayerScripts/PlayerController.cs" id="1_kyqiw"]
 [ext_resource type="PackedScene" uid="uid://cx0brpfq1upti" path="res://Scenes/PlayerHUD.tscn" id="2_dewec"]
 [ext_resource type="Script" uid="uid://dmbbfw34d8nf1" path="res://Scripts/PlayerScripts/PlayerCameraSync.cs" id="2_gntrk"]
+[ext_resource type="Script" uid="uid://1bwso462ry2q" path="res://Scripts/InteractableScripts/PlayerInteractable.cs" id="3_gntrk"]
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_hyhp3"]
 properties/0/path = NodePath(".:position")
@@ -20,6 +21,15 @@ properties/3/replication_mode = 1
 properties/4/path = NodePath("BodyMesh:rotation")
 properties/4/spawn = true
 properties/4/replication_mode = 1
+properties/5/path = NodePath(".:currentHealth")
+properties/5/spawn = true
+properties/5/replication_mode = 1
+properties/6/path = NodePath(".:maxEnergy")
+properties/6/spawn = true
+properties/6/replication_mode = 1
+properties/7/path = NodePath(".:currentEnergy")
+properties/7/spawn = true
+properties/7/replication_mode = 1
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_r1we1"]
 
@@ -40,9 +50,13 @@ albedo_color = Color(0.054902, 0.67451, 0.976471, 1)
 
 [sub_resource type="SphereMesh" id="SphereMesh_gntrk"]
 
-[node name="Player" type="CharacterBody3D" node_paths=PackedStringArray("head", "camera", "collisionPusher") groups=["players"]]
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_gntrk"]
+properties/0/path = NodePath(".:interactableId")
+properties/0/spawn = true
+properties/0/replication_mode = 1
+
+[node name="Player" type="CharacterBody3D" node_paths=PackedStringArray("head", "camera", "collisionPusher", "interactableRB") groups=["players"]]
 collision_layer = 2
-collision_mask = 5
 script = ExtResource("1_kyqiw")
 head = NodePath("Head")
 camera = NodePath("Head/Camera3D")
@@ -50,6 +64,7 @@ fovChange = 1.1
 bobAmplitude = 0.04
 inventorySlotPath = NodePath("Head/Camera3D/Inventory/InventorySlot1")
 collisionPusher = NodePath("AnimatableBody3D")
+interactableRB = NodePath("PlayerInteractable")
 hudScene = ExtResource("2_dewec")
 maxEnergyReductionRate = 0.2
 sprintingEnergyReduction = 4.0
@@ -99,9 +114,22 @@ material_override = SubResource("StandardMaterial3D_kyqiw")
 mesh = SubResource("SphereMesh_gntrk")
 
 [node name="AnimatableBody3D" type="AnimatableBody3D" parent="."]
-collision_layer = 2147483648
-collision_mask = 8
+collision_layer = 16
+collision_mask = 12
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="AnimatableBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.216008, 0)
+shape = SubResource("CapsuleShape3D_r1we1")
+
+[node name="PlayerInteractable" type="RigidBody3D" parent="."]
+collision_layer = 32
+collision_mask = 0
+freeze = true
+script = ExtResource("3_gntrk")
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="PlayerInteractable"]
+replication_config = SubResource("SceneReplicationConfig_gntrk")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="PlayerInteractable"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.216008, 0)
 shape = SubResource("CapsuleShape3D_r1we1")
