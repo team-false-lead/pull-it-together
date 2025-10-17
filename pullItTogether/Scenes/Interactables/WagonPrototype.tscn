@@ -92,6 +92,12 @@ transform = Transform3D(0.0420304, 0, 0, 0, 5, 0, 0, 0, 1.05, -0.5, 3, 0)
 mesh = SubResource("BoxMesh_5rxyb")
 surface_material_override/0 = SubResource("StandardMaterial3D_5rxyb")
 
+[node name="MeshInstanceLip2" type="MeshInstance3D" parent="MeshInstance3D"]
+transform = Transform3D(1.03011, 0, 0, 0, 0.728831, 0, 0, 0, 0.0121, 0, 0.81811, 0.494699)
+mesh = SubResource("BoxMesh_vlqqi")
+skeleton = NodePath("../MeshInstanceLip")
+surface_material_override/0 = SubResource("StandardMaterial3D_vlqqi")
+
 [node name="MeshInstanceLip" type="MeshInstance3D" parent="MeshInstance3D"]
 transform = Transform3D(0.7, 0, 0, 0, 0.5, 0, 0, 0, -0.11, 0, -0.412055, -0.554278)
 mesh = SubResource("BoxMesh_vlqqi")
@@ -269,3 +275,7 @@ text = "Rope"
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 replication_config = SubResource("SceneReplicationConfig_q3xkn")
+
+[node name="LipCollision2" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -7.51053e-09, -0.149358, 0, 0.171821, -6.52865e-09, 0, 0.171989, 2.70793)
+shape = SubResource("BoxShape3D_5rxyb")
