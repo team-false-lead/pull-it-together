@@ -3,7 +3,7 @@
 [ext_resource type="CompositorEffect" uid="uid://dlxi7oopffhow" path="res://NewCloudsGD.tres" id="1_6ybj7"]
 [ext_resource type="PackedScene" uid="uid://woij3e5klul2" path="res://Scenes/Maps/TransitionArea.tscn" id="1_wdhi7"]
 [ext_resource type="Script" uid="uid://d2gutl4cngqlt" path="res://Scripts/ManagerScripts/ItemManager.cs" id="2_m2x2q"]
-[ext_resource type="Script" uid="uid://u1f0pfpkqwoc" path="res://Scripts/MiscScripts/ItemSpawnRegistry.cs" id="3_kqdf4"]
+[ext_resource type="Script" path="res://Scripts/MiscScripts/ItemSpawnRegistry.cs" id="3_kqdf4"]
 [ext_resource type="PackedScene" uid="uid://c10ybnoe2rhv4" path="res://Scenes/Interactables/RopeBoxVerlet.tscn" id="4_6ybj7"]
 [ext_resource type="PackedScene" uid="uid://ba3m0401u3th5" path="res://Scenes/Interactables/WoodPlank.tscn" id="5_3diyf"]
 [ext_resource type="PackedScene" uid="uid://bfwhlqlt010kj" path="res://Scenes/Interactables/WagonTest1.tscn" id="6_qx88x"]
@@ -194,22 +194,23 @@ transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -0.241
 collision_mask = 15
 size = Vector3(1, 4.29089, 38.4169)
 
-[node name="Superstorm" type="Node3D" parent="Environment"]
+[node name="SunshineCloudsEffector" type="Node3D" parent="Environment"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5000, 0, 4000)
+script = ExtResource("11_3diyf")
+Radius = 2588.24
+Power = 100.0
+metadata/_custom_type_script = "uid://bxlm4e5qfb7uu"
 
-[node name="SunshineCloudsDriverGD" type="Node" parent="Environment/Superstorm" node_paths=PackedStringArray("tracked_directional_lights", "tracked_point_effectors")]
+[node name="SunshineCloudsDriverGD" type="Node" parent="Environment/SunshineCloudsEffector" node_paths=PackedStringArray("tracked_directional_lights", "tracked_point_effectors")]
 script = ExtResource("12_qx88x")
 update_continuously = true
 clouds_resource = ExtResource("1_6ybj7")
 ambience_sample_environment = SubResource("Environment_qg828")
+use_enviornment_ambience_for_fog = true
 tracked_directional_lights = [NodePath("../../DirectionalLight3D")]
 tracked_directional_light_shadow_steps = Array[int]([12])
-tracked_point_effectors = [NodePath("../SunshineCloudsEffector")]
+tracked_point_effectors = [NodePath("..")]
 metadata/_custom_type_script = "uid://djusduuxf0voj"
-
-[node name="SunshineCloudsEffector" type="Node3D" parent="Environment/Superstorm"]
-script = ExtResource("11_3diyf")
-Radius = 4000.0
-metadata/_custom_type_script = "uid://bxlm4e5qfb7uu"
 
 [node name="Interactables" type="Node3D" parent="." groups=["item_manager"]]
 unique_name_in_owner = true
