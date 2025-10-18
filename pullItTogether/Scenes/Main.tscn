@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://d35fcmqkvt0n3" path="res://Scripts/ManagerScripts/GameManager.gd" id="1_pbw6q"]
 [ext_resource type="Script" uid="uid://1yk74iatudu6" path="res://Scripts/ManagerScripts/NetworkManager.gd" id="2_v1gob"]
 [ext_resource type="Script" uid="uid://crunxsujs24e1" path="res://Scripts/ManagerScripts/MapManager.gd" id="3_jw32o"]
-[ext_resource type="PackedScene" uid="uid://b518v5yn7ig5o" path="res://Scenes/Map/TestTerrain.tscn" id="4_v1gob"]
+[ext_resource type="PackedScene" path="res://Scenes/Map/TestTerrain.tscn" id="4_v1gob"]
 [ext_resource type="Script" uid="uid://wudugmq7kbma" path="res://Scripts/ManagerScripts/PlayerSpawnManager.gd" id="5_v1gob"]
 [ext_resource type="PackedScene" uid="uid://ckpgu08xdcwp4" path="res://Scenes/Player.tscn" id="6_jw32o"]
 
