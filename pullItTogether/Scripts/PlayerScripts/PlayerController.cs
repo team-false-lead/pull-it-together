@@ -157,6 +157,16 @@ public partial class PlayerController : CharacterBody3D
 	// Handles movement, jumping, sprinting, head bobbing, and interaction input, probably needs to be split up later
 	public override void _PhysicsProcess(double delta)
 	{
+		// update pusher to match player position // collision pusher move always not just on local
+		if (collisionPusherAB != null)
+		{
+			collisionPusherAB.GlobalTransform = GlobalTransform;
+		}
+		if (interactableRB != null)
+		{
+			interactableRB.GlobalTransform = GlobalTransform;
+		}
+
 		if (!IsLocalControlled()) return; // local player processes movement
 
         Vector3 velocity = Velocity;
@@ -257,16 +267,6 @@ public partial class PlayerController : CharacterBody3D
 			}
 			else
 				DropObject();
-		}
-
-		// update pusher to match player position
-		if (collisionPusherAB != null)
-		{
-			collisionPusherAB.GlobalTransform = GlobalTransform;
-		}
-		if (interactableRB != null)
-		{
-			interactableRB.GlobalTransform = GlobalTransform;
 		}
 
 		//get looked at object for debug and highlighting later
