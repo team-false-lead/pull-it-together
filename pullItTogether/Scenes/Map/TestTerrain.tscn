@@ -53,8 +53,10 @@ _shader_parameters = {
 }
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_in7uf"]
-sky_horizon_color = Color(0.662243, 0.671743, 0.686743, 1)
+sky_top_color = Color(0.21317, 0.484724, 0.598542, 1)
+sky_horizon_color = Color(0.677986, 0.690074, 0.479417, 1)
 ground_horizon_color = Color(0.662243, 0.671743, 0.686743, 1)
+sun_angle_max = 118.89
 
 [sub_resource type="Sky" id="Sky_n6t57"]
 sky_material = SubResource("ProceduralSkyMaterial_in7uf")
@@ -64,6 +66,15 @@ background_mode = 2
 sky = SubResource("Sky_n6t57")
 tonemap_mode = 2
 glow_enabled = true
+fog_light_color = Color(0.648196, 0.826595, 0.844377, 1)
+fog_density = 0.0001
+fog_height = 100.0
+fog_height_density = -0.0215
+volumetric_fog_density = 0.0159
+volumetric_fog_albedo = Color(1, 1, 0, 1)
+volumetric_fog_emission = Color(0.78737, 0.357362, 0.388383, 1)
+volumetric_fog_emission_energy = 0.0
+volumetric_fog_length = 40.73
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_dobrn"]
 size = Vector3(50, 21.1472, 1)
