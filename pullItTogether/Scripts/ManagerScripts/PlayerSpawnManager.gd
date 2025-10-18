@@ -146,5 +146,3 @@ func _on_peer_disconnected(peer_id: int) -> void:
 	if players.has(peer_id):
 		despawn_player(peer_id)
 		print("Peer disconnected: ", peer_id)
-
-

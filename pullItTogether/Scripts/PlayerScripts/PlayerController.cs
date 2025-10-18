@@ -157,9 +157,19 @@ public partial class PlayerController : CharacterBody3D
 	// Handles movement, jumping, sprinting, head bobbing, and interaction input, probably needs to be split up later
 	public override void _PhysicsProcess(double delta)
 	{
+		// update pusher to match player position // collision pusher move always not just on local
+		if (collisionPusherAB != null)
+		{
+			collisionPusherAB.GlobalTransform = GlobalTransform;
+		}
+		if (interactableRB != null)
+		{
+			interactableRB.GlobalTransform = GlobalTransform;
+		}
+
 		if (!IsLocalControlled()) return; // local player processes movement
 
-		Vector3 velocity = Velocity;
+        Vector3 velocity = Velocity;
 		float maxEnergyChange = -maxEnergyReductionRate * (float)delta;
 		float energyChange = 0;
 
@@ -257,16 +267,6 @@ public partial class PlayerController : CharacterBody3D
 			}
 			else
 				DropObject();
-		}
-
-		// update pusher to match player position
-		if (collisionPusherAB != null)
-		{
-			collisionPusherAB.GlobalTransform = GlobalTransform;
-		}
-		if (interactableRB != null)
-		{
-			interactableRB.GlobalTransform = GlobalTransform;
 		}
 
 		//get looked at object for debug and highlighting later
@@ -502,6 +502,20 @@ public partial class PlayerController : CharacterBody3D
 		}
 	}
 
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+	public void RequestSetTetherAnchorPath(NodePath anchorPath, float maxDist, float buffer, float strength)
+	{
+		var anchorNode = GetNodeOrNull<Node3D>(anchorPath);
+		if (anchorNode != null)
+		{
+			SetTetherAnchor(anchorNode, maxDist, buffer, strength);
+		}
+		else
+		{
+			GD.PushWarning("RequestSetTetherAnchorPath: Anchor node path error" + anchorPath.ToString());
+		}
+	}
+
 	// Set up a tether anchor point for rope mechanics
 	public void SetTetherAnchor(Node3D anchor, float maxDist, float buffer, float strength)
 	{
@@ -510,6 +524,13 @@ public partial class PlayerController : CharacterBody3D
 		tetherBuffer = buffer;
 		tetherStrength = strength;
 	}
+
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+	public void RequestClearTether()
+	{
+		RemoveTetherAnchor();
+	}
+
 
 	// Remove the tether anchor
 	public void RemoveTetherAnchor()
