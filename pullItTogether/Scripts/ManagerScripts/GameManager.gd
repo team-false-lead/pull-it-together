@@ -222,9 +222,11 @@ func _connect_gs_signals() -> void:
 	_gs_signals_connected = true
 
 # generate a random lobby name with prefix "Pull It Together ####"
+# change name of room to persona name later # later filter to just friends also
 func _gen_lobby_name() -> String:
 	var room_id := randi_range(0, 9999)
 	return "%s %04d" % [lobby_prefix, room_id]
+
 
 # Create a new public lobby
 func create_steam_lobby() -> void:
