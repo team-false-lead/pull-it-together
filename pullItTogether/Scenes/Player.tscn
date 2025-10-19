@@ -127,6 +127,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.216008, 0)
 shape = SubResource("CapsuleShape3D_r1we1")
 
 [node name="PlayerInteractable" parent="." instance=ExtResource("4_dewec")]
+movementPenalty = 0.66
 
 [node name="HelpMeLabel" type="Label3D" parent="."]
 transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 1.73722, 0)

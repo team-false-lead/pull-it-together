@@ -288,7 +288,6 @@ public partial class PlayerController : CharacterBody3D
             {
                 velocity.X = Mathf.Lerp(velocity.X, 0, (float)delta * inertiaGroundValue);
                 velocity.Z = Mathf.Lerp(velocity.Z, 0, (float)delta * inertiaGroundValue);
-                
             }
             else // inertia when in the air
             {
@@ -303,6 +302,13 @@ public partial class PlayerController : CharacterBody3D
         if (tetherAnchor != null)
 		{
 			velocity = TetherToRopeAnchor(delta, velocity);
+		}
+
+		// For heavier objects that we will definitely add more of later, apply a movement penalty.
+		if (heldObject != null)
+		{
+			velocity.X *= heldObject.MovementPenalty;
+			velocity.Z *= heldObject.MovementPenalty;
 		}
 
 		Velocity = velocity;
