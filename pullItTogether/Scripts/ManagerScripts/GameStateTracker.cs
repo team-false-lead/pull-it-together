@@ -8,12 +8,13 @@ public partial class GameStateTracker : Node
 {
     private List<PlayerController> playerControllers;
     private int numOfDownedPlayers;
-    private bool isProcessing = true;
+    [Export] private TransitionArea transitionArea;
 
     public override void _Ready()
     {
         base._Ready();
         playerControllers = new List<PlayerController>();
+        transitionArea.BodyEntered += (Node3D) => { CallDeferred("CheckWinState"); };
     }
 
     public override void _PhysicsProcess(double delta)
@@ -38,9 +39,20 @@ public partial class GameStateTracker : Node
         {
             foreach (PlayerController player in playerControllers)
             {
-                player.SetOutOfHealthLabelText("The wilderness claims another...");
+                player.SetOutOfHealthLabelText("You couldn't Pull It Together™...");
             }
-            isProcessing = false;
+            var execute = ResetAfterSeconds(3);
+        }
+    }
+
+    private void CheckWinState()
+    {
+        if (transitionArea.NumOfPlayersInside >= playerControllers.Count)
+        {
+            foreach (PlayerController player in playerControllers)
+            {
+                player.SetOutOfHealthLabelText("Congratulations! You're the greatest Wagoneer(s)!");
+            }
             var execute = ResetAfterSeconds(3);
         }
     }

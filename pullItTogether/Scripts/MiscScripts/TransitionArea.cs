@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 // temporary script for transition areas that trigger confetti and map reload
@@ -15,41 +16,31 @@ public partial class TransitionArea : Area3D
     [Export]
     private GpuParticles3D cyanConfetti;
 
-    private bool hasTriggered = false;
+    private List<string> playersInside;
+
+    public int NumOfPlayersInside
+    {
+        get { return playersInside.Count; }
+    }
 
     public override void _Ready()
     {
         BodyEntered += OnBodyEntered;
+        BodyExited += OnBodyExited;
+        playersInside = new List<string>();
     }
 
-    // trigger confetti, change label text, and try map reload
+
     private void OnBodyEntered(Node3D node)
     {
-        if (hasTriggered) return; // Prevent multiple triggers
-        hasTriggered = true;
-
-        // TEMPORARY CODE: Not all transition areas should change Label3D text or summon confetti
-        label.Text = "You did it :)";
-        SetDeferred("monitoring", false);
-        pinkConfetti.Position = yellowConfetti.Position = cyanConfetti.Position = new Vector3(node.Position.X, 11, -60);
-        pinkConfetti.Emitting = yellowConfetti.Emitting = cyanConfetti.Emitting = true;
-
-        var mapManager = GetTree().CurrentScene.GetNodeOrNull<Node>("%MapManager");
-        if (mapManager == null)
-        {
-            GD.PrintErr("MapManager not found in the current scene.");
-            return;
-        }
-
-        var execute = ResetAfterSeconds(3, mapManager); // Warning isn't important because this is super temporary code
+        // Have to do it this way because OnBodyEntered consistently triggers twice, so this
+        // prevents duplicate increments
+        if (!playersInside.Contains(node.Name))
+            playersInside.Add(node.Name);
     }
 
-    // wait a few seconds, reset label, then try map reload
-    public async Task ResetAfterSeconds(float seconds, Node mapManager)
+    private void OnBodyExited(Node3D node)
     {
-        await ToSignal(GetTree().CreateTimer(seconds), SceneTreeTimer.SignalName.Timeout);
-        label.Text = "GO HERE";
-        mapManager.Call("request_reload_map");
-        //GetTree().ChangeSceneToFile("res://Scenes/TestMap.tscn"); // No clue if this messes with the multiplayer stuff
+        playersInside.Remove(node.Name);
     }
 }

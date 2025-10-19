@@ -706,7 +706,8 @@ public partial class PlayerController : CharacterBody3D
 		healthBar.Value = currentHealth;
 		energyBar.Value = currentEnergy;
 		fatigueBar.Value = Mathf.Abs(maxEnergy - 100);
-		outOfHealthLabel.Visible = helpMeLabel.Visible = currentHealth <= 0;
+		helpMeLabel.Visible = currentHealth <= 0;
+		outOfHealthLabel.Visible = helpMeLabel.Visible || outOfHealthLabel.Text != "You are out of health! Wait for someone to pick you up or heal you!";
     }
 
 	public void SetOutOfHealthLabelText(string text)
