@@ -24,6 +24,11 @@ func set_spawning_enabled(enabled: bool) -> void:
 	spawning_enabled = enabled
 	await get_tree().process_frame # wait a frame to ensure multiplayer is ready
 
+	if not multiplayer.has_multiplayer_peer():
+		if not enabled:
+			despawn_all()
+		return
+
 	if not multiplayer.is_server(): # only the server spawns players
 		return
 
