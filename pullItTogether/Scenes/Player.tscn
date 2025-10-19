@@ -1,8 +1,9 @@
-[gd_scene load_steps=15 format=3 uid="uid://ckpgu08xdcwp4"]
+[gd_scene load_steps=16 format=3 uid="uid://ckpgu08xdcwp4"]
 
 [ext_resource type="Script" uid="uid://cor1xxd0lnxxg" path="res://Scripts/PlayerScripts/PlayerController.cs" id="1_kyqiw"]
 [ext_resource type="PackedScene" uid="uid://cx0brpfq1upti" path="res://Scenes/PlayerHUD.tscn" id="2_dewec"]
 [ext_resource type="Script" uid="uid://dmbbfw34d8nf1" path="res://Scripts/PlayerScripts/PlayerCameraSync.cs" id="2_gntrk"]
+[ext_resource type="PackedScene" uid="uid://cncbaoc3e5h5f" path="res://Scenes/PauseMenu.tscn" id="3_dewec"]
 [ext_resource type="Script" uid="uid://1bwso462ry2q" path="res://Scripts/InteractableScripts/PlayerInteractable.cs" id="3_gntrk"]
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_hyhp3"]
@@ -55,7 +56,7 @@ properties/0/path = NodePath(".:interactableId")
 properties/0/spawn = true
 properties/0/replication_mode = 1
 
-[node name="Player" type="CharacterBody3D" node_paths=PackedStringArray("head", "camera", "collisionPusher", "interactableRB") groups=["players"]]
+[node name="Player" type="CharacterBody3D" node_paths=PackedStringArray("head", "camera", "collisionPusher", "interactableRB", "pauseMenu") groups=["players"]]
 collision_layer = 2
 collision_mask = 5
 script = ExtResource("1_kyqiw")
@@ -71,6 +72,7 @@ maxEnergyReductionRate = 0.2
 sprintingEnergyReduction = 4.0
 jumpingEnergyCost = 10.0
 energyRegen = 2.0
+pauseMenu = NodePath("PauseMenu")
 
 [node name="PlayerCameraSync" type="Node" parent="." node_paths=PackedStringArray("Camera")]
 script = ExtResource("2_gntrk")
@@ -135,3 +137,6 @@ replication_config = SubResource("SceneReplicationConfig_gntrk")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="PlayerInteractable"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.216008, 0)
 shape = SubResource("CapsuleShape3D_r1we1")
+
+[node name="PauseMenu" parent="." instance=ExtResource("3_dewec")]
+visible = false
