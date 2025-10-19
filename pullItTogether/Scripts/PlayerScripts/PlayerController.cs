@@ -75,7 +75,7 @@ public partial class PlayerController : CharacterBody3D
 	public override void _Ready()
 	{
 		// Only the local player should capture the mouse and hide self
-		if (IsMultiplayerAuthority() && IsLocalControlled())
+		if (IsLocalControlled())
 		{
 			Input.SetMouseMode(Input.MouseModeEnum.Captured);
 
@@ -689,7 +689,7 @@ public partial class PlayerController : CharacterBody3D
 	
 	private void UpdateLocalHud()
 	{
-		if (!(IsLocalControlled() && IsMultiplayerAuthority())) return; // only local player updates hud
+		if (!IsLocalControlled()) return; // only local player updates hud
 		healthBar.Value = currentHealth;
 		energyBar.Value = currentEnergy;
 		fatigueBar.Value = Mathf.Abs(maxEnergy - 100);
