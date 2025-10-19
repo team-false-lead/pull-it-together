@@ -11,13 +11,29 @@ signal peer_disconnected(id)
 var peer : MultiplayerPeer = null
 var mode : PeerMode = PeerMode.NONE # 0=STEAM, 1=LOCAL, 2=NONE
 var _signals_hooked := false
+var _is_leaving := false
+var _stored_initial_peer : MultiplayerPeer = null
 
 # ---------- General ----------
+func _ready() -> void:
+	_stored_initial_peer = multiplayer.multiplayer_peer
+	# print(multiplayer.multiplayer_peer)
+	if multiplayer.has_multiplayer_peer():
+		multiplayer.multiplayer_peer = null # reset on scene change
+	peer = null
+	mode = PeerMode.NONE
+	_signals_hooked = false
+	_is_leaving = false
+
+
 func get_peer() -> MultiplayerPeer:
 	return peer
 
 func update_multiplayer_peer() -> void:
 	multiplayer.multiplayer_peer = peer
+
+func reset_multiplayer_peer() -> void:
+	multiplayer.multiplayer_peer = _stored_initial_peer
 
 # 0=STEAM, 1=LOCAL, 2=NONE
 func set_peer_mode(peer_mode : PeerMode) -> void:
@@ -106,7 +122,11 @@ func join_local(address : String = "127.0.0.1", port : int = 2450) -> bool:
 
 # ---------- Common ----------
 # leave session
-func leave() -> void:
+func leave(notify_peers: bool = true) -> void:
+	if _is_leaving:
+		return
+	_is_leaving = true
+
 	# Disconnect signals
 	if _signals_hooked:
 		var mp: MultiplayerAPI = multiplayer
@@ -114,15 +134,36 @@ func leave() -> void:
 			mp.peer_connected.disconnect(Callable(self, "_on_peer_connected"))
 		if mp.peer_disconnected.is_connected(Callable(self, "_on_peer_disconnected")):
 			mp.peer_disconnected.disconnect(Callable(self, "_on_peer_disconnected"))
+		if mp.connection_failed.is_connected(Callable(self, "_on_connection_failed")):
+			mp.connection_failed.disconnect(Callable(self, "_on_connection_failed"))
+		if mp.server_disconnected.is_connected(Callable(self, "_on_server_disconnected")):
+			mp.server_disconnected.disconnect(Callable(self, "_on_server_disconnected"))
 	_signals_hooked = false
 
-	# Close peer connection
-	if peer and peer.has_method("close"):
-		peer.close()
-	multiplayer.multiplayer_peer = null
+	if multiplayer.has_multiplayer_peer():
+		if notify_peers and multiplayer.is_server():
+			rpc("_host_disconnect")
+			await get_tree().process_frame # wait for rpc to send
+			await get_tree().process_frame
+
 	emit_signal("session_ended")
+
+	# Close peer connection
+	if peer:
+		if mode == PeerMode.STEAM and peer.has_method("leave_lobby"):
+			peer.leave_lobby() # steam specific
+		elif peer.has_method("close"):
+			peer.close()
+	
+	multiplayer.multiplayer_peer = null
 	peer = null
 	mode = PeerMode.NONE
+	_is_leaving = false
+
+@rpc("authority", "reliable")
+func _host_disconnect() -> void:
+	print("Host disconnected...")
+	leave(false)
 
 func _attach_peer() -> void:
 	#connect signals
@@ -133,17 +174,19 @@ func _attach_peer() -> void:
 	var mp: MultiplayerAPI = multiplayer
 	mp.peer_connected.connect(_on_peer_connected)
 	mp.peer_disconnected.connect(_on_peer_disconnected)
+	mp.connection_failed.connect(_on_connection_failed) # also handle failed connection
+	mp.server_disconnected.connect(_on_server_disconnected) # and host crash/disconnect
 	_signals_hooked = true
 
 # try wait for connection 
 func _wait_for_connection(timeout: float = 10.0) -> bool:
 	var timer := 0.0
-	while multiplayer.multiplayer_peer.get_connection_status() != MultiplayerPeer.CONNECTION_CONNECTED:
+	while multiplayer.has_multiplayer_peer() and multiplayer.multiplayer_peer.get_connection_status() != MultiplayerPeer.CONNECTION_CONNECTED:
 		await get_tree().process_frame
 		timer += get_process_delta_time()
 		if timer >= timeout:
 			push_error("NetworkManager: connection timed out")
-			leave()
+			leave(false)
 			return false
 	return true
 
@@ -152,3 +195,11 @@ func _on_peer_connected(id: int) -> void:
 
 func _on_peer_disconnected(id: int) -> void: 
 	emit_signal("peer_disconnected", id)
+
+func _on_connection_failed() -> void:
+	push_error("NetworkManager: connection failed")
+	leave()
+
+func _on_server_disconnected() -> void:
+	push_error("NetworkManager: disconnected from server")
+	leave()

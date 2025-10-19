@@ -121,6 +121,12 @@ layout_mode = 2
 mouse_default_cursor_shape = 2
 text = "Multiplayer"
 
+[node name="QuitButton" type="Button" parent="CanvasLayer/MainControl/MainMenu/VBoxContainer"]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+mouse_default_cursor_shape = 2
+text = "Quit"
+
 [node name="MultiplayerSelectMenu" type="Control" parent="CanvasLayer/MainControl"]
 visible = false
 layout_mode = 1
@@ -517,6 +523,7 @@ text = "HOST"
 
 [connection signal="pressed" from="CanvasLayer/MainControl/MainMenu/VBoxContainer/SingleplayerButton" to="GameManager" method="_on_single_player_pressed"]
 [connection signal="pressed" from="CanvasLayer/MainControl/MainMenu/VBoxContainer/MultiplayerButton" to="GameManager" method="_show_multiplayer_select"]
+[connection signal="pressed" from="CanvasLayer/MainControl/MainMenu/VBoxContainer/QuitButton" to="GameManager" method="quit_game"]
 [connection signal="pressed" from="CanvasLayer/MainControl/MultiplayerSelectMenu/VBoxContainer/PublicMultiplayerButton" to="GameManager" method="show_public_menu"]
 [connection signal="pressed" from="CanvasLayer/MainControl/MultiplayerSelectMenu/VBoxContainer/LocalMultiplayerButton" to="GameManager" method="show_local_menu"]
 [connection signal="pressed" from="CanvasLayer/MainControl/MultiplayerSelectMenu/BackToMainMenuButton" to="GameManager" method="_show_main_menu"]
