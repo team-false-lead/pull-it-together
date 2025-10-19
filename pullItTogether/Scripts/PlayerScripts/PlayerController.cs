@@ -284,7 +284,7 @@ public partial class PlayerController : CharacterBody3D
         }
 		else
 		{
-            if (IsOnFloor()) // full control when on the ground
+            if (IsOnFloor())
             {
                 velocity.X = Mathf.Lerp(velocity.X, 0, (float)delta * inertiaGroundValue);
                 velocity.Z = Mathf.Lerp(velocity.Z, 0, (float)delta * inertiaGroundValue);
@@ -311,7 +311,7 @@ public partial class PlayerController : CharacterBody3D
 		// Handle interaction input
 		if (Input.IsActionJustPressed("use"))// LMB
 			OnUsedPressed();
-		if (Input.IsActionJustPressed("pickup")) // E
+		if (Input.IsActionJustPressed("pickup") && !IsDowned) // E
 		{
 			if (heldObject == null)
 			{
@@ -360,7 +360,7 @@ public partial class PlayerController : CharacterBody3D
 		ChangeMaxEnergy(maxEnergyChange);
 
 		// Leo's really cool health/energy/fatigue testing code
-		if (Input.IsKeyPressed(Key.Kp1)) // When Numpad 1 is pressed, reduce health
+		if (Input.IsKeyPressed(Key.Kp1) && !IsDowned) // When Numpad 1 is pressed, reduce health
 			ChangeCurrentHealth(-10);
 		else if (Input.IsKeyPressed(Key.Kp2)) // When Numpad 2 is pressed, restore health
 			ChangeCurrentHealth(10);
@@ -653,14 +653,18 @@ public partial class PlayerController : CharacterBody3D
 	{
 		// If recovering health from a downed state, emit the revival event
 		if (currentHealth == 0 && diff > 0)
-			EmitSignal("OnRevived");
+        {
+            Scale = Vector3.One;
+            EmitSignal("OnRevived");
+        }
 
 		currentHealth = Mathf.Min(currentHealth + diff, maxHealth);
 		if (currentHealth <= 0)
 		{
 			currentHealth = 0;
 			DropObject();
-			EmitSignal("OnDowned");
+			Scale = new Vector3(0.75f, 0.75f, 0.75f);
+            EmitSignal("OnDowned");
 		}
 
 		EmitSignal("ChangeHUD");

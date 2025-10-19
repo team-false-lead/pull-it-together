@@ -34,6 +34,9 @@ properties/7/replication_mode = 1
 properties/8/path = NodePath("HelpMeLabel:visible")
 properties/8/spawn = true
 properties/8/replication_mode = 1
+properties/9/path = NodePath(".:scale")
+properties/9/spawn = true
+properties/9/replication_mode = 1
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_r1we1"]
 
