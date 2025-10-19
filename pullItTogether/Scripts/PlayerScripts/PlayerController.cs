@@ -64,6 +64,8 @@ public partial class PlayerController : CharacterBody3D
 	[Export] private float energyRegen;
 	[Export] private Label3D helpMeLabel;
     [Signal] public delegate void ChangeHUDEventHandler();
+	[Signal] public delegate void OnDownedEventHandler();
+    [Signal] public delegate void OnRevivedEventHandler();
 
     // Pause menu parameters
     private bool isPaused;
@@ -649,16 +651,18 @@ public partial class PlayerController : CharacterBody3D
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
 	public void ChangeCurrentHealth(float diff)
 	{
+		// If recovering health from a downed state, emit the revival event
+		if (currentHealth == 0 && diff > 0)
+			EmitSignal("OnRevived");
+
 		currentHealth = Mathf.Min(currentHealth + diff, maxHealth);
 		if (currentHealth <= 0)
 		{
 			currentHealth = 0;
-			// The rest of the death code goes here
+			EmitSignal("OnDowned");
 		}
+
 		EmitSignal("ChangeHUD");
-		//UpdateLocalHud();
-		//healthBar.Value = currentHealth;
-		//GD.Print("Current health: " + currentHealth);
 	}
 
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
@@ -706,6 +710,8 @@ public partial class PlayerController : CharacterBody3D
 
 	public void SetOutOfHealthLabelText(string text)
 	{
+		if (outOfHealthLabel == null) return;
 		outOfHealthLabel.Text = text;
+		outOfHealthLabel.Visible = true;
 	}
 }
