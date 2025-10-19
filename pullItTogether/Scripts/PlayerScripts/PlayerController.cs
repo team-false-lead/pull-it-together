@@ -57,10 +57,12 @@ public partial class PlayerController : CharacterBody3D
 	[Export] public float currentEnergy;
 	private ProgressBar energyBar;
 	private ProgressBar fatigueBar;
+	private Label outOfHealthLabel;
 	[Export] private float maxEnergyReductionRate;
 	[Export] private float sprintingEnergyReduction;
 	[Export] private float jumpingEnergyCost;
 	[Export] private float energyRegen;
+	[Export] private Label3D helpMeLabel;
 	[Signal] public delegate void ChangeHUDEventHandler();
 
 	public bool IsDowned
@@ -96,6 +98,7 @@ public partial class PlayerController : CharacterBody3D
 			healthBar = HUD.GetNode<ProgressBar>("HealthBar/HealthProgressBar");
 			energyBar = HUD.GetNode<ProgressBar>("EnergyBar/EnergyProgressBar");
 			fatigueBar = HUD.GetNode<ProgressBar>("EnergyBar/FatigueProgressBar");
+			outOfHealthLabel = HUD.GetNode<Label>("OutOfHealthLabel");
 
 			// Set health and energy values to their default
 			currentHealth = maxHealth;
@@ -623,5 +626,6 @@ public partial class PlayerController : CharacterBody3D
 		healthBar.Value = currentHealth;
 		energyBar.Value = currentEnergy;
 		fatigueBar.Value = Mathf.Abs(maxEnergy - 100);
+		outOfHealthLabel.Visible = helpMeLabel.Visible = currentHealth <= 0;
     }
 }

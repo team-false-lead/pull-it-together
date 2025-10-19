@@ -16,9 +16,7 @@ public partial class PlayerInteractable : Interactable
 
             // If the player regains health, instantly drop this interactable.
             if (!player.IsDowned)
-            {
                 ((PlayerController)Carrier).DropObject();
-            }
         }
     }
 

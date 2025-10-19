@@ -30,6 +30,9 @@ properties/6/replication_mode = 1
 properties/7/path = NodePath(".:currentEnergy")
 properties/7/spawn = true
 properties/7/replication_mode = 1
+properties/8/path = NodePath("HelpMeLabel:visible")
+properties/8/spawn = true
+properties/8/replication_mode = 1
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_r1we1"]
 
@@ -50,7 +53,7 @@ albedo_color = Color(0.054902, 0.67451, 0.976471, 1)
 
 [sub_resource type="SphereMesh" id="SphereMesh_gntrk"]
 
-[node name="Player" type="CharacterBody3D" node_paths=PackedStringArray("head", "camera", "collisionPusher", "interactableRB") groups=["players"]]
+[node name="Player" type="CharacterBody3D" node_paths=PackedStringArray("head", "camera", "collisionPusher", "interactableRB", "helpMeLabel") groups=["players"]]
 collision_layer = 2
 collision_mask = 5
 script = ExtResource("1_kyqiw")
@@ -66,6 +69,7 @@ maxEnergyReductionRate = 0.2
 sprintingEnergyReduction = 4.0
 jumpingEnergyCost = 10.0
 energyRegen = 2.0
+helpMeLabel = NodePath("HelpMeLabel")
 
 [node name="PlayerCameraSync" type="Node" parent="." node_paths=PackedStringArray("Camera")]
 script = ExtResource("2_gntrk")
@@ -118,3 +122,10 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.216008, 0)
 shape = SubResource("CapsuleShape3D_r1we1")
 
 [node name="PlayerInteractable" parent="." instance=ExtResource("4_dewec")]
+
+[node name="HelpMeLabel" type="Label3D" parent="."]
+transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 1.73722, 0)
+visible = false
+modulate = Color(1, 0, 0, 1)
+text = "!!"
+font_size = 100
