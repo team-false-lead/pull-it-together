@@ -320,7 +320,8 @@ public partial class PlayerController : CharacterBody3D
 			ChangeMaxEnergy(10);
 
 
-		debugTrackerLabel.Text = "FPS: " + Engine.GetFramesPerSecond();
+		debugTrackerLabel.Text = "FPS: " + Engine.GetFramesPerSecond() +
+			"\nFrame time: " + Math.Round(1 / Engine.GetFramesPerSecond(), 4) + " sec";
     }
 
 	// Simple head bobbing effect
