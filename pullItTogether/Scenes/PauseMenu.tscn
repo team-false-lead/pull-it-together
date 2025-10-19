@@ -1,7 +1,13 @@
-[gd_scene load_steps=3 format=3 uid="uid://cncbaoc3e5h5f"]
+[gd_scene load_steps=9 format=3 uid="uid://cncbaoc3e5h5f"]
 
 [ext_resource type="Theme" uid="uid://vwc7nhn1ef0l" path="res://Resources/pause_menu.tres" id="1_lj4oq"]
 [ext_resource type="Script" uid="uid://fvofr5fqkk6a" path="res://Scripts/PlayerScripts/PauseMenu.cs" id="1_qwhev"]
+[ext_resource type="Texture2D" uid="uid://cys43ss052b66" path="res://Assets/UI/Keyboard & Mouse/Default/keyboard_arrows.png" id="3_5w4ur"]
+[ext_resource type="Texture2D" uid="uid://cdq54w1qqvmi" path="res://Assets/UI/Keyboard & Mouse/Default/keyboard_space.png" id="4_gqxqw"]
+[ext_resource type="Texture2D" uid="uid://p1ui8wbbd7py" path="res://Assets/UI/Keyboard & Mouse/Default/keyboard_shift.png" id="5_lptsj"]
+[ext_resource type="Texture2D" uid="uid://gis5ixyplgye" path="res://Assets/UI/Keyboard & Mouse/Default/mouse_left_outline.png" id="6_425uk"]
+[ext_resource type="Texture2D" uid="uid://bmajctlyyx7ym" path="res://Assets/UI/Keyboard & Mouse/Default/keyboard_e.png" id="7_mys0b"]
+[ext_resource type="Texture2D" uid="uid://cmrwtefevjmud" path="res://Assets/UI/Keyboard & Mouse/Default/keyboard_escape.png" id="8_lptsj"]
 
 [node name="PauseMenu" type="Control" node_paths=PackedStringArray("resumeButton", "exitButton")]
 layout_mode = 3
@@ -23,20 +29,6 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0, 0, 0, 0.313726)
 
-[node name="PausedLabel" type="Label" parent="."]
-layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.5
-anchor_top = 0.1
-anchor_right = 0.5
-anchor_bottom = 0.1
-offset_left = -123.5
-offset_right = 123.5
-offset_bottom = 88.0
-grow_horizontal = 2
-theme_override_font_sizes/font_size = 64
-text = "PAUSED"
-
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
 layout_mode = 1
 anchors_preset = 13
@@ -46,6 +38,18 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 alignment = 1
+
+[node name="PausedLabel" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 64
+text = "PAUSED"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="SpacerLabel" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+text = " "
+horizontal_alignment = 1
 
 [node name="ResumeButton" type="Button" parent="VBoxContainer"]
 layout_mode = 2
@@ -62,3 +66,93 @@ text = "Options"
 layout_mode = 2
 theme = ExtResource("1_lj4oq")
 text = "Exit Lobby"
+
+[node name="SpacerLabel2" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+text = " "
+horizontal_alignment = 1
+
+[node name="ControlsLabel" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "Controls"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ControlGraphics" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="VBoxContainer/ControlGraphics"]
+layout_mode = 2
+alignment = 1
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer/ControlGraphics/VBoxContainer2"]
+layout_mode = 2
+
+[node name="TextureRect" type="TextureRect" parent="VBoxContainer/ControlGraphics/VBoxContainer2/HBoxContainer"]
+layout_mode = 2
+texture = ExtResource("3_5w4ur")
+
+[node name="Label" type="Label" parent="VBoxContainer/ControlGraphics/VBoxContainer2/HBoxContainer"]
+layout_mode = 2
+text = "Move"
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="VBoxContainer/ControlGraphics/VBoxContainer2"]
+layout_mode = 2
+
+[node name="TextureRect" type="TextureRect" parent="VBoxContainer/ControlGraphics/VBoxContainer2/HBoxContainer2"]
+layout_mode = 2
+texture = ExtResource("4_gqxqw")
+
+[node name="Label" type="Label" parent="VBoxContainer/ControlGraphics/VBoxContainer2/HBoxContainer2"]
+layout_mode = 2
+text = "Jump"
+
+[node name="HBoxContainer3" type="HBoxContainer" parent="VBoxContainer/ControlGraphics/VBoxContainer2"]
+layout_mode = 2
+
+[node name="TextureRect" type="TextureRect" parent="VBoxContainer/ControlGraphics/VBoxContainer2/HBoxContainer3"]
+layout_mode = 2
+texture = ExtResource("5_lptsj")
+
+[node name="Label" type="Label" parent="VBoxContainer/ControlGraphics/VBoxContainer2/HBoxContainer3"]
+layout_mode = 2
+text = "Sprint"
+
+[node name="VBoxContainer3" type="VBoxContainer" parent="VBoxContainer/ControlGraphics"]
+layout_mode = 2
+alignment = 1
+
+[node name="HBoxContainer4" type="HBoxContainer" parent="VBoxContainer/ControlGraphics/VBoxContainer3"]
+layout_mode = 2
+
+[node name="TextureRect" type="TextureRect" parent="VBoxContainer/ControlGraphics/VBoxContainer3/HBoxContainer4"]
+layout_mode = 2
+texture = ExtResource("6_425uk")
+
+[node name="Label" type="Label" parent="VBoxContainer/ControlGraphics/VBoxContainer3/HBoxContainer4"]
+layout_mode = 2
+text = "Use Item"
+
+[node name="HBoxContainer5" type="HBoxContainer" parent="VBoxContainer/ControlGraphics/VBoxContainer3"]
+layout_mode = 2
+
+[node name="TextureRect" type="TextureRect" parent="VBoxContainer/ControlGraphics/VBoxContainer3/HBoxContainer5"]
+layout_mode = 2
+texture = ExtResource("7_mys0b")
+
+[node name="Label" type="Label" parent="VBoxContainer/ControlGraphics/VBoxContainer3/HBoxContainer5"]
+layout_mode = 2
+text = "Pickup / Drop"
+
+[node name="HBoxContainer6" type="HBoxContainer" parent="VBoxContainer/ControlGraphics/VBoxContainer3"]
+layout_mode = 2
+
+[node name="TextureRect" type="TextureRect" parent="VBoxContainer/ControlGraphics/VBoxContainer3/HBoxContainer6"]
+layout_mode = 2
+texture = ExtResource("8_lptsj")
+
+[node name="Label" type="Label" parent="VBoxContainer/ControlGraphics/VBoxContainer3/HBoxContainer6"]
+layout_mode = 2
+text = "Pause"
