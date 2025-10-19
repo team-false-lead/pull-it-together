@@ -135,7 +135,16 @@ public partial class PlayerController : CharacterBody3D
 	// Check if this player instance is controlled by the local user
 	private bool IsLocalControlled()
 	{
+		if (!Multiplayer.HasMultiplayerPeer()) return true; // singleplayer
+		if (!NetworkReady()) return false; 
 		return GetMultiplayerAuthority() == Multiplayer.GetUniqueId();
+	}
+	
+	private bool NetworkReady()
+	{
+		if (!Multiplayer.HasMultiplayerPeer()) return false;
+		var peer = Multiplayer.MultiplayerPeer;
+		return peer != null && peer.GetConnectionStatus() == MultiplayerPeer.ConnectionStatus.Connected;
 	}
 
 	// Handle mouse input for looking around
@@ -562,10 +571,10 @@ public partial class PlayerController : CharacterBody3D
 	{
         GetTree().CurrentScene.GetNodeOrNull<Node>("NetworkManager").CallDeferred("leave");
 		// TEMP: if this player is the host, quit the application
-		if (Multiplayer.IsServer())
-		{
-			GetTree().Quit();
-		}
+		//if (Multiplayer.IsServer() || Multiplayer == null)
+		//{
+		//	GetTree().Quit();
+		//}
     }
 
 	public void ChangeCurrentHealth(float diff)

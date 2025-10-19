@@ -157,9 +157,13 @@ func show_public_menu() -> void:
 	if _steam_ok:
 		refresh_steam_lobby_list()
 	
+func quit_game() -> void:
+	get_tree().quit()
 
 # ---------- Single Player ----------
 func _on_single_player_pressed() -> void:
+	if network_manager and network_manager.has_method("reset_multiplayer_peer"):
+		network_manager.call("reset_multiplayer_peer") # ensure no existing session
 	if map_manager and map_manager.has_method("load_map"):
 		await map_manager.call("load_map")
 	if main_canvas: main_canvas.hide()
@@ -373,11 +377,13 @@ func _on_session_started(role: String) -> void:
 func _on_session_ended() -> void:
 	if spawn_manager:
 		spawn_manager.set_spawning_enabled(false)
+		spawn_manager.despawn_all()
 	if map_manager:
 		await map_manager.call("deload_map") # reset map to initial state
 	if main_canvas: 
 		main_canvas.show()
 	_show_main_menu()
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
 # peer connected/disconnected handled in spawn manager
 
