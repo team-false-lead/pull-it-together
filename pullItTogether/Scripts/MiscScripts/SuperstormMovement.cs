@@ -25,6 +25,7 @@ public partial class SuperstormMovement : Area3D
 	{
 		BodyEntered += _onBodyEntered;
 		BodyExited += _onBodyExited;
+		GetTree().GetMultiplayer().PeerDisconnected += OnPeerDisconnected;
 
 		lastStormPos = GlobalPosition;
 
@@ -101,9 +102,18 @@ public partial class SuperstormMovement : Area3D
 		{
 			playersInsideStorm.Add(body);
 			
-			if (body is PlayerController targetPlayer)
+			if (Multiplayer == null || Multiplayer.MultiplayerPeer == null) return;
+
+			if (body is PlayerController targetPlayer && Multiplayer.IsServer())
 			{
+				if (targetPlayer.IsQueuedForDeletion() || !targetPlayer.IsInsideTree())
+				{
+					//GD.PrintErr($"Entered: Cannot update HUD storm text for {body.Name} as it is not valid.");
+					return;
+				}
+
 				var targetPeerId = (long)targetPlayer.GetMultiplayerAuthority();
+				if (targetPeerId == 0) return; // avoid invalid peer ID
                 var hudError = targetPlayer.RpcId(targetPeerId, nameof(PlayerController.UpdateHudStormText), true);
 				if (hudError != Error.Ok)
 				{
@@ -120,23 +130,54 @@ public partial class SuperstormMovement : Area3D
 		{
 			playersInsideStorm.Remove(body);
 
-			if (body is PlayerController targetPlayer)
+			if (Multiplayer == null || Multiplayer.MultiplayerPeer == null) return;
+
+			if (body is PlayerController targetPlayer && Multiplayer.IsServer())
 			{
+				if (targetPlayer.IsQueuedForDeletion() || !targetPlayer.IsInsideTree())
+				{
+					//GD.PrintErr($"Exit: Cannot update HUD storm text for {body.Name} as it is not valid.");
+					return;
+				}
+
 				var targetPeerId = (long)targetPlayer.GetMultiplayerAuthority();
-                var hudError = targetPlayer.RpcId(targetPeerId, nameof(PlayerController.UpdateHudStormText), false);
+				if (targetPeerId == 0) return; // avoid invalid peer ID
+				var hudError = targetPlayer.RpcId(targetPeerId, nameof(PlayerController.UpdateHudStormText), false);
 				if (hudError != Error.Ok)
 				{
 					GD.PrintErr($"RPC Error when updating HUD storm text for {body.Name}: {hudError}");
 				}
-            }
+			}
+		}
+	}
+	
+	private void OnPeerDisconnected(long peerId)
+	{
+		// Clean up any players associated with the disconnected peer
+		foreach (var body in new List<Node3D>(playersInsideStorm))
+		{
+			if (body is PlayerController targetPlayer)
+			{
+				if ((long)targetPlayer.GetMultiplayerAuthority() == peerId)
+				{
+					playersInsideStorm.Remove(body);
+				}
+			}
 		}
 	}
 
 	private void DoStormDamage(Node3D body, float damage)
 	{
+		if (!Multiplayer.IsServer()) return;
+
 		//GD.Print($"Dealing {damage} damage to {body.Name}");
 		if (body is PlayerController targetPlayer)
 		{
+			if (targetPlayer.IsQueuedForDeletion() || !targetPlayer.IsInsideTree())
+			{
+				GD.PrintErr($"Cannot deal storm damage to {body.Name} as it is not valid.");
+				return;
+			}
 			var targetPeerId = (long)targetPlayer.GetMultiplayerAuthority();
 			//GD.Print($"Target Peer ID: {targetPeerId}");
 			var error = targetPlayer.RpcId(targetPeerId, nameof(PlayerController.ChangeCurrentHealth), damage);

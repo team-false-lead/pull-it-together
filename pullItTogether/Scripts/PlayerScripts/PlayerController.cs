@@ -105,7 +105,9 @@ public partial class PlayerController : CharacterBody3D
             // Hard-coded values for now
             healthBar = HUD.GetNode<ProgressBar>("HealthBar/HealthProgressBar");
             energyBar = HUD.GetNode<ProgressBar>("EnergyBar/EnergyProgressBar");
-            fatigueBar = HUD.GetNode<ProgressBar>("EnergyBar/FatigueProgressBar");
+			fatigueBar = HUD.GetNode<ProgressBar>("EnergyBar/FatigueProgressBar");
+			inStormLabel = HUD.GetNode<Label>("InStormLabel");
+			lookingAtLabel = HUD.GetNode<Label>("LookingAtLabel");
 
 			// Set health and energy values to their default
 			currentHealth = maxHealth;
