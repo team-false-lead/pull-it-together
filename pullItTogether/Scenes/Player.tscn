@@ -117,5 +117,4 @@ collision_mask = 8
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.216008, 0)
 shape = SubResource("CapsuleShape3D_r1we1")
 
-[node name="PlayerInteractable" parent="." node_paths=PackedStringArray("player") instance=ExtResource("4_dewec")]
-player = NodePath("..")
+[node name="PlayerInteractable" parent="." instance=ExtResource("4_dewec")]

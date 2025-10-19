@@ -7,12 +7,18 @@ public partial class PlayerInteractable : Interactable
     public override void _PhysicsProcess(double delta)
     {
         base._PhysicsProcess(delta); 
-        // When being carried, sync the player's position to their interactable's position
         if (Carrier != null)
         {
+            // When being carried, sync the player's position to their interactable's position.
             PlayerController player = GetPlayerController();
             player.GlobalPosition = GlobalPosition;
             player.GlobalRotation = GlobalRotation;
+
+            // If the player regains health, instantly drop this interactable.
+            if (!player.IsDowned)
+            {
+                ((PlayerController)Carrier).DropObject();
+            }
         }
     }
 
