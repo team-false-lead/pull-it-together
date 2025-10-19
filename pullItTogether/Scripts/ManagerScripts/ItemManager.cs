@@ -380,8 +380,8 @@ public partial class ItemManager : Node3D
 		var slot = carrier.GetInventorySlot();
 		if (slot == null) { GD.Print("Slot null"); return; }
 
-		// Reparent item to the ItemManager if it's not already a child
-		if (item.GetParent<Node3D>() != this)
+		// Reparent item to the ItemManager if it's not already a child and if it's not a PlayerInteractable
+		if (item.GetParent<Node3D>() != this && !(item is PlayerInteractable))
 		{
 			item.GetParent<Node3D>().RemoveChild(item); // Remove from current parent
 			this.AddChild(item, true); // Reattach to this node, will get assigned an ID if needed
@@ -424,7 +424,7 @@ public partial class ItemManager : Node3D
 		var item = FindInteractableById(itemId);
 		if (item == null) { GD.Print("Item null"); return; }
 
-		if (item.GetParent<Node3D>() != this)
+		if (item.GetParent<Node3D>() != this && !(item is PlayerInteractable))
 		{
 			item.GetParent<Node3D>().RemoveChild(item);
 			this.AddChild(item, true);

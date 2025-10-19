@@ -4,7 +4,22 @@ using System;
 /// PlayerInteractable represents the (later) pickupable player that can be fed.
 public partial class PlayerInteractable : Interactable
 {
-    public override bool CanBeCarried() { return false; }
+    public override void _PhysicsProcess(double delta)
+    {
+        base._PhysicsProcess(delta); 
+        // When being carried, sync the player's position to their interactable's position
+        if (Carrier != null)
+        {
+            PlayerController player = GetPlayerController();
+            player.GlobalPosition = GlobalPosition;
+            player.GlobalRotation = GlobalRotation;
+        }
+    }
+
+    public override bool CanBeCarried() 
+    { 
+        return GetPlayerController().IsDowned; 
+    }
 
     // By default, objects do not accept being used on them
     public override bool CanAcceptUseFrom(CharacterBody3D user, Interactable source)
