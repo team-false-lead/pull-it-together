@@ -141,6 +141,9 @@ public partial class PlayerController : CharacterBody3D
 		{
 			mapManager.Connect("map_reloaded", new Callable(this, nameof(OnMapReloaded)));
 		}
+
+		GameStateTracker gameStateTracker = GetTree().CurrentScene.GetNode<GameStateTracker>("%MapManager/TestMap/GameStateTracker");
+		gameStateTracker.AddPlayerToPlayerList(this);
 	}
 
 	// Called when the map is reloaded, checks if held object is still valid
@@ -638,6 +641,8 @@ public partial class PlayerController : CharacterBody3D
 
 	public void ExitLobby()
 	{
+        GameStateTracker gameStateTracker = GetTree().CurrentScene.GetNode<GameStateTracker>("%MapManager/TestMap/GameStateTracker");
+        gameStateTracker.RemovePlayerFromPlayerList(this);
         GetTree().CurrentScene.GetNodeOrNull<Node>("NetworkManager").CallDeferred("leave");
     }
 
@@ -698,4 +703,9 @@ public partial class PlayerController : CharacterBody3D
 		fatigueBar.Value = Mathf.Abs(maxEnergy - 100);
 		outOfHealthLabel.Visible = helpMeLabel.Visible = currentHealth <= 0;
     }
+
+	public void SetOutOfHealthLabelText(string text)
+	{
+		outOfHealthLabel.Text = text;
+	}
 }

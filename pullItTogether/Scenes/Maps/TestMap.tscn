@@ -1,6 +1,7 @@
-[gd_scene load_steps=27 format=3 uid="uid://b7pp3skomvnhc"]
+[gd_scene load_steps=28 format=3 uid="uid://b7pp3skomvnhc"]
 
 [ext_resource type="Script" uid="uid://d2gutl4cngqlt" path="res://Scripts/ManagerScripts/ItemManager.cs" id="1_00jar"]
+[ext_resource type="Script" uid="uid://cqke368piplst" path="res://Scripts/ManagerScripts/GameStateTracker.cs" id="1_r4ehd"]
 [ext_resource type="PackedScene" uid="uid://woij3e5klul2" path="res://Scenes/Maps/TransitionArea.tscn" id="3_00jar"]
 [ext_resource type="PackedScene" uid="uid://c10ybnoe2rhv4" path="res://Scenes/Interactables/RopeBoxVerlet.tscn" id="3_0314m"]
 [ext_resource type="Script" uid="uid://u1f0pfpkqwoc" path="res://Scripts/MiscScripts/ItemSpawnRegistry.cs" id="3_j28jb"]
@@ -71,6 +72,9 @@ material = SubResource("StandardMaterial3D_ya8by")
 size = Vector3(0.1, 0.2, 0.05)
 
 [node name="TestMap" type="Node3D"]
+
+[node name="GameStateTracker" type="Node" parent="."]
+script = ExtResource("1_r4ehd")
 
 [node name="Environment" type="Node3D" parent="."]
 
