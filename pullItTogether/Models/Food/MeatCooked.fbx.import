@@ -3,18 +3,18 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://cglfapbhpdxto"
-path="res://.godot/imported/Goodberry.fbx-03720f6893b99490aa2a83e37715965f.scn"
+uid="uid://ujb0yax710r8"
+path="res://.godot/imported/MeatCooked.fbx-bde24ad2b0f70c3365daaf349cbea235.scn"
 
 [deps]
 
-source_file="res://Models/Food/Goodberry.fbx"
-dest_files=["res://.godot/imported/Goodberry.fbx-03720f6893b99490aa2a83e37715965f.scn"]
+source_file="res://Models/Food/MeatCooked.fbx"
+dest_files=["res://.godot/imported/MeatCooked.fbx-bde24ad2b0f70c3365daaf349cbea235.scn"]
 
 [params]
 
 nodes/root_type="MeshInstance3D"
-nodes/root_name="GoodberryMesh"
+nodes/root_name="CookedMeatMesh"
 nodes/apply_root_scale=true
 nodes/root_scale=1.0
 nodes/import_as_skeleton_bones=false
@@ -34,23 +34,9 @@ animation/import_rest_as_RESET=false
 import_script/path=""
 _subresources={
 "materials": {
-"goodberry texture": {
+"M_Meat": {
 "use_external/enabled": true,
-"use_external/path": "uid://bijn0vyh232qq"
-},
-"outline": {
-"use_external/enabled": true,
-"use_external/path": "uid://bijn0vyh232qq"
-}
-},
-"meshes": {
-"Sphere_001": {
-"generate/lightmap_uv": 0,
-"generate/lods": 0,
-"generate/shadow_meshes": 0,
-"lods/normal_merge_angle": 60.0,
-"save_to_file/enabled": false,
-"save_to_file/path": "res://Models/Food/"
+"use_external/path": "uid://bays8lgifjw1i"
 }
 }
 }

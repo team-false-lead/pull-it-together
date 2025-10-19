@@ -33,11 +33,13 @@ properties/7/replication_mode = 1
 height = 0.3
 radius = 0.075
 
-[node name="Tonic" type="RigidBody3D" node_paths=PackedStringArray("label3D") groups=["food"]]
+[node name="Tonic" type="RigidBody3D" node_paths=PackedStringArray("rawMesh", "cookedMesh", "label3D") groups=["food"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.225442, 0)
 collision_layer = 8
 collision_mask = 29
 script = ExtResource("1_yntn0")
+rawMesh = NodePath("TonicMesh")
+cookedMesh = NodePath("TonicMesh")
 label3D = NodePath("Label3D")
 healthAddedRaw = 40.0
 healthAddedCooked = 40.0
