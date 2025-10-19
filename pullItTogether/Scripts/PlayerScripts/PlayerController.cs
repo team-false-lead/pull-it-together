@@ -659,6 +659,7 @@ public partial class PlayerController : CharacterBody3D
 		if (currentHealth <= 0)
 		{
 			currentHealth = 0;
+			DropObject();
 			EmitSignal("OnDowned");
 		}
 
