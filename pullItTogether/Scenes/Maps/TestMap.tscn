@@ -1,15 +1,13 @@
-[gd_scene load_steps=27 format=3 uid="uid://b7pp3skomvnhc"]
+[gd_scene load_steps=25 format=3 uid="uid://b7pp3skomvnhc"]
 
 [ext_resource type="Script" uid="uid://d2gutl4cngqlt" path="res://Scripts/ManagerScripts/ItemManager.cs" id="1_00jar"]
 [ext_resource type="PackedScene" uid="uid://woij3e5klul2" path="res://Scenes/Maps/TransitionArea.tscn" id="3_00jar"]
-[ext_resource type="PackedScene" uid="uid://c10ybnoe2rhv4" path="res://Scenes/Interactables/RopeBoxVerlet.tscn" id="3_0314m"]
 [ext_resource type="Script" uid="uid://u1f0pfpkqwoc" path="res://Scripts/MiscScripts/ItemSpawnRegistry.cs" id="3_j28jb"]
 [ext_resource type="PackedScene" uid="uid://ba3m0401u3th5" path="res://Scenes/Interactables/WoodPlank.tscn" id="4_qg828"]
-[ext_resource type="PackedScene" uid="uid://bfwhlqlt010kj" path="res://Scenes/Interactables/WagonTest1.tscn" id="5_0314m"]
-[ext_resource type="PackedScene" uid="uid://ddg3vj41j0u45" path="res://Scenes/Interactables/Food.tscn" id="6_00jar"]
+[ext_resource type="PackedScene" path="res://Scenes/Interactables/Food.tscn" id="6_00jar"]
 [ext_resource type="PackedScene" uid="uid://b575wgt5fc8yc" path="res://Scenes/Entities/Campfire.tscn" id="7_j0g0q"]
 [ext_resource type="PackedScene" uid="uid://cnvpf5wbcbse1" path="res://Scenes/Entities/Wheel.tscn" id="9_xj7ls"]
-[ext_resource type="PackedScene" uid="uid://b2cc2nt2bpja0" path="res://Scenes/Interactables/WagonPrototype.tscn" id="10_nd5sh"]
+[ext_resource type="PackedScene" uid="uid://dfx4bsaqh8txy" path="res://Scenes/Interactables/WagonPrototype.tscn" id="10_nd5sh"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_xh66l"]
 sky_horizon_color = Color(0.662243, 0.671743, 0.686743, 1)
@@ -199,9 +197,6 @@ script = ExtResource("3_j28jb")
 
 [node name="Placeholders" type="Node3D" parent="."]
 
-[node name="RopeBox2" parent="Placeholders" instance=ExtResource("3_0314m")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.49154, 2.21766, -7.71141)
-
 [node name="WoodPlank" parent="Placeholders" instance=ExtResource("4_qg828")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.88892, 4.37407, 1.78256)
 SpawnOnUseScene = null
@@ -213,12 +208,6 @@ SpawnOnUseScene = null
 [node name="WoodPlank3" parent="Placeholders" instance=ExtResource("4_qg828")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.76184, 4.37407, 1.78256)
 SpawnOnUseScene = null
-
-[node name="WagonTest1" parent="Placeholders" instance=ExtResource("5_0314m")]
-transform = Transform3D(-0.987835, 0, -0.155504, 0, 1, 0, 0.155504, 0, -0.987835, -5.95615, 2.89585, 4.1258)
-
-[node name="WagonTest2" parent="Placeholders" instance=ExtResource("5_0314m")]
-transform = Transform3D(-0.988633, 0, 0.150346, 0, 1, 0, -0.150346, 0, -0.988633, -12.0476, 2.77637, 6.20935)
 
 [node name="Food" parent="Placeholders" instance=ExtResource("6_00jar")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.56, 1.71766, -0.158901)
@@ -236,4 +225,4 @@ transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 10.194
 transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 9.66434, 1.96766, -1.04574)
 
 [node name="RigidBody3D" parent="Placeholders" instance=ExtResource("10_nd5sh")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.3943, 3.15526, -8.18282)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12.8763, 2.45366, -3.24852)
