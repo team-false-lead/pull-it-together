@@ -211,8 +211,8 @@ public partial class PlayerController : CharacterBody3D
 			velocity += GetGravity() * (float)delta;
 		}
 
-		// Do not process movement inputs when controls are paused.
-		if (!isPaused)
+		// Do not process movement inputs when controls are paused or when out of health.
+		if (!isPaused && !IsDowned)
 		{
             // Handle Jump.
             if (Input.IsActionJustPressed("jump") && IsOnFloor())
@@ -639,11 +639,6 @@ public partial class PlayerController : CharacterBody3D
 	public void ExitLobby()
 	{
         GetTree().CurrentScene.GetNodeOrNull<Node>("NetworkManager").CallDeferred("leave");
-		// TEMP: if this player is the host, quit the application
-		//if (Multiplayer.IsServer() || Multiplayer == null)
-		//{
-		//	GetTree().Quit();
-		//}
     }
 
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
