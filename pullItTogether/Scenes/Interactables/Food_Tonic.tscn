@@ -1,7 +1,7 @@
-[gd_scene load_steps=5 format=3 uid="uid://dnrj6qm3hslwt"]
+[gd_scene load_steps=5 format=3 uid="uid://dutt28pb7vdid"]
 
-[ext_resource type="Script" uid="uid://c7yf60mlbjaqe" path="res://Scripts/InteractableScripts/Food.cs" id="1_mvv33"]
-[ext_resource type="PackedScene" uid="uid://cglfapbhpdxto" path="res://Models/Food/Goodberry.fbx" id="2_60lvf"]
+[ext_resource type="Script" uid="uid://c7yf60mlbjaqe" path="res://Scripts/InteractableScripts/Food.cs" id="1_yntn0"]
+[ext_resource type="PackedScene" uid="uid://nhgp8w731sks" path="res://Models/Food/MedicineBottle.fbx" id="2_yntn0"]
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_lwjo8"]
 properties/0/path = NodePath(".:position")
@@ -29,33 +29,32 @@ properties/7/path = NodePath("Label3D:text")
 properties/7/spawn = true
 properties/7/replication_mode = 1
 
-[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_gowec"]
-radius = 0.125
-height = 0.45
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_7y36t"]
+height = 0.3
+radius = 0.075
 
-[node name="Goodberry" type="RigidBody3D" node_paths=PackedStringArray("currentMesh", "label3D") groups=["food"]]
+[node name="Tonic" type="RigidBody3D" node_paths=PackedStringArray("label3D") groups=["food"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.225442, 0)
 collision_layer = 8
 collision_mask = 29
-script = ExtResource("1_mvv33")
-currentMesh = NodePath("")
+script = ExtResource("1_yntn0")
 label3D = NodePath("Label3D")
-healthAddedRaw = 0.0
-healthAddedCooked = 15.0
-potentialEnergyAddedRaw = 15.0
-potentialEnergyAddedCooked = 30.0
+healthAddedRaw = 40.0
+healthAddedCooked = 40.0
+potentialEnergyAddedRaw = 0.0
+potentialEnergyAddedCooked = 0.0
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 replication_config = SubResource("SceneReplicationConfig_lwjo8")
 
-[node name="GoodberryMesh" parent="." instance=ExtResource("2_60lvf")]
-transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0.846019, -0.422196, 0)
-skeleton = NodePath("../CollisionShape3D")
-
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
-transform = Transform3D(1.99735, 0.102999, 0, -0.102999, 1.99735, 0, 0, 0, 2, 0, 0, 0)
-shape = SubResource("CapsuleShape3D_gowec")
+transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0.304642, 0)
+shape = SubResource("CylinderShape3D_7y36t")
 
 [node name="Label3D" type="Label3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.602306, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.932784, 0)
 billboard = 2
-text = "Goodberry"
+text = "Tonic"
+
+[node name="TonicMesh" parent="." instance=ExtResource("2_yntn0")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.865162, 0, 0)
