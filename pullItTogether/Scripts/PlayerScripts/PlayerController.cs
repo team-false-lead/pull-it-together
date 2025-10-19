@@ -34,11 +34,13 @@ public partial class PlayerController : CharacterBody3D
 	private bool HeldValid() => heldObject != null && IsInstanceValid(heldObject) && !heldObject.IsQueuedForDeletion() && heldObject.IsInsideTree();
 	[Export] public NodePath inventorySlotPath;
 	[Export] public float interactRange = 3.0f;
-	[Export] public int interactLayer = 4;
+	//[Export] public int interactLayer = 4;
 
 	// Collision parameters
-	[Export] public AnimatableBody3D collisionPusher;
-	private uint interactMaskUint = 8;
+	[Export] public Node3D collisionPusher;
+	public AnimatableBody3D collisionPusherAB;
+	[Export] public Interactable interactableRB;
+	private uint interactMaskUint = 40;
 
 	// Rope tether parameters when carrying rope grab point
 	private Node3D tetherAnchor;
@@ -49,16 +51,17 @@ public partial class PlayerController : CharacterBody3D
 	// Health and energy parameters
 	[Export] private PackedScene hudScene;
 	private float maxHealth = 100f;
-	private float currentHealth;
+	[Export] public float currentHealth;
 	private ProgressBar healthBar;
-	private float maxEnergy = 100f;
-	private float currentEnergy;
+	[Export] public float maxEnergy = 100f;
+	[Export] public float currentEnergy;
 	private ProgressBar energyBar;
 	private ProgressBar fatigueBar;
 	[Export] private float maxEnergyReductionRate;
 	[Export] private float sprintingEnergyReduction;
 	[Export] private float jumpingEnergyCost;
 	[Export] private float energyRegen;
+	[Signal] public delegate void ChangeHUDEventHandler();
 
 	public bool IsDowned
 	{
@@ -86,32 +89,38 @@ public partial class PlayerController : CharacterBody3D
 				}
 			}
 
-            // Load the player HUD
-            Control HUD = (Control)hudScene.Instantiate();
-            AddChild(HUD);
-            // Hard-coded values for now
-            healthBar = HUD.GetNode<ProgressBar>("HealthBar/HealthProgressBar");
-            energyBar = HUD.GetNode<ProgressBar>("EnergyBar/EnergyProgressBar");
-            fatigueBar = HUD.GetNode<ProgressBar>("EnergyBar/FatigueProgressBar");
+			// Load the player HUD
+			Control HUD = (Control)hudScene.Instantiate();
+			AddChild(HUD);
+			// Hard-coded values for now
+			healthBar = HUD.GetNode<ProgressBar>("HealthBar/HealthProgressBar");
+			energyBar = HUD.GetNode<ProgressBar>("EnergyBar/EnergyProgressBar");
+			fatigueBar = HUD.GetNode<ProgressBar>("EnergyBar/FatigueProgressBar");
 
-            // Set health and energy values to their default
-            currentHealth = maxHealth;
-            currentEnergy = maxEnergy;
-            healthBar.MaxValue = healthBar.Value = maxHealth; // double-to-float shenaningans :pensive:
-            energyBar.MaxValue = energyBar.Value = fatigueBar.MaxValue = maxEnergy;
-            fatigueBar.Value = 0;
-        }
+			// Set health and energy values to their default
+			currentHealth = maxHealth;
+			currentEnergy = maxEnergy;
+			healthBar.MaxValue = healthBar.Value = maxHealth; // double-to-float shenaningans :pensive:
+			energyBar.MaxValue = energyBar.Value = fatigueBar.MaxValue = maxEnergy;
+			fatigueBar.Value = 0;
+		}
 		else
 		{
 			Input.SetMouseMode(Input.MouseModeEnum.Visible);
 		}
 
+		Connect("ChangeHUD", new Callable(this, nameof(UpdateLocalHud)));
+
 		if (collisionPusher != null)
 		{
-			collisionPusher.SyncToPhysics = true;
+			collisionPusherAB = collisionPusher as AnimatableBody3D;
+		}
+		if (collisionPusherAB != null)
+		{
+			collisionPusherAB.SyncToPhysics = true;
 		}
 
-		interactMaskUint = (uint)(1 << (interactLayer - 1));// Convert layer number to bitmask
+		//interactMaskUint = (uint)(1 << (interactLayer - 1));// Convert layer number to bitmask
 
 		var mapManager = GetTree().CurrentScene.GetNodeOrNull<Node>("%MapManager");
 		if (mapManager != null)
@@ -153,9 +162,19 @@ public partial class PlayerController : CharacterBody3D
 	// Handles movement, jumping, sprinting, head bobbing, and interaction input, probably needs to be split up later
 	public override void _PhysicsProcess(double delta)
 	{
+		// update pusher to match player position // collision pusher move always not just on local
+		if (collisionPusherAB != null)
+		{
+			collisionPusherAB.GlobalTransform = GlobalTransform;
+		}
+		if (interactableRB != null)
+		{
+			interactableRB.GlobalTransform = GlobalTransform;
+		}
+
 		if (!IsLocalControlled()) return; // local player processes movement
 
-		Vector3 velocity = Velocity;
+        Vector3 velocity = Velocity;
 		float maxEnergyChange = -maxEnergyReductionRate * (float)delta;
 		float energyChange = 0;
 
@@ -196,7 +215,7 @@ public partial class PlayerController : CharacterBody3D
 		Vector2 inputDir = Input.GetVector("left", "right", "forward", "back"); // WASD
 		Vector3 direction = (head.Transform.Basis * new Vector3(inputDir.X, 0, inputDir.Y)).Normalized();
 
-	 	// intertia
+		// intertia
 		if (IsOnFloor()) // full control when on the ground
 		{
 			if (direction != Vector3.Zero)
@@ -244,22 +263,41 @@ public partial class PlayerController : CharacterBody3D
 		{
 			if (heldObject == null)
 			{
-                var target = GetInteractableLookedAt();
-                if (target != null)
-                {
-                    //GD.Print(target.ToString());
-                    PickupObject(target);
-                }
-            }
+				var target = GetInteractableLookedAt();
+				if (target != null)
+				{
+					//GD.Print(target.ToString());
+					PickupObject(target);
+				}
+			}
 			else
 				DropObject();
 		}
 
-		// update pusher to match player position
-		if (collisionPusher != null)
+		//get looked at object for debug and highlighting later
+		var lookedAtObject = RayCastForward();
+		if (lookedAtObject.Count > 0)
 		{
-			collisionPusher.GlobalTransform = GlobalTransform;
+			if (lookedAtObject.TryGetValue("collider", out var colliderVariant))
+			{
+			var godotObj = ((Variant)colliderVariant).AsGodotObject();
+				if (godotObj is Node colliderNode)
+				{
+					var interactable = FindInteractable(colliderNode);
+					var entity = FindEntity(colliderNode);
+					//debug prints for now
+					//if (interactable != null)
+					//{
+					//	GD.Print("Looking at interactable: " + interactable.GetInteractableId());
+					//}
+					//if (entity != null)
+					//{
+					//	GD.Print("Looking at entity: " + entity.GetEntityId());
+					//}
+				}
+			}
 		}
+		
 
 		// If the player isn't doing anything that would spend energy, regain energy
 		if (energyChange == 0 && IsOnFloor())
@@ -332,10 +370,15 @@ public partial class PlayerController : CharacterBody3D
 		var state = GetWorld3D().DirectSpaceState;
 		var query = PhysicsRayQueryParameters3D.Create(origin, to);
 		query.CollisionMask = interactMaskUint;
-		query.Exclude = new Array<Rid> { GetRid(), collisionPusher.GetRid() }; // ignore self
+		query.Exclude = new Array<Rid> { GetRid(), collisionPusherAB.GetRid(), interactableRB.GetRid() }; // ignore self
 
 		var hit = state.IntersectRay(query);
 		return hit;
+	}
+
+	public Interactable GetOwnInteractable()
+	{
+		return interactableRB;
 	}
 
 	// Get the Interactable the player is currently looking at
@@ -371,35 +414,35 @@ public partial class PlayerController : CharacterBody3D
 
 	// Template logic for later Entity interactions
 	//// Get the Entity the player is currently looking at
-	//private Entity GetEntityLookedAt()
-	//{
-	//	if (camera == null) return null;
-	//
-	//	var hit = RayCastForward();
-	//	if (hit.Count == 0) return null;
-	//
-	//	// "collider" can be Node or RigidBody/Area/CollisionObject3D etc.
-	//	if (hit.TryGetValue("collider", out var colliderVariant))
-	//	{
-	//		var godotObj = ((Variant)colliderVariant).AsGodotObject();
-	//		if (godotObj is Node colliderNode)
-	//			return FindEntity(colliderNode);
-	//	}
-	//
-	//	return null;
-	//}
-	//
-	//// Traverse up the node tree to find an Entity component
-	//private Entity FindEntity(Node node)
-	//{
-	//	while (node != null)
-	//	{
-	//		if (node is Interactable interactable)
-	//			return interactable;
-	//		node = node.GetParent();
-	//	}
-	//	return null;
-	//}
+	private Entity GetEntityLookedAt()
+	{
+		if (camera == null) return null;
+	
+		var hit = RayCastForward();
+		if (hit.Count == 0) return null;
+	
+		// "collider" can be Node or RigidBody/Area/CollisionObject3D etc.
+		if (hit.TryGetValue("collider", out var colliderVariant))
+		{
+			var godotObj = ((Variant)colliderVariant).AsGodotObject();
+			if (godotObj is Node colliderNode)
+				return FindEntity(colliderNode);
+		}
+	
+		return null;
+	}
+	
+	// Traverse up the node tree to find an Entity component
+	private Entity FindEntity(Node node)
+	{
+		while (node != null)
+		{
+			if (node is Entity entity && !string.IsNullOrEmpty(entity.entityId))
+				return entity;
+			node = node.GetParent();
+		}
+		return null;
+	}
 
 	// pickup currently looked at object, drop current held object if any
 	public void PickupObject(Interactable obj)
@@ -433,10 +476,10 @@ public partial class PlayerController : CharacterBody3D
 		if (HandleInvalidHeldObject()) return; // if invalid item was handled return
 
 		//check if looking at another interactable first
-		var target = GetInteractableLookedAt();
-		if (target != null) //target is interactable
+		var targetInteractable = GetInteractableLookedAt();
+		if (targetInteractable != null) //target is interactable
 		{
-			heldObject.TryUseOnInteractable(this, target);
+			heldObject.TryUseOnInteractable(this, targetInteractable);
 			if (!IsInstanceValid(heldObject) || heldObject.IsQueuedForDeletion())
 			{
 				heldObject = null; // The held object was destroyed during use
@@ -445,25 +488,36 @@ public partial class PlayerController : CharacterBody3D
 		}
 
 		//check if looking at an entity second
-		//if (target == null)
-		//{
-		//	target = GetEntityLookedAt();
-		//}
-		//if (target != null) //target is entity
-		//{
-		//	heldObject.TryUseOnEntity(this, target);
-		//	if (!IsInstanceValid(heldObject) || heldObject.IsQueuedForDeletion())
-		//	{
-		//		heldObject = null; // The held object was destroyed during use
-		//	}
-		//	return;
-		//}
+		var targetEntity = GetEntityLookedAt();
+		if (targetEntity != null) //target is entity
+		{
+			heldObject.TryUseOnEntity(this, targetEntity);
+			if (!IsInstanceValid(heldObject) || heldObject.IsQueuedForDeletion())
+			{
+				heldObject = null; // The held object was destroyed during use
+			}
+			return;
+		}
 
 		//use on self if no target found
 		heldObject.TryUseSelf(this);
 		if (!IsInstanceValid(heldObject) || heldObject.IsQueuedForDeletion())
 		{
 			heldObject = null; // The held object was destroyed during use
+		}
+	}
+
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+	public void RequestSetTetherAnchorPath(NodePath anchorPath, float maxDist, float buffer, float strength)
+	{
+		var anchorNode = GetNodeOrNull<Node3D>(anchorPath);
+		if (anchorNode != null)
+		{
+			SetTetherAnchor(anchorNode, maxDist, buffer, strength);
+		}
+		else
+		{
+			GD.PushWarning("RequestSetTetherAnchorPath: Anchor node path error" + anchorPath.ToString());
 		}
 	}
 
@@ -475,6 +529,13 @@ public partial class PlayerController : CharacterBody3D
 		tetherBuffer = buffer;
 		tetherStrength = strength;
 	}
+
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+	public void RequestClearTether()
+	{
+		RemoveTetherAnchor();
+	}
+
 
 	// Remove the tether anchor
 	public void RemoveTetherAnchor()
@@ -507,43 +568,60 @@ public partial class PlayerController : CharacterBody3D
 		return velocity;
 	}
 
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
 	public void ChangeCurrentHealth(float diff)
 	{
 		currentHealth = Mathf.Min(currentHealth + diff, maxHealth);
 		if (currentHealth <= 0)
 		{
 			currentHealth = 0;
-            // The rest of the death code goes here
-        }
-        healthBar.Value = currentHealth;
-        //GD.Print("Current health: " + currentHealth);
-    }
+			// The rest of the death code goes here
+		}
+		EmitSignal("ChangeHUD");
+		//UpdateLocalHud();
+		//healthBar.Value = currentHealth;
+		//GD.Print("Current health: " + currentHealth);
+	}
 
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
 	public void ChangeCurrentEnergy(float diff)
-    {
+	{
 		// If the player is out of energy to spend, have the energy cost affect health instead
-        if (currentEnergy <= 0 && diff < 0)
+		if (currentEnergy <= 0 && diff < 0)
 			ChangeCurrentHealth(diff);
 		else
-        {
-            currentEnergy = Mathf.Min(currentEnergy + diff, maxEnergy);
-			if (currentEnergy <= 0) 
+		{
+			currentEnergy = Mathf.Min(currentEnergy + diff, maxEnergy);
+			if (currentEnergy <= 0)
 				currentEnergy = 0;
-            energyBar.Value = currentEnergy;
-            //GD.Print("Current energy: " + currentEnergy);
-        }
-    }
+			EmitSignal("ChangeHUD");
+			//UpdateLocalHud();
+			//energyBar.Value = currentEnergy;
+			//GD.Print("Current energy: " + currentEnergy);
+		}
+	}
 
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
 	public void ChangeMaxEnergy(float diff)
 	{
 		maxEnergy = maxEnergy + diff;
 		if (maxEnergy <= 0)
-            maxEnergy = 0;
+			maxEnergy = 0;
 		else if (maxEnergy > 100)
-            maxEnergy = 100;
+			maxEnergy = 100;
 		ChangeCurrentEnergy(0); // Update energy bar
-		fatigueBar.Value = Mathf.Abs(maxEnergy - 100);
+		EmitSignal("ChangeHUD");
+		//UpdateLocalHud();
+		//fatigueBar.Value = Mathf.Abs(maxEnergy - 100);
 		//GD.Print("Current fatigue: " + Mathf.Abs(maxEnergy - 100));
 		// Idk if we're doing anything else with this
+	}
+	
+	private void UpdateLocalHud()
+	{
+		if (!(IsLocalControlled() && IsMultiplayerAuthority())) return; // only local player updates hud
+		healthBar.Value = currentHealth;
+		energyBar.Value = currentEnergy;
+		fatigueBar.Value = Mathf.Abs(maxEnergy - 100);
     }
 }

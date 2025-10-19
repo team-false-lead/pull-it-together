@@ -156,6 +156,14 @@ public abstract partial class Interactable : RigidBody3D
         return interactableId;
     }
 
+    // Get the PlayerController parent of this interactable, if any
+    public PlayerController GetPlayerController()
+    {
+        var pc = this.GetParent<PlayerController>();
+        if (pc == null) return null;
+        return pc;
+    }
+
     //get drop position moved to item manager for multiplayer sync
 
     // By default, objects can use themselves
@@ -175,19 +183,18 @@ public abstract partial class Interactable : RigidBody3D
         }
     }
 
-    //template Entity Logic for later 
-    //// By default, objects can use on entities other if the target accepts it
-    //public virtual bool CanUseOnEntity(CharacterBody3D user, Entity target)
-    //{
-    //    return target.CanAcceptUseFrom(user, this);
-    //}
-    //public virtual void TryUseOnEntity(CharacterBody3D user, Entity target)
-    //{
-    //    if (CanUseOnEntity(user, target))
-    //    {
-    //        target.AcceptUseFrom(user, this);
-    //    }
-    //}
+    // By default, objects can use on entities other if the target accepts it
+    public virtual bool CanUseOnEntity(CharacterBody3D user, Entity target)
+    {
+        return target.CanAcceptUseFrom(user, this);
+    }
+    public virtual void TryUseOnEntity(CharacterBody3D user, Entity target)
+    {
+        if (CanUseOnEntity(user, target))
+        {
+            target.AcceptUseFrom(user, this);
+        }
+    }
 
     // By default, objects do not accept being used on them
     public virtual bool CanAcceptUseFrom(CharacterBody3D user, Interactable source) { return false; }
