@@ -209,7 +209,7 @@ transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 10.194
 transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 9.66434, 1.96766, -1.04574)
 
 [node name="RigidBody3D" parent="Placeholders" instance=ExtResource("10_nvhef")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22.14, -2.16265, -44.9612)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22.14, -2.16265, -14.6745)
 
 [node name="TransitionArea" parent="." instance=ExtResource("10_bn2kb")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20.3707, 118.999, -993.391)
