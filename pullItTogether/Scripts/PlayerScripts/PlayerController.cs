@@ -61,6 +61,10 @@ public partial class PlayerController : CharacterBody3D
 	[Export] private float sprintingEnergyReduction;
 	[Export] private float jumpingEnergyCost;
 	[Export] private float energyRegen;
+	private Label inStormLabel;
+	private bool inStorm = false;
+	private Label lookingAtLabel;
+	private string lookingAtText = "";
 	[Signal] public delegate void ChangeHUDEventHandler();
 
 	public override void _EnterTree()
@@ -91,6 +95,8 @@ public partial class PlayerController : CharacterBody3D
 			healthBar = HUD.GetNode<ProgressBar>("HealthBar/HealthProgressBar");
 			energyBar = HUD.GetNode<ProgressBar>("EnergyBar/EnergyProgressBar");
 			fatigueBar = HUD.GetNode<ProgressBar>("EnergyBar/FatigueProgressBar");
+			inStormLabel = HUD.GetNode<Label>("InStormLabel");
+			lookingAtLabel = HUD.GetNode<Label>("LookingAtLabel");
 
 			// Set health and energy values to their default
 			currentHealth = maxHealth;
@@ -275,23 +281,28 @@ public partial class PlayerController : CharacterBody3D
 		{
 			if (lookedAtObject.TryGetValue("collider", out var colliderVariant))
 			{
-			var godotObj = ((Variant)colliderVariant).AsGodotObject();
+				var godotObj = ((Variant)colliderVariant).AsGodotObject();
 				if (godotObj is Node colliderNode)
 				{
 					var interactable = FindInteractable(colliderNode);
 					var entity = FindEntity(colliderNode);
 					//debug prints for now
-					//if (interactable != null)
-					//{
-					//	GD.Print("Looking at interactable: " + interactable.GetInteractableId());
-					//}
-					//if (entity != null)
-					//{
-					//	GD.Print("Looking at entity: " + entity.GetEntityId());
-					//}
+					if (interactable != null)
+					{
+						lookingAtText = interactable.Name;
+					}
+					else if (entity != null)
+					{
+						lookingAtText = entity.Name;
+					}
 				}
 			}
 		}
+		else
+		{
+			lookingAtText = "";
+		}
+		EmitSignal("ChangeHUD");
 		
 
 		// If the player isn't doing anything that would spend energy, regain energy
@@ -611,6 +622,13 @@ public partial class PlayerController : CharacterBody3D
 		//GD.Print("Current fatigue: " + Mathf.Abs(maxEnergy - 100));
 		// Idk if we're doing anything else with this
 	}
+
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+	public void UpdateHudStormText(bool inStorm)
+	{
+		this.inStorm = inStorm;
+		EmitSignal("ChangeHUD");
+	}
 	
 	private void UpdateLocalHud()
 	{
@@ -618,5 +636,7 @@ public partial class PlayerController : CharacterBody3D
 		healthBar.Value = currentHealth;
 		energyBar.Value = currentEnergy;
 		fatigueBar.Value = Mathf.Abs(maxEnergy - 100);
+		inStormLabel.Visible = inStorm;
+		lookingAtLabel.Text = lookingAtText;
     }
 }

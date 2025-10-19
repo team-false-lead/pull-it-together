@@ -29,6 +29,7 @@ players=""
 item_manager=""
 plank=""
 food=""
+wagon=""
 
 [input]
 
