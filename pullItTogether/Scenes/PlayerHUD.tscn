@@ -29,6 +29,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
+metadata/_edit_lock_ = true
 
 [node name="Crosshair" type="TextureRect" parent="."]
 layout_mode = 1
@@ -133,3 +134,12 @@ theme_override_styles/background = SubResource("StyleBoxFlat_5ixxa")
 theme_override_styles/fill = SubResource("StyleBoxFlat_nn08x")
 fill_mode = 1
 show_percentage = false
+
+[node name="DebugTrackerLabel" type="Label" parent="."]
+layout_mode = 0
+offset_right = 283.0
+offset_bottom = 153.0
+text = "FPS: 1,000,000
+Network ping: enough
+Fun: infinity
+Wagon: yes"
