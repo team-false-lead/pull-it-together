@@ -9,7 +9,6 @@
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_vlqqi"]
 friction = 0.08
-bounce = 0.25
 
 [sub_resource type="BoxMesh" id="BoxMesh_vlqqi"]
 
@@ -67,7 +66,7 @@ properties/7/replication_mode = 1
 [node name="RigidBody3D" type="RigidBody3D"]
 collision_layer = 4
 collision_mask = 9
-mass = 700.0
+mass = 500.0
 physics_material_override = SubResource("PhysicsMaterial_vlqqi")
 center_of_mass_mode = 1
 center_of_mass = Vector3(0, -3, 0)

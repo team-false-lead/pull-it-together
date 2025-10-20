@@ -1,15 +1,21 @@
-[gd_scene load_steps=19 format=3 uid="uid://b518v5yn7ig5o"]
+[gd_scene load_steps=25 format=3 uid="uid://b518v5yn7ig5o"]
 
 [ext_resource type="Terrain3DAssets" uid="uid://dal3jhw6241qg" path="res://demo/data/assets.tres" id="1_in7uf"]
 [ext_resource type="Script" uid="uid://d2gutl4cngqlt" path="res://Scripts/ManagerScripts/ItemManager.cs" id="2_bn2kb"]
 [ext_resource type="Script" uid="uid://u1f0pfpkqwoc" path="res://Scripts/MiscScripts/ItemSpawnRegistry.cs" id="3_dobrn"]
 [ext_resource type="PackedScene" uid="uid://c10ybnoe2rhv4" path="res://Scenes/Interactables/RopeBoxVerlet.tscn" id="4_ggrqv"]
 [ext_resource type="PackedScene" uid="uid://ba3m0401u3th5" path="res://Scenes/Interactables/WoodPlank.tscn" id="5_pd0wi"]
-[ext_resource type="PackedScene" uid="uid://ddg3vj41j0u45" path="res://Scenes/Interactables/Food.tscn" id="7_eicjb"]
+[ext_resource type="PackedScene" uid="uid://ddg3vj41j0u45" path="res://Scenes/Interactables/Food_Template.tscn" id="7_eicjb"]
+[ext_resource type="PackedScene" uid="uid://bfwhlqlt010kj" path="res://Scenes/Interactables/WagonTest1.tscn" id="7_iddi4"]
 [ext_resource type="PackedScene" uid="uid://b575wgt5fc8yc" path="res://Scenes/Entities/Campfire.tscn" id="8_iddi4"]
 [ext_resource type="PackedScene" uid="uid://cnvpf5wbcbse1" path="res://Scenes/Entities/Wheel.tscn" id="9_w1dx0"]
 [ext_resource type="PackedScene" uid="uid://woij3e5klul2" path="res://Scenes/Maps/TransitionArea.tscn" id="10_bn2kb"]
 [ext_resource type="PackedScene" uid="uid://b2cc2nt2bpja0" path="res://Scenes/Interactables/WagonPrototype.tscn" id="10_nvhef"]
+[ext_resource type="PackedScene" uid="uid://dnrj6qm3hslwt" path="res://Scenes/Interactables/Food_Goodberry.tscn" id="12_w1dx0"]
+[ext_resource type="PackedScene" uid="uid://cllu1opbcu5ux" path="res://Scenes/Interactables/Food_Poisonberry.tscn" id="13_nvhef"]
+[ext_resource type="PackedScene" uid="uid://dutt28pb7vdid" path="res://Scenes/Interactables/Food_Tonic.tscn" id="14_pigjd"]
+[ext_resource type="PackedScene" uid="uid://drat1km3kl28w" path="res://Scenes/Interactables/Food_Meat.tscn" id="15_6x6jt"]
+[ext_resource type="PackedScene" uid="uid://bysb2u8m55de2" path="res://Shaders/ToonShader.tscn" id="16_iddi4"]
 
 [sub_resource type="Gradient" id="Gradient_tgwqr"]
 offsets = PackedFloat32Array(0.2, 1)
@@ -167,8 +173,24 @@ use_collision = true
 collision_mask = 15
 size = Vector3(1, 200, 400)
 
+[node name="TransitionArea" parent="." instance=ExtResource("10_bn2kb")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20.3707, 118.999, -993.391)
+collision_mask = 4
+
+[node name="CollisionShape3D2" type="CollisionShape3D" parent="TransitionArea"]
+transform = Transform3D(3.96784, 0, 0, 0, 2.28205, 0, 0, 0, 1, 0, 11.7913, 0)
+shape = SubResource("BoxShape3D_dobrn")
+
+[node name="Label3D" type="Label3D" parent="TransitionArea"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 194.706, -65)
+pixel_size = 0.5
+text = "GO HERE"
+font_size = 500
+outline_size = 50
+
 [node name="Interactables" type="Node3D" parent="." groups=["item_manager"]]
 unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 13.3926, 0)
 script = ExtResource("2_bn2kb")
 placeholdersPath = NodePath("../Placeholders")
 
@@ -177,6 +199,7 @@ spawn_path = NodePath("..")
 script = ExtResource("3_dobrn")
 
 [node name="Placeholders" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.616709, 0)
 
 [node name="RopeBox2" parent="Placeholders" instance=ExtResource("4_ggrqv")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.49154, 2.21766, -7.71141)
@@ -193,11 +216,17 @@ SpawnOnUseScene = null
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.76184, 4.37407, 1.78256)
 SpawnOnUseScene = null
 
+[node name="WagonTest1" parent="Placeholders" instance=ExtResource("7_iddi4")]
+transform = Transform3D(-0.987835, 0, -0.155504, 0, 1, 0, 0.155504, 0, -0.987835, -5.95615, 2.89585, 4.1258)
+
+[node name="WagonTest2" parent="Placeholders" instance=ExtResource("7_iddi4")]
+transform = Transform3D(-0.988633, 0, 0.150346, 0, 1, 0, -0.150346, 0, -0.988633, -12.0476, 2.77637, 6.20935)
+
 [node name="Food" parent="Placeholders" instance=ExtResource("7_eicjb")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.56, 1.71766, -5.04778)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.56, 1.71766, -0.158901)
 
 [node name="Food2" parent="Placeholders" instance=ExtResource("7_eicjb")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.202507, 1.71766, -5.40467)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.202507, 1.71766, 0.803963)
 
 [node name="Campfire" parent="Placeholders" instance=ExtResource("8_iddi4")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.2946, 1.46766, 1.95325)
@@ -209,19 +238,19 @@ transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 10.194
 transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 9.66434, 1.96766, -1.04574)
 
 [node name="RigidBody3D" parent="Placeholders" instance=ExtResource("10_nvhef")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22.14, -2.16265, -14.6745)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.3943, 3.15526, -8.18282)
 
-[node name="TransitionArea" parent="." instance=ExtResource("10_bn2kb")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20.3707, 118.999, -993.391)
-collision_mask = 4
+[node name="Goodberry" parent="Placeholders" instance=ExtResource("12_w1dx0")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.9179, 1.63986, -0.280079)
 
-[node name="CollisionShape3D2" type="CollisionShape3D" parent="TransitionArea"]
-transform = Transform3D(3.96784, 0, 0, 0, 2.28205, 0, 0, 0, 1, 0, 11.7913, 0)
-shape = SubResource("BoxShape3D_dobrn")
+[node name="Poisonberry" parent="Placeholders" instance=ExtResource("13_nvhef")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.50967, 1.57215, 0.62526)
 
-[node name="Label3D" type="Label3D" parent="TransitionArea"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 194.706, -65)
-pixel_size = 0.5
-text = "GO HERE"
-font_size = 500
-outline_size = 50
+[node name="Tonic" parent="Placeholders" instance=ExtResource("14_pigjd")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.35314, 1.21766, -1.08884)
+
+[node name="Meat" parent="Placeholders" instance=ExtResource("15_6x6jt")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.0457, 1.29279, -7.37538)
+
+[node name="ToonShader" parent="." instance=ExtResource("16_iddi4")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.51888, 0, -16.3447)
