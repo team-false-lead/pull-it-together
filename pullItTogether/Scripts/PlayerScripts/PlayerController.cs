@@ -120,10 +120,10 @@ public partial class PlayerController : CharacterBody3D
 			energyBar.MaxValue = energyBar.Value = fatigueBar.MaxValue = maxEnergy;
 			fatigueBar.Value = 0;
 		}
-		else
-		{
-			Input.SetMouseMode(Input.MouseModeEnum.Visible);
-		}
+		//else
+		//{
+		//	Input.SetMouseMode(Input.MouseModeEnum.Visible);
+		//}
 
 		Connect("ChangeHUD", new Callable(this, nameof(UpdateLocalHud)));
 
