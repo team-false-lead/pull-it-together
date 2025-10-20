@@ -60,6 +60,10 @@ public partial class PlayerController : CharacterBody3D
 	[Export] private float sprintingEnergyReduction;
 	[Export] private float jumpingEnergyCost;
 	[Export] private float energyRegen;
+	
+	// Pause menu parameters
+	private bool isPaused;
+	[Export] private PauseMenu pauseMenu;
 	[Signal] public delegate void ChangeHUDEventHandler();
 
 	// Debug parameters
@@ -73,7 +77,7 @@ public partial class PlayerController : CharacterBody3D
 	public override void _Ready()
 	{
 		// Only the local player should capture the mouse and hide self
-		if (IsMultiplayerAuthority() && IsLocalControlled())
+		if (IsLocalControlled())
 		{
 			Input.SetMouseMode(Input.MouseModeEnum.Captured);
 
@@ -86,12 +90,19 @@ public partial class PlayerController : CharacterBody3D
 				}
 			}
 
-			// Load the player HUD
-			Control HUD = (Control)hudScene.Instantiate();
-			AddChild(HUD);
-			// Hard-coded values for now
-			healthBar = HUD.GetNode<ProgressBar>("HealthBar/HealthProgressBar");
-			energyBar = HUD.GetNode<ProgressBar>("EnergyBar/EnergyProgressBar");
+			pauseMenu.ResumeButton.Pressed += () =>
+			{
+				TogglePaused(false);
+			};
+
+			pauseMenu.ExitButton.Pressed += ExitLobby;
+			
+            // Load the player HUD
+            Control HUD = (Control)hudScene.Instantiate();
+            AddChild(HUD);
+            // Hard-coded values for now
+            healthBar = HUD.GetNode<ProgressBar>("HealthBar/HealthProgressBar");
+            energyBar = HUD.GetNode<ProgressBar>("EnergyBar/EnergyProgressBar");
 			fatigueBar = HUD.GetNode<ProgressBar>("EnergyBar/FatigueProgressBar");
 			debugTrackerLabel = HUD.GetNode<Label>("DebugTrackerLabel");
 
@@ -136,7 +147,16 @@ public partial class PlayerController : CharacterBody3D
 	// Check if this player instance is controlled by the local user
 	private bool IsLocalControlled()
 	{
+		if (!Multiplayer.HasMultiplayerPeer()) return true; // singleplayer
+		if (!NetworkReady()) return false; 
 		return GetMultiplayerAuthority() == Multiplayer.GetUniqueId();
+	}
+	
+	private bool NetworkReady()
+	{
+		if (!Multiplayer.HasMultiplayerPeer()) return false;
+		var peer = Multiplayer.MultiplayerPeer;
+		return peer != null && peer.GetConnectionStatus() == MultiplayerPeer.ConnectionStatus.Connected;
 	}
 
 	// Handle mouse input for looking around
@@ -144,13 +164,17 @@ public partial class PlayerController : CharacterBody3D
 	{
 		if (!IsLocalControlled()) return;
 
-		if (@event is InputEventMouseMotion mouseMotion)
+		if (@event is InputEventMouseMotion mouseMotion && !isPaused)
 		{
 			head.RotateY(-mouseMotion.Relative.X * mouseSensitivity);
 			camera.RotateX(-mouseMotion.Relative.Y * mouseSensitivity);
 			camera.RotationDegrees = new Vector3(Mathf.Clamp(camera.RotationDegrees.X, -85, 85), camera.RotationDegrees.Y, camera.RotationDegrees.Z);
 		}
 
+		if (Input.IsActionJustPressed("pause"))
+			TogglePaused(!isPaused);
+
+		
 		if (Input.IsActionPressed("sprint") && IsOnFloor() && !isSprinting)
 			isSprinting = true;
 		else if (!Input.IsActionPressed("sprint") && isSprinting)
@@ -160,9 +184,19 @@ public partial class PlayerController : CharacterBody3D
 	// Handles movement, jumping, sprinting, head bobbing, and interaction input, probably needs to be split up later
 	public override void _PhysicsProcess(double delta)
 	{
+		// update pusher to match player position // collision pusher move always not just on local
+		if (collisionPusherAB != null)
+		{
+			collisionPusherAB.GlobalTransform = GlobalTransform;
+		}
+		if (interactableRB != null)
+		{
+			interactableRB.GlobalTransform = GlobalTransform;
+		}
+
 		if (!IsLocalControlled()) return; // local player processes movement
 
-		Vector3 velocity = Velocity;
+        Vector3 velocity = Velocity;
 		float maxEnergyChange = -maxEnergyReductionRate * (float)delta;
 		float energyChange = 0;
 
@@ -172,71 +206,91 @@ public partial class PlayerController : CharacterBody3D
 			velocity += GetGravity() * (float)delta;
 		}
 
-		// Handle Jump.
-		if (Input.IsActionJustPressed("jump") && IsOnFloor())
+		// Do not process movement inputs when controls are paused.
+		if (!isPaused)
 		{
-			velocity.Y = jumpVelocity;
-			energyChange -= jumpingEnergyCost;
-			maxEnergyChange -= jumpingEnergyCost * 0.3f;
-		}
-
-		// Handle sprint input and FOV change
-		if (isSprinting)
-		{
-			speed = sprintSpeed;
-			camera.Fov = Mathf.Lerp(camera.Fov, fov * fovChange, (float)delta * fovChangeSpeed);
-
-			if (IsOnFloor()) // Don't decrease energy in midair
+            // Handle Jump.
+            if (Input.IsActionJustPressed("jump") && IsOnFloor())
             {
-                energyChange -= sprintingEnergyReduction * (float)delta;
-                maxEnergyChange -= sprintingEnergyReduction * 0.3f * (float)delta;
+                velocity.Y = jumpVelocity;
+				energyChange -= jumpingEnergyCost;
+				maxEnergyChange -= jumpingEnergyCost * 0.25f;
             }
-		}
+
+            // Get the input direction and handle the movement/deceleration.
+            // As good practice, you should replace UI actions with custom gameplay actions.
+            Vector2 inputDir = Input.GetVector("left", "right", "forward", "back"); // WASD
+            Vector3 direction = (head.Transform.Basis * new Vector3(inputDir.X, 0, inputDir.Y)).Normalized();
+
+            // intertia
+            if (IsOnFloor()) // full control when on the ground
+            {
+                if (direction != Vector3.Zero)
+                {
+                    velocity.X = direction.X * speed;
+                    velocity.Z = direction.Z * speed;
+                }
+                else
+                {
+                    velocity.X = Mathf.Lerp(velocity.X, direction.X * speed, (float)delta * inertiaGroundValue);
+                    velocity.Z = Mathf.Lerp(velocity.Z, direction.Z * speed, (float)delta * inertiaGroundValue);
+                }
+            }
+            else // inertia when in the air
+            {
+                velocity.X = Mathf.Lerp(velocity.X, direction.X * speed, (float)delta * inertiaAirValue);
+                velocity.Z = Mathf.Lerp(velocity.Z, direction.Z * speed, (float)delta * inertiaAirValue);
+            }
+
+            // Handle head bobbing
+            if (IsOnFloor() && direction != Vector3.Zero)
+            {
+                bobTimer += (float)delta * velocity.Length();
+                camera.Position = headBob(bobTimer);
+            }
+            else
+            {
+                bobTimer = 0.0f;
+                camera.Position = Vector3.Zero;
+            }
+
+			// Handle sprint input and FOV change
+			if (isSprinting && direction != Vector3.Zero)
+			{
+				speed = sprintSpeed;
+                camera.Fov = Mathf.Lerp(camera.Fov, fov * fovChange, (float)delta * fovChangeSpeed);
+
+                if (IsOnFloor()) // Don't decrease energy in midair or while idle
+                {
+                    energyChange -= sprintingEnergyReduction * (float)delta;
+					maxEnergyChange -= sprintingEnergyReduction * 0.3f * (float)delta;
+				}
+            }
+            else
+            {
+                speed = walkSpeed;
+                camera.Fov = Mathf.Lerp(camera.Fov, fov, (float)delta * fovChangeSpeed);
+            }
+        }
 		else
 		{
-			speed = walkSpeed;
-			camera.Fov = Mathf.Lerp(camera.Fov, fov, (float)delta * fovChangeSpeed);
-		}
+            if (IsOnFloor()) // full control when on the ground
+            {
+                velocity.X = Mathf.Lerp(velocity.X, 0, (float)delta * inertiaGroundValue);
+                velocity.Z = Mathf.Lerp(velocity.Z, 0, (float)delta * inertiaGroundValue);
+                
+            }
+            else // inertia when in the air
+            {
+                velocity.X = Mathf.Lerp(velocity.X, 0, (float)delta * inertiaAirValue);
+                velocity.Z = Mathf.Lerp(velocity.Z, 0, (float)delta * inertiaAirValue);
+            }
 
-		// Get the input direction and handle the movement/deceleration.
-		// As good practice, you should replace UI actions with custom gameplay actions.
-		Vector2 inputDir = Input.GetVector("left", "right", "forward", "back"); // WASD
-		Vector3 direction = (head.Transform.Basis * new Vector3(inputDir.X, 0, inputDir.Y)).Normalized();
+            camera.Fov = Mathf.Lerp(camera.Fov, fov, (float)delta * fovChangeSpeed);
+        }
 
-		// intertia
-		if (IsOnFloor()) // full control when on the ground
-		{
-			if (direction != Vector3.Zero)
-			{
-				velocity.X = direction.X * speed;
-				velocity.Z = direction.Z * speed;
-			}
-			else
-			{
-				velocity.X = Mathf.Lerp(velocity.X, direction.X * speed, (float)delta * inertiaGroundValue);
-				velocity.Z = Mathf.Lerp(velocity.Z, direction.Z * speed, (float)delta * inertiaGroundValue);
-			}
-		}
-		else // inertia when in the air
-		{
-			velocity.X = Mathf.Lerp(velocity.X, direction.X * speed, (float)delta * inertiaAirValue);
-			velocity.Z = Mathf.Lerp(velocity.Z, direction.Z * speed, (float)delta * inertiaAirValue);
-		}
-
-		// Handle head bobbing
-		if (IsOnFloor() && direction != Vector3.Zero)
-		{
-			bobTimer += (float)delta * velocity.Length();
-			camera.Position = headBob(bobTimer);
-		}
-		else
-		{
-			bobTimer = 0.0f;
-			camera.Position = Vector3.Zero;
-		}
-
-		// add tether force if holding rope
-		if (tetherAnchor != null)
+        // add tether force if holding rope
+        if (tetherAnchor != null)
 		{
 			velocity = TetherToRopeAnchor(delta, velocity);
 		}
@@ -260,16 +314,6 @@ public partial class PlayerController : CharacterBody3D
 			}
 			else
 				DropObject();
-		}
-
-		// update pusher to match player position
-		if (collisionPusherAB != null)
-		{
-			collisionPusherAB.GlobalTransform = GlobalTransform;
-		}
-		if (interactableRB != null)
-		{
-			interactableRB.GlobalTransform = GlobalTransform;
 		}
 
 		//get looked at object for debug and highlighting later
@@ -509,6 +553,20 @@ public partial class PlayerController : CharacterBody3D
 		}
 	}
 
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+	public void RequestSetTetherAnchorPath(NodePath anchorPath, float maxDist, float buffer, float strength)
+	{
+		var anchorNode = GetNodeOrNull<Node3D>(anchorPath);
+		if (anchorNode != null)
+		{
+			SetTetherAnchor(anchorNode, maxDist, buffer, strength);
+		}
+		else
+		{
+			GD.PushWarning("RequestSetTetherAnchorPath: Anchor node path error" + anchorPath.ToString());
+		}
+	}
+
 	// Set up a tether anchor point for rope mechanics
 	public void SetTetherAnchor(Node3D anchor, float maxDist, float buffer, float strength)
 	{
@@ -517,6 +575,13 @@ public partial class PlayerController : CharacterBody3D
 		tetherBuffer = buffer;
 		tetherStrength = strength;
 	}
+
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+	public void RequestClearTether()
+	{
+		RemoveTetherAnchor();
+	}
+
 
 	// Remove the tether anchor
 	public void RemoveTetherAnchor()
@@ -548,6 +613,37 @@ public partial class PlayerController : CharacterBody3D
 
 		return velocity;
 	}
+
+	/// <summary>
+	/// Enables/disables controls and the pause menu depending on provided parameters.
+	/// </summary>
+	/// <param name="isPaused">Whether or not to pause controls.</param>
+	/// <param name="openPauseMenu">If isPaused is true, whether or not to open the pause menu.</param>
+	public void TogglePaused(bool isPaused, bool openPauseMenu = true)
+	{
+		this.isPaused = isPaused;
+		if (openPauseMenu && isPaused)
+        {
+            pauseMenu.Visible = true;
+			Input.MouseMode = Input.MouseModeEnum.Visible;
+        }
+		else
+		{
+            pauseMenu.Visible = false;
+            Input.MouseMode = Input.MouseModeEnum.Captured;
+
+        }
+	}
+
+	public void ExitLobby()
+	{
+        GetTree().CurrentScene.GetNodeOrNull<Node>("NetworkManager").CallDeferred("leave");
+		// TEMP: if this player is the host, quit the application
+		//if (Multiplayer.IsServer() || Multiplayer == null)
+		//{
+		//	GetTree().Quit();
+		//}
+    }
 
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
 	public void ChangeCurrentHealth(float diff)
@@ -600,7 +696,7 @@ public partial class PlayerController : CharacterBody3D
 	
 	private void UpdateLocalHud()
 	{
-		if (!(IsLocalControlled() && IsMultiplayerAuthority())) return; // only local player updates hud
+		if (!IsLocalControlled()) return; // only local player updates hud
 		healthBar.Value = currentHealth;
 		energyBar.Value = currentEnergy;
 		fatigueBar.Value = Mathf.Abs(maxEnergy - 100);
