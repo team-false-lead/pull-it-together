@@ -1,0 +1,272 @@
+[gd_scene load_steps=31 format=3 uid="uid://mkxvqqji54tk"]
+
+[ext_resource type="CompositorEffect" uid="uid://csn3le2a2trow" path="res://CustomCloudsGDResource.tres" id="1_3diyf"]
+[ext_resource type="PackedScene" uid="uid://woij3e5klul2" path="res://Scenes/Maps/TransitionArea.tscn" id="1_wdhi7"]
+[ext_resource type="Script" uid="uid://d2gutl4cngqlt" path="res://Scripts/ManagerScripts/ItemManager.cs" id="2_m2x2q"]
+[ext_resource type="Script" uid="uid://u1f0pfpkqwoc" path="res://Scripts/MiscScripts/ItemSpawnRegistry.cs" id="3_kqdf4"]
+[ext_resource type="PackedScene" uid="uid://c10ybnoe2rhv4" path="res://Scenes/Interactables/RopeBoxVerlet.tscn" id="4_6ybj7"]
+[ext_resource type="PackedScene" uid="uid://ba3m0401u3th5" path="res://Scenes/Interactables/WoodPlank.tscn" id="5_3diyf"]
+[ext_resource type="PackedScene" uid="uid://ddg3vj41j0u45" path="res://Scenes/Interactables/Food.tscn" id="7_vl058"]
+[ext_resource type="PackedScene" uid="uid://b575wgt5fc8yc" path="res://Scenes/Entities/Campfire.tscn" id="8_084pm"]
+[ext_resource type="PackedScene" uid="uid://cnvpf5wbcbse1" path="res://Scenes/Entities/Wheel.tscn" id="9_qfm8p"]
+[ext_resource type="PackedScene" uid="uid://b2cc2nt2bpja0" path="res://Scenes/Interactables/WagonPrototype.tscn" id="10_3diyf"]
+[ext_resource type="Script" uid="uid://bxlm4e5qfb7uu" path="res://addons/SunshineClouds2/SunshineCloudEffector.gd" id="11_3diyf"]
+[ext_resource type="Script" uid="uid://djusduuxf0voj" path="res://addons/SunshineClouds2/SunshineCloudsDriver.gd" id="12_qx88x"]
+[ext_resource type="PackedScene" uid="uid://bvxg2stfsjosw" path="res://Scenes/Superstorm.tscn" id="13_3diyf"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_xh66l"]
+sky_horizon_color = Color(0.662243, 0.671743, 0.686743, 1)
+ground_horizon_color = Color(0.662243, 0.671743, 0.686743, 1)
+
+[sub_resource type="Sky" id="Sky_n6t57"]
+sky_material = SubResource("ProceduralSkyMaterial_xh66l")
+
+[sub_resource type="Environment" id="Environment_qg828"]
+background_mode = 2
+sky = SubResource("Sky_n6t57")
+tonemap_mode = 2
+glow_enabled = true
+fog_light_color = Color(0.341176, 0.447059, 0.560784, 1)
+volumetric_fog_enabled = true
+volumetric_fog_density = 0.0
+volumetric_fog_albedo = Color(0.341176, 0.447059, 0.560784, 1)
+volumetric_fog_emission = Color(0.105882, 0.188235, 0.270588, 1)
+
+[sub_resource type="Compositor" id="Compositor_vl058"]
+compositor_effects = Array[CompositorEffect]([ExtResource("1_3diyf")])
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_k5f4k"]
+albedo_color = Color(0, 0.6, 0, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_6phgx"]
+albedo_color = Color(0.8, 0, 0, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_81xng"]
+albedo_color = Color(1, 0.8, 0, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_wqkje"]
+albedo_color = Color(0, 0.4, 0.8, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_0f350"]
+albedo_color = Color(0, 0.4, 0.8, 1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_00jar"]
+size = Vector3(50, 21.1472, 1)
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_j0g0q"]
+angle_min = -45.0
+angle_max = 45.0
+direction = Vector3(0, -1, 0)
+initial_velocity_min = 0.1
+initial_velocity_max = 10.0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_00jar"]
+albedo_color = Color(0.9745, 0.49, 1, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_e11n1"]
+material = SubResource("StandardMaterial3D_00jar")
+size = Vector3(0.1, 0.2, 0.05)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_e11n1"]
+albedo_color = Color(0.9405, 1, 0.49, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_h5s6u"]
+material = SubResource("StandardMaterial3D_e11n1")
+size = Vector3(0.1, 0.2, 0.05)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ya8by"]
+albedo_color = Color(0.49, 1, 0.915, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_ya8by"]
+material = SubResource("StandardMaterial3D_ya8by")
+size = Vector3(0.1, 0.2, 0.05)
+
+[node name="TestMap" type="Node3D"]
+
+[node name="Environment" type="Node3D" parent="."]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="Environment"]
+environment = SubResource("Environment_qg828")
+compositor = SubResource("Compositor_vl058")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="Environment"]
+transform = Transform3D(1, 0, 0, 0, 0.628194, 0.778057, 0, -0.778057, 0.628194, 0, 3, 0)
+
+[node name="CSGBox3D" type="CSGBox3D" parent="Environment"]
+transform = Transform3D(2.25, 0, 0, 0, 2.25, 0, 0, 0, 2.25, -0.0229278, 1.03091, -33.101)
+material_override = SubResource("StandardMaterial3D_k5f4k")
+use_collision = true
+collision_mask = 15
+size = Vector3(15, 0.166, 44.3384)
+
+[node name="CSGBox3D2" type="CSGBox3D" parent="Environment"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.71713, -4.30189)
+material_override = SubResource("StandardMaterial3D_6phgx")
+use_collision = true
+collision_mask = 15
+
+[node name="CSGBox3D3" type="CSGBox3D" parent="Environment"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.71713, -0.133514)
+material_override = SubResource("StandardMaterial3D_81xng")
+use_collision = true
+collision_mask = 15
+
+[node name="CSGBox3D4" type="CSGBox3D" parent="Environment"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.49368, 1.71713, -0.133514)
+material_override = SubResource("StandardMaterial3D_wqkje")
+use_collision = true
+collision_mask = 15
+
+[node name="CSGBox3D5" type="CSGBox3D" parent="Environment"]
+transform = Transform3D(0.72953, 0, 0.683949, 0, 1, 0, -0.683949, 0, 0.72953, -0.0974936, 2.71713, -0.29213)
+material_override = SubResource("StandardMaterial3D_0f350")
+use_collision = true
+collision_mask = 15
+
+[node name="TransitionArea" parent="Environment" node_paths=PackedStringArray("label", "pinkConfetti", "yellowConfetti", "cyanConfetti") instance=ExtResource("1_wdhi7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -57.8781)
+collision_mask = 4
+label = NodePath("../Label3D")
+pinkConfetti = NodePath("../GPUParticles3DPink")
+yellowConfetti = NodePath("../GPUParticles3DYellow")
+cyanConfetti = NodePath("../GPUParticles3DCyan")
+
+[node name="CollisionShape3D2" type="CollisionShape3D" parent="Environment/TransitionArea"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 11.7913, 0)
+shape = SubResource("BoxShape3D_00jar")
+
+[node name="GPUParticles3DPink" type="GPUParticles3D" parent="Environment"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 11.5627, -62.1943)
+emitting = false
+amount = 100
+lifetime = 3.0
+one_shot = true
+explosiveness = 1.0
+process_material = SubResource("ParticleProcessMaterial_j0g0q")
+draw_pass_1 = SubResource("BoxMesh_e11n1")
+
+[node name="GPUParticles3DYellow" type="GPUParticles3D" parent="Environment"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 11.5627, -62.1943)
+emitting = false
+amount = 100
+lifetime = 3.0
+one_shot = true
+explosiveness = 1.0
+process_material = SubResource("ParticleProcessMaterial_j0g0q")
+draw_pass_1 = SubResource("BoxMesh_h5s6u")
+
+[node name="GPUParticles3DCyan" type="GPUParticles3D" parent="Environment"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 11.5627, -62.1943)
+emitting = false
+amount = 100
+lifetime = 3.0
+one_shot = true
+explosiveness = 1.0
+process_material = SubResource("ParticleProcessMaterial_j0g0q")
+draw_pass_1 = SubResource("BoxMesh_ya8by")
+
+[node name="Label3D" type="Label3D" parent="Environment"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5, -65)
+text = "GO HERE"
+font_size = 500
+outline_size = 50
+
+[node name="CSGBox3D6" type="CSGBox3D" parent="Environment"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17.3578, 3.10037, -34.1259)
+use_collision = true
+collision_mask = 15
+size = Vector3(1, 4.29089, 102.743)
+
+[node name="CSGBox3D7" type="CSGBox3D" parent="Environment"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -17.2435, 3.10037, -34.1259)
+use_collision = true
+collision_mask = 15
+size = Vector3(1, 4.29089, 102.743)
+
+[node name="CSGBox3D8" type="CSGBox3D" parent="Environment"]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -0.241772, 3.10037, 16.344)
+use_collision = true
+collision_mask = 15
+size = Vector3(1, 4.29089, 38.4169)
+
+[node name="CSGBox3D9" type="CSGBox3D" parent="Environment"]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -0.241772, 3.10037, -82.2744)
+use_collision = true
+collision_mask = 15
+size = Vector3(1, 4.29089, 38.4169)
+
+[node name="CSGBox3D10" type="CSGBox3D" parent="Environment"]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -0.241772, -0.746437, -59.1748)
+collision_mask = 15
+size = Vector3(1, 4.29089, 38.4169)
+
+[node name="Interactables" type="Node3D" parent="." groups=["item_manager"]]
+unique_name_in_owner = true
+script = ExtResource("2_m2x2q")
+placeholdersPath = NodePath("../Placeholders")
+
+[node name="ItemSpawner" type="MultiplayerSpawner" parent="Interactables"]
+spawn_path = NodePath("..")
+script = ExtResource("3_kqdf4")
+
+[node name="Placeholders" type="Node3D" parent="."]
+
+[node name="RopeBox2" parent="Placeholders" instance=ExtResource("4_6ybj7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.49154, 2.21766, -7.71141)
+
+[node name="WoodPlank" parent="Placeholders" instance=ExtResource("5_3diyf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.88892, 4.37407, 1.78256)
+SpawnOnUseScene = null
+
+[node name="WoodPlank2" parent="Placeholders" instance=ExtResource("5_3diyf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.98111, 4.37407, 1.78256)
+SpawnOnUseScene = null
+
+[node name="WoodPlank3" parent="Placeholders" instance=ExtResource("5_3diyf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.76184, 4.37407, 1.78256)
+SpawnOnUseScene = null
+
+[node name="Food" parent="Placeholders" instance=ExtResource("7_vl058")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.56, 1.71766, -0.158901)
+
+[node name="Food2" parent="Placeholders" instance=ExtResource("7_vl058")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.202507, 1.71766, 0.803963)
+
+[node name="Campfire" parent="Placeholders" instance=ExtResource("8_084pm")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.2946, 1.46766, 1.95325)
+
+[node name="Wheel" parent="Placeholders" instance=ExtResource("9_qfm8p")]
+transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 10.1942, 1.96766, 1.42996)
+
+[node name="Wheel2" parent="Placeholders" instance=ExtResource("9_qfm8p")]
+transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 9.66434, 1.96766, -1.04574)
+
+[node name="RigidBody3D" parent="Placeholders" instance=ExtResource("10_3diyf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.38875, 2.45366, 0)
+
+[node name="SunshineCloudsDriverGD" type="Node" parent="." node_paths=PackedStringArray("tracked_directional_lights", "tracked_point_effectors")]
+script = ExtResource("12_qx88x")
+update_continuously = true
+clouds_resource = ExtResource("1_3diyf")
+ambience_sample_environment = SubResource("Environment_qg828")
+tracked_directional_lights = [NodePath("../Environment/DirectionalLight3D")]
+tracked_directional_light_shadow_steps = Array[int]([12])
+tracked_point_effectors = [NodePath("../SunshineCloudsEffector")]
+wind_direction = Vector3(0, 0, -1)
+extra_large_structures_wind_speed = 50.0
+large_structures_wind_speed = 33.0
+medium_structures_wind_speed = 14.0
+small_structures_wind_speed = 4.0
+metadata/_custom_type_script = "uid://djusduuxf0voj"
+
+[node name="SunshineCloudsEffector" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 3000)
+script = ExtResource("11_3diyf")
+Radius = 5000.0
+Power = 1.0
+metadata/_custom_type_script = "uid://bxlm4e5qfb7uu"
+
+[node name="Superstorm" parent="." node_paths=PackedStringArray("cloudsEffector", "interactablesNode") instance=ExtResource("13_3diyf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 50)
+cloudsEffector = NodePath("../SunshineCloudsEffector")
+interactablesNode = NodePath("../Interactables")

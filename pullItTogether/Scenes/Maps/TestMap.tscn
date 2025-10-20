@@ -1,4 +1,4 @@
-[gd_scene load_steps=32 format=3 uid="uid://b7pp3skomvnhc"]
+[gd_scene load_steps=27 format=3 uid="uid://b7pp3skomvnhc"]
 
 [ext_resource type="Script" uid="uid://d2gutl4cngqlt" path="res://Scripts/ManagerScripts/ItemManager.cs" id="1_00jar"]
 [ext_resource type="PackedScene" uid="uid://woij3e5klul2" path="res://Scenes/Maps/TransitionArea.tscn" id="3_00jar"]
@@ -6,15 +6,10 @@
 [ext_resource type="Script" uid="uid://u1f0pfpkqwoc" path="res://Scripts/MiscScripts/ItemSpawnRegistry.cs" id="3_j28jb"]
 [ext_resource type="PackedScene" uid="uid://ba3m0401u3th5" path="res://Scenes/Interactables/WoodPlank.tscn" id="4_qg828"]
 [ext_resource type="PackedScene" uid="uid://bfwhlqlt010kj" path="res://Scenes/Interactables/WagonTest1.tscn" id="5_0314m"]
-[ext_resource type="PackedScene" uid="uid://ddg3vj41j0u45" path="res://Scenes/Interactables/Food_Template.tscn" id="6_00jar"]
+[ext_resource type="PackedScene" uid="uid://ddg3vj41j0u45" path="res://Scenes/Interactables/Food.tscn" id="6_00jar"]
 [ext_resource type="PackedScene" uid="uid://b575wgt5fc8yc" path="res://Scenes/Entities/Campfire.tscn" id="7_j0g0q"]
 [ext_resource type="PackedScene" uid="uid://cnvpf5wbcbse1" path="res://Scenes/Entities/Wheel.tscn" id="9_xj7ls"]
 [ext_resource type="PackedScene" uid="uid://b2cc2nt2bpja0" path="res://Scenes/Interactables/WagonPrototype.tscn" id="10_nd5sh"]
-[ext_resource type="PackedScene" uid="uid://dnrj6qm3hslwt" path="res://Scenes/Interactables/Food_Goodberry.tscn" id="11_r4ehd"]
-[ext_resource type="PackedScene" uid="uid://cllu1opbcu5ux" path="res://Scenes/Interactables/Food_Poisonberry.tscn" id="12_v3b54"]
-[ext_resource type="PackedScene" uid="uid://dutt28pb7vdid" path="res://Scenes/Interactables/Food_Tonic.tscn" id="13_xcfig"]
-[ext_resource type="PackedScene" uid="uid://drat1km3kl28w" path="res://Scenes/Interactables/Food_Meat.tscn" id="14_snl3g"]
-[ext_resource type="PackedScene" uid="uid://bysb2u8m55de2" path="res://Shaders/ToonShader.tscn" id="15_pmk55"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_xh66l"]
 sky_horizon_color = Color(0.662243, 0.671743, 0.686743, 1)
@@ -242,18 +237,3 @@ transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 9.6643
 
 [node name="RigidBody3D" parent="Placeholders" instance=ExtResource("10_nd5sh")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.3943, 3.15526, -8.18282)
-
-[node name="Goodberry" parent="Placeholders" instance=ExtResource("11_r4ehd")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.9179, 1.63986, -0.280079)
-
-[node name="Poisonberry" parent="Placeholders" instance=ExtResource("12_v3b54")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.50967, 1.57215, 0.62526)
-
-[node name="Tonic" parent="Placeholders" instance=ExtResource("13_xcfig")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.35314, 1.21766, -1.08884)
-
-[node name="Meat" parent="Placeholders" instance=ExtResource("14_snl3g")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.0457, 1.29279, -7.37538)
-
-[node name="ToonShader" parent="." instance=ExtResource("15_pmk55")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9983.26, 2.18833, -9.57063)
