@@ -250,7 +250,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.50967, 1.57215, 0.62526)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.35314, 1.21766, -1.08884)
 
 [node name="Meat" parent="Placeholders" instance=ExtResource("15_6x6jt")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.0457, 1.29279, -7.37538)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.9757, 4.03662, -6.39634)
 
 [node name="ToonShader" parent="." instance=ExtResource("16_iddi4")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.51888, 0, -16.3447)
