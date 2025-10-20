@@ -8,7 +8,7 @@
 [ext_resource type="PackedScene" uid="uid://daxkf804xn7id" path="res://Models/Wagon/mdl_wagon_full.fbx" id="6_cqmbo"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_vlqqi"]
-friction = 0.05
+friction = 0.08
 bounce = 0.25
 absorbent = true
 
@@ -31,8 +31,7 @@ height = 0.1
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_bxu3g"]
 albedo_color = Color(0.514254, 0.350825, 0.246575, 1)
 
-[sub_resource type="CylinderShape3D" id="CylinderShape3D_vlqqi"]
-height = 0.2
+[sub_resource type="SphereShape3D" id="SphereShape3D_cqmbo"]
 radius = 0.6
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_roc07"]
@@ -68,7 +67,7 @@ properties/7/replication_mode = 1
 [node name="RigidBody3D" type="RigidBody3D"]
 collision_layer = 4
 collision_mask = 9
-mass = 525.0
+mass = 900.0
 physics_material_override = SubResource("PhysicsMaterial_vlqqi")
 gravity_scale = 0.8
 center_of_mass_mode = 1
@@ -77,7 +76,7 @@ can_sleep = false
 constant_force = Vector3(0, 100, 0)
 script = ExtResource("1_f8cd6")
 linearXMultiplier = 0.5
-angularYMultiplier = 0.85
+angularYMultiplier = 0.95
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 transform = Transform3D(2.5, 0, 0, 0, 0.5, 0, 0, 0, 5.5, 0, 0, 0)
@@ -138,19 +137,19 @@ shape = SubResource("BoxShape3D_5rxyb")
 
 [node name="FLeftWheelCollision" type="CollisionShape3D" parent="."]
 transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, -1.451, -0.675, -2)
-shape = SubResource("CylinderShape3D_vlqqi")
+shape = SubResource("SphereShape3D_cqmbo")
 
 [node name="FRightWheelCollision" type="CollisionShape3D" parent="."]
 transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 1.45117, -0.674502, -2)
-shape = SubResource("CylinderShape3D_vlqqi")
+shape = SubResource("SphereShape3D_cqmbo")
 
 [node name="BLeftWheelCollision" type="CollisionShape3D" parent="."]
 transform = Transform3D(-6.55671e-08, -1.5, 0, 1.5, -6.55671e-08, 0, 0, 0, 1.5, -1.454, -0.407, 1.999)
-shape = SubResource("CylinderShape3D_vlqqi")
+shape = SubResource("SphereShape3D_cqmbo")
 
 [node name="BRightWheelCollision" type="CollisionShape3D" parent="."]
 transform = Transform3D(-6.55671e-08, -1.5, 0, 1.5, -6.55671e-08, 0, 0, 0, 1.5, 1.4539, -0.406865, 1.99924)
-shape = SubResource("CylinderShape3D_vlqqi")
+shape = SubResource("SphereShape3D_cqmbo")
 
 [node name="RopeStartPoint" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.7, -0.179746, -3.35201)
