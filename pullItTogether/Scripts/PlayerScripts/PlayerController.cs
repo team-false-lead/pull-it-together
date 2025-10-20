@@ -1,7 +1,6 @@
 using Godot;
 using Godot.Collections;
 using System;
-using System.Collections.Generic;
 
 // Movement Based on Juiced Up First Person Character Controller Tutorial - Godot 3D FPS - YouTube
 // https://www.youtube.com/watch?v=A3HLeyaBCq4&t=461s&ab_channel=LegionGames
@@ -76,6 +75,9 @@ public partial class PlayerController : CharacterBody3D
 		get { return currentHealth <= 0; }
 	}
 
+	// Debug parameters
+	private Label debugTrackerLabel;
+
 	public override void _EnterTree()
 	{
 
@@ -112,6 +114,7 @@ public partial class PlayerController : CharacterBody3D
             energyBar = HUD.GetNode<ProgressBar>("EnergyBar/EnergyProgressBar");
             fatigueBar = HUD.GetNode<ProgressBar>("EnergyBar/FatigueProgressBar");
 			outOfHealthLabel = HUD.GetNode<Label>("OutOfHealthLabel");
+			debugTrackerLabel = HUD.GetNode<Label>("DebugTrackerLabel");
 
 			// Set health and energy values to their default
 			currentHealth = maxHealth;
@@ -378,6 +381,13 @@ public partial class PlayerController : CharacterBody3D
 			ChangeMaxEnergy(-10);
 		else if (Input.IsKeyPressed(Key.Kp8)) // When Numpad 8 is pressed, restore fatigue
 			ChangeMaxEnergy(10);
+
+
+		//debugTrackerLabel.Text = "FPS: " + Engine.GetFramesPerSecond() +
+		//	"\nFrame time: " + Math.Round(1 / Engine.GetFramesPerSecond(), 4) + " sec";
+		double totalFrameTime = Performance.GetMonitor(Performance.Monitor.TimeProcess);
+		debugTrackerLabel.Text = "FPS: " + Engine.GetFramesPerSecond() +
+			"\nFrame time: " + Math.Round(totalFrameTime * 1000, 4) + " ms";
     }
 
 	// Simple head bobbing effect
