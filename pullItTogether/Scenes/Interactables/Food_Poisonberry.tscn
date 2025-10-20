@@ -1,0 +1,66 @@
+[gd_scene load_steps=6 format=3 uid="uid://cllu1opbcu5ux"]
+
+[ext_resource type="Script" uid="uid://c7yf60mlbjaqe" path="res://Scripts/InteractableScripts/Food.cs" id="1_ax30y"]
+[ext_resource type="PackedScene" uid="uid://dwxd8jsan4atu" path="res://Models/Food/Poisonberry.fbx" id="2_shr88"]
+[ext_resource type="PackedScene" uid="uid://osk0n4uc4jg2" path="res://Models/Food/PoisonberryCooked.fbx" id="3_bw5mf"]
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_lwjo8"]
+properties/0/path = NodePath(".:position")
+properties/0/spawn = true
+properties/0/replication_mode = 1
+properties/1/path = NodePath(".:rotation")
+properties/1/spawn = true
+properties/1/replication_mode = 1
+properties/2/path = NodePath(".:interactableId")
+properties/2/spawn = true
+properties/2/replication_mode = 1
+properties/3/path = NodePath(".:scale")
+properties/3/spawn = true
+properties/3/replication_mode = 1
+properties/4/path = NodePath(".:collision_layer")
+properties/4/spawn = true
+properties/4/replication_mode = 1
+properties/5/path = NodePath(".:collision_mask")
+properties/5/spawn = true
+properties/5/replication_mode = 1
+properties/6/path = NodePath(".:isCooked")
+properties/6/spawn = true
+properties/6/replication_mode = 1
+properties/7/path = NodePath("Label3D:text")
+properties/7/spawn = true
+properties/7/replication_mode = 1
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_gowec"]
+radius = 0.06
+height = 0.2
+
+[node name="Poisonberry" type="RigidBody3D" node_paths=PackedStringArray("rawMesh", "cookedMesh", "label3D") groups=["food"]]
+collision_layer = 8
+collision_mask = 29
+script = ExtResource("1_ax30y")
+rawMesh = NodePath("PoisonberryMesh")
+cookedMesh = NodePath("PoisonberryCookedMesh")
+label3D = NodePath("Label3D")
+healthAddedRaw = -20.0
+healthAddedCooked = -10.0
+potentialEnergyAddedCooked = 40.0
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
+replication_config = SubResource("SceneReplicationConfig_lwjo8")
+
+[node name="PoisonberryMesh" parent="." instance=ExtResource("2_shr88")]
+transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, -0.46, 0)
+skeleton = NodePath("../CollisionShape3D")
+
+[node name="PoisonberryCookedMesh" parent="." instance=ExtResource("3_bw5mf")]
+transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, -0.46, 0)
+visible = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(3.98737, 0.317664, 0, -0.317664, 3.98737, 0, 0, 0, 4, 0, 0, 0)
+shape = SubResource("CapsuleShape3D_gowec")
+
+[node name="Label3D" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.602306, 0)
+billboard = 2
+text = "Poisonberry"
