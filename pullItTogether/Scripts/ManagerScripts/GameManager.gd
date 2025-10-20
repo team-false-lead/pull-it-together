@@ -224,8 +224,9 @@ func _connect_gs_signals() -> void:
 # generate a random lobby name with prefix "Pull It Together ####"
 # change name of room to persona name later # later filter to just friends also
 func _gen_lobby_name() -> String:
-	var room_id := randi_range(0, 9999)
-	return "%s %04d" % [lobby_prefix, room_id]
+	#var room_id := randi_range(0, 9999)
+	#return "%s %04d" % [lobby_prefix, room_id]
+	return lobby_prefix
 
 
 # Create a new public lobby
@@ -242,6 +243,7 @@ func refresh_steam_lobby_list() -> void:
 		push_error("Steam not initialized; cannot request lobby list.")
 		return
 	var GS = _get_gs()
+	GS.addRequestLobbyListStringFilter("name", lobby_prefix, 0)
 	GS.requestLobbyList()
 	print("refreshing lobbies...")
 
