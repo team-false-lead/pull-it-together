@@ -425,7 +425,11 @@ public partial class ItemManager : Node3D
 		var item = FindInteractableById(itemId);
 		if (item == null) { GD.Print("Item null"); return; }
 
-		if (item.GetParent<Node3D>() != this && !(item is PlayerInteractable))
+		if (item is PlayerInteractable playerInteractable)
+		{
+			playerInteractable.GetPlayerController().RecenterViewAfterDrop();
+		}
+		else if (item.GetParent<Node3D>() != this)
 		{
 			item.GetParent<Node3D>().RemoveChild(item);
 			this.AddChild(item, true);

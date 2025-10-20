@@ -726,4 +726,22 @@ public partial class PlayerController : CharacterBody3D
 		outOfHealthLabel.Text = text;
 		outOfHealthLabel.Visible = true;
 	}
+
+	public void RecenterViewAfterDrop()
+	{
+		AlignBody(interactableRB); // align body to updated interactableRB
+		head.Rotation = new Vector3(0, Rotation.Y - 90, 0); // reset head yaw to player (body) yaw
+		camera.Rotation = new Vector3(camera.Rotation.X, 0, 0); // reset camera pitch to 0
+	}
+
+	public void AlignBody(Node3D target)
+	{
+		var forward = -target.GlobalTransform.Basis.Z;
+		float targetYaw = Mathf.Atan2(forward.X, forward.Z); //black magic to get yaw from forward vector
+		var rotation = GlobalRotation;
+		rotation.Y = targetYaw;
+		rotation.X = 0;
+		rotation.Z = 0;
+		GlobalRotation = rotation;
+	}
 }
