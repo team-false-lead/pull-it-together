@@ -69,7 +69,6 @@ collision_layer = 4
 collision_mask = 9
 mass = 900.0
 physics_material_override = SubResource("PhysicsMaterial_vlqqi")
-gravity_scale = 0.8
 center_of_mass_mode = 1
 center_of_mass = Vector3(0, -3, -0.75)
 can_sleep = false
