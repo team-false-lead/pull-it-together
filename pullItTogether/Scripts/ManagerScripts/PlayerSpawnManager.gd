@@ -7,6 +7,16 @@ class_name PlayerSpawnManager
 var players: Dictionary[int, Node3D] = {}
 var spawning_enabled : bool = false
 
+var _player_color_palette := [
+	Color8(63, 136, 197), # Blue
+	Color8(208, 0, 0),   # Red
+	Color8(255, 186, 8), # Yellow
+	Color8(3, 43, 67),   # Dark Blue
+]
+
+var _assigned_colors := {}
+var _free_color_indices := []
+
 func _ready() -> void:
 	# easier access via group if needed later
 	if not is_in_group("player_spawner"):
@@ -33,6 +43,9 @@ func set_spawning_enabled(enabled: bool) -> void:
 		return
 
 	if enabled:
+		if _assigned_colors.is_empty() && _free_color_indices.is_empty():
+			_init_color_pool()
+
 		if not multiplayer.peer_connected.is_connected(_on_peer_connected):
 			multiplayer.peer_connected.connect(_on_peer_connected)
 		if not multiplayer.peer_disconnected.is_connected(_on_peer_disconnected):
@@ -44,6 +57,7 @@ func set_spawning_enabled(enabled: bool) -> void:
 		if not ids.has(1):
 			ids.append(1)
 		for id in ids:
+			_assign_color_to_player(id)
 			spawn_or_respawn_player(id)
 
 	else: # disable spawning, disconnect signals
@@ -53,6 +67,8 @@ func set_spawning_enabled(enabled: bool) -> void:
 			multiplayer.peer_disconnected.disconnect(_on_peer_disconnected)
 		# despawn all players
 		despawn_all()
+		_assigned_colors.clear()
+		_free_color_indices.clear()
 
 # custom spawn function for MultiplayerSpawner
 func _create_player(peer_id: int) -> Node:
@@ -61,6 +77,16 @@ func _create_player(peer_id: int) -> Node:
 		return null
 
 	var player : Node3D = player_scene.instantiate()
+
+	if multiplayer.is_server():
+		var color_index : int = _assign_color_to_player(peer_id)
+		var color = _player_color_palette[color_index]
+		player.set("bodyColor", color)
+		player.tree_entered.connect(func() -> void:
+			await get_tree().process_frame       # ensure replicated on clients
+			player.rpc("SetColor", color)        # ALL peers incl. owner get their own color
+		, CONNECT_ONE_SHOT)
+
 	player.name = "Player%d" % peer_id
 	player.set_multiplayer_authority(peer_id)
 	player.add_to_group("players")
@@ -144,10 +170,51 @@ func _configure_local_view(player: Node, peer_id: int) -> void:
 # signal handlers for peer connect/disconnect
 func _on_peer_connected(peer_id: int) -> void:
 	if multiplayer.is_server() and spawning_enabled:
+		_assign_color_to_player(peer_id)
 		spawn_or_respawn_player(peer_id)
+
+		await get_tree().process_frame
+		for id in players.keys():
+			var player := players[id]
+			if is_instance_valid(player):
+				var index : int = _assigned_colors.get(id, 0)
+				var color : Color = _player_color_palette[index]
+				player.rpc_id(peer_id, "SetColor", color)
 		print("Peer connected: ", peer_id)
 
 func _on_peer_disconnected(peer_id: int) -> void:
 	if players.has(peer_id):
+		_release_color_of_player(peer_id)
 		despawn_player(peer_id)
 		print("Peer disconnected: ", peer_id)
+
+func _init_color_pool() -> void:
+	_free_color_indices = []
+	for i in _player_color_palette.size():
+		_free_color_indices.append(i)
+	_free_color_indices.sort()
+
+func _assign_color_to_player(peer_id: int) -> int:
+	if _assigned_colors.has(peer_id):
+		return _assigned_colors[peer_id]
+	var index : int = _take_lowest_free_color_index()
+	_assigned_colors[peer_id] = index
+	return index
+
+func _take_lowest_free_color_index() -> int:
+	if _free_color_indices.is_empty():
+		push_warning("No free colors available to assign")
+		return _player_color_palette.size() - 1 # invalid index
+	var index : int = _free_color_indices[0]
+	_free_color_indices.remove_at(0)
+	return index
+
+func _release_color_of_player(peer_id: int) -> void:
+	if not _assigned_colors.has(peer_id):
+		return
+	var index : int = _assigned_colors[peer_id]
+	_assigned_colors.erase(peer_id)
+	_free_color_indices.append(index)
+	_free_color_indices.sort()
+
+

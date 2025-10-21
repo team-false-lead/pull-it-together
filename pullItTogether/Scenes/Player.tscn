@@ -31,6 +31,9 @@ properties/6/replication_mode = 1
 properties/7/path = NodePath(".:currentEnergy")
 properties/7/spawn = true
 properties/7/replication_mode = 1
+properties/8/path = NodePath(".:bodyColor")
+properties/8/spawn = true
+properties/8/replication_mode = 1
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_r1we1"]
 
@@ -85,7 +88,7 @@ replication_config = SubResource("SceneReplicationConfig_hyhp3")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.216008, 0)
 shape = SubResource("CapsuleShape3D_r1we1")
 
-[node name="BodyMesh" type="MeshInstance3D" parent="." groups=["self_hide"]]
+[node name="BodyMesh" type="MeshInstance3D" parent="." groups=["player_mesh", "self_hide"]]
 transform = Transform3D(1, 0, 0, 0, 0.745, 0, 0, 0, 1, 0, -0.0248527, 0)
 material_override = SubResource("StandardMaterial3D_rliju")
 mesh = SubResource("CapsuleMesh_8k31v")
@@ -93,7 +96,7 @@ mesh = SubResource("CapsuleMesh_8k31v")
 [node name="Head" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.981634, 0)
 
-[node name="HeadMesh" type="MeshInstance3D" parent="Head" groups=["self_hide"]]
+[node name="HeadMesh" type="MeshInstance3D" parent="Head" groups=["player_mesh", "self_hide"]]
 material_override = SubResource("StandardMaterial3D_ndhuy")
 mesh = SubResource("SphereMesh_ndhuy")
 
@@ -102,7 +105,7 @@ cull_mask = 1047583
 current = true
 far = 40000.0
 
-[node name="EyesMesh" type="MeshInstance3D" parent="Head/Camera3D" groups=["self_hide"]]
+[node name="EyesMesh" type="MeshInstance3D" parent="Head/Camera3D" groups=["player_mesh", "self_hide"]]
 transform = Transform3D(0.69, 0, 0, 0, 0.27, 0, 0, 0, 0.57, 0, 0.0681075, -0.250253)
 material_override = SubResource("StandardMaterial3D_ndhuy")
 mesh = SubResource("BoxMesh_rliju")
@@ -111,7 +114,7 @@ skeleton = NodePath("../..")
 [node name="Inventory" type="Node3D" parent="Head/Camera3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.238014, -1.04144)
 
-[node name="InventorySlot1" type="MeshInstance3D" parent="Head/Camera3D/Inventory"]
+[node name="InventorySlot1" type="MeshInstance3D" parent="Head/Camera3D/Inventory" groups=["player_mesh"]]
 unique_name_in_owner = true
 transform = Transform3D(0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1, 1, 0, 0)
 material_override = SubResource("StandardMaterial3D_kyqiw")
