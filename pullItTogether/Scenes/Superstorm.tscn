@@ -1,0 +1,58 @@
+[gd_scene load_steps=8 format=3 uid="uid://bvxg2stfsjosw"]
+
+[ext_resource type="Script" uid="uid://dcshvn4336s3e" path="res://Scripts/MiscScripts/SuperstormMovement.cs" id="1_up175"]
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_3diyf"]
+properties/0/path = NodePath(".:position")
+properties/0/spawn = true
+properties/0/replication_mode = 1
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_vl058"]
+resource_local_to_scene = true
+height = 100.0
+radius = 25.0
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_3diyf"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3diyf"]
+albedo_color = Color(0.180392, 0.313726, 0.45098, 1)
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_qx88x"]
+material = SubResource("StandardMaterial3D_3diyf")
+radius = 0.075
+height = 0.3
+
+[sub_resource type="FogMaterial" id="FogMaterial_3diyf"]
+resource_local_to_scene = true
+density = 0.125
+albedo = Color(0.341176, 0.447059, 0.560784, 1)
+emission = Color(0.141176, 0.25098, 0.360784, 1)
+
+[node name="Superstorm" type="Area3D" node_paths=PackedStringArray("rainParticles", "stormCollider", "fogVolume")]
+collision_mask = 2
+script = ExtResource("1_up175")
+stormSpeed = 2.5
+rainParticles = NodePath("GPUParticles3D")
+rainDensity = 3.0
+stormCollider = NodePath("CollisionShape3D")
+fogVolume = NodePath("FogVolume")
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
+replication_config = SubResource("SceneReplicationConfig_3diyf")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 50, 0)
+shape = SubResource("CylinderShape3D_vl058")
+debug_color = Color(0, 0, 0, 0.42)
+
+[node name="GPUParticles3D" type="GPUParticles3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 125, 0)
+emitting = false
+process_material = SubResource("ParticleProcessMaterial_3diyf")
+draw_pass_1 = SubResource("CapsuleMesh_qx88x")
+
+[node name="FogVolume" type="FogVolume" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 25, 0)
+size = Vector3(50, 50, 50)
+shape = 2
+material = SubResource("FogMaterial_3diyf")
