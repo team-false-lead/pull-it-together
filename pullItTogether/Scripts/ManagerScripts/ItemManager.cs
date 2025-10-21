@@ -15,7 +15,6 @@ public partial class ItemManager : Node3D
 	private Node mapManager;
 	private bool isMultiplayerSession;
 	protected MultiplayerApi multiplayer => GetTree().GetMultiplayer();
-	[Signal] public delegate void ItemsSpawnedEventHandler();
 
 	// Initialize the ItemManager, set up multiplayer, and spawn items from placeholders
 	public override void _Ready()
@@ -51,7 +50,6 @@ public partial class ItemManager : Node3D
 			if (multiplayer.HasMultiplayerPeer())
 				Rpc(nameof(ClientRemovePlaceholders)); // inform clients to remove placeholders
 			ClientRemovePlaceholders(); // also remove from host
-			EmitSignal("ItemsSpawned");
 		}
 		// clients will remove placeholders when they join via OnPeerConnected
 	}
