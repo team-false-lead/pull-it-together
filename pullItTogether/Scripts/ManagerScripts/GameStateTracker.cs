@@ -9,6 +9,7 @@ public partial class GameStateTracker : Node
     private List<PlayerController> playerControllers;
     private int numOfDownedPlayers;
     [Export] private TransitionArea transitionArea;
+    protected MultiplayerApi multiplayer => GetTree().GetMultiplayer();
 
     public override void _Ready()
     {
@@ -20,6 +21,9 @@ public partial class GameStateTracker : Node
     public override void _PhysicsProcess(double delta)
     {
         base._PhysicsProcess(delta);
+        if (!multiplayer.IsServer()) return;
+        if (playerControllers.Count > 1)
+            CheckLossState();
     }
 
     /// <summary>
@@ -47,6 +51,7 @@ public partial class GameStateTracker : Node
 
     private void CheckWinState()
     {
+        if (!multiplayer.IsServer()) return;
         if (transitionArea.NumOfPlayersInside >= playerControllers.Count)
         {
             foreach (PlayerController player in playerControllers)
@@ -59,6 +64,7 @@ public partial class GameStateTracker : Node
 
     public void AddPlayerToPlayerList(PlayerController player)
     {
+        if (!multiplayer.IsServer()) return;
         if (player != null && !playerControllers.Contains(player))
         {
             GD.Print(player);

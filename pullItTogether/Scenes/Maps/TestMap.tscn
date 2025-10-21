@@ -1,4 +1,4 @@
-[gd_scene load_steps=32 format=3 uid="uid://b7pp3skomvnhc"]
+[gd_scene load_steps=33 format=3 uid="uid://b7pp3skomvnhc"]
 
 [ext_resource type="Script" uid="uid://d2gutl4cngqlt" path="res://Scripts/ManagerScripts/ItemManager.cs" id="1_00jar"]
 [ext_resource type="Script" uid="uid://cqke368piplst" path="res://Scripts/ManagerScripts/GameStateTracker.cs" id="1_r4ehd"]

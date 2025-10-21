@@ -150,6 +150,7 @@ theme_override_font_sizes/font_size = 35
 text = "You are out of health! Wait for someone to pick you up or heal you!"
 horizontal_alignment = 1
 autowrap_mode = 2
+
 [node name="DebugTrackerLabel" type="Label" parent="."]
 layout_mode = 0
 offset_right = 283.0
