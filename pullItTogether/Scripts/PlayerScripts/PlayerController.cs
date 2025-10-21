@@ -388,6 +388,10 @@ public partial class PlayerController : CharacterBody3D
 		double totalFrameTime = Performance.GetMonitor(Performance.Monitor.TimeProcess);
 		debugTrackerLabel.Text = "FPS: " + Engine.GetFramesPerSecond() +
 			"\nFrame time: " + Math.Round(totalFrameTime * 1000, 4) + " ms";
+		if (GetTree().GetMultiplayer().IsServer())
+			debugTrackerLabel.Text += "\nIs lobby host";
+		else
+			debugTrackerLabel.Text += "\nIs lobby peer";
     }
 
 	// Simple head bobbing effect
