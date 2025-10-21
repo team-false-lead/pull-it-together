@@ -436,7 +436,7 @@ public partial class PlayerController : CharacterBody3D
 		double totalFrameTime = Performance.GetMonitor(Performance.Monitor.TimeProcess);
 		debugTrackerLabel.Text = "FPS: " + Engine.GetFramesPerSecond() +
 			"\nFrame time: " + Math.Round(totalFrameTime * 1000, 4) + " ms";
-		if (GetTree().GetMultiplayer().IsServer())
+		if (Multiplayer.HasMultiplayerPeer() && Multiplayer.IsServer())
 			debugTrackerLabel.Text += "\nIs lobby host";
 		else
 			debugTrackerLabel.Text += "\nIs lobby peer";
@@ -711,7 +711,7 @@ public partial class PlayerController : CharacterBody3D
 
 	public void ExitLobby()
 	{
-        GameStateTracker gameStateTracker = GetTree().CurrentScene.GetNode<GameStateTracker>("%MapManager/TestMap/GameStateTracker");
+        GameStateTracker gameStateTracker = GetTree().CurrentScene.GetNode<GameStateTracker>("%MapManager/TestTerrain/GameStateTracker");
         gameStateTracker.RemovePlayerFromPlayerList(this);
         GetTree().CurrentScene.GetNodeOrNull<Node>("NetworkManager").CallDeferred("leave");
     }
