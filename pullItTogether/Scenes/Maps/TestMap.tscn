@@ -1,12 +1,9 @@
-[gd_scene load_steps=33 format=3 uid="uid://b7pp3skomvnhc"]
+[gd_scene load_steps=30 format=3 uid="uid://b7pp3skomvnhc"]
 
 [ext_resource type="Script" uid="uid://d2gutl4cngqlt" path="res://Scripts/ManagerScripts/ItemManager.cs" id="1_00jar"]
-[ext_resource type="Script" uid="uid://cqke368piplst" path="res://Scripts/ManagerScripts/GameStateTracker.cs" id="1_r4ehd"]
 [ext_resource type="PackedScene" uid="uid://woij3e5klul2" path="res://Scenes/Maps/TransitionArea.tscn" id="3_00jar"]
-[ext_resource type="PackedScene" uid="uid://c10ybnoe2rhv4" path="res://Scenes/Interactables/RopeBoxVerlet.tscn" id="3_0314m"]
 [ext_resource type="Script" uid="uid://u1f0pfpkqwoc" path="res://Scripts/MiscScripts/ItemSpawnRegistry.cs" id="3_j28jb"]
 [ext_resource type="PackedScene" uid="uid://ba3m0401u3th5" path="res://Scenes/Interactables/WoodPlank.tscn" id="4_qg828"]
-[ext_resource type="PackedScene" uid="uid://bfwhlqlt010kj" path="res://Scenes/Interactables/WagonTest1.tscn" id="5_0314m"]
 [ext_resource type="PackedScene" uid="uid://ddg3vj41j0u45" path="res://Scenes/Interactables/Food_Template.tscn" id="6_00jar"]
 [ext_resource type="PackedScene" uid="uid://b575wgt5fc8yc" path="res://Scenes/Entities/Campfire.tscn" id="7_j0g0q"]
 [ext_resource type="PackedScene" uid="uid://cnvpf5wbcbse1" path="res://Scenes/Entities/Wheel.tscn" id="9_xj7ls"]
@@ -46,7 +43,7 @@ albedo_color = Color(0, 0.4, 0.8, 1)
 albedo_color = Color(0, 0.4, 0.8, 1)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_00jar"]
-size = Vector3(50, 21.147, 25)
+size = Vector3(50, 21.1472, 1)
 
 [sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_j0g0q"]
 angle_min = -45.0
@@ -77,10 +74,6 @@ material = SubResource("StandardMaterial3D_ya8by")
 size = Vector3(0.1, 0.2, 0.05)
 
 [node name="TestMap" type="Node3D"]
-
-[node name="GameStateTracker" type="Node" parent="." node_paths=PackedStringArray("transitionArea")]
-script = ExtResource("1_r4ehd")
-transitionArea = NodePath("../Environment/TransitionArea")
 
 [node name="Environment" type="Node3D" parent="."]
 
@@ -123,14 +116,14 @@ collision_mask = 15
 
 [node name="TransitionArea" parent="Environment" node_paths=PackedStringArray("label", "pinkConfetti", "yellowConfetti", "cyanConfetti") instance=ExtResource("3_00jar")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -57.8781)
-collision_mask = 2
+collision_mask = 4
 label = NodePath("../Label3D")
 pinkConfetti = NodePath("../GPUParticles3DPink")
 yellowConfetti = NodePath("../GPUParticles3DYellow")
 cyanConfetti = NodePath("../GPUParticles3DCyan")
 
 [node name="CollisionShape3D2" type="CollisionShape3D" parent="Environment/TransitionArea"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 11.7913, -13.0645)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 11.7913, 0)
 shape = SubResource("BoxShape3D_00jar")
 
 [node name="GPUParticles3DPink" type="GPUParticles3D" parent="Environment"]
@@ -209,9 +202,6 @@ script = ExtResource("3_j28jb")
 
 [node name="Placeholders" type="Node3D" parent="."]
 
-[node name="RopeBox2" parent="Placeholders" instance=ExtResource("3_0314m")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.49154, 2.21766, -7.71141)
-
 [node name="WoodPlank" parent="Placeholders" instance=ExtResource("4_qg828")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.88892, 4.37407, 1.78256)
 SpawnOnUseScene = null
@@ -223,12 +213,6 @@ SpawnOnUseScene = null
 [node name="WoodPlank3" parent="Placeholders" instance=ExtResource("4_qg828")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.76184, 4.37407, 1.78256)
 SpawnOnUseScene = null
-
-[node name="WagonTest1" parent="Placeholders" instance=ExtResource("5_0314m")]
-transform = Transform3D(-0.987835, 0, -0.155504, 0, 1, 0, 0.155504, 0, -0.987835, -5.95615, 2.89585, 4.1258)
-
-[node name="WagonTest2" parent="Placeholders" instance=ExtResource("5_0314m")]
-transform = Transform3D(-0.988633, 0, 0.150346, 0, 1, 0, -0.150346, 0, -0.988633, -12.0476, 2.77637, 6.20935)
 
 [node name="Food" parent="Placeholders" instance=ExtResource("6_00jar")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.56, 1.71766, -0.158901)

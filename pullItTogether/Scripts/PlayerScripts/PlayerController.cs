@@ -19,6 +19,8 @@ public partial class PlayerController : CharacterBody3D
 	private bool isSprinting;
 
 	// Camera and look parameters
+	private Color initialBodyColor = Colors.White;
+	[Export] public Color bodyColor { get => initialBodyColor; set { initialBodyColor = value; ApplyBodyColor(initialBodyColor); } }
 	[Export] public Node3D head;
 	[Export] public Camera3D camera;
 	[Export] public float fov = 75.0f;
@@ -159,6 +161,7 @@ public partial class PlayerController : CharacterBody3D
 
 		GameStateTracker gameStateTracker = GetTree().CurrentScene.GetNode<GameStateTracker>("%MapManager/TestTerrain/GameStateTracker");
 		gameStateTracker.AddPlayerToPlayerList(this);
+		ApplyBodyColor(bodyColor);
 	}
 
 	// Called when the map is reloaded, checks if held object is still valid
@@ -180,6 +183,37 @@ public partial class PlayerController : CharacterBody3D
 		if (!Multiplayer.HasMultiplayerPeer()) return false;
 		var peer = Multiplayer.MultiplayerPeer;
 		return peer != null && peer.GetConnectionStatus() == MultiplayerPeer.ConnectionStatus.Connected;
+	}
+
+	// Apply the specified color to all MeshInstance3D children for player body coloring
+	private void ApplyBodyColor(Color color)
+	{
+		TintMeshIfFound("BodyMesh", color);
+		TintMeshIfFound("Head/HeadMesh", color);
+		TintMeshIfFound("Head/Camera3D/EyesMesh", color);
+		TintMeshIfFound("Head/Camera3D/Inventory/InventorySlot1", color);
+	}
+
+	private void TintMeshIfFound(string path, Color color)
+	{
+		var mesh = GetNodeOrNull<MeshInstance3D>(path);
+		if (mesh == null) return;
+
+		StandardMaterial3D baseMat =
+			mesh.MaterialOverride as StandardMaterial3D ??
+			mesh.GetActiveMaterial(0) as StandardMaterial3D ??
+			new StandardMaterial3D();
+
+		var mat = (StandardMaterial3D)baseMat.Duplicate();
+		mat.AlbedoColor = color;
+		mesh.MaterialOverride = mat;
+	}
+
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+	public void SetColor(Color color)
+	{
+		bodyColor = color;
+		//ApplyBodyColor(color);
 	}
 
 	// Handle mouse input for looking around

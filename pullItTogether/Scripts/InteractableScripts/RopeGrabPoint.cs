@@ -12,6 +12,8 @@ public partial class RopeGrabPoint : Interactable
     [Export] public Node3D resetPoint;
     [Export] public VerletRopeRigid rope;
     [Export] public VerletJointRigid joint;
+    [Export] public VerletRopeSimulated simRope;
+    [Export] public VerletJointSimulated simJoint;
     [Export] public float carrierTetherBuffer = 1.1f;
     [Export] public float carrierTetherStrength = 10f;
 
@@ -32,6 +34,8 @@ public partial class RopeGrabPoint : Interactable
 
         joint.EndBody = this;
         joint.EndCustomLocation = this;
+        simJoint.EndBody = this;
+        simJoint.EndCustomLocation = this;
         CallDeferred(nameof(DeferredResetJoint));
         //GD.Print(joint.EndBody);
 
@@ -89,12 +93,13 @@ public partial class RopeGrabPoint : Interactable
 
 
         PlayerController carrierScript = carrier as PlayerController;
+        var slotPath = carrierScript.GetInventorySlot().GetPath();
         uint carrierLayerBit = carrierScript.collisionPusherAB.CollisionLayer;
         //rope.CollisionLayer = 0;
         rope.CollisionMask = savedRopeMask & ~carrierLayerBit & ~savedLayer; // drop player and self from rope collisions
         //carrierScript.SetTetherAnchor(joint.StartCustomLocation, rope.RopeLength, carrierTetherBuffer, carrierTetherStrength);
         carrierScript.RpcId(carrierScript.GetMultiplayerAuthority(), nameof(PlayerController.RequestSetTetherAnchorPath), joint.StartCustomLocation.GetPath(), rope.RopeLength, carrierTetherBuffer, carrierTetherStrength);
-
+        Rpc(nameof(ClientMoveSimRope), slotPath);
 
         Carrier = carrier;
         isHeld = true;
@@ -105,19 +110,49 @@ public partial class RopeGrabPoint : Interactable
     {
         proxy = proxyNode;
 
-        if (joint != null && proxy != null)
+        if (joint != null && simJoint != null && proxy != null)
         {
             joint.EndBody = proxy;
             joint.EndCustomLocation = proxy;
+            simJoint.EndBody = proxy;
+            simJoint.EndCustomLocation = proxy;
             CallDeferred(nameof(DeferredResetJoint));
+        }
+    }
+
+    [Rpc(MultiplayerApi.RpcMode.AnyPeer)]
+    public void ClientMoveSimRope(NodePath slotPath)
+    {
+        if (multiplayer.IsServer()) return; // server does not need to move, it already shoud know
+        var end = GetNode<Node3D>(slotPath);
+        if (end != null && simJoint != null)
+        {
+            //simJoint.EndBody = end;
+            simJoint.EndCustomLocation = end;
+            DeferredResetJoint();
+        }
+    }
+
+    [Rpc(MultiplayerApi.RpcMode.AnyPeer)]
+    public void ClientClearSimRope()
+    {
+        if (multiplayer.IsServer()) return; // server does not need to move, it already shoud know
+        if (simJoint != null)
+        {
+            simJoint.EndBody = this;
+            simJoint.EndCustomLocation = this;
+            DeferredResetJoint();
         }
     }
 
     // detach from proxy - reset joint, restore collisions, show, freeze, reset position
     public void DetachFromProxy()
     {
+        Rpc(nameof(ClientClearSimRope));
         joint.EndBody = this;
         joint.EndCustomLocation = this;
+        simJoint.EndBody = this;
+        simJoint.EndCustomLocation = this;
         CallDeferred(nameof(DeferredResetJoint));
 
         // Restore collision setting
@@ -148,6 +183,10 @@ public partial class RopeGrabPoint : Interactable
         if (joint != null)
         {
             joint.ResetJoint();
+        }
+        if (simJoint != null)
+        {
+            simJoint.ResetJoint();
         }
     }
 
