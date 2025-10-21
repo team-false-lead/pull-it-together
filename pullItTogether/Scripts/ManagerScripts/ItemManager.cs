@@ -241,7 +241,6 @@ public partial class ItemManager : Node3D
 
 	private void AddPlayerInteractable(Node newChild)
 	{
-		if (!multiplayer.IsServer()) return;
 		GD.Print("ItemManager: AddPlayerInteractable called for " + newChild.Name);
 		if (newChild is not CharacterBody3D player) return;
 		//player.IsNodeReady();
