@@ -5,24 +5,13 @@ using System;
 public partial class Food : Interactable
 {
     [Export] public bool isCooked = false;
-    [Export] public MeshInstance3D rawMesh;
-    [Export] public MeshInstance3D cookedMesh;
+    [Export] public MeshInstance3D currentMesh;
     [Export] public Label3D label3D;
     [Export] public float healthAddedRaw = 25f; // Amount of health restored 
     [Export] public float healthAddedCooked = 50f; // Amount of health restored when cooked
     [Export] public float potentialEnergyAddedRaw = 25f; // Amount of energy restored
     [Export] public float potentialEnergyAddedCooked = 50f; // Amount of energy restored when cooked
 
-
-    public override void _PhysicsProcess(global::System.Double delta)
-    {
-        base._PhysicsProcess(delta);
-        if (isCooked == true && cookedMesh.Visible == false)
-        {
-            rawMesh.Visible = false;
-            cookedMesh.Visible = true;
-        }
-    }
     // Logic for using the food item on self (eating)
     public override void TryUseSelf(CharacterBody3D user)
     {
