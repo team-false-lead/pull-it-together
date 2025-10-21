@@ -1,6 +1,7 @@
 using Godot;
 using Godot.Collections;
 using System;
+using System.Collections.Generic;
 
 // Movement Based on Juiced Up First Person Character Controller Tutorial - Godot 3D FPS - YouTube
 // https://www.youtube.com/watch?v=A3HLeyaBCq4&t=461s&ab_channel=LegionGames
@@ -66,17 +67,20 @@ public partial class PlayerController : CharacterBody3D
 	[Signal] public delegate void OnDownedEventHandler();
     [Signal] public delegate void OnRevivedEventHandler();
 
-    // Pause menu parameters
-    private bool isPaused;
+	// Storm parameters
+	private Label inStormLabel;
+	private bool inStorm = false;
+	private Label lookingAtLabel;
+	private string lookingAtText = "";
+	
+	// Pause menu parameters
+	private bool isPaused;
 	[Export] private PauseMenu pauseMenu;
 
 	public bool IsDowned
 	{
 		get { return currentHealth <= 0; }
 	}
-
-	// Debug parameters
-	private Label debugTrackerLabel;
 
 	public override void _EnterTree()
 	{
@@ -89,6 +93,8 @@ public partial class PlayerController : CharacterBody3D
 		if (IsLocalControlled())
 		{
 			Input.SetMouseMode(Input.MouseModeEnum.Captured);
+
+			GetTree().Root.GetNode("Main/MapManager/TestTerrain/Terrain3D").Call("set_camera", camera);
 
 			// Hide all nodes in the "self_hide" group
 			foreach (var child in GetTree().GetNodesInGroup("self_hide"))
@@ -115,6 +121,8 @@ public partial class PlayerController : CharacterBody3D
             fatigueBar = HUD.GetNode<ProgressBar>("EnergyBar/FatigueProgressBar");
 			outOfHealthLabel = HUD.GetNode<Label>("OutOfHealthLabel");
 			debugTrackerLabel = HUD.GetNode<Label>("DebugTrackerLabel");
+			inStormLabel = HUD.GetNode<Label>("InStormLabel");
+			lookingAtLabel = HUD.GetNode<Label>("LookingAtLabel");
 
 			// Set health and energy values to their default
 			currentHealth = maxHealth;
@@ -341,23 +349,28 @@ public partial class PlayerController : CharacterBody3D
 		{
 			if (lookedAtObject.TryGetValue("collider", out var colliderVariant))
 			{
-			var godotObj = ((Variant)colliderVariant).AsGodotObject();
+				var godotObj = ((Variant)colliderVariant).AsGodotObject();
 				if (godotObj is Node colliderNode)
 				{
 					var interactable = FindInteractable(colliderNode);
 					var entity = FindEntity(colliderNode);
 					//debug prints for now
-					//if (interactable != null)
-					//{
-					//	GD.Print("Looking at interactable: " + interactable.GetInteractableId());
-					//}
-					//if (entity != null)
-					//{
-					//	GD.Print("Looking at entity: " + entity.GetEntityId());
-					//}
+					if (interactable != null)
+					{
+						lookingAtText = interactable.Name;
+					}
+					else if (entity != null)
+					{
+						lookingAtText = entity.Name;
+					}
 				}
 			}
 		}
+		else
+		{
+			lookingAtText = "";
+		}
+		EmitSignal("ChangeHUD");
 		
 
 		// If the player isn't doing anything that would spend energy, regain energy
@@ -381,7 +394,6 @@ public partial class PlayerController : CharacterBody3D
 			ChangeMaxEnergy(-10);
 		else if (Input.IsKeyPressed(Key.Kp8)) // When Numpad 8 is pressed, restore fatigue
 			ChangeMaxEnergy(10);
-
 
 		//debugTrackerLabel.Text = "FPS: " + Engine.GetFramesPerSecond() +
 		//	"\nFrame time: " + Math.Round(1 / Engine.GetFramesPerSecond(), 4) + " sec";
@@ -723,6 +735,13 @@ public partial class PlayerController : CharacterBody3D
 		//GD.Print("Current fatigue: " + Mathf.Abs(maxEnergy - 100));
 		// Idk if we're doing anything else with this
 	}
+
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+	public void UpdateHudStormText(bool inStorm)
+	{
+		this.inStorm = inStorm;
+		EmitSignal("ChangeHUD");
+	}
 	
 	private void UpdateLocalHud()
 	{
@@ -732,6 +751,8 @@ public partial class PlayerController : CharacterBody3D
 		fatigueBar.Value = Mathf.Abs(maxEnergy - 100);
 		helpMeLabel.Visible = currentHealth <= 0;
 		outOfHealthLabel.Visible = helpMeLabel.Visible || outOfHealthLabel.Text != "You are out of health! Wait for someone to pick you up or heal you!";
+		inStormLabel.Visible = inStorm;
+		lookingAtLabel.Text = lookingAtText;
     }
 
 	public void SetOutOfHealthLabelText(string text)
