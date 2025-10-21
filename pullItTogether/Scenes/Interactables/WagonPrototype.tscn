@@ -10,6 +10,7 @@
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_vlqqi"]
 friction = 0.08
 bounce = 0.25
+absorbent = true
 
 [sub_resource type="BoxMesh" id="BoxMesh_vlqqi"]
 
@@ -64,7 +65,7 @@ properties/7/path = NodePath("VerletRopeRigid2:rotation")
 properties/7/spawn = true
 properties/7/replication_mode = 1
 
-[node name="RigidBody3D" type="RigidBody3D"]
+[node name="RigidBody3D" type="RigidBody3D" groups=["wagon"]]
 collision_layer = 4
 collision_mask = 9
 mass = 900.0
