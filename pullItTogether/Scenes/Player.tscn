@@ -24,19 +24,19 @@ properties/4/spawn = true
 properties/4/replication_mode = 1
 properties/5/path = NodePath(".:currentHealth")
 properties/5/spawn = true
-properties/5/replication_mode = 1
+properties/5/replication_mode = 2
 properties/6/path = NodePath(".:maxEnergy")
 properties/6/spawn = true
-properties/6/replication_mode = 1
+properties/6/replication_mode = 2
 properties/7/path = NodePath(".:currentEnergy")
 properties/7/spawn = true
-properties/7/replication_mode = 1
+properties/7/replication_mode = 2
 properties/8/path = NodePath(".:scale")
 properties/8/spawn = true
-properties/8/replication_mode = 1
+properties/8/replication_mode = 2
 properties/9/path = NodePath("HelpMeLabel:visible")
 properties/9/spawn = true
-properties/9/replication_mode = 1
+properties/9/replication_mode = 2
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_r1we1"]
 

@@ -5,7 +5,7 @@
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_gntrk"]
 properties/0/path = NodePath(".:interactableId")
 properties/0/spawn = true
-properties/0/replication_mode = 1
+properties/0/replication_mode = 2
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_r1we1"]
 
