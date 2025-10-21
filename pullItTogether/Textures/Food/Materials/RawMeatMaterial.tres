@@ -1,0 +1,6 @@
+[gd_resource type="StandardMaterial3D" load_steps=2 format=3 uid="uid://cyqohx368pejy"]
+
+[ext_resource type="Texture2D" uid="uid://bymeompe0qggb" path="res://Textures/Food/txr_meat_raw_bc.png" id="1_7grkd"]
+
+[resource]
+albedo_texture = ExtResource("1_7grkd")
