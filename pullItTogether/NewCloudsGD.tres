@@ -1,4 +1,4 @@
-[gd_resource type="CompositorEffect" script_class="SunshineCloudsGD" load_steps=12 format=3 uid="uid://c2wktxwl217mk"]
+[gd_resource type="CompositorEffect" script_class="SunshineCloudsGD" load_steps=12 format=3 uid="uid://bsma6evjua7by"]
 
 [ext_resource type="RDShaderFile" uid="uid://dx1y5cye1m1hu" path="res://addons/SunshineClouds2/SunshineCloudsCompute.glsl" id="1_lebqt"]
 [ext_resource type="CompressedTexture3D" uid="uid://dei12lsgrjpyu" path="res://addons/SunshineClouds2/NoiseTextures/curl_noise_varied.tga" id="2_2lmvw"]
@@ -73,4 +73,4 @@ origin_offset = Vector3(0, 0, 0)
 wind_direction = Vector3(0, 0, -1)
 directional_lights_data = Array[Vector4]([Vector4(0, 0.778057, 0.628194, 12), Vector4(1, 1, 1, 1)])
 point_lights_data = Array[Vector4]([])
-point_effector_data = Array[Vector4]([Vector4(0, 0, 5000, 5000), Vector4(1, 0, 0, 0)])
+point_effector_data = Array[Vector4]([Vector4(0, 0, 5000, 3500), Vector4(1, 0, 0, 0)])

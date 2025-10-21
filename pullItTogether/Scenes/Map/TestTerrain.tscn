@@ -1,8 +1,8 @@
 [gd_scene load_steps=28 format=3 uid="uid://b518v5yn7ig5o"]
 
-[ext_resource type="Terrain3DAssets" uid="uid://dal3jhw6241qg" path="res://demo/data/assets.tres" id="1_in7uf"]
+[ext_resource type="Terrain3DAssets" uid="uid://dal3jhw6241qg" path="res://addons/demo/data/assets.tres" id="1_in7uf"]
 [ext_resource type="Script" uid="uid://d2gutl4cngqlt" path="res://Scripts/ManagerScripts/ItemManager.cs" id="2_bn2kb"]
-[ext_resource type="CompositorEffect" uid="uid://c2wktxwl217mk" path="res://NewCloudsGD.tres" id="2_c2oie"]
+[ext_resource type="CompositorEffect" uid="uid://bsma6evjua7by" path="res://NewCloudsGD.tres" id="2_c2oie"]
 [ext_resource type="Script" uid="uid://u1f0pfpkqwoc" path="res://Scripts/MiscScripts/ItemSpawnRegistry.cs" id="3_dobrn"]
 [ext_resource type="PackedScene" uid="uid://ba3m0401u3th5" path="res://Scenes/Interactables/WoodPlank.tscn" id="5_pd0wi"]
 [ext_resource type="PackedScene" uid="uid://ddg3vj41j0u45" path="res://Scenes/Interactables/Food_Template.tscn" id="7_eicjb"]
@@ -260,8 +260,8 @@ collision_mask = 15
 size = Vector3(1, 4.29089, 38.4169)
 
 [node name="Superstorm" parent="." node_paths=PackedStringArray("cloudsEffector", "interactablesNode") instance=ExtResource("18_tys2t")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 75)
-stormSpeed = 1.75
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 80)
+stormSpeed = 1.25
 cloudsEffector = NodePath("../SunshineCloudsEffector")
 interactablesNode = NodePath("../Interactables")
 
@@ -283,6 +283,6 @@ metadata/_custom_type_script = "uid://djusduuxf0voj"
 [node name="SunshineCloudsEffector" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 5000)
 script = ExtResource("21_annkb")
-Radius = 5000.0
+Radius = 3500.0
 Power = 1.0
 metadata/_custom_type_script = "uid://bxlm4e5qfb7uu"
