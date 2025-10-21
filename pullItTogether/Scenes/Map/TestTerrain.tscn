@@ -1,19 +1,20 @@
-[gd_scene load_steps=28 format=3 uid="uid://b518v5yn7ig5o"]
+[gd_scene load_steps=29 format=3 uid="uid://b518v5yn7ig5o"]
 
-[ext_resource type="Terrain3DAssets" uid="uid://dal3jhw6241qg" path="res://addons/demo/data/assets.tres" id="1_in7uf"]
+[ext_resource type="Terrain3DAssets" uid="uid://dal3jhw6241qg" path="res://demo/data/assets.tres" id="1_in7uf"]
+[ext_resource type="Script" uid="uid://cqke368piplst" path="res://Scripts/ManagerScripts/GameStateTracker.cs" id="1_pigjd"]
 [ext_resource type="Script" uid="uid://d2gutl4cngqlt" path="res://Scripts/ManagerScripts/ItemManager.cs" id="2_bn2kb"]
 [ext_resource type="CompositorEffect" uid="uid://bsma6evjua7by" path="res://NewCloudsGD.tres" id="2_c2oie"]
 [ext_resource type="Script" uid="uid://u1f0pfpkqwoc" path="res://Scripts/MiscScripts/ItemSpawnRegistry.cs" id="3_dobrn"]
 [ext_resource type="PackedScene" uid="uid://ba3m0401u3th5" path="res://Scenes/Interactables/WoodPlank.tscn" id="5_pd0wi"]
-[ext_resource type="PackedScene" path="res://Scenes/Interactables/Food_Template.tscn" id="7_eicjb"]
+[ext_resource type="PackedScene" uid="uid://ddg3vj41j0u45" path="res://Scenes/Interactables/Food_Template.tscn" id="7_eicjb"]
 [ext_resource type="PackedScene" uid="uid://b575wgt5fc8yc" path="res://Scenes/Entities/Campfire.tscn" id="8_iddi4"]
 [ext_resource type="PackedScene" uid="uid://cnvpf5wbcbse1" path="res://Scenes/Entities/Wheel.tscn" id="9_w1dx0"]
 [ext_resource type="PackedScene" uid="uid://woij3e5klul2" path="res://Scenes/Maps/TransitionArea.tscn" id="10_bn2kb"]
 [ext_resource type="PackedScene" uid="uid://b2cc2nt2bpja0" path="res://Scenes/Interactables/WagonPrototype.tscn" id="10_nvhef"]
-[ext_resource type="PackedScene" path="res://Scenes/Interactables/Food_Goodberry.tscn" id="12_w1dx0"]
-[ext_resource type="PackedScene" path="res://Scenes/Interactables/Food_Poisonberry.tscn" id="13_nvhef"]
-[ext_resource type="PackedScene" path="res://Scenes/Interactables/Food_Tonic.tscn" id="14_pigjd"]
-[ext_resource type="PackedScene" path="res://Scenes/Interactables/Food_Meat.tscn" id="15_6x6jt"]
+[ext_resource type="PackedScene" uid="uid://dnrj6qm3hslwt" path="res://Scenes/Interactables/Food_Goodberry.tscn" id="12_w1dx0"]
+[ext_resource type="PackedScene" uid="uid://cllu1opbcu5ux" path="res://Scenes/Interactables/Food_Poisonberry.tscn" id="13_nvhef"]
+[ext_resource type="PackedScene" uid="uid://dutt28pb7vdid" path="res://Scenes/Interactables/Food_Tonic.tscn" id="14_pigjd"]
+[ext_resource type="PackedScene" uid="uid://drat1km3kl28w" path="res://Scenes/Interactables/Food_Meat.tscn" id="15_6x6jt"]
 [ext_resource type="PackedScene" uid="uid://bysb2u8m55de2" path="res://Shaders/ToonShader.tscn" id="16_iddi4"]
 [ext_resource type="PackedScene" uid="uid://bvxg2stfsjosw" path="res://Scenes/Superstorm.tscn" id="18_tys2t"]
 [ext_resource type="Script" uid="uid://djusduuxf0voj" path="res://addons/SunshineClouds2/SunshineCloudsDriver.gd" id="19_rgdli"]
@@ -89,9 +90,13 @@ volumetric_fog_length = 40.73
 compositor_effects = Array[CompositorEffect]([ExtResource("2_c2oie")])
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_dobrn"]
-size = Vector3(50, 21.1472, 1)
+size = Vector3(150, 21.147, 175)
 
 [node name="TestTerrain" type="Node3D"]
+
+[node name="GameStateTracker" type="Node" parent="." node_paths=PackedStringArray("transitionArea")]
+script = ExtResource("1_pigjd")
+transitionArea = NodePath("../TransitionArea")
 
 [node name="Terrain3D" type="Terrain3D" parent="."]
 data_directory = "res://MapData"
@@ -181,11 +186,11 @@ collision_mask = 15
 size = Vector3(1, 200, 400)
 
 [node name="TransitionArea" parent="." instance=ExtResource("10_bn2kb")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20.3707, 118.999, -993.391)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20.3707, 118.999, -1009.01)
 collision_mask = 4
 
 [node name="CollisionShape3D2" type="CollisionShape3D" parent="TransitionArea"]
-transform = Transform3D(3.96784, 0, 0, 0, 2.28205, 0, 0, 0, 1, 0, 11.7913, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 11.7913, 0)
 shape = SubResource("BoxShape3D_dobrn")
 
 [node name="Label3D" type="Label3D" parent="TransitionArea"]

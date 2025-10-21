@@ -76,8 +76,10 @@ public partial class PlayerController : CharacterBody3D
 	// Pause menu parameters
 	private bool isPaused;
 	[Export] private PauseMenu pauseMenu;
+	private Label debugTrackerLabel;
 
-	public bool IsDowned
+
+    public bool IsDowned
 	{
 		get { return currentHealth <= 0; }
 	}
@@ -155,7 +157,7 @@ public partial class PlayerController : CharacterBody3D
 			mapManager.Connect("map_reloaded", new Callable(this, nameof(OnMapReloaded)));
 		}
 
-		GameStateTracker gameStateTracker = GetTree().CurrentScene.GetNode<GameStateTracker>("%MapManager/TestMap/GameStateTracker");
+		GameStateTracker gameStateTracker = GetTree().CurrentScene.GetNode<GameStateTracker>("%MapManager/TestTerrain/GameStateTracker");
 		gameStateTracker.AddPlayerToPlayerList(this);
 	}
 
