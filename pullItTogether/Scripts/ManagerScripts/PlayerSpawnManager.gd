@@ -8,10 +8,10 @@ var players: Dictionary[int, Node3D] = {}
 var spawning_enabled : bool = false
 
 var _player_color_palette := [
-	Color.BLUE,
-	Color.RED,
-	Color8(5, 102, 8), # Green
-	Color.YELLOW
+	Color8(63, 136, 197), # Blue
+	Color8(208, 0, 0),   # Red
+	Color8(255, 186, 8), # Yellow
+	Color8(3, 43, 67),   # Dark Blue
 ]
 
 var _assigned_colors := {}
