@@ -5,15 +5,15 @@
 [ext_resource type="CompositorEffect" uid="uid://bsma6evjua7by" path="res://NewCloudsGD.tres" id="2_c2oie"]
 [ext_resource type="Script" uid="uid://u1f0pfpkqwoc" path="res://Scripts/MiscScripts/ItemSpawnRegistry.cs" id="3_dobrn"]
 [ext_resource type="PackedScene" uid="uid://ba3m0401u3th5" path="res://Scenes/Interactables/WoodPlank.tscn" id="5_pd0wi"]
-[ext_resource type="PackedScene" uid="uid://ddg3vj41j0u45" path="res://Scenes/Interactables/Food_Template.tscn" id="7_eicjb"]
+[ext_resource type="PackedScene" path="res://Scenes/Interactables/Food_Template.tscn" id="7_eicjb"]
 [ext_resource type="PackedScene" uid="uid://b575wgt5fc8yc" path="res://Scenes/Entities/Campfire.tscn" id="8_iddi4"]
 [ext_resource type="PackedScene" uid="uid://cnvpf5wbcbse1" path="res://Scenes/Entities/Wheel.tscn" id="9_w1dx0"]
 [ext_resource type="PackedScene" uid="uid://woij3e5klul2" path="res://Scenes/Maps/TransitionArea.tscn" id="10_bn2kb"]
 [ext_resource type="PackedScene" uid="uid://b2cc2nt2bpja0" path="res://Scenes/Interactables/WagonPrototype.tscn" id="10_nvhef"]
-[ext_resource type="PackedScene" uid="uid://dnrj6qm3hslwt" path="res://Scenes/Interactables/Food_Goodberry.tscn" id="12_w1dx0"]
-[ext_resource type="PackedScene" uid="uid://cllu1opbcu5ux" path="res://Scenes/Interactables/Food_Poisonberry.tscn" id="13_nvhef"]
-[ext_resource type="PackedScene" uid="uid://dutt28pb7vdid" path="res://Scenes/Interactables/Food_Tonic.tscn" id="14_pigjd"]
-[ext_resource type="PackedScene" uid="uid://drat1km3kl28w" path="res://Scenes/Interactables/Food_Meat.tscn" id="15_6x6jt"]
+[ext_resource type="PackedScene" path="res://Scenes/Interactables/Food_Goodberry.tscn" id="12_w1dx0"]
+[ext_resource type="PackedScene" path="res://Scenes/Interactables/Food_Poisonberry.tscn" id="13_nvhef"]
+[ext_resource type="PackedScene" path="res://Scenes/Interactables/Food_Tonic.tscn" id="14_pigjd"]
+[ext_resource type="PackedScene" path="res://Scenes/Interactables/Food_Meat.tscn" id="15_6x6jt"]
 [ext_resource type="PackedScene" uid="uid://bysb2u8m55de2" path="res://Shaders/ToonShader.tscn" id="16_iddi4"]
 [ext_resource type="PackedScene" uid="uid://bvxg2stfsjosw" path="res://Scenes/Superstorm.tscn" id="18_tys2t"]
 [ext_resource type="Script" uid="uid://djusduuxf0voj" path="res://addons/SunshineClouds2/SunshineCloudsDriver.gd" id="19_rgdli"]
@@ -249,6 +249,126 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.35314, 1.21766, -1.08884)
 
 [node name="Meat" parent="Placeholders" instance=ExtResource("15_6x6jt")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.9757, 4.03662, -6.39634)
+
+[node name="WoodPlank4" parent="Placeholders" instance=ExtResource("5_pd0wi")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.51748, 2.5586, -204.677)
+
+[node name="WoodPlank5" parent="Placeholders" instance=ExtResource("5_pd0wi")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.58128, 3.10469, -204.677)
+
+[node name="Goodberry2" parent="Placeholders" instance=ExtResource("12_w1dx0")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.6822, 2.07041, -205.018)
+
+[node name="Goodberry3" parent="Placeholders" instance=ExtResource("12_w1dx0")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.89653, 2.07041, -205.018)
+
+[node name="Poisonberry2" parent="Placeholders" instance=ExtResource("13_nvhef")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.2131, 1.91066, -205.085)
+
+[node name="Poisonberry3" parent="Placeholders" instance=ExtResource("13_nvhef")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.2131, 1.91066, -205.085)
+
+[node name="Meat2" parent="Placeholders" instance=ExtResource("15_6x6jt")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -13.0822, 0.616709, -206.085)
+
+[node name="Meat3" parent="Placeholders" instance=ExtResource("15_6x6jt")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.1671, 1.7625, -206.085)
+
+[node name="Tonic2" parent="Placeholders" instance=ExtResource("14_pigjd")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.63176, 1.31068, -201.241)
+
+[node name="Tonic3" parent="Placeholders" instance=ExtResource("14_pigjd")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.80963, 1.31068, -201.241)
+
+[node name="WoodPlank6" parent="Placeholders" instance=ExtResource("5_pd0wi")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 44.1185, 4.09451, -331.827)
+
+[node name="WoodPlank7" parent="Placeholders" instance=ExtResource("5_pd0wi")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 45.0547, 4.6406, -331.827)
+
+[node name="Goodberry4" parent="Placeholders" instance=ExtResource("12_w1dx0")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42.9537, 3.60633, -332.168)
+
+[node name="Goodberry5" parent="Placeholders" instance=ExtResource("12_w1dx0")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 44.7394, 3.60633, -332.168)
+
+[node name="Poisonberry4" parent="Placeholders" instance=ExtResource("13_nvhef")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42.4228, 3.44657, -332.235)
+
+[node name="Poisonberry5" parent="Placeholders" instance=ExtResource("13_nvhef")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42.4228, 3.44657, -332.235)
+
+[node name="Meat4" parent="Placeholders" instance=ExtResource("15_6x6jt")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40.5537, 2.15262, -333.235)
+
+[node name="Meat5" parent="Placeholders" instance=ExtResource("15_6x6jt")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 41.4689, 3.29841, -333.235)
+
+[node name="Tonic4" parent="Placeholders" instance=ExtResource("14_pigjd")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 46.0042, 2.84659, -328.391)
+
+[node name="Tonic5" parent="Placeholders" instance=ExtResource("14_pigjd")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 46.8263, 2.84659, -328.391)
+
+[node name="WoodPlank8" parent="Placeholders" instance=ExtResource("5_pd0wi")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -106.835, 4.09451, -340.351)
+
+[node name="WoodPlank9" parent="Placeholders" instance=ExtResource("5_pd0wi")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -105.899, 4.6406, -340.351)
+
+[node name="Goodberry6" parent="Placeholders" instance=ExtResource("12_w1dx0")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -108, 3.60633, -340.692)
+
+[node name="Goodberry7" parent="Placeholders" instance=ExtResource("12_w1dx0")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -106.214, 3.60633, -340.692)
+
+[node name="Poisonberry6" parent="Placeholders" instance=ExtResource("13_nvhef")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -108.531, 3.44657, -340.758)
+
+[node name="Poisonberry7" parent="Placeholders" instance=ExtResource("13_nvhef")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -108.531, 3.44657, -340.758)
+
+[node name="Meat6" parent="Placeholders" instance=ExtResource("15_6x6jt")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -110.4, 2.15262, -341.758)
+
+[node name="Meat7" parent="Placeholders" instance=ExtResource("15_6x6jt")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -109.485, 3.29841, -341.758)
+
+[node name="Tonic6" parent="Placeholders" instance=ExtResource("14_pigjd")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -104.95, 2.84659, -336.914)
+
+[node name="Tonic7" parent="Placeholders" instance=ExtResource("14_pigjd")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -104.127, 2.84659, -336.914)
+
+[node name="WoodPlank10" parent="Placeholders" instance=ExtResource("5_pd0wi")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 34.2616, 28.674, -600.597)
+
+[node name="WoodPlank11" parent="Placeholders" instance=ExtResource("5_pd0wi")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 35.1978, 29.2201, -600.597)
+
+[node name="Goodberry8" parent="Placeholders" instance=ExtResource("12_w1dx0")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 33.0969, 28.1858, -600.938)
+
+[node name="Goodberry9" parent="Placeholders" instance=ExtResource("12_w1dx0")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 34.8826, 28.1858, -600.938)
+
+[node name="Poisonberry8" parent="Placeholders" instance=ExtResource("13_nvhef")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32.566, 28.0261, -601.004)
+
+[node name="Poisonberry9" parent="Placeholders" instance=ExtResource("13_nvhef")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32.566, 28.0261, -601.004)
+
+[node name="Meat8" parent="Placeholders" instance=ExtResource("15_6x6jt")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30.6969, 26.7321, -602.004)
+
+[node name="Meat9" parent="Placeholders" instance=ExtResource("15_6x6jt")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 31.6121, 27.8779, -602.004)
+
+[node name="Tonic8" parent="Placeholders" instance=ExtResource("14_pigjd")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 36.1473, 27.4261, -597.16)
+
+[node name="Tonic9" parent="Placeholders" instance=ExtResource("14_pigjd")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 36.9695, 27.4261, -597.16)
 
 [node name="ToonShader" parent="." instance=ExtResource("16_iddi4")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.51888, 0, -16.3447)
