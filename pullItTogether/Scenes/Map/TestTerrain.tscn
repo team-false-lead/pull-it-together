@@ -1,0 +1,408 @@
+[gd_scene load_steps=28 format=3 uid="uid://b518v5yn7ig5o"]
+
+[ext_resource type="Terrain3DAssets" uid="uid://dal3jhw6241qg" path="res://addons/demo/data/assets.tres" id="1_in7uf"]
+[ext_resource type="Script" uid="uid://d2gutl4cngqlt" path="res://Scripts/ManagerScripts/ItemManager.cs" id="2_bn2kb"]
+[ext_resource type="CompositorEffect" uid="uid://bsma6evjua7by" path="res://NewCloudsGD.tres" id="2_c2oie"]
+[ext_resource type="Script" uid="uid://u1f0pfpkqwoc" path="res://Scripts/MiscScripts/ItemSpawnRegistry.cs" id="3_dobrn"]
+[ext_resource type="PackedScene" uid="uid://ba3m0401u3th5" path="res://Scenes/Interactables/WoodPlank.tscn" id="5_pd0wi"]
+[ext_resource type="PackedScene" path="res://Scenes/Interactables/Food_Template.tscn" id="7_eicjb"]
+[ext_resource type="PackedScene" uid="uid://b575wgt5fc8yc" path="res://Scenes/Entities/Campfire.tscn" id="8_iddi4"]
+[ext_resource type="PackedScene" uid="uid://cnvpf5wbcbse1" path="res://Scenes/Entities/Wheel.tscn" id="9_w1dx0"]
+[ext_resource type="PackedScene" uid="uid://woij3e5klul2" path="res://Scenes/Maps/TransitionArea.tscn" id="10_bn2kb"]
+[ext_resource type="PackedScene" uid="uid://b2cc2nt2bpja0" path="res://Scenes/Interactables/WagonPrototype.tscn" id="10_nvhef"]
+[ext_resource type="PackedScene" path="res://Scenes/Interactables/Food_Goodberry.tscn" id="12_w1dx0"]
+[ext_resource type="PackedScene" path="res://Scenes/Interactables/Food_Poisonberry.tscn" id="13_nvhef"]
+[ext_resource type="PackedScene" path="res://Scenes/Interactables/Food_Tonic.tscn" id="14_pigjd"]
+[ext_resource type="PackedScene" path="res://Scenes/Interactables/Food_Meat.tscn" id="15_6x6jt"]
+[ext_resource type="PackedScene" uid="uid://bysb2u8m55de2" path="res://Shaders/ToonShader.tscn" id="16_iddi4"]
+[ext_resource type="PackedScene" uid="uid://bvxg2stfsjosw" path="res://Scenes/Superstorm.tscn" id="18_tys2t"]
+[ext_resource type="Script" uid="uid://djusduuxf0voj" path="res://addons/SunshineClouds2/SunshineCloudsDriver.gd" id="19_rgdli"]
+[ext_resource type="Script" uid="uid://bxlm4e5qfb7uu" path="res://addons/SunshineClouds2/SunshineCloudEffector.gd" id="21_annkb"]
+
+[sub_resource type="Gradient" id="Gradient_tgwqr"]
+offsets = PackedFloat32Array(0.2, 1)
+colors = PackedColorArray(1, 1, 1, 1, 0, 0, 0, 1)
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_vyllg"]
+noise_type = 2
+frequency = 0.03
+cellular_jitter = 3.0
+cellular_return_type = 0
+domain_warp_enabled = true
+domain_warp_type = 1
+domain_warp_amplitude = 50.0
+domain_warp_fractal_type = 2
+domain_warp_fractal_lacunarity = 1.5
+domain_warp_fractal_gain = 1.0
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_67ni1"]
+seamless = true
+color_ramp = SubResource("Gradient_tgwqr")
+noise = SubResource("FastNoiseLite_vyllg")
+
+[sub_resource type="Terrain3DMaterial" id="Terrain3DMaterial_dejw4"]
+_shader_parameters = {
+&"bias_distance": 512.0,
+&"blend_sharpness": 0.5,
+&"depth_blur": 0.0,
+&"enable_macro_variation": true,
+&"enable_projection": true,
+&"flat_terrain_normals": false,
+&"macro_variation1": Color(1, 1, 1, 1),
+&"macro_variation2": Color(1, 1, 1, 1),
+&"macro_variation_slope": 0.333,
+&"mipmap_bias": 1.0,
+&"noise1_angle": 0.0,
+&"noise1_offset": Vector2(0.5, 0.5),
+&"noise1_scale": 0.04,
+&"noise2_scale": 0.076,
+&"noise_texture": SubResource("NoiseTexture2D_67ni1"),
+&"projection_threshold": 0.8
+}
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_in7uf"]
+sky_top_color = Color(0.21317, 0.484724, 0.598542, 1)
+sky_horizon_color = Color(0.677986, 0.690074, 0.479417, 1)
+ground_horizon_color = Color(0.662243, 0.671743, 0.686743, 1)
+sun_angle_max = 118.89
+
+[sub_resource type="Sky" id="Sky_n6t57"]
+sky_material = SubResource("ProceduralSkyMaterial_in7uf")
+
+[sub_resource type="Environment" id="Environment_tgwqr"]
+background_mode = 2
+sky = SubResource("Sky_n6t57")
+tonemap_mode = 2
+glow_enabled = true
+fog_light_color = Color(0.648196, 0.826595, 0.844377, 1)
+fog_density = 0.0001
+fog_height = 100.0
+fog_height_density = -0.0215
+volumetric_fog_enabled = true
+volumetric_fog_density = 0.0
+volumetric_fog_albedo = Color(1, 1, 0, 1)
+volumetric_fog_emission = Color(0.78737, 0.357362, 0.388383, 1)
+volumetric_fog_emission_energy = 0.0
+volumetric_fog_length = 40.73
+
+[sub_resource type="Compositor" id="Compositor_hskvb"]
+compositor_effects = Array[CompositorEffect]([ExtResource("2_c2oie")])
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_dobrn"]
+size = Vector3(50, 21.1472, 1)
+
+[node name="TestTerrain" type="Node3D"]
+
+[node name="Terrain3D" type="Terrain3D" parent="."]
+data_directory = "res://MapData"
+material = SubResource("Terrain3DMaterial_dejw4")
+assets = ExtResource("1_in7uf")
+collision_mode = 3
+collision_shape_size = 64
+collision_radius = 80
+top_level = true
+metadata/_edit_lock_ = true
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.628194, 0.778057, 0, -0.778057, 0.628194, 0, 3, 0)
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_tgwqr")
+compositor = SubResource("Compositor_hskvb")
+
+[node name="CSGBox3D8" type="CSGBox3D" parent="."]
+transform = Transform3D(-4.37114e-08, -1.38888, -6.75588e-22, 1, -6.07097e-08, 1.54556e-14, -1.06581e-14, 0, 1.45013, 32.61, 1.01817, -310.174)
+use_collision = true
+collision_mask = 15
+size = Vector3(1, 4.29089, 38.4169)
+
+[node name="CSGBox3D9" type="CSGBox3D" parent="."]
+transform = Transform3D(-4.37114e-08, 2.2, -4.37114e-08, -1, -9.61651e-08, -4.37114e-08, -4.37114e-08, 9.61651e-08, 1, -94.8817, 0.445352, -314.949)
+use_collision = true
+collision_mask = 15
+size = Vector3(1, 4.29089, 38.4169)
+
+[node name="Walls" type="Node" parent="."]
+
+[node name="WallSideRight" type="CSGBox3D" parent="Walls"]
+transform = Transform3D(-1, 3.55271e-15, 2.38451e-07, -3.55271e-15, 0.848887, 2.31033e-21, -8.74228e-08, -4.89295e-23, -2.72756, 251.635, 74.0362, -310.516)
+visible = false
+use_collision = true
+collision_mask = 15
+size = Vector3(1, 200, 400)
+
+[node name="WallBack" type="CSGBox3D" parent="Walls"]
+transform = Transform3D(-4.37114e-08, -2.04224e-22, -1.45013, -3.55271e-15, 0.848887, 1.2283e-21, 1, -3.55271e-15, -6.3387e-08, 1.60997, 74.0362, 126.233)
+visible = false
+use_collision = true
+collision_mask = 15
+size = Vector3(1, 200, 400)
+
+[node name="WallFront" type="CSGBox3D" parent="Walls"]
+transform = Transform3D(-4.37114e-08, -2.04224e-22, -1.45013, -3.55271e-15, 0.848887, 1.2283e-21, 1, -3.55271e-15, -6.3387e-08, 1.60997, 74.0362, -1080.09)
+visible = false
+use_collision = true
+collision_mask = 15
+size = Vector3(1, 200, 400)
+
+[node name="WallLeft" type="CSGBox3D" parent="Walls"]
+transform = Transform3D(-4.37114e-08, -2.04224e-22, -1.45013, -3.55271e-15, 0.848887, 1.2283e-21, 1, -3.55271e-15, -6.3387e-08, -436.824, 74.0362, -826.878)
+visible = false
+use_collision = true
+collision_mask = 15
+size = Vector3(1, 200, 400)
+
+[node name="WallFrontSideLeft" type="CSGBox3D" parent="Walls"]
+transform = Transform3D(-1, 3.55271e-15, 1.26774e-07, -3.55271e-15, 0.848887, 1.2283e-21, -8.74228e-08, -4.89295e-23, -1.45013, -15.6925, 74.0362, -1159.59)
+visible = false
+use_collision = true
+collision_mask = 15
+size = Vector3(1, 200, 400)
+
+[node name="WallFrontRight" type="CSGBox3D" parent="Walls"]
+transform = Transform3D(-4.37114e-08, -2.04224e-22, -1.45013, -3.55271e-15, 0.848887, 1.2283e-21, 1, -3.55271e-15, -6.3387e-08, 413.392, 74.0362, -826.878)
+visible = false
+use_collision = true
+collision_mask = 15
+size = Vector3(1, 200, 400)
+
+[node name="WallFrontSideRight" type="CSGBox3D" parent="Walls"]
+transform = Transform3D(-1, 3.55271e-15, 1.26774e-07, -3.55271e-15, 0.848887, 1.2283e-21, -8.74228e-08, -4.89295e-23, -1.45013, 71.3633, 74.0362, -1159.59)
+visible = false
+use_collision = true
+collision_mask = 15
+size = Vector3(1, 200, 400)
+
+[node name="WallSideLeft" type="CSGBox3D" parent="Walls"]
+transform = Transform3D(-1, 3.55271e-15, 2.38451e-07, -3.55271e-15, 0.848887, 2.31033e-21, -8.74228e-08, -4.89295e-23, -2.72756, -253.945, 74.0362, -310.516)
+visible = false
+use_collision = true
+collision_mask = 15
+size = Vector3(1, 200, 400)
+
+[node name="TransitionArea" parent="." instance=ExtResource("10_bn2kb")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20.3707, 118.999, -993.391)
+collision_mask = 4
+
+[node name="CollisionShape3D2" type="CollisionShape3D" parent="TransitionArea"]
+transform = Transform3D(3.96784, 0, 0, 0, 2.28205, 0, 0, 0, 1, 0, 11.7913, 0)
+shape = SubResource("BoxShape3D_dobrn")
+
+[node name="Label3D" type="Label3D" parent="TransitionArea"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 194.706, -65)
+pixel_size = 0.5
+text = "GO HERE"
+font_size = 500
+outline_size = 50
+
+[node name="Interactables" type="Node3D" parent="." groups=["item_manager"]]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 13.3926, 0)
+script = ExtResource("2_bn2kb")
+placeholdersPath = NodePath("../Placeholders")
+
+[node name="ItemSpawner" type="MultiplayerSpawner" parent="Interactables"]
+spawn_path = NodePath("..")
+script = ExtResource("3_dobrn")
+
+[node name="Placeholders" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.616709, 0)
+
+[node name="WoodPlank" parent="Placeholders" instance=ExtResource("5_pd0wi")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.88892, 4.37407, 1.78256)
+SpawnOnUseScene = null
+
+[node name="WoodPlank2" parent="Placeholders" instance=ExtResource("5_pd0wi")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.98111, 4.37407, 1.78256)
+SpawnOnUseScene = null
+
+[node name="WoodPlank3" parent="Placeholders" instance=ExtResource("5_pd0wi")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.76184, 4.37407, 1.78256)
+SpawnOnUseScene = null
+
+[node name="Food" parent="Placeholders" instance=ExtResource("7_eicjb")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.56, 1.71766, -0.158901)
+
+[node name="Food2" parent="Placeholders" instance=ExtResource("7_eicjb")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.202507, 1.71766, 0.803963)
+
+[node name="Campfire" parent="Placeholders" instance=ExtResource("8_iddi4")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.2946, 1.46766, 1.95325)
+
+[node name="Wheel" parent="Placeholders" instance=ExtResource("9_w1dx0")]
+transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 10.1942, 1.96766, 1.42996)
+
+[node name="Wheel2" parent="Placeholders" instance=ExtResource("9_w1dx0")]
+transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 9.66434, 1.96766, -1.04574)
+
+[node name="RigidBody3D" parent="Placeholders" instance=ExtResource("10_nvhef")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.3943, 3.15526, -8.18282)
+
+[node name="Goodberry" parent="Placeholders" instance=ExtResource("12_w1dx0")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.9179, 1.63986, -0.280079)
+
+[node name="Poisonberry" parent="Placeholders" instance=ExtResource("13_nvhef")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.50967, 1.57215, 0.62526)
+
+[node name="Tonic" parent="Placeholders" instance=ExtResource("14_pigjd")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.35314, 1.21766, -1.08884)
+
+[node name="Meat" parent="Placeholders" instance=ExtResource("15_6x6jt")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.9757, 4.03662, -6.39634)
+
+[node name="WoodPlank4" parent="Placeholders" instance=ExtResource("5_pd0wi")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.51748, 2.5586, -204.677)
+
+[node name="WoodPlank5" parent="Placeholders" instance=ExtResource("5_pd0wi")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.58128, 3.10469, -204.677)
+
+[node name="Goodberry2" parent="Placeholders" instance=ExtResource("12_w1dx0")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.6822, 2.07041, -205.018)
+
+[node name="Goodberry3" parent="Placeholders" instance=ExtResource("12_w1dx0")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.89653, 2.07041, -205.018)
+
+[node name="Poisonberry2" parent="Placeholders" instance=ExtResource("13_nvhef")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.2131, 1.91066, -205.085)
+
+[node name="Poisonberry3" parent="Placeholders" instance=ExtResource("13_nvhef")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.2131, 1.91066, -205.085)
+
+[node name="Meat2" parent="Placeholders" instance=ExtResource("15_6x6jt")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -13.0822, 0.616709, -206.085)
+
+[node name="Meat3" parent="Placeholders" instance=ExtResource("15_6x6jt")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.1671, 1.7625, -206.085)
+
+[node name="Tonic2" parent="Placeholders" instance=ExtResource("14_pigjd")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.63176, 1.31068, -201.241)
+
+[node name="Tonic3" parent="Placeholders" instance=ExtResource("14_pigjd")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.80963, 1.31068, -201.241)
+
+[node name="WoodPlank6" parent="Placeholders" instance=ExtResource("5_pd0wi")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 44.1185, 4.09451, -331.827)
+
+[node name="WoodPlank7" parent="Placeholders" instance=ExtResource("5_pd0wi")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 45.0547, 4.6406, -331.827)
+
+[node name="Goodberry4" parent="Placeholders" instance=ExtResource("12_w1dx0")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42.9537, 3.60633, -332.168)
+
+[node name="Goodberry5" parent="Placeholders" instance=ExtResource("12_w1dx0")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 44.7394, 3.60633, -332.168)
+
+[node name="Poisonberry4" parent="Placeholders" instance=ExtResource("13_nvhef")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42.4228, 3.44657, -332.235)
+
+[node name="Poisonberry5" parent="Placeholders" instance=ExtResource("13_nvhef")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42.4228, 3.44657, -332.235)
+
+[node name="Meat4" parent="Placeholders" instance=ExtResource("15_6x6jt")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40.5537, 2.15262, -333.235)
+
+[node name="Meat5" parent="Placeholders" instance=ExtResource("15_6x6jt")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 41.4689, 3.29841, -333.235)
+
+[node name="Tonic4" parent="Placeholders" instance=ExtResource("14_pigjd")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 46.0042, 2.84659, -328.391)
+
+[node name="Tonic5" parent="Placeholders" instance=ExtResource("14_pigjd")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 46.8263, 2.84659, -328.391)
+
+[node name="WoodPlank8" parent="Placeholders" instance=ExtResource("5_pd0wi")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -106.835, 4.09451, -340.351)
+
+[node name="WoodPlank9" parent="Placeholders" instance=ExtResource("5_pd0wi")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -105.899, 4.6406, -340.351)
+
+[node name="Goodberry6" parent="Placeholders" instance=ExtResource("12_w1dx0")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -108, 3.60633, -340.692)
+
+[node name="Goodberry7" parent="Placeholders" instance=ExtResource("12_w1dx0")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -106.214, 3.60633, -340.692)
+
+[node name="Poisonberry6" parent="Placeholders" instance=ExtResource("13_nvhef")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -108.531, 3.44657, -340.758)
+
+[node name="Poisonberry7" parent="Placeholders" instance=ExtResource("13_nvhef")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -108.531, 3.44657, -340.758)
+
+[node name="Meat6" parent="Placeholders" instance=ExtResource("15_6x6jt")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -110.4, 2.15262, -341.758)
+
+[node name="Meat7" parent="Placeholders" instance=ExtResource("15_6x6jt")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -109.485, 3.29841, -341.758)
+
+[node name="Tonic6" parent="Placeholders" instance=ExtResource("14_pigjd")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -104.95, 2.84659, -336.914)
+
+[node name="Tonic7" parent="Placeholders" instance=ExtResource("14_pigjd")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -104.127, 2.84659, -336.914)
+
+[node name="WoodPlank10" parent="Placeholders" instance=ExtResource("5_pd0wi")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 34.2616, 28.674, -600.597)
+
+[node name="WoodPlank11" parent="Placeholders" instance=ExtResource("5_pd0wi")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 35.1978, 29.2201, -600.597)
+
+[node name="Goodberry8" parent="Placeholders" instance=ExtResource("12_w1dx0")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 33.0969, 28.1858, -600.938)
+
+[node name="Goodberry9" parent="Placeholders" instance=ExtResource("12_w1dx0")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 34.8826, 28.1858, -600.938)
+
+[node name="Poisonberry8" parent="Placeholders" instance=ExtResource("13_nvhef")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32.566, 28.0261, -601.004)
+
+[node name="Poisonberry9" parent="Placeholders" instance=ExtResource("13_nvhef")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32.566, 28.0261, -601.004)
+
+[node name="Meat8" parent="Placeholders" instance=ExtResource("15_6x6jt")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30.6969, 26.7321, -602.004)
+
+[node name="Meat9" parent="Placeholders" instance=ExtResource("15_6x6jt")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 31.6121, 27.8779, -602.004)
+
+[node name="Tonic8" parent="Placeholders" instance=ExtResource("14_pigjd")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 36.1473, 27.4261, -597.16)
+
+[node name="Tonic9" parent="Placeholders" instance=ExtResource("14_pigjd")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 36.9695, 27.4261, -597.16)
+
+[node name="ToonShader" parent="." instance=ExtResource("16_iddi4")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.51888, 0, -16.3447)
+
+[node name="CSGBox3D10" type="CSGBox3D" parent="."]
+transform = Transform3D(-3.47985e-08, -1.10568, -1.63137, 1, -6.07097e-08, 2.87313e-14, -2.64528e-08, -0.840505, 2.14606, -7.06226, -1.5516, -234.89)
+use_collision = true
+collision_mask = 15
+size = Vector3(1, 4.29089, 38.4169)
+
+[node name="Superstorm" parent="." node_paths=PackedStringArray("cloudsEffector", "interactablesNode") instance=ExtResource("18_tys2t")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 80)
+stormSpeed = 1.25
+cloudsEffector = NodePath("../SunshineCloudsEffector")
+interactablesNode = NodePath("../Interactables")
+
+[node name="SunshineCloudsDriverGD" type="Node" parent="." node_paths=PackedStringArray("tracked_directional_lights", "tracked_point_effectors")]
+script = ExtResource("19_rgdli")
+update_continuously = true
+clouds_resource = ExtResource("2_c2oie")
+ambience_sample_environment = SubResource("Environment_tgwqr")
+tracked_directional_lights = [NodePath("../DirectionalLight3D")]
+tracked_directional_light_shadow_steps = Array[int]([12])
+tracked_point_effectors = [NodePath("../SunshineCloudsEffector")]
+wind_direction = Vector3(0, 0, -1)
+extra_large_structures_wind_speed = 50.0
+large_structures_wind_speed = 50.0
+medium_structures_wind_speed = 20.0
+small_structures_wind_speed = 6.0
+metadata/_custom_type_script = "uid://djusduuxf0voj"
+
+[node name="SunshineCloudsEffector" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 5000)
+script = ExtResource("21_annkb")
+Radius = 3500.0
+Power = 1.0
+metadata/_custom_type_script = "uid://bxlm4e5qfb7uu"
