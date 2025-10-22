@@ -1,0 +1,38 @@
+[gd_scene load_steps=5 format=3 uid="uid://cvvdqeqd1hyw2"]
+
+[ext_resource type="Script" uid="uid://xr0o4x6waeh4" path="res://Scripts/EntityScripts/Wheel.cs" id="1_dwcrf"]
+[ext_resource type="PackedScene" uid="uid://c23wta4jwa0mo" path="res://Models/Wagon/Wheels/mdl_wheel_fl.fbx" id="2_nkxbu"]
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_on6pt"]
+properties/0/path = NodePath(".:position")
+properties/0/spawn = true
+properties/0/replication_mode = 1
+properties/1/path = NodePath(".:rotation")
+properties/1/spawn = true
+properties/1/replication_mode = 1
+properties/2/path = NodePath(".:entityId")
+properties/2/spawn = true
+properties/2/replication_mode = 1
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_80wb2"]
+radius = 0.675
+
+[node name="WheelFL" type="RigidBody3D"]
+transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 0, 0, 0)
+collision_layer = 8
+collision_mask = 29
+script = ExtResource("1_dwcrf")
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
+replication_config = SubResource("SceneReplicationConfig_on6pt")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("SphereShape3D_80wb2")
+
+[node name="Label3D" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.602306, 0)
+billboard = 2
+text = "Wheel"
+
+[node name="WheelFLMesh" parent="." instance=ExtResource("2_nkxbu")]
+transform = Transform3D(-7.86805e-06, 180, 0, -180, -7.86805e-06, 0, 0, 0, 180, 0, 0, 0)
