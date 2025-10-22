@@ -8,7 +8,8 @@ public partial class Wheel : Entity
     [Export] public float maxHealth = 100f;
     [Export] public bool isBroken = false;
     [Export] public float repairAmount = 34f;
-
+    [Export] public Node3D wheelCollision;
+    
     // By default, entities do not accept being used on them
     //override to accept food items
     public override bool CanAcceptUseFrom(CharacterBody3D user, Interactable source)
@@ -39,6 +40,19 @@ public partial class Wheel : Entity
         else // Server or single-player handles repair directly
         {
             itemManager.DoRepairWheel(id, source.GetInteractableId());
+        }
+    }
+
+    // if not held, reset to reset point
+    public override void _PhysicsProcess(double delta)
+    {
+        if(isBroken == true)
+        {
+            //break
+        }
+        else if(isBroken == false)
+        {
+            //not break
         }
     }
 

@@ -1,0 +1,25 @@
+[gd_scene load_steps=4 format=3 uid="uid://cx5a2prwbkxr8"]
+
+[ext_resource type="Script" uid="uid://xr0o4x6waeh4" path="res://Scripts/EntityScripts/Wheel.cs" id="1_3j3jf"]
+[ext_resource type="PackedScene" uid="uid://bujmmhfbjju8n" path="res://Models/Wagon/Wheels/mdl_wheel_br.fbx" id="3_i3wkb"]
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_on6pt"]
+properties/0/path = NodePath(".:position")
+properties/0/spawn = true
+properties/0/replication_mode = 1
+properties/1/path = NodePath(".:rotation")
+properties/1/spawn = true
+properties/1/replication_mode = 1
+properties/2/path = NodePath(".:entityId")
+properties/2/spawn = true
+properties/2/replication_mode = 1
+
+[node name="WheelBR" type="Node3D"]
+transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 0, 0, 0)
+script = ExtResource("1_3j3jf")
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
+replication_config = SubResource("SceneReplicationConfig_on6pt")
+
+[node name="WheelBRMesh" parent="." instance=ExtResource("3_i3wkb")]
+transform = Transform3D(-7.43094e-06, 170, 0, -170, -7.43094e-06, 0, 0, 0, 170, 0, 0, 0)
