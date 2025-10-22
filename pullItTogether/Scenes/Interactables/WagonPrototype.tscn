@@ -1,4 +1,4 @@
-[gd_scene load_steps=21 format=3 uid="uid://b2cc2nt2bpja0"]
+[gd_scene load_steps=20 format=3 uid="uid://b2cc2nt2bpja0"]
 
 [ext_resource type="Script" uid="uid://dja12uyulc7ee" path="res://addons/verlet_rope_4/Physics/VerletRopeRigid.cs" id="1_24ylq"]
 [ext_resource type="Script" uid="uid://toi5sicfb28n" path="res://Scripts/Wagon/Wagon.cs" id="1_f8cd6"]
@@ -8,7 +8,6 @@
 [ext_resource type="Script" uid="uid://576r8y5ml8oo" path="res://Scripts/InteractableScripts/RopeGrabPoint.cs" id="3_q3xkn"]
 [ext_resource type="PackedScene" uid="uid://b638mtt6nax88" path="res://Scenes/Interactables/RopeProxy.tscn" id="4_f8cd6"]
 [ext_resource type="PackedScene" uid="uid://daxkf804xn7id" path="res://Models/Wagon/Wagon Full/mdl_wagon_full.fbx" id="6_cqmbo"]
-[ext_resource type="PackedScene" uid="uid://cvvdqeqd1hyw2" path="res://Scenes/Entities/Wheels/WheelFrontLeft.tscn" id="9_1ijrh"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_vlqqi"]
 friction = 0.05
@@ -318,6 +317,3 @@ StartCustomLocation = NodePath("../../RopeStartPoint2")
 EndBody = NodePath("../../GrabPoint2")
 EndCustomLocation = NodePath("../../GrabPoint2")
 metadata/verlet_rope_physical_create_simulated_joint = 695312099
-
-[node name="WheelFL" parent="." instance=ExtResource("9_1ijrh")]
-transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 1.97956, 0, -0.57782)
