@@ -11,7 +11,6 @@ public partial class SuperstormMovement : Area3D
 	[Export] public float rainDensity = 1f;
 	[Export] CollisionShape3D stormCollider;
 	[Export] FogVolume fogVolume;
-	[Export] Node3D cloudsEffector;
 	[Export] public float effectorParallaxMaxMultiplier = 400f;
 	[Export] public Node3D interactablesNode;
 	public Node3D wagon;
@@ -82,7 +81,6 @@ public partial class SuperstormMovement : Area3D
 			{
 				Position = new Vector3(Position.X, Position.Y, wagon.Position.Z);
 			}
-			UpdateEffectorPosition(toWagon);
 		}
 		PhysicsServer3D.AreaSetTransform(GetRid(), GlobalTransform);
 
@@ -186,28 +184,6 @@ public partial class SuperstormMovement : Area3D
 				GD.PrintErr($"RPC Error when dealing storm damage to {body.Name}: {error}");
 			}
 		}
-	}
-
-	private void UpdateEffectorPosition(float toWagon)
-	{
-		if (cloudsEffector == null || wagon == null) return;
-
-		Vector3 stormDeltaPos = GlobalPosition - lastStormPos;
-
-		Vector3 effectorDistanceToWagon = wagon.GlobalPosition - cloudsEffector.GlobalPosition;
-		float effectorDistance = effectorDistanceToWagon.Length();
-
-		float closeRatio = 1f - Mathf.Clamp(toWagon / effectorDistance, 0f, 1f);
-		float parallaxMultiplier = Mathf.Lerp(1f, effectorParallaxMaxMultiplier, closeRatio);
-
-		Vector3 parallaxOffset = stormDeltaPos * parallaxMultiplier;
-
-		cloudsEffector.Position += parallaxOffset;
-		if (cloudsEffector.Position.Z < GlobalPosition.Z)
-		{
-			cloudsEffector.Position = new Vector3(cloudsEffector.Position.X, cloudsEffector.Position.Y, GlobalPosition.Z);
-		}
-		lastStormPos = GlobalPosition;
 	}
 
 	private void GetWagonReference()
