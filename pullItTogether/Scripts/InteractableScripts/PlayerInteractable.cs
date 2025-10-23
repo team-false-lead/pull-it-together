@@ -6,7 +6,8 @@ public partial class PlayerInteractable : Interactable
 {
     public override void _PhysicsProcess(double delta)
     {
-        base._PhysicsProcess(delta); 
+        base._PhysicsProcess(delta);
+        GD.Print(interactableId);
         if (Carrier != null)
         {
             // When being carried, sync the player's position to their interactable's position.
