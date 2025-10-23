@@ -9,7 +9,7 @@ public partial class Wheel : Entity
     [Export] public bool isBroken = false;
     [Export] public float repairAmount = 34f;
     [Export] public CollisionShape3D wheelCollision;
-    
+
     // By default, entities do not accept being used on them
     //override to accept food items
     public override bool CanAcceptUseFrom(CharacterBody3D user, Interactable source)
@@ -46,20 +46,21 @@ public partial class Wheel : Entity
     // if not held, reset to reset point
     public override void _PhysicsProcess(double delta)
     {
-        if(isBroken == true && Visible == true)
+        if (isBroken == true && Visible == true)
         {
-            if(wheelCollision != null)
+            if (wheelCollision != null)
             {
                 Visible = false;
-                wheelCollision.Disabled = true;
+                wheelCollision.Scale = new Vector3(.25f, .25f, .25f);
             }
         }
-        else if(isBroken == false && Visible == false)
+        else if (isBroken == false && Visible == false)
         {
             if (wheelCollision != null)
             {
                 Visible = true;
-                wheelCollision.Disabled = false;
+                wheelCollision.Scale = new Vector3(1f, 1f, 1f);
+
             }
         }
     }

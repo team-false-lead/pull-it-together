@@ -341,7 +341,7 @@ public partial class ItemManager : Node3D
 		var itemToSpawnScene = requestingItem.SpawnOnUseScene;
 		if (itemToSpawnScene == null) { GD.Print("SpawnOnUseScene null"); return; }
 
-		var instance = itemToSpawnScene.Instantiate<RigidBody3D>(); // assuming all interactables and entities are RigidBody3D or derived
+		var instance = itemToSpawnScene.Instantiate<Node3D>(); // assuming all interactables and entities are Node3D or derived
 		PreAssignId(instance);
 
 		this.AddChild(instance, true);
