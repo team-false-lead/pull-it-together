@@ -86,6 +86,7 @@ transform = Transform3D(-150, 0, -1.74846e-05, 0, 150, 0, 1.31134e-05, 0, -200, 
 
 [node name="WheelFL" parent="Wheels" node_paths=PackedStringArray("wheelCollision") instance=ExtResource("3_kkr0m")]
 transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 1.532, -0.699, -1.981)
+isBroken = true
 wheelCollision = NodePath("../../FLeftWheelCollision")
 
 [node name="WheelFR" parent="Wheels" node_paths=PackedStringArray("wheelCollision") instance=ExtResource("4_4mj3o")]
@@ -100,11 +101,11 @@ wheelCollision = NodePath("../../BLWheelCollision")
 transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, -1.569, -0.532, 2.024)
 wheelCollision = NodePath("../../BRWheelCollision")
 
-[node name="FLeftWheelCollision" type="CollisionShape3D" parent="."]
+[node name="FRightWheelCollision" type="CollisionShape3D" parent="."]
 transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, -1.451, -0.675, -2)
 shape = SubResource("SphereShape3D_cqmbo")
 
-[node name="FRightWheelCollision" type="CollisionShape3D" parent="."]
+[node name="FLeftWheelCollision" type="CollisionShape3D" parent="."]
 transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 1.45117, -0.674502, -2)
 shape = SubResource("SphereShape3D_cqmbo")
 
@@ -125,7 +126,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.28, 0.882283, 0)
 shape = SubResource("BoxShape3D_vlqqi")
 
 [node name="BaseCollision" type="CollisionShape3D" parent="."]
-transform = Transform3D(0.921355, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.395824, 0.276889)
+transform = Transform3D(0.921355, 0, 0, 0, 3.65001, 0, 0, 0, 1, 0, -0.543365, 0.276889)
 shape = SubResource("BoxShape3D_5rxyb")
 
 [node name="TopCollision" type="CollisionShape3D" parent="."]
