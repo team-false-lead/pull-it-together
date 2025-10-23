@@ -99,9 +99,10 @@ public partial class PlayerController : CharacterBody3D
 			Input.SetMouseMode(Input.MouseModeEnum.Captured);
 
 			GetTree().Root.GetNode("Main/MapManager/TestTerrain/Terrain3D").Call("set_camera", camera);
+            GetTree().Root.GetNode("Main/MapManager/TestTerrain/Terrain3D").Call("set_physics_process", true);
 
-			// Hide all nodes in the "self_hide" group
-			foreach (var child in GetTree().GetNodesInGroup("self_hide"))
+            // Hide all nodes in the "self_hide" group
+            foreach (var child in GetTree().GetNodesInGroup("self_hide"))
 			{
 				if (child is Node3D node && IsAncestorOf(node))
 				{
