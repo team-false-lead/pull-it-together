@@ -74,7 +74,7 @@ public partial class Wagon : RigidBody3D
         }
 
         PhysicsMaterialOverride.Friction = 0.05f + wheel1 + wheel2 + wheel3 + wheel4;
-        GD.Print(PhysicsMaterialOverride.Friction);
+        //GD.Print(PhysicsMaterialOverride.Friction);
     }
 
 }
