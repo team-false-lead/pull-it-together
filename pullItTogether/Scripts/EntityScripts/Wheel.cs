@@ -1,5 +1,6 @@
 using Godot;
 using System;
+using static Godot.WebSocketPeer;
 
 // a wheel that can be repaired with wooden planks
 public partial class Wheel : Entity
@@ -9,6 +10,14 @@ public partial class Wheel : Entity
     [Export] public bool isBroken = false;
     [Export] public float repairAmount = 34f;
     [Export] public CollisionShape3D wheelCollision;
+    public float speed;
+    public Wagon wagonScript;
+
+    public override void _Ready()
+    {
+        wagonScript = GetTree().GetFirstNodeInGroup("wagon") as Wagon;
+
+    }
 
     // By default, entities do not accept being used on them
     //override to accept food items
@@ -46,6 +55,13 @@ public partial class Wheel : Entity
     // if not held, reset to reset point
     public override void _PhysicsProcess(double delta)
     {
+        if(Visible == true)
+        {
+            speed = wagonScript.localVelocity.Z;
+            Rotation += new Vector3(speed * 0.015f, 0f, 0f);
+        }
+        
+        
         if (isBroken == true && Visible == true)
         {
             if (wheelCollision != null)
