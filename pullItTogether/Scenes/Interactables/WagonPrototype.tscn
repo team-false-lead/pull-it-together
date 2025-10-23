@@ -81,7 +81,7 @@ can_sleep = false
 constant_force = Vector3(0, 100, 0)
 script = ExtResource("1_f8cd6")
 linearXMultiplier = 0.5
-angularYMultiplier = 0.95
+angularYMultiplier = 0.96
 wheels = [NodePath("Wheels/WheelFL"), NodePath("Wheels/WheelFR"), NodePath("Wheels/WheelBL"), NodePath("Wheels/WheelBR")]
 frictionPerWheel = 0.015
 
