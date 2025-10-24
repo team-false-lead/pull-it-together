@@ -7,8 +7,9 @@ public partial class Wheel : Entity
 {
     [Export] public float currentHealth = 10f; //export to use on multiPlayer syncer
     [Export] public float maxHealth = 100f;
-    [Export] public bool isBroken = false;
+    //[Export] public bool isBroken = false;
     [Export] public float repairAmount = 34f;
+    [Export] public float damageAmount = 0.1f;
     [Export] public CollisionShape3D wheelCollision;
     public float speed;
     public Wagon wagonScript;
@@ -16,7 +17,7 @@ public partial class Wheel : Entity
     public override void _Ready()
     {
         wagonScript = GetTree().GetFirstNodeInGroup("wagon") as Wagon;
-
+        if (itemManager == null) InitReferences();
     }
 
     // By default, entities do not accept being used on them
@@ -55,14 +56,20 @@ public partial class Wheel : Entity
     // if not held, reset to reset point
     public override void _PhysicsProcess(double delta)
     {
+        if (itemManager == null) InitReferences();
+        if (!multiplayerActive || (multiplayerActive && multiplayer.IsServer()))
+        {
+            itemManager.DoDamageWheel(GetEntityId(), damageAmount);
+        }
+
         if(Visible == true)
         {
             speed = wagonScript.localVelocity.Z;
             Rotation += new Vector3(speed * 0.015f, 0f, 0f);
         }
-        
-        
-        if (isBroken == true && Visible == true)
+
+
+        if (currentHealth <= 0 && Visible == true)
         {
             if (wheelCollision != null)
             {
@@ -70,7 +77,7 @@ public partial class Wheel : Entity
                 wheelCollision.Scale = new Vector3(.25f, .25f, .25f);
             }
         }
-        else if (isBroken == false && Visible == false)
+        else if (currentHealth > 0 && Visible == false)
         {
             if (wheelCollision != null)
             {

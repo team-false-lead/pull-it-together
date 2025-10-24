@@ -96,6 +96,7 @@ wheelCollision = NodePath("../../FLeftWheelCollision")
 
 [node name="WheelFR" parent="Wheels" node_paths=PackedStringArray("wheelCollision") instance=ExtResource("4_4mj3o")]
 transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, -1.5316, -0.699413, -1.98129)
+currentHealth = 25.0
 wheelCollision = NodePath("../../FRightWheelCollision")
 
 [node name="WheelBL" parent="Wheels" node_paths=PackedStringArray("wheelCollision") instance=ExtResource("5_4mj3o")]

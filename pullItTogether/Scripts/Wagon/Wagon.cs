@@ -40,7 +40,7 @@ public partial class Wagon : RigidBody3D
     {
         PhysicsMaterial currentMaterial = PhysicsMaterialOverride;
 
-        if (wheels[0].isBroken)
+        if (wheels[0].currentHealth <= 0)
         {
             wheel1 = frictionPerWheel;
         }
@@ -48,7 +48,7 @@ public partial class Wagon : RigidBody3D
         {
             wheel1 = 0f;
         }
-        if (wheels[1].isBroken)
+        if (wheels[1].currentHealth <= 0)
         {
             wheel2 = frictionPerWheel;
         }
@@ -56,7 +56,7 @@ public partial class Wagon : RigidBody3D
         {
             wheel2 = 0f;
         }
-        if (wheels[2].isBroken)
+        if (wheels[2].currentHealth <= 0)
         {
             wheel3 = frictionPerWheel;
         }
@@ -64,7 +64,7 @@ public partial class Wagon : RigidBody3D
         {
             wheel3 = 0f;
         }
-        if (wheels[2].isBroken)
+        if (wheels[3].currentHealth <= 0)
         {
             wheel4 = frictionPerWheel;
         }
