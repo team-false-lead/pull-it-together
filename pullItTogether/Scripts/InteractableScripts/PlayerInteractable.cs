@@ -4,10 +4,29 @@ using System;
 /// PlayerInteractable represents the (later) pickupable player that can be fed.
 public partial class PlayerInteractable : Interactable
 {
+    public override void _Ready()
+    {
+        base._Ready();
+
+        if (itemManager == null) InitReferences();
+        if(multiplayer.HasMultiplayerPeer() && !multiplayer.IsServer())
+        {
+            itemManager.RpcId(1, nameof(ItemManager.SendPlayerInteractableId), multiplayer.GetUniqueId());
+        }
+    }
+
+
     public override void _PhysicsProcess(double delta)
     {
+        if (Input.IsActionJustPressed("drop")) // Q  // actually not drop but print dictionary contents for debugging
+		{
+			//if (multiplayer.HasMultiplayerPeer() && isMultiplayerSession && !multiplayer.IsServer()) return;
+			GD.Print(GetPlayerController().Name);
+			GD.Print("my id = " + interactableId);
+		}
+
         base._PhysicsProcess(delta);
-        GD.Print(interactableId);
+        //GD.Print(interactableId);
         if (Carrier != null)
         {
             // When being carried, sync the player's position to their interactable's position.
@@ -21,9 +40,9 @@ public partial class PlayerInteractable : Interactable
         }
     }
 
-    public override bool CanBeCarried() 
-    { 
-        return GetPlayerController().IsDowned; 
+    public override bool CanBeCarried()
+    {
+        return GetPlayerController().IsDowned;
     }
 
     // By default, objects do not accept being used on them
@@ -70,5 +89,4 @@ public partial class PlayerInteractable : Interactable
 
     // By default, objects can use on entities other if the target accepts it
     public override bool CanUseOnEntity(CharacterBody3D user, Entity target) { return false; }
-
 }

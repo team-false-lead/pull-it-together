@@ -10,7 +10,7 @@ public abstract partial class Interactable : RigidBody3D
     public uint savedLayer, savedMask;
     public Vector3 savedScale;
     protected Node mapManager;
-    protected bool multiplayerActive; 
+    protected bool multiplayerActive;
     protected MultiplayerApi multiplayer => GetTree().GetMultiplayer();
     protected Node3D levelInteractablesNode;
     protected ItemManager itemManager;
@@ -206,4 +206,10 @@ public abstract partial class Interactable : RigidBody3D
     public virtual bool CanAcceptUseFrom(CharacterBody3D user, Interactable source) { return false; }
     public virtual void AcceptUseFrom(CharacterBody3D user, Interactable source) { }
 
+    [Rpc(MultiplayerApi.RpcMode.AnyPeer)]
+    public void ClientSetMyInteractableId(string id)
+    {
+        GD.Print(GetPlayerController().Name + " Setting interactable ID to: " + id);
+        interactableId = id;
+    }
 }
