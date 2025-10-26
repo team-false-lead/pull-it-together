@@ -28,13 +28,15 @@ properties/6/replication_mode = 2
 properties/7/path = NodePath("Label3D:text")
 properties/7/spawn = true
 properties/7/replication_mode = 2
+properties/8/path = NodePath(".:freeze")
+properties/8/spawn = true
+properties/8/replication_mode = 2
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_7y36t"]
 height = 0.3
 radius = 0.075
 
 [node name="Tonic" type="RigidBody3D" node_paths=PackedStringArray("rawMesh", "cookedMesh", "label3D") groups=["food"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.225442, 0)
 collision_layer = 8
 collision_mask = 29
 script = ExtResource("1_yntn0")
