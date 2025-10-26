@@ -17,9 +17,15 @@ public abstract partial class Interactable : RigidBody3D
     public virtual bool CanBeCarried() { return true; }
     public CharacterBody3D Carrier { get; set; } = null;
 
-    private Node3D followTarget;
-    private bool isFollowing;
+    protected Node3D followTarget;
+    protected bool isFollowing;
     [Export] private float movementPenalty = 1.0f;
+
+    public new Vector3 GlobalPosition
+    {
+        get { return base.GlobalPosition; }
+        set { base.GlobalPosition = value; GD.Print("Setting global position to " + value); }
+    }
 
     public float MovementPenalty
     {

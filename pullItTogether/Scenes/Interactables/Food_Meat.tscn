@@ -29,6 +29,9 @@ properties/6/replication_mode = 2
 properties/7/path = NodePath("Label3D:text")
 properties/7/spawn = true
 properties/7/replication_mode = 2
+properties/8/path = NodePath(".:freeze")
+properties/8/spawn = true
+properties/8/replication_mode = 2
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_b84pb"]
 height = 0.02

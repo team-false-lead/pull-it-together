@@ -171,7 +171,7 @@ public partial class PlayerController : CharacterBody3D
 	}
 
 	// Check if this player instance is controlled by the local user
-	private bool IsLocalControlled()
+	public bool IsLocalControlled()
 	{
 		if (!Multiplayer.HasMultiplayerPeer()) return true; // singleplayer
 		if (!NetworkReady()) return false; 
@@ -245,10 +245,6 @@ public partial class PlayerController : CharacterBody3D
 		if (collisionPusherAB != null)
 		{
 			collisionPusherAB.GlobalTransform = GlobalTransform;
-		}
-		if (interactableRB != null)
-		{
-			interactableRB.GlobalTransform = GlobalTransform;
 		}
 
 		if (!IsLocalControlled()) return; // local player processes movement
@@ -407,7 +403,6 @@ public partial class PlayerController : CharacterBody3D
 			lookingAtText = "";
 		}
 		EmitSignal("ChangeHUD");
-		
 
 		// If the player isn't doing anything that would spend energy, regain energy
 		if (energyChange == 0 && IsOnFloor())

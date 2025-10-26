@@ -1,9 +1,10 @@
 using Godot;
 using System;
 
-/// PlayerInteractable represents the (later) pickupable player that can be fed.
+/// PlayerInteractable represents the pickup-able player that can also be fed.
 public partial class PlayerInteractable : Interactable
 {
+
     public override void _Ready()
     {
         base._Ready();
@@ -26,14 +27,17 @@ public partial class PlayerInteractable : Interactable
 		}
 
         base._PhysicsProcess(delta);
+        if (GetPlayerController().IsLocalControlled())
+            GD.Print(GetPlayerController().Name + " " + followTarget);
         //GD.Print(interactableId);
-        if (Carrier != null)
+        if (isFollowing && followTarget != null)
         {
             // When being carried, sync the player's position to their interactable's position.
             PlayerController player = GetPlayerController();
-            player.GlobalPosition = GlobalPosition;
+            player.GlobalPosition = followTarget.GlobalPosition;
             player.GlobalRotation = GlobalRotation;
 
+            //GD.Print(GlobalPosition);
             // If the player regains health, instantly drop this interactable.
             if (!player.IsDowned)
                 ((PlayerController)Carrier).DropObject();
