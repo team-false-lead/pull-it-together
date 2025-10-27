@@ -63,6 +63,7 @@ public partial class PlayerController : CharacterBody3D
 	[Export] private float sprintingEnergyReduction;
 	[Export] private float jumpingEnergyCost;
 	[Export] private float energyRegen;
+	[Export] private float pullingEnergyCost;
 	private Label inStormLabel;
 	private bool inStorm = false;
 	private Label lookingAtLabel;
@@ -650,7 +651,11 @@ public partial class PlayerController : CharacterBody3D
 			{
 				GlobalTransform = new Transform3D(GlobalTransform.Basis, tetherAnchor.GlobalTransform.Origin + outwardVector * (maxTetherDist + tetherBuffer));
 			}
-		}
+
+			// Also spend energy if at max distance.
+			ChangeCurrentEnergy(pullingEnergyCost * -(float)delta); // Times like these make me wish C# had float references
+            ChangeMaxEnergy(pullingEnergyCost * -(float)delta * 0.1f); // 0.3x multiplier reduces max waaaaaaaay too fast imo
+        }
 
 		return velocity;
 	}
