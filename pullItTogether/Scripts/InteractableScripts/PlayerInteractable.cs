@@ -46,7 +46,8 @@ public partial class PlayerInteractable : Interactable
 
     public override bool CanBeCarried()
     {
-        return GetPlayerController().IsDowned;
+        return false; // Player carrying will be a next sprint thing
+        //return GetPlayerController().IsDowned;
     }
 
     // By default, objects do not accept being used on them
