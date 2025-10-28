@@ -86,6 +86,8 @@ func _create_player(peer_id: int) -> Node:
 			await get_tree().process_frame       # ensure replicated on clients
 			player.rpc("SetColor", color)        # ALL peers incl. owner get their own color
 		, CONNECT_ONE_SHOT)
+		var game_state_tracker = get_tree().current_scene.get_node("%MapManager/TestTerrain/GameStateTracker")
+		game_state_tracker.call("AddPlayerToPlayerList", player)
 
 	player.name = "Player%d" % peer_id
 	player.set_multiplayer_authority(peer_id)

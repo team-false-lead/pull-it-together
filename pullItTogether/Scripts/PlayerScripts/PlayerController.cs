@@ -158,9 +158,6 @@ public partial class PlayerController : CharacterBody3D
 		{
 			mapManager.Connect("map_reloaded", new Callable(this, nameof(OnMapReloaded)));
 		}
-
-		GameStateTracker gameStateTracker = GetTree().CurrentScene.GetNode<GameStateTracker>("%MapManager/TestTerrain/GameStateTracker");
-		gameStateTracker.AddPlayerToPlayerList(this);
 		ApplyBodyColor(bodyColor);
 	}
 

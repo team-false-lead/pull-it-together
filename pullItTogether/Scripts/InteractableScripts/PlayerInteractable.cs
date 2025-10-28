@@ -27,8 +27,8 @@ public partial class PlayerInteractable : Interactable
 		}
 
         base._PhysicsProcess(delta);
-        if (GetPlayerController().IsLocalControlled())
-            GD.Print(GetPlayerController().Name + " " + followTarget);
+        //if (GetPlayerController().IsLocalControlled())
+        //    GD.Print(GetPlayerController().Name + " " + followTarget);
         //GD.Print(interactableId);
         if (isFollowing && followTarget != null)
         {
