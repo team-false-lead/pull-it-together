@@ -98,7 +98,7 @@ public partial class RopeGrabPoint : Interactable
         //rope.CollisionLayer = 0;
         rope.CollisionMask = savedRopeMask & ~carrierLayerBit & ~savedLayer; // drop player and self from rope collisions
         //carrierScript.SetTetherAnchor(joint.StartCustomLocation, rope.RopeLength, carrierTetherBuffer, carrierTetherStrength);
-        carrierScript.RpcId(carrierScript.GetMultiplayerAuthority(), nameof(PlayerController.RequestSetTetherAnchorPath), joint.StartCustomLocation.GetPath(), rope.RopeLength, carrierTetherBuffer, carrierTetherStrength);
+        carrierScript.RpcId(carrierScript.GetMultiplayerAuthority(), nameof(PlayerController.RequestSetTetherAnchorPath), simJoint.StartCustomLocation.GetPath(), simRope.RopeLength, carrierTetherBuffer, carrierTetherStrength);
         Rpc(nameof(ClientMoveSimRope), slotPath);
 
         Carrier = carrier;

@@ -649,6 +649,7 @@ public partial class PlayerController : CharacterBody3D
 			if (dist > maxTetherDist + tetherBuffer)
 			{
 				GlobalTransform = new Transform3D(GlobalTransform.Basis, tetherAnchor.GlobalTransform.Origin + outwardVector * (maxTetherDist + tetherBuffer));
+				//velocity += -(outwardVector * (1.5f * tetherStrength * (float)delta * distPastMax));
 			}
 		}
 

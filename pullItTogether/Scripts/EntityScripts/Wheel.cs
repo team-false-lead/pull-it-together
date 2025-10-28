@@ -57,10 +57,10 @@ public partial class Wheel : Entity
     public override void _PhysicsProcess(double delta)
     {
         if (itemManager == null) InitReferences();
-        if (!multiplayerActive || (multiplayerActive && multiplayer.IsServer()))
-        {
-            itemManager.DoDamageWheel(GetEntityId(), damageAmount);
-        }
+        //if (!multiplayerActive || (multiplayerActive && multiplayer.IsServer()))
+        //{
+        //    itemManager.DoDamageWheel(GetEntityId(), damageAmount);
+        //}
 
         if(Visible == true)
         {

@@ -70,7 +70,7 @@ properties/9/path = NodePath("GrabPoint2:visible")
 properties/9/spawn = true
 properties/9/replication_mode = 1
 
-[node name="RigidBody3D" type="RigidBody3D" node_paths=PackedStringArray("wheels") groups=["wagon"]]
+[node name="WagonPrototype" type="RigidBody3D" node_paths=PackedStringArray("wheels") groups=["wagon"]]
 collision_layer = 4
 collision_mask = 9
 mass = 900.0
@@ -83,7 +83,6 @@ script = ExtResource("1_f8cd6")
 linearXMultiplier = 0.5
 angularYMultiplier = 0.96
 wheels = [NodePath("Wheels/WheelFL"), NodePath("Wheels/WheelFR"), NodePath("Wheels/WheelBL"), NodePath("Wheels/WheelBR")]
-frictionPerWheel = 0.015
 
 [node name="WagonBodyMesh" parent="." instance=ExtResource("6_bdj2n")]
 transform = Transform3D(-150, 0, -1.74846e-05, 0, 150, 0, 1.31134e-05, 0, -200, 0, -0.782943, 0.315071)
@@ -92,19 +91,23 @@ transform = Transform3D(-150, 0, -1.74846e-05, 0, 150, 0, 1.31134e-05, 0, -200, 
 
 [node name="WheelFL" parent="Wheels" node_paths=PackedStringArray("wheelCollision") instance=ExtResource("3_kkr0m")]
 transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 1.532, -0.699, -1.981)
+damageAmount = 0.0
 wheelCollision = NodePath("../../FLeftWheelCollision")
 
 [node name="WheelFR" parent="Wheels" node_paths=PackedStringArray("wheelCollision") instance=ExtResource("4_4mj3o")]
 transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, -1.5316, -0.699413, -1.98129)
 currentHealth = 25.0
+damageAmount = 0.0
 wheelCollision = NodePath("../../FRightWheelCollision")
 
 [node name="WheelBL" parent="Wheels" node_paths=PackedStringArray("wheelCollision") instance=ExtResource("5_4mj3o")]
 transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 1.56871, -0.532007, 2.02385)
+damageAmount = 0.0
 wheelCollision = NodePath("../../BLWheelCollision")
 
 [node name="WheelBR" parent="Wheels" node_paths=PackedStringArray("wheelCollision") instance=ExtResource("6_w40pc")]
 transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, -1.569, -0.532, 2.024)
+damageAmount = 0.0
 wheelCollision = NodePath("../../BRWheelCollision")
 
 [node name="FLeftWheelCollision" type="CollisionShape3D" parent="."]
@@ -158,34 +161,26 @@ shape = SubResource("BoxShape3D_5rxyb")
 [node name="RopeStartPoint" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.7, -0.179746, -3.35201)
 
+[node name="RopeStartPoint3" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.7, -0.179746, -5.90841)
+
+[node name="RopeStartPoint4" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.67452, -0.179746, -5.90841)
+
 [node name="GrabPointResetSlot" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.593533, 0.0238122, -5.69558)
+
+[node name="GrabPointResetSlot3" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.613, -0.026, -8)
+
+[node name="GrabPointResetSlot4" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.76152, -0.026, -8)
 
 [node name="RopeStartPoint2" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.770333, -0.179746, -3.35201)
 
 [node name="GrabPointResetSlot2" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.876799, 0.0238122, -5.69558)
-
-[node name="VerletRopeRigid" type="Node3D" parent="."]
-visible = false
-script = ExtResource("1_24ylq")
-SimulationSegments = 6
-CollisionLayer = 8
-CollisionMask = 13
-IsStartPinned = false
-RopeWidth = 0.1
-UseVisibleOnScreenNotifier = false
-metadata/_custom_type_script = "uid://dja12uyulc7ee"
-
-[node name="VerletJointRigid" type="Node" parent="VerletRopeRigid" node_paths=PackedStringArray("VerletRope", "StartBody", "StartCustomLocation", "EndBody", "EndCustomLocation")]
-script = ExtResource("2_by6hu")
-VerletRope = NodePath("..")
-StartBody = NodePath("../..")
-StartCustomLocation = NodePath("../../RopeStartPoint")
-EndBody = NodePath("../../GrabPoint")
-EndCustomLocation = NodePath("../../GrabPoint")
-metadata/_custom_type_script = "uid://cuw8dk3lkvm2n"
 
 [node name="GrabPoint" type="RigidBody3D" parent="." node_paths=PackedStringArray("resetPoint", "rope", "joint", "simRope", "simJoint")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.61327, -0.0263452, -5.69641)
@@ -213,7 +208,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25, 0)
 billboard = 2
 text = "Rope"
 
-[node name="VerletRopeRigid2" type="Node3D" parent="."]
+[node name="VerletRopeRigid" type="Node3D" parent="."]
 visible = false
 script = ExtResource("1_24ylq")
 SimulationSegments = 6
@@ -224,14 +219,158 @@ RopeWidth = 0.1
 UseVisibleOnScreenNotifier = false
 metadata/_custom_type_script = "uid://dja12uyulc7ee"
 
-[node name="VerletJointRigid2" type="Node" parent="VerletRopeRigid2" node_paths=PackedStringArray("VerletRope", "StartBody", "StartCustomLocation", "EndBody", "EndCustomLocation")]
+[node name="VerletJointRigid" type="Node" parent="VerletRopeRigid" node_paths=PackedStringArray("VerletRope", "StartBody", "StartCustomLocation", "EndBody", "EndCustomLocation")]
 script = ExtResource("2_by6hu")
 VerletRope = NodePath("..")
 StartBody = NodePath("../..")
-StartCustomLocation = NodePath("../../RopeStartPoint2")
-EndBody = NodePath("../../GrabPoint2")
-EndCustomLocation = NodePath("../../GrabPoint2")
+StartCustomLocation = NodePath("../../RopeStartPoint")
+EndBody = NodePath("../../GrabPoint")
+EndCustomLocation = NodePath("../../GrabPoint")
 metadata/_custom_type_script = "uid://cuw8dk3lkvm2n"
+
+[node name="VerletRopeSimulated" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -6.5159)
+script = ExtResource("2_wf68l")
+SimulationParticles = 6
+StaticCollisionMask = 8
+DynamicCollisionMask = 13
+metadata/_custom_type_script = "uid://c3oxgehluk75x"
+
+[node name="JointSimulated" type="Node" parent="VerletRopeSimulated" node_paths=PackedStringArray("VerletRope", "StartBody", "StartCustomLocation", "EndBody", "EndCustomLocation")]
+script = ExtResource("3_bdj2n")
+VerletRope = NodePath("..")
+StartBody = NodePath("../..")
+StartCustomLocation = NodePath("../../RopeStartPoint")
+EndBody = NodePath("../../GrabPoint")
+EndCustomLocation = NodePath("../../GrabPoint")
+metadata/verlet_rope_physical_create_simulated_joint = 695312099
+
+[node name="GrabPoint3" type="RigidBody3D" parent="." node_paths=PackedStringArray("resetPoint", "rope", "joint", "simRope", "simJoint")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.613, -0.026, -8)
+collision_layer = 8
+mass = 0.1
+script = ExtResource("3_q3xkn")
+ropeProxyScene = ExtResource("4_f8cd6")
+resetPoint = NodePath("../GrabPointResetSlot3")
+rope = NodePath("../VerletRopeRigid3")
+joint = NodePath("../VerletRopeRigid3/VerletJointRigid")
+simRope = NodePath("../VerletRopeSimulated3")
+simJoint = NodePath("../VerletRopeSimulated3/JointSimulated")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GrabPoint3"]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, 0)
+shape = SubResource("SphereShape3D_roc07")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GrabPoint3"]
+transform = Transform3D(0.25, 0, 0, 0, 0.25, 0, 0, 0, 0.25, 0, 0, 0)
+mesh = SubResource("SphereMesh_m5r0p")
+skeleton = NodePath("")
+
+[node name="Label3D" type="Label3D" parent="GrabPoint3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25, 0)
+billboard = 2
+text = "Rope"
+
+[node name="VerletRopeRigid3" type="Node3D" parent="."]
+visible = false
+script = ExtResource("1_24ylq")
+SimulationSegments = 6
+CollisionLayer = 8
+CollisionMask = 13
+IsStartPinned = false
+RopeWidth = 0.1
+UseVisibleOnScreenNotifier = false
+metadata/_custom_type_script = "uid://dja12uyulc7ee"
+
+[node name="VerletJointRigid" type="Node" parent="VerletRopeRigid3" node_paths=PackedStringArray("VerletRope", "StartBody", "StartCustomLocation", "EndBody", "EndCustomLocation")]
+script = ExtResource("2_by6hu")
+VerletRope = NodePath("..")
+StartBody = NodePath("../..")
+StartCustomLocation = NodePath("../../RopeStartPoint3")
+EndBody = NodePath("../../GrabPoint3")
+EndCustomLocation = NodePath("../../GrabPoint3")
+metadata/_custom_type_script = "uid://cuw8dk3lkvm2n"
+
+[node name="VerletRopeSimulated3" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -6.5159)
+script = ExtResource("2_wf68l")
+SimulationParticles = 6
+StaticCollisionMask = 8
+DynamicCollisionMask = 13
+metadata/_custom_type_script = "uid://c3oxgehluk75x"
+
+[node name="JointSimulated" type="Node" parent="VerletRopeSimulated3" node_paths=PackedStringArray("VerletRope", "StartBody", "StartCustomLocation", "EndBody", "EndCustomLocation")]
+script = ExtResource("3_bdj2n")
+VerletRope = NodePath("..")
+StartBody = NodePath("../../GrabPoint")
+StartCustomLocation = NodePath("../../GrabPoint")
+EndBody = NodePath("../../GrabPoint3")
+EndCustomLocation = NodePath("../../GrabPoint3")
+metadata/verlet_rope_physical_create_simulated_joint = 695312099
+
+[node name="GrabPoint4" type="RigidBody3D" parent="." node_paths=PackedStringArray("resetPoint", "rope", "joint", "simRope", "simJoint")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.605177, -0.026, -8)
+collision_layer = 8
+mass = 0.1
+script = ExtResource("3_q3xkn")
+ropeProxyScene = ExtResource("4_f8cd6")
+resetPoint = NodePath("../GrabPointResetSlot4")
+rope = NodePath("../VerletRopeRigid4")
+joint = NodePath("../VerletRopeRigid4/VerletJointRigid")
+simRope = NodePath("../VerletRopeSimulated4")
+simJoint = NodePath("../VerletRopeSimulated4/JointSimulated")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GrabPoint4"]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, 0)
+shape = SubResource("SphereShape3D_roc07")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GrabPoint4"]
+transform = Transform3D(0.25, 0, 0, 0, 0.25, 0, 0, 0, 0.25, 0, 0, 0)
+mesh = SubResource("SphereMesh_m5r0p")
+skeleton = NodePath("")
+
+[node name="Label3D" type="Label3D" parent="GrabPoint4"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25, 0)
+billboard = 2
+text = "Rope"
+
+[node name="VerletRopeRigid4" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.21818, 0, 0)
+visible = false
+script = ExtResource("1_24ylq")
+SimulationSegments = 6
+CollisionLayer = 8
+CollisionMask = 13
+IsStartPinned = false
+RopeWidth = 0.1
+UseVisibleOnScreenNotifier = false
+metadata/_custom_type_script = "uid://dja12uyulc7ee"
+
+[node name="VerletJointRigid" type="Node" parent="VerletRopeRigid4" node_paths=PackedStringArray("VerletRope", "StartBody", "StartCustomLocation", "EndBody", "EndCustomLocation")]
+script = ExtResource("2_by6hu")
+VerletRope = NodePath("..")
+StartBody = NodePath("../..")
+StartCustomLocation = NodePath("../../RopeStartPoint4")
+EndBody = NodePath("../../GrabPoint4")
+EndCustomLocation = NodePath("../../GrabPoint4")
+metadata/_custom_type_script = "uid://cuw8dk3lkvm2n"
+
+[node name="VerletRopeSimulated4" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.21818, 0, -6.5159)
+script = ExtResource("2_wf68l")
+SimulationParticles = 6
+StaticCollisionMask = 8
+DynamicCollisionMask = 13
+metadata/_custom_type_script = "uid://c3oxgehluk75x"
+
+[node name="JointSimulated" type="Node" parent="VerletRopeSimulated4" node_paths=PackedStringArray("VerletRope", "StartBody", "StartCustomLocation", "EndBody", "EndCustomLocation")]
+script = ExtResource("3_bdj2n")
+VerletRope = NodePath("..")
+StartBody = NodePath("../../GrabPoint2")
+StartCustomLocation = NodePath("../../GrabPoint2")
+EndBody = NodePath("../../GrabPoint4")
+EndCustomLocation = NodePath("../../GrabPoint4")
+metadata/verlet_rope_physical_create_simulated_joint = 695312099
 
 [node name="GrabPoint2" type="RigidBody3D" parent="." node_paths=PackedStringArray("resetPoint", "rope", "joint", "simRope", "simJoint")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.641263, -0.0263452, -5.69641)
@@ -259,22 +398,25 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25, 0)
 billboard = 2
 text = "Rope"
 
-[node name="VerletRopeSimulated" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -6.5159)
-script = ExtResource("2_wf68l")
-SimulationParticles = 6
-StaticCollisionMask = 8
-DynamicCollisionMask = 13
-metadata/_custom_type_script = "uid://c3oxgehluk75x"
+[node name="VerletRopeRigid2" type="Node3D" parent="."]
+visible = false
+script = ExtResource("1_24ylq")
+SimulationSegments = 6
+CollisionLayer = 8
+CollisionMask = 13
+IsStartPinned = false
+RopeWidth = 0.1
+UseVisibleOnScreenNotifier = false
+metadata/_custom_type_script = "uid://dja12uyulc7ee"
 
-[node name="JointSimulated" type="Node" parent="VerletRopeSimulated" node_paths=PackedStringArray("VerletRope", "StartBody", "StartCustomLocation", "EndBody", "EndCustomLocation")]
-script = ExtResource("3_bdj2n")
+[node name="VerletJointRigid2" type="Node" parent="VerletRopeRigid2" node_paths=PackedStringArray("VerletRope", "StartBody", "StartCustomLocation", "EndBody", "EndCustomLocation")]
+script = ExtResource("2_by6hu")
 VerletRope = NodePath("..")
 StartBody = NodePath("../..")
-StartCustomLocation = NodePath("../../RopeStartPoint")
-EndBody = NodePath("../../GrabPoint")
-EndCustomLocation = NodePath("../../GrabPoint")
-metadata/verlet_rope_physical_create_simulated_joint = 695312099
+StartCustomLocation = NodePath("../../RopeStartPoint2")
+EndBody = NodePath("../../GrabPoint2")
+EndCustomLocation = NodePath("../../GrabPoint2")
+metadata/_custom_type_script = "uid://cuw8dk3lkvm2n"
 
 [node name="VerletRopeSimulated2" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -6.5159)
