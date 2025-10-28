@@ -1,7 +1,7 @@
 using Godot;
 using System;
 
-public partial class Wagon : RigidBody3D
+public partial class Wagon : Entity
 {
     //these values are multiplied with the wagon's linear velocity and angular velocity respectively
     //linearXMultiplier reduces the ease at which the wagon can be pulled sideways
