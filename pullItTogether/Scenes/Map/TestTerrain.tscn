@@ -1,23 +1,35 @@
-[gd_scene load_steps=28 format=3 uid="uid://b518v5yn7ig5o"]
+[gd_scene load_steps=24 format=3 uid="uid://b518v5yn7ig5o"]
 
-[ext_resource type="Terrain3DAssets" uid="uid://dal3jhw6241qg" path="res://addons/demo/data/assets.tres" id="1_in7uf"]
+[ext_resource type="Terrain3DAssets" uid="uid://dal3jhw6241qg" path="res://demo/data/assets.tres" id="1_in7uf"]
 [ext_resource type="Script" uid="uid://d2gutl4cngqlt" path="res://Scripts/ManagerScripts/ItemManager.cs" id="2_bn2kb"]
-[ext_resource type="CompositorEffect" uid="uid://bsma6evjua7by" path="res://NewCloudsGD.tres" id="2_c2oie"]
 [ext_resource type="Script" uid="uid://u1f0pfpkqwoc" path="res://Scripts/MiscScripts/ItemSpawnRegistry.cs" id="3_dobrn"]
 [ext_resource type="PackedScene" uid="uid://ba3m0401u3th5" path="res://Scenes/Interactables/WoodPlank.tscn" id="5_pd0wi"]
-[ext_resource type="PackedScene" path="res://Scenes/Interactables/Food_Template.tscn" id="7_eicjb"]
+[ext_resource type="PackedScene" uid="uid://ddg3vj41j0u45" path="res://Scenes/Interactables/Food_Template.tscn" id="7_eicjb"]
 [ext_resource type="PackedScene" uid="uid://b575wgt5fc8yc" path="res://Scenes/Entities/Campfire.tscn" id="8_iddi4"]
 [ext_resource type="PackedScene" uid="uid://cnvpf5wbcbse1" path="res://Scenes/Entities/Wheel.tscn" id="9_w1dx0"]
 [ext_resource type="PackedScene" uid="uid://woij3e5klul2" path="res://Scenes/Maps/TransitionArea.tscn" id="10_bn2kb"]
 [ext_resource type="PackedScene" uid="uid://b2cc2nt2bpja0" path="res://Scenes/Interactables/WagonPrototype.tscn" id="10_nvhef"]
-[ext_resource type="PackedScene" path="res://Scenes/Interactables/Food_Goodberry.tscn" id="12_w1dx0"]
-[ext_resource type="PackedScene" path="res://Scenes/Interactables/Food_Poisonberry.tscn" id="13_nvhef"]
-[ext_resource type="PackedScene" path="res://Scenes/Interactables/Food_Tonic.tscn" id="14_pigjd"]
-[ext_resource type="PackedScene" path="res://Scenes/Interactables/Food_Meat.tscn" id="15_6x6jt"]
+[ext_resource type="PackedScene" uid="uid://dnrj6qm3hslwt" path="res://Scenes/Interactables/Food_Goodberry.tscn" id="12_w1dx0"]
+[ext_resource type="PackedScene" uid="uid://cllu1opbcu5ux" path="res://Scenes/Interactables/Food_Poisonberry.tscn" id="13_nvhef"]
+[ext_resource type="PackedScene" uid="uid://dutt28pb7vdid" path="res://Scenes/Interactables/Food_Tonic.tscn" id="14_pigjd"]
+[ext_resource type="PackedScene" uid="uid://drat1km3kl28w" path="res://Scenes/Interactables/Food_Meat.tscn" id="15_6x6jt"]
 [ext_resource type="PackedScene" uid="uid://bysb2u8m55de2" path="res://Shaders/ToonShader.tscn" id="16_iddi4"]
 [ext_resource type="PackedScene" uid="uid://bvxg2stfsjosw" path="res://Scenes/Superstorm.tscn" id="18_tys2t"]
-[ext_resource type="Script" uid="uid://djusduuxf0voj" path="res://addons/SunshineClouds2/SunshineCloudsDriver.gd" id="19_rgdli"]
-[ext_resource type="Script" uid="uid://bxlm4e5qfb7uu" path="res://addons/SunshineClouds2/SunshineCloudEffector.gd" id="21_annkb"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_eicjb"]
+sky_horizon_color = Color(0.662243, 0.671743, 0.686743, 1)
+ground_horizon_color = Color(0.662243, 0.671743, 0.686743, 1)
+
+[sub_resource type="Sky" id="Sky_iddi4"]
+sky_material = SubResource("ProceduralSkyMaterial_eicjb")
+
+[sub_resource type="Environment" id="Environment_w1dx0"]
+background_mode = 2
+sky = SubResource("Sky_iddi4")
+tonemap_mode = 2
+glow_enabled = true
+volumetric_fog_enabled = true
+volumetric_fog_density = 0.0
 
 [sub_resource type="Gradient" id="Gradient_tgwqr"]
 offsets = PackedFloat32Array(0.2, 1)
@@ -60,38 +72,17 @@ _shader_parameters = {
 &"projection_threshold": 0.8
 }
 
-[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_in7uf"]
-sky_top_color = Color(0.21317, 0.484724, 0.598542, 1)
-sky_horizon_color = Color(0.677986, 0.690074, 0.479417, 1)
-ground_horizon_color = Color(0.662243, 0.671743, 0.686743, 1)
-sun_angle_max = 118.89
-
-[sub_resource type="Sky" id="Sky_n6t57"]
-sky_material = SubResource("ProceduralSkyMaterial_in7uf")
-
-[sub_resource type="Environment" id="Environment_tgwqr"]
-background_mode = 2
-sky = SubResource("Sky_n6t57")
-tonemap_mode = 2
-glow_enabled = true
-fog_light_color = Color(0.648196, 0.826595, 0.844377, 1)
-fog_density = 0.0001
-fog_height = 100.0
-fog_height_density = -0.0215
-volumetric_fog_enabled = true
-volumetric_fog_density = 0.0
-volumetric_fog_albedo = Color(1, 1, 0, 1)
-volumetric_fog_emission = Color(0.78737, 0.357362, 0.388383, 1)
-volumetric_fog_emission_energy = 0.0
-volumetric_fog_length = 40.73
-
-[sub_resource type="Compositor" id="Compositor_hskvb"]
-compositor_effects = Array[CompositorEffect]([ExtResource("2_c2oie")])
-
 [sub_resource type="BoxShape3D" id="BoxShape3D_dobrn"]
 size = Vector3(50, 21.1472, 1)
 
 [node name="TestTerrain" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_w1dx0")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.866023, -0.433016, 0.250001, 0, 0.499998, 0.866027, -0.500003, 0.749999, -0.43301, 0, 0, 0)
+shadow_enabled = true
 
 [node name="Terrain3D" type="Terrain3D" parent="."]
 data_directory = "res://MapData"
@@ -102,13 +93,6 @@ collision_shape_size = 64
 collision_radius = 80
 top_level = true
 metadata/_edit_lock_ = true
-
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.628194, 0.778057, 0, -0.778057, 0.628194, 0, 3, 0)
-
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
-environment = SubResource("Environment_tgwqr")
-compositor = SubResource("Compositor_hskvb")
 
 [node name="CSGBox3D8" type="CSGBox3D" parent="."]
 transform = Transform3D(-4.37114e-08, -1.38888, -6.75588e-22, 1, -6.07097e-08, 1.54556e-14, -1.06581e-14, 0, 1.45013, 32.61, 1.01817, -310.174)
@@ -379,30 +363,7 @@ use_collision = true
 collision_mask = 15
 size = Vector3(1, 4.29089, 38.4169)
 
-[node name="Superstorm" parent="." node_paths=PackedStringArray("cloudsEffector", "interactablesNode") instance=ExtResource("18_tys2t")]
+[node name="Superstorm" parent="." node_paths=PackedStringArray("interactablesNode") instance=ExtResource("18_tys2t")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 80)
 stormSpeed = 1.25
-cloudsEffector = NodePath("../SunshineCloudsEffector")
 interactablesNode = NodePath("../Interactables")
-
-[node name="SunshineCloudsDriverGD" type="Node" parent="." node_paths=PackedStringArray("tracked_directional_lights", "tracked_point_effectors")]
-script = ExtResource("19_rgdli")
-update_continuously = true
-clouds_resource = ExtResource("2_c2oie")
-ambience_sample_environment = SubResource("Environment_tgwqr")
-tracked_directional_lights = [NodePath("../DirectionalLight3D")]
-tracked_directional_light_shadow_steps = Array[int]([12])
-tracked_point_effectors = [NodePath("../SunshineCloudsEffector")]
-wind_direction = Vector3(0, 0, -1)
-extra_large_structures_wind_speed = 50.0
-large_structures_wind_speed = 50.0
-medium_structures_wind_speed = 20.0
-small_structures_wind_speed = 6.0
-metadata/_custom_type_script = "uid://djusduuxf0voj"
-
-[node name="SunshineCloudsEffector" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 5000)
-script = ExtResource("21_annkb")
-Radius = 3500.0
-Power = 1.0
-metadata/_custom_type_script = "uid://bxlm4e5qfb7uu"
