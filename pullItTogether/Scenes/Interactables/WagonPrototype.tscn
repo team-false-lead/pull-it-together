@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=3 uid="uid://b2cc2nt2bpja0"]
+[gd_scene load_steps=23 format=3 uid="uid://b2cc2nt2bpja0"]
 
 [ext_resource type="Script" uid="uid://dja12uyulc7ee" path="res://addons/verlet_rope_4/Physics/VerletRopeRigid.cs" id="1_24ylq"]
 [ext_resource type="Script" uid="uid://toi5sicfb28n" path="res://Scripts/Wagon/Wagon.cs" id="1_f8cd6"]
@@ -23,6 +23,9 @@ radius = 0.675
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_4mj3o"]
 radius = 0.8
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_w40pc"]
+size = Vector3(2.3, 2.4, 5)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_vlqqi"]
 size = Vector3(0.042, 2.5, 5.3)
@@ -125,6 +128,13 @@ shape = SubResource("SphereShape3D_4mj3o")
 [node name="BRWheelCollision" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.569, -0.532, 2.024)
 shape = SubResource("SphereShape3D_4mj3o")
+
+[node name="InsideWagonArea" type="Area3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.34345, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="InsideWagonArea"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.523118, 0.308961)
+shape = SubResource("BoxShape3D_w40pc")
 
 [node name="LeftCollision" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.28039, 0.88935, 0.237807)
