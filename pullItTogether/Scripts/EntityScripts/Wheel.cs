@@ -5,7 +5,7 @@ using static Godot.WebSocketPeer;
 // a wheel that can be repaired with wooden planks
 public partial class Wheel : Entity
 {
-    [Export] public float currentHealth = 10f; //export to use on multiPlayer syncer
+    [Export] public float currentHealth; //export to use on multiPlayer syncer
     [Export] public float maxHealth = 100f;
     //[Export] public bool isBroken = false;
     [Export] public float repairAmount = 34f;
@@ -66,6 +66,12 @@ public partial class Wheel : Entity
         {
             speed = wagonScript.localVelocity.Z;
             Rotation += new Vector3(speed * 0.015f, 0f, 0f);
+            if(MathF.Abs(speed) > 0.5f)
+            {
+                itemManager.DoDamageWheel(GetEntityId(), MathF.Abs(speed) * 0.01f);
+            }
+
+            GD.Print(currentHealth);
         }
 
 
