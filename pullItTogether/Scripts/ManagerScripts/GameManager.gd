@@ -38,7 +38,7 @@ class_name GameManager
 
 # ---------- Network Config ----------
 @export_category("Network Config")
-@export var lobby_prefix: String = "Pull It Together "
+@export var lobby_prefix: String = "Pull It Together"
 var user_friendly_name: String
 @export var default_addr: String = "127.0.0.1"
 @export var default_port: int = 2450
@@ -230,12 +230,16 @@ func _connect_gs_signals() -> void:
 		GS.connect("lobby_match_list", Callable(self, "_on_gs_lobby_match_list"))
 	_gs_signals_connected = true
 
-# generate a random lobby name with prefix "Pull It Together ####"
+# generate a random lobby name with prefix "Pull It Together | [Host Persona Name]"
 # change name of room to persona name later # later filter to just friends also
 func _gen_lobby_name() -> String:
 	#var room_id := randi_range(0, 9999)
 	#return "%s %04d" % [lobby_prefix, room_id]
-	return lobby_prefix
+	var GS = _get_gs()
+	var my_persona_name : String = GS.getFriendPersonaName(GS.getSteamID())
+	if my_persona_name == "":
+		my_persona_name = "Unknown Host"
+	return "%s | %s" % [lobby_prefix, my_persona_name]
 
 
 # Create a new public lobby
@@ -252,7 +256,8 @@ func refresh_steam_lobby_list() -> void:
 		push_error("Steam not initialized; cannot request lobby list.")
 		return
 	var GS = _get_gs()
-	GS.addRequestLobbyListStringFilter("name", lobby_prefix, 0)
+	#GS.addRequestLobbyListStringFilter("name", lobby_prefix, 0)
+	GS.addRequestLobbyListStringFilter("pit_tag", lobby_prefix, 0) # custom filter
 	GS.requestLobbyList()
 	print("refreshing lobbies...")
 
@@ -311,6 +316,7 @@ func _on_gs_lobby_created(a, b) -> void:
 	user_friendly_name = _gen_lobby_name()
 	print("[Steam] lobby_name: ", user_friendly_name)
 	GS.setLobbyData(lobby_id, "name", user_friendly_name)
+	GS.setLobbyData(lobby_id, "pit_tag", lobby_prefix)
 	
 	# Start hosting transport
 	if not network_manager:
