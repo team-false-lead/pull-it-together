@@ -34,6 +34,7 @@ class_name GameManager
 @export var public_list_container: VBoxContainer   
 @export var manual_join_id: LineEdit                
 @export var manual_join_button: Button
+@export var connecting_panel: Panel
 
 # ---------- Network Config ----------
 @export_category("Network Config")
@@ -43,7 +44,9 @@ var user_friendly_name: String
 @export var default_port: int = 2450
 @export var default_max_players: int = 4
 @export var app_id: String = "480"    # test AppID
-var _steam_ok := false               
+var _steam_ok := false    
+var _active_lobby_id: int = 0   
+var _joining_session_in_progress := false        
 
 # ---------- Internal ----------
 signal singleplayer_session_started()
@@ -133,6 +136,7 @@ func _hide_all_menus() -> void:
 	if multiplayer_select_menu: multiplayer_select_menu.hide()
 	if local_multiplayer_menu: local_multiplayer_menu.hide()
 	if public_multiplayer_menu: public_multiplayer_menu.hide()
+	if connecting_panel: connecting_panel.hide()
 
 #show main
 func _show_main_menu() -> void:
@@ -156,6 +160,11 @@ func show_public_menu() -> void:
 		public_multiplayer_menu.show()
 	if _steam_ok:
 		refresh_steam_lobby_list()
+
+func show_connecting_panel() -> void:
+	_hide_all_menus()
+	if connecting_panel:
+		connecting_panel.show()
 	
 func quit_game() -> void:
 	get_tree().quit()
@@ -260,6 +269,8 @@ func join_steam_lobby_by_lobby_id(lobby_id: int) -> void:
 		join_steam_lobby(owner_id64)
 	else:
 		var host_id64: int = int(host_str)
+		_joining_session_in_progress = true
+		show_connecting_panel()
 		join_steam_lobby(host_id64)
 
 # Join a lobby by its host's SteamID64 (int)
@@ -268,6 +279,10 @@ func join_steam_lobby(host_steam_id_64: int) -> void:
 		push_error("NetworkManager not assigned"); return
 	if not await network_manager.join_steam(host_steam_id_64):
 		push_error("Failed to join Steam host %s" % host_steam_id_64)
+		_joining_session_in_progress = false
+		_hide_all_menus()
+		show_public_menu()
+		return
 
 # GodotSteam signal handlers
 func _on_gs_lobby_created(a, b) -> void:
@@ -287,6 +302,7 @@ func _on_gs_lobby_created(a, b) -> void:
 	if result != 1:
 		push_error("GodotSteam: lobby create failed (result=%s)" % result); return
 
+	_active_lobby_id = lobby_id
 	var GS = _get_gs()
 	var my_id64: int = int(GS.getSteamID())
 	GS.setLobbyData(lobby_id, "host_id64", str(my_id64))
@@ -334,6 +350,25 @@ func _on_gs_lobby_match_list(lobbies: Array) -> void:
 		})
 	emit_signal("lobby_list_updated", out)
 
+# Helper for ghost lobby cleanup
+func _shutdown_active_lobby() -> void:
+	if not _steam_ok:
+		return
+	if _active_lobby_id == 0:
+		return
+	var GS = _get_gs()
+
+	#check if self is host
+	var my_id64: int = int(GS.getSteamID())
+	var owner_id64: int = int(GS.getLobbyOwner(_active_lobby_id))
+	if my_id64 == owner_id64: # we are host, clear data
+		GS.setLobbyJoinable(_active_lobby_id, false)
+		GS.setLobbyData(_active_lobby_id, "host_id64", "")
+		GS.setLobbyData(_active_lobby_id, "name", "")
+
+	GS.leaveLobby(_active_lobby_id)
+	_active_lobby_id = 0
+
 # GodotSteam lobby data updated (not used currently), lobby name/metadata changes
 #func _on_gs_lobby_data_update(_success: bool, _lobby_id: int, _member_id: int) -> void:
 #	pass
@@ -368,6 +403,9 @@ func _update_runtime_ui() -> void:
 # ---------- Network events ----------
 #load map and enable spawning on session start
 func _on_session_started(role: String) -> void:
+	_joining_session_in_progress = false
+	if connecting_panel:
+		connecting_panel.hide()
 	if main_canvas: 
 		main_canvas.hide()
 	if map_manager and map_manager.has_method("load_map"):
@@ -384,10 +422,14 @@ func _on_session_ended() -> void:
 		spawn_manager.despawn_all()
 	if map_manager:
 		await map_manager.call("deload_map") # reset map to initial state
-	if main_canvas: 
-		main_canvas.show()
-	_show_main_menu()
-	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	_shutdown_active_lobby()
+	if _joining_session_in_progress:
+		show_connecting_panel()
+	else:
+		if main_canvas: 
+			main_canvas.show()
+		_show_main_menu()
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
 # peer connected/disconnected handled in spawn manager
 

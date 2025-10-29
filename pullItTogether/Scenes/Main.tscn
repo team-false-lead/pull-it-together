@@ -17,7 +17,7 @@ font_size = 25
 
 [node name="Main" type="Node3D"]
 
-[node name="GameManager" type="Node" parent="." node_paths=PackedStringArray("network_manager", "map_manager", "spawn_manager", "main_canvas", "main_menu", "multiplayer_select_menu", "local_multiplayer_menu", "public_multiplayer_menu", "local_host_button", "local_join_button", "local_back_to_menu_button", "local_address_input", "local_port", "local_LAN_label", "local_max_players", "steam_status_label", "public_refresh_button", "public_create_lobby_button", "public_back_button", "public_list_container", "manual_join_id", "manual_join_button")]
+[node name="GameManager" type="Node" parent="." node_paths=PackedStringArray("network_manager", "map_manager", "spawn_manager", "main_canvas", "main_menu", "multiplayer_select_menu", "local_multiplayer_menu", "public_multiplayer_menu", "local_host_button", "local_join_button", "local_back_to_menu_button", "local_address_input", "local_port", "local_LAN_label", "local_max_players", "steam_status_label", "public_refresh_button", "public_create_lobby_button", "public_back_button", "public_list_container", "manual_join_id", "manual_join_button", "connecting_panel")]
 script = ExtResource("1_pbw6q")
 network_manager = NodePath("../NetworkManager")
 map_manager = NodePath("../MapManager")
@@ -41,6 +41,7 @@ public_back_button = NodePath("../CanvasLayer/MainControl/PublicMultiplayerMenu/
 public_list_container = NodePath("../CanvasLayer/MainControl/PublicMultiplayerMenu/LobbyListPanel/ScrollContainer/VBoxContainer")
 manual_join_id = NodePath("../CanvasLayer/MainControl/PublicMultiplayerMenu/ManualJoinPanel/VBoxContainer/LobbyIdLineEdit")
 manual_join_button = NodePath("../CanvasLayer/MainControl/PublicMultiplayerMenu/ManualJoinPanel/JoinButton")
+connecting_panel = NodePath("../CanvasLayer/MainControl/PublicMultiplayerMenu/PublicConnectingPanel")
 
 [node name="NetworkManager" type="Node" parent="."]
 script = ExtResource("2_v1gob")
@@ -520,6 +521,33 @@ offset_right = 239.0
 offset_bottom = 435.0
 mouse_default_cursor_shape = 2
 text = "HOST"
+
+[node name="PublicConnectingPanel" type="Panel" parent="CanvasLayer/MainControl/PublicMultiplayerMenu"]
+visible = false
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+offset_left = 434.0
+offset_top = 203.0
+offset_right = 680.0
+offset_bottom = 273.0
+
+[node name="ManualLabel" type="Label" parent="CanvasLayer/MainControl/PublicMultiplayerMenu/PublicConnectingPanel"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -52.5
+offset_top = -11.5
+offset_right = 52.5
+offset_bottom = 11.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 30
+text = "Connecting... "
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [connection signal="pressed" from="CanvasLayer/MainControl/MainMenu/VBoxContainer/SingleplayerButton" to="GameManager" method="_on_single_player_pressed"]
 [connection signal="pressed" from="CanvasLayer/MainControl/MainMenu/VBoxContainer/MultiplayerButton" to="GameManager" method="_show_multiplayer_select"]
