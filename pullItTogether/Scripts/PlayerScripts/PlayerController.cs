@@ -80,6 +80,8 @@ public partial class PlayerController : CharacterBody3D
 	[Export] private PauseMenu pauseMenu;
 	private Label debugTrackerLabel;
 
+	private GameStateTracker gameStateTracker;
+
 
     public bool IsDowned
 	{
@@ -98,7 +100,7 @@ public partial class PlayerController : CharacterBody3D
 		{
 			Input.SetMouseMode(Input.MouseModeEnum.Captured);
 
-			GetTree().Root.GetNode("Main/MapManager/TestTerrain/Terrain3D").Call("set_camera", camera);
+			//GetTree().Root.GetNode("Main/MapManager/TestTerrain/Terrain3D").Call("set_camera", camera); // moved hardcoded to when we have mapmanager ref
 
 			// Hide all nodes in the "self_hide" group
 			foreach (var child in GetTree().GetNodesInGroup("self_hide"))
@@ -157,6 +159,9 @@ public partial class PlayerController : CharacterBody3D
 		if (mapManager != null)
 		{
 			mapManager.Connect("map_reloaded", new Callable(this, nameof(OnMapReloaded)));
+			var level_instance = (Node)mapManager.Get("level_instance");
+			gameStateTracker = level_instance.GetNodeOrNull<GameStateTracker>("GameStateTracker");
+			level_instance.GetNodeOrNull<Node3D>("Terrain3D").Call("set_camera", camera);
 		}
 		ApplyBodyColor(bodyColor);
 	}
@@ -703,14 +708,15 @@ public partial class PlayerController : CharacterBody3D
 
 	public void ExitLobby()
 	{
-        GameStateTracker gameStateTracker = GetTree().CurrentScene.GetNode<GameStateTracker>("%MapManager/TestTerrain/GameStateTracker");
-        gameStateTracker.RemovePlayerFromPlayerList(this);
+        //GameStateTracker gameStateTracker = GetTree().CurrentScene.GetNode<GameStateTracker>("%MapManager/TestTerrain/GameStateTracker");
+        //gameStateTracker.RemovePlayerFromPlayerList(this);
         GetTree().CurrentScene.GetNodeOrNull<Node>("NetworkManager").CallDeferred("leave");
     }
 
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
 	public void ChangeCurrentHealth(float diff)
 	{
+		bool wasAlreadyDowned = currentHealth <= 0;
 		// If recovering health from a downed state, emit the revival event
 		if (currentHealth == 0 && diff > 0)
         {
@@ -724,7 +730,11 @@ public partial class PlayerController : CharacterBody3D
 			currentHealth = 0;
 			DropObject();
 			Scale = new Vector3(0.75f, 0.75f, 0.75f);
-            EmitSignal("OnDowned");
+			if (!wasAlreadyDowned)
+            {
+                EmitSignal("OnDowned");
+				gameStateTracker.RpcId(1, nameof(GameStateTracker.CheckLossState), GetMultiplayerAuthority(), currentHealth); // check for loss state on server
+            }	
 		}
 
 		EmitSignal("ChangeHUD");
@@ -783,6 +793,7 @@ public partial class PlayerController : CharacterBody3D
 		lookingAtLabel.Text = lookingAtText;
     }
 
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
 	public void SetOutOfHealthLabelText(string text)
 	{
 		if (outOfHealthLabel == null) return;
