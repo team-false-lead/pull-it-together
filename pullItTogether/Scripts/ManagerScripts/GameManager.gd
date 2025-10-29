@@ -60,6 +60,8 @@ func _enter_tree() -> void:
 		OS.set_environment("SteamGameId", app_id)
 
 func _ready() -> void:
+	if network_manager:
+		network_manager.default_max_players = default_max_players
 	if spawn_manager:
 		spawn_manager.set_spawning_enabled(false)
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
@@ -317,6 +319,9 @@ func _on_gs_lobby_created(a, b) -> void:
 	print("[Steam] lobby_name: ", user_friendly_name)
 	GS.setLobbyData(lobby_id, "name", user_friendly_name)
 	GS.setLobbyData(lobby_id, "pit_tag", lobby_prefix)
+
+	GS.setLobbyMemberLimit(lobby_id, default_max_players)
+	GS.setLobbyData(lobby_id, "max_players", str(default_max_players))
 	
 	# Start hosting transport
 	if not network_manager:
@@ -466,10 +471,15 @@ func _render_lobby_list(items: Array) -> void:
 		row.add_child(lbl)
 
 		var join_btn := Button.new()
-		join_btn.text = "Join"
-		join_btn.pressed.connect(func():
-			join_steam_lobby_by_lobby_id(lobby_id)
-		)
+		var is_full := (members >= max_m)
+		join_btn.disabled = is_full
+		if is_full:
+			join_btn.text = "Full"
+		else:
+			join_btn.text = "Join"
+			join_btn.pressed.connect(func():
+				join_steam_lobby_by_lobby_id(lobby_id)
+			)
 		row.add_child(join_btn)
 
 		public_list_container.add_child(row)

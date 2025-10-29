@@ -13,6 +13,7 @@ var mode : PeerMode = PeerMode.NONE # 0=STEAM, 1=LOCAL, 2=NONE
 var _signals_hooked := false
 var _is_leaving := false
 var _stored_initial_peer : MultiplayerPeer = null
+var default_max_players: int = 4
 
 # ---------- General ----------
 func _ready() -> void:
@@ -222,6 +223,16 @@ func _wait_for_connection(timeout: float = 10.0) -> bool:
 	return true
 
 func _on_peer_connected(id: int) -> void:   
+	if multiplayer.is_server():
+		var peer_ids : PackedInt32Array = multiplayer.get_peers()
+		var current_player_count := peer_ids.size() + 1 # +1 for host
+		if current_player_count > default_max_players:
+			print("Max players exceeded, kicking peer: %d" % id)
+			if peer and peer.has_method(("disconnect_peer")):
+				peer.disconnect_peer(id)
+			else:
+				rpc_id(id, "_host_disconnect") # should handle steam and enet
+			return
 	emit_signal("peer_connected", id)
 
 func _on_peer_disconnected(id: int) -> void: 
