@@ -401,25 +401,39 @@ public partial class ItemManager : Node3D
 		Vector3 dropPosition = GetDropPosition(requestingItem); // drop in front of the user of the item
 		instance.GlobalTransform = new Transform3D(Basis.Identity, dropPosition);
 
+		string tempId = "";
+		string tempScenePath = "";
+		Transform3D tempTransform = instance.GlobalTransform;
+
+		if (instance is Interactable instanceInteractable)
+		{
+			tempId = instanceInteractable.interactableId;
+			instanceInteractable.scenePath = requestingItem.SpawnOnUseScene.ResourcePath;
+			tempScenePath = instanceInteractable.scenePath;
+			//itemSpawnRegistry.RpcId(peerId, nameof(ItemSpawnRegistry.ClientSpawnItem), instanceInteractable.scenePath, tempId, instance.GlobalTransform, 1);
+		}
+		else if (instance is Entity instanceEntity)
+		{
+			tempId = instanceEntity.entityId;
+			instanceEntity.scenePath = requestingItem.SpawnOnUseScene.ResourcePath;
+			tempScenePath = instanceEntity.scenePath;
+			//itemSpawnRegistry.RpcId(peerId, nameof(ItemSpawnRegistry.ClientSpawnItem), instanceEntity.scenePath, tempId, instance.GlobalTransform, 1);
+		}
+		else
+		{
+			GD.PrintErr("ItemManager: DoSpawnItem - Spawned item is neither Interactable nor Entity.");
+			instance.QueueFree(); // Free the local instance no matter what
+			return; // exit early and do not broadcast
+		}
+
+		instance.QueueFree(); // Free the local instance after spawning
 		// inform all peers including host
 		foreach (var peerId in multiplayer.GetPeers())
 		{
-			var tempId = "";
 			//if (peerId == multiplayer.GetUniqueId()) continue;
-			if (instance is Interactable instanceInteractable)
-			{
-				tempId = instanceInteractable.interactableId;
-				instanceInteractable.scenePath = requestingItem.SpawnOnUseScene.ResourcePath;
-				itemSpawnRegistry.RpcId(peerId, nameof(ItemSpawnRegistry.ClientSpawnItem), instanceInteractable.scenePath, tempId, instance.GlobalTransform, 1);
-			}
-			else if (instance is Entity instanceEntity)
-			{
-				tempId = instanceEntity.entityId;
-				instanceEntity.scenePath = requestingItem.SpawnOnUseScene.ResourcePath;
-				itemSpawnRegistry.RpcId(peerId, nameof(ItemSpawnRegistry.ClientSpawnItem), instanceEntity.scenePath, tempId, instance.GlobalTransform, 1);
-			}
+			itemSpawnRegistry.RpcId(peerId, nameof(ItemSpawnRegistry.ClientSpawnItem), tempScenePath, tempId, tempTransform, 1);
 		}
-		//instance.QueueFree(); // Free the local instance after spawning
+		
 
 		//requestingItem.QueueFree(); // remove the used item
 		itemSpawnRegistry.ClientDespawnItem(itemId); // remove locally first
