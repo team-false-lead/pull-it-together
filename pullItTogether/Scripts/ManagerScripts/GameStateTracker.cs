@@ -84,7 +84,10 @@ public partial class GameStateTracker : Node
         {
             foreach (PlayerController player in playerControllers)
             {
-                player.SetOutOfHealthLabelText("Congratulations! You're the greatest Wagoneer(s)!");
+                if (player is PlayerController pc)
+                {
+                    pc.RpcId(pc.GetMultiplayerAuthority(), nameof(PlayerController.SetOutOfHealthLabelText), "Congratulations! You're the greatest Wagoneer(s)");
+                }
             }
             var execute = ResetAfterSeconds(3);
         }
