@@ -9,11 +9,12 @@ public partial class Wheel : Entity
     [Export] public float maxHealth = 100f;
     //[Export] public bool isBroken = false;
     [Export] public float repairAmount = 34f;
-    [Export] public float damageAmount = 0.1f;
+    [Export] public float damageAmountMax = 0.01f;
+    [Export] public float damageAmountMin = 0f;
     [Export] public CollisionShape3D wheelCollision;
     public float speed;
     public Wagon wagonScript;
-
+    public Random rnd = new Random();
     public override void _Ready()
     {
         wagonScript = GetTree().GetFirstNodeInGroup("wagon") as Wagon;
@@ -90,14 +91,13 @@ public partial class Wheel : Entity
             Rotation += new Vector3(speed * 0.015f, 0f, 0f);
 
 
-
             if (MathF.Abs(speed) > 0.25f)
             {
-                itemManager.DoDamageWheel(GetEntityId(), MathF.Abs(speed) * 0.1f);
+                itemManager.DoDamageWheel(GetEntityId(), MathF.Abs(speed) * (float)(rnd.NextDouble() * (damageAmountMax - damageAmountMin)));
             }
 
             //if(currentHealth < 10)
-            //GD.Print(currentHealth);
+            //GD.Print(dmgAmount);
         }
 
 
