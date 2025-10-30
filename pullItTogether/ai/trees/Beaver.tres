@@ -1,0 +1,26 @@
+[gd_resource type="BehaviorTree" load_steps=8 format=3 uid="uid://cdntafo1eagv5"]
+
+[sub_resource type="BlackboardPlan" id="BlackboardPlan_mu0o3"]
+
+[sub_resource type="BTSequence" id="BTSequence_mu0o3"]
+custom_name = "Run Away With Plank"
+
+[sub_resource type="BTSequence" id="BTSequence_jrsvk"]
+custom_name = "Grab Plank"
+
+[sub_resource type="BTSequence" id="BTSequence_7jdii"]
+custom_name = "Attack Wheel"
+
+[sub_resource type="BTSequence" id="BTSequence_mcitd"]
+custom_name = "Patrol"
+
+[sub_resource type="BTWait" id="BTWait_7s2bl"]
+custom_name = "Fail Safe Wait"
+
+[sub_resource type="BTSelector" id="BTSelector_jrsvk"]
+custom_name = "Sel - Root"
+children = [SubResource("BTSequence_mu0o3"), SubResource("BTSequence_jrsvk"), SubResource("BTSequence_7jdii"), SubResource("BTSequence_mcitd"), SubResource("BTWait_7s2bl")]
+
+[resource]
+blackboard_plan = SubResource("BlackboardPlan_mu0o3")
+root_task = SubResource("BTSelector_jrsvk")

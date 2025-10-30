@@ -1,4 +1,4 @@
-[gd_scene load_steps=24 format=3 uid="uid://b518v5yn7ig5o"]
+[gd_scene load_steps=25 format=3 uid="uid://b518v5yn7ig5o"]
 
 [ext_resource type="Terrain3DAssets" uid="uid://dal3jhw6241qg" path="res://demo/data/assets.tres" id="1_in7uf"]
 [ext_resource type="Script" uid="uid://d2gutl4cngqlt" path="res://Scripts/ManagerScripts/ItemManager.cs" id="2_bn2kb"]
@@ -11,6 +11,7 @@
 [ext_resource type="PackedScene" uid="uid://b2cc2nt2bpja0" path="res://Scenes/Interactables/WagonPrototype.tscn" id="10_nvhef"]
 [ext_resource type="PackedScene" uid="uid://dnrj6qm3hslwt" path="res://Scenes/Interactables/Food_Goodberry.tscn" id="12_w1dx0"]
 [ext_resource type="PackedScene" uid="uid://cllu1opbcu5ux" path="res://Scenes/Interactables/Food_Poisonberry.tscn" id="13_nvhef"]
+[ext_resource type="PackedScene" uid="uid://cht8jumec3xyy" path="res://Scenes/Entities/Beaver.tscn" id="14_iddi4"]
 [ext_resource type="PackedScene" uid="uid://dutt28pb7vdid" path="res://Scenes/Interactables/Food_Tonic.tscn" id="14_pigjd"]
 [ext_resource type="PackedScene" uid="uid://drat1km3kl28w" path="res://Scenes/Interactables/Food_Meat.tscn" id="15_6x6jt"]
 [ext_resource type="PackedScene" uid="uid://bysb2u8m55de2" path="res://Shaders/ToonShader.tscn" id="16_iddi4"]
@@ -354,6 +355,9 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 36.1473, 27.4261, -597.16)
 
 [node name="Tonic9" parent="Placeholders" instance=ExtResource("14_pigjd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 36.9695, 27.4261, -597.16)
+
+[node name="Beaver" parent="Placeholders" instance=ExtResource("14_iddi4")]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 1.12135, -48.2951)
 
 [node name="ToonShader" parent="." instance=ExtResource("16_iddi4")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.51888, 0, -16.3447)
