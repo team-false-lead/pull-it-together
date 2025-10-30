@@ -9,7 +9,7 @@ public partial class Wheel : Entity
     [Export] public float maxHealth = 100f;
     //[Export] public bool isBroken = false;
     [Export] public float repairAmount = 34f;
-    [Export] public float damageAmountMax = 0.01f;
+    [Export] public float damageAmountMax = 0.75f;
     [Export] public float damageAmountMin = 0f;
     [Export] public CollisionShape3D wheelCollision;
     public float speed;
@@ -93,11 +93,11 @@ public partial class Wheel : Entity
 
             if (MathF.Abs(speed) > 0.25f)
             {
-                itemManager.DoDamageWheel(GetEntityId(), MathF.Abs(speed) * (float)(rnd.NextDouble() * (damageAmountMax - damageAmountMin)));
+                itemManager.DoDamageWheel(GetEntityId(), MathF.Abs(speed) * (float)(rnd.NextDouble() * (damageAmountMax - damageAmountMin) * delta));
             }
 
             //if(currentHealth < 10)
-            //GD.Print(dmgAmount);
+            //GD.Print(currentHealth);
         }
 
 
