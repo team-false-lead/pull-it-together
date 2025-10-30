@@ -34,6 +34,7 @@ class_name GameManager
 @export var public_list_container: VBoxContainer   
 @export var manual_join_id: LineEdit                
 @export var manual_join_button: Button
+@export var public_max_players: SpinBox
 @export var connecting_panel: Panel
 
 # ---------- Network Config ----------
@@ -250,7 +251,7 @@ func create_steam_lobby() -> void:
 		push_error("Steam not initialized; cannot create lobby.")
 		return
 	var GS = _get_gs()
-	GS.createLobby(2, default_max_players) # 2 = public
+	GS.createLobby(2, public_max_players.value) # 2 = public
 
 # Refresh the public lobby list
 func refresh_steam_lobby_list() -> void:
@@ -287,7 +288,7 @@ func join_steam_lobby(host_steam_id_64: int) -> void:
 	if not await network_manager.join_steam(host_steam_id_64):
 		push_error("Failed to join Steam host %s" % host_steam_id_64)
 		_joining_session_in_progress = false
-		_hide_all_menus()
+		#_hide_all_menus()
 		show_public_menu()
 		return
 
@@ -320,9 +321,9 @@ func _on_gs_lobby_created(a, b) -> void:
 	GS.setLobbyData(lobby_id, "name", user_friendly_name)
 	GS.setLobbyData(lobby_id, "pit_tag", lobby_prefix)
 
-	GS.setLobbyMemberLimit(lobby_id, default_max_players)
-	GS.setLobbyData(lobby_id, "max_players", str(default_max_players))
-	
+	GS.setLobbyMemberLimit(lobby_id, public_max_players.value)
+	GS.setLobbyData(lobby_id, "max_players", str(public_max_players.value))
+
 	# Start hosting transport
 	if not network_manager:
 		push_error("NetworkManager not assigned"); return

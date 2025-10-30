@@ -17,7 +17,7 @@ font_size = 25
 
 [node name="Main" type="Node3D"]
 
-[node name="GameManager" type="Node" parent="." node_paths=PackedStringArray("network_manager", "map_manager", "spawn_manager", "main_canvas", "main_menu", "multiplayer_select_menu", "local_multiplayer_menu", "public_multiplayer_menu", "local_host_button", "local_join_button", "local_back_to_menu_button", "local_address_input", "local_port", "local_LAN_label", "local_max_players", "steam_status_label", "public_refresh_button", "public_create_lobby_button", "public_back_button", "public_list_container", "manual_join_id", "manual_join_button", "connecting_panel")]
+[node name="GameManager" type="Node" parent="." node_paths=PackedStringArray("network_manager", "map_manager", "spawn_manager", "main_canvas", "main_menu", "multiplayer_select_menu", "local_multiplayer_menu", "public_multiplayer_menu", "local_host_button", "local_join_button", "local_back_to_menu_button", "local_address_input", "local_port", "local_LAN_label", "local_max_players", "steam_status_label", "public_refresh_button", "public_create_lobby_button", "public_back_button", "public_list_container", "manual_join_id", "manual_join_button", "public_max_players", "connecting_panel")]
 script = ExtResource("1_pbw6q")
 network_manager = NodePath("../NetworkManager")
 map_manager = NodePath("../MapManager")
@@ -41,6 +41,7 @@ public_back_button = NodePath("../CanvasLayer/MainControl/PublicMultiplayerMenu/
 public_list_container = NodePath("../CanvasLayer/MainControl/PublicMultiplayerMenu/LobbyListPanel/ScrollContainer/VBoxContainer")
 manual_join_id = NodePath("../CanvasLayer/MainControl/PublicMultiplayerMenu/ManualJoinPanel/VBoxContainer/LobbyIdLineEdit")
 manual_join_button = NodePath("../CanvasLayer/MainControl/PublicMultiplayerMenu/ManualJoinPanel/JoinButton")
+public_max_players = NodePath("../CanvasLayer/MainControl/PublicMultiplayerMenu/CreateLobbyPanel/VBoxContainer/MaxPlayersSpinBox")
 connecting_panel = NodePath("../CanvasLayer/MainControl/PublicMultiplayerMenu/PublicConnectingPanel")
 
 [node name="NetworkManager" type="Node" parent="."]
@@ -492,7 +493,7 @@ text = "Steam: Status"
 
 [node name="MaxPlayersSpinBox" type="SpinBox" parent="CanvasLayer/MainControl/PublicMultiplayerMenu/CreateLobbyPanel/VBoxContainer"]
 layout_mode = 2
-min_value = 2.0
+min_value = 1.0
 max_value = 4.0
 value = 4.0
 alignment = 1
