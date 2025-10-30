@@ -61,12 +61,16 @@ public partial class Wheel : Entity
         //{
         //    itemManager.DoDamageWheel(GetEntityId(), damageAmount);
         //}
+        if(currentHealth > 76)
+        {
+            //RotationDegrees = new Vector3(Rotation.X, Rotation.Y, 90);
+        }
 
-        if(Visible == true)
+        if (Visible == true)
         {
             speed = wagonScript.localVelocity.Z;
             Rotation += new Vector3(speed * 0.015f, 0f, 0f);
-            if(MathF.Abs(speed) > 0.5f)
+            if (MathF.Abs(speed) > 0.25f)
             {
                 itemManager.DoDamageWheel(GetEntityId(), MathF.Abs(speed) * 0.01f);
             }
