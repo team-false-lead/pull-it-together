@@ -76,7 +76,7 @@ properties/9/replication_mode = 1
 [node name="WagonPrototype" type="RigidBody3D" node_paths=PackedStringArray("wheels") groups=["wagon"]]
 collision_layer = 4
 collision_mask = 9
-mass = 900.0
+mass = 850.0
 physics_material_override = SubResource("PhysicsMaterial_vlqqi")
 center_of_mass_mode = 1
 center_of_mass = Vector3(0, -3, -0.75)
