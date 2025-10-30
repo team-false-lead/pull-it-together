@@ -56,38 +56,60 @@ public partial class Wheel : Entity
     // if not held, reset to reset point
     public override void _PhysicsProcess(double delta)
     {
+        base._PhysicsProcess(delta);
         if (itemManager == null) InitReferences();
         //if (!multiplayerActive || (multiplayerActive && multiplayer.IsServer()))
         //{
         //    itemManager.DoDamageWheel(GetEntityId(), damageAmount);
         //}
-        if(currentHealth > 76)
-        {
-            //RotationDegrees = new Vector3(Rotation.X, Rotation.Y, 90);
-        }
+
+        
 
         if (Visible == true)
         {
             speed = wagonScript.localVelocity.Z;
-            Rotation += new Vector3(speed * 0.015f, 0f, 0f);
-            if (MathF.Abs(speed) > 0.25f)
+
+            if (currentHealth >= 75 && RotationDegrees.Z != 90)
             {
-                itemManager.DoDamageWheel(GetEntityId(), MathF.Abs(speed) * 0.01f);
+                RotationDegrees = new Vector3(Rotation.X, Rotation.Y, 90);
+            }
+            if (currentHealth < 75 && currentHealth >= 50 && RotationDegrees.Z != 93)
+            {
+                RotationDegrees = new Vector3(Rotation.X, Rotation.Y, 93);
+            }
+            if (currentHealth < 50 && currentHealth >= 25 && RotationDegrees.Z != 96)
+            {
+                RotationDegrees = new Vector3(Rotation.X, Rotation.Y, 96);
+            }
+            if (currentHealth < 25 && RotationDegrees.Z != 99)
+            {
+                RotationDegrees = new Vector3(Rotation.X, Rotation.Y, 99);
             }
 
-            GD.Print(currentHealth);
+
+            Rotation += new Vector3(speed * 0.015f, 0f, 0f);
+
+
+
+            if (MathF.Abs(speed) > 0.25f)
+            {
+                itemManager.DoDamageWheel(GetEntityId(), MathF.Abs(speed) * 0.1f);
+            }
+
+            //if(currentHealth < 10)
+            //GD.Print(currentHealth);
         }
 
 
-        if (currentHealth <= 0 && Visible == true)
+        if (currentHealth <= 0)
         {
             if (wheelCollision != null)
             {
                 Visible = false;
-                wheelCollision.Scale = new Vector3(.25f, .25f, .25f);
+                wheelCollision.Scale = new Vector3(.4f, .4f, .4f);
             }
         }
-        else if (currentHealth > 0 && Visible == false)
+        else if (currentHealth > 0)
         {
             if (wheelCollision != null)
             {
