@@ -4,7 +4,7 @@ using System;
 // a wheel that can be repaired with wooden planks
 public partial class Wheel : Entity
 {
-    [Export] public float currentHealth = 10f; //export to use on multiPlayer syncer
+    [Export] public float currentHealth = 100f; //export to use on multiPlayer syncer
     [Export] public float maxHealth = 100f;
     [Export] public bool isBroken = false;
     [Export] public float repairAmount = 34f;

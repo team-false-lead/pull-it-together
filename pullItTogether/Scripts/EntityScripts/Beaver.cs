@@ -7,6 +7,7 @@ public partial class Beaver : Entity
     [Export] public Label3D label;
     [Export] public ItemDetector plankDetector;
     [Export] public ItemDetector wagonDetector;
+    [Export] public Node BT;
     [Export] public bool hasPlank = false;
     [Export] public bool plankInRange = false;
     public Interactable plankTarget = null;
@@ -24,6 +25,15 @@ public partial class Beaver : Entity
     public override void _Ready()
     {
         base._Ready();
+        
+        if (multiplayerActive && !multiplayer.IsServer())
+        {
+            if (BT != null)
+            {
+                BT.Call("set_active", false);
+            }
+        }
+
 
         if (plankDetector != null)
         {
@@ -73,6 +83,7 @@ public partial class Beaver : Entity
     public override void _PhysicsProcess(double delta)
     {
         base._PhysicsProcess(delta);
+        GD.Print("beaver id: " + GetEntityId());
         //GD.Print("wagonInRange: " + wagonInRange + ", wagonRef: " + wagonRef + ", wheelTarget: " + wheelTarget);
         if (wagonInRange && wagonRef == null)
         {
@@ -98,7 +109,7 @@ public partial class Beaver : Entity
             }
             else
             {
-                GD.Print("wheelHealth: " + wheelTarget.currentHealth);
+                //GD.Print("wheelHealth: " + wheelTarget.currentHealth);
                 hasWheelTarget = true;
                 targetPosition = wheelTarget.GlobalPosition;
                 if (wheelTarget.currentHealth <= 0)
@@ -118,11 +129,13 @@ public partial class Beaver : Entity
                                 GD.PrintErr("Beaver: Failed to request use via RPC. Error: " + error);
                             }
                             hasPlank = true;
+                            inventorySlot.Rotation += new Vector3(Mathf.DegToRad(-90f), 0, Mathf.DegToRad(-90f));
                         }
                         else // Server or single-player handles spawn directly
                         {
                             itemManager.DoBeaverSpawnWheel(id);
                             hasPlank = true;
+                            inventorySlot.Rotation += new Vector3(Mathf.DegToRad(-90f), 0, Mathf.DegToRad(-90f));
                         }
                         spawnedWheel = true;
                     }
@@ -225,14 +238,14 @@ public partial class Beaver : Entity
 
     public bool AttackWheel()
     {
-        wheelTarget.currentHealth = 0;
+        wheelTarget.currentHealth -= wheelDamage;
         return true;
         //if (hasWheelTarget && wheelTarget != null && !wheelBroken)
         {
-            
+
             //if (itemManager == null) InitReferences();
             //var id = GetEntityId(); //get unique id, default to name
-//
+            //
             //// request damage wheel via RPC if not server
             //if (multiplayerActive && !multiplayer.IsServer())
             //{
@@ -252,6 +265,11 @@ public partial class Beaver : Entity
             //}
         }
         //return false;
+    }
+    
+    public bool AttackPlayer()
+    {
+        return false;
     }
 
     public Node3D GetInventorySlot()

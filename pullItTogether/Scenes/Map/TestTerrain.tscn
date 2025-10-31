@@ -217,6 +217,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.2946, 1.46766, 1.95325)
 
 [node name="Wheel" parent="Placeholders" instance=ExtResource("9_w1dx0")]
 transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 10.1942, 1.96766, 1.42996)
+currentHealth = 61.0
 
 [node name="RigidBody3D" parent="Placeholders" instance=ExtResource("10_nvhef")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.3943, 3.15526, -8.18282)

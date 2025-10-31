@@ -422,11 +422,11 @@ public partial class ItemManager : Node3D
 		else
 		{
 			GD.PrintErr("ItemManager: DoSpawnItem - Spawned item is neither Interactable nor Entity.");
-			instance.QueueFree(); // Free the local instance no matter what
+			//instance.QueueFree(); // Free the local instance no matter what // actually dont cause host needs to keep it
 			return; // exit early and do not broadcast
 		}
 
-		instance.QueueFree(); // Free the local instance after spawning
+		//instance.QueueFree(); // Free the local instance after spawning // actually dont cause host needs to keep it
 							  // inform all peers including host
 		foreach (var peerId in multiplayer.GetPeers())
 		{
@@ -948,18 +948,18 @@ public partial class ItemManager : Node3D
 		else
 		{
 			GD.PrintErr("ItemManager: DoBeaverSpawnWheel - Spawned item is not an Interactable.");
-			instance.QueueFree(); // Free the local instance no matter what
+			//instance.QueueFree(); // Free the local instance no matter what // actually dont cause host needs to keep it
 			return; // exit early and do not broadcast
 		}
 
-		instance.QueueFree(); // Free the local instance after spawning
+		//instance.QueueFree(); // Free the local instance after spawning // actually dont cause host needs to keep it
 							  // inform all peers including host
 		foreach (var peerId in multiplayer.GetPeers())
 		{
 			//if (peerId == multiplayer.GetUniqueId()) continue;
 			itemSpawnRegistry.RpcId(peerId, nameof(ItemSpawnRegistry.ClientSpawnItem), tempScenePath, tempId, tempTransform, 1);
 		}
-		itemSpawnRegistry.RpcId(multiplayer.GetUniqueId(), nameof(ItemSpawnRegistry.ClientSpawnItem), tempScenePath, tempId, tempTransform, 1);
+		//itemSpawnRegistry.RpcId(multiplayer.GetUniqueId(), nameof(ItemSpawnRegistry.ClientSpawnItem), tempScenePath, tempId, tempTransform, 1);
 
 		DoBeaverPickupItem(beaverId, tempId); // have beaver pick up the spawned wheel
 	}
