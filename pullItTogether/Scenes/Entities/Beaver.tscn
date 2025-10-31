@@ -1,7 +1,9 @@
-[gd_scene load_steps=13 format=3 uid="uid://cht8jumec3xyy"]
+[gd_scene load_steps=17 format=3 uid="uid://cht8jumec3xyy"]
 
 [ext_resource type="PackedScene" uid="uid://cnn1gi0bkh08o" path="res://Scenes/ItemDetector.tscn" id="1_1ql20"]
 [ext_resource type="Script" uid="uid://c1abo8mkv7so7" path="res://Scripts/EntityScripts/Beaver.cs" id="1_vg7qi"]
+[ext_resource type="PackedScene" uid="uid://dn1vnmiwf6cc0" path="res://Scenes/Interactables/WheelInteractable.tscn" id="2_lhu0b"]
+[ext_resource type="BehaviorTree" uid="uid://cdntafo1eagv5" path="res://ai/trees/Beaver.tres" id="3_y4j34"]
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_on6pt"]
 properties/0/path = NodePath(".:position")
@@ -43,13 +45,27 @@ albedo_color = Color(0, 0, 0, 1)
 radius = 0.11
 height = 0.1
 
-[node name="Beaver" type="RigidBody3D" node_paths=PackedStringArray("label", "detector")]
+[sub_resource type="BlackboardPlan" id="BlackboardPlan_lhu0b"]
+binding/hasPlank = NodePath("..:hasPlank")
+binding/plankInRange = NodePath("..:plankInRange")
+binding/wagonInRange = NodePath("..:wagonInRange")
+binding/hasWheelTarget = NodePath("..:hasWheelTarget")
+binding/wheelBroken = NodePath("..:wheelBroken")
+resource_local_to_scene = true
+
+[sub_resource type="SphereMesh" id="SphereMesh_y4j34"]
+
+[node name="Beaver" type="RigidBody3D" node_paths=PackedStringArray("label", "plankDetector", "wagonDetector", "inventorySlot")]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0)
-collision_layer = 8
-collision_mask = 29
+collision_mask = 13
+axis_lock_angular_x = true
+axis_lock_angular_z = true
 script = ExtResource("1_vg7qi")
 label = NodePath("Label3D")
-detector = NodePath("Wagon&PlankDetector")
+plankDetector = NodePath("PlankDetector")
+wagonDetector = NodePath("WagonDetector2")
+inventorySlot = NodePath("InventorySlot1")
+SpawnOnUseScene = ExtResource("2_lhu0b")
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 replication_config = SubResource("SceneReplicationConfig_on6pt")
@@ -87,7 +103,22 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.30017e-08, -0.526216)
 billboard = 2
 text = "Beaver?"
 
-[node name="Wagon&PlankDetector" parent="." instance=ExtResource("1_1ql20")]
+[node name="PlankDetector" parent="." instance=ExtResource("1_1ql20")]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0)
 detectionRadius = 3.0
-customGroupFilters = PackedStringArray("wagon", "plank")
+customGroupFilters = PackedStringArray("plank")
+
+[node name="WagonDetector2" parent="." instance=ExtResource("1_1ql20")]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0)
+detectionRadius = 30.0
+customGroupFilters = PackedStringArray("wagon", "wheel")
+
+[node name="BTPlayer" type="BTPlayer" parent="."]
+behavior_tree = ExtResource("3_y4j34")
+blackboard_plan = SubResource("BlackboardPlan_lhu0b")
+
+[node name="InventorySlot1" type="MeshInstance3D" parent="." groups=["player_mesh"]]
+unique_name_in_owner = true
+transform = Transform3D(-4.37114e-09, 0, 0.1, 0, 0.1, 0, -0.1, 0, -4.37114e-09, 0, -0.862907, 3.77189e-08)
+visible = false
+mesh = SubResource("SphereMesh_y4j34")

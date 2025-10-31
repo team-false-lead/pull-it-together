@@ -21,7 +21,7 @@ project/assembly_name="Pull It Together"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/SunshineClouds2/plugin.cfg", "res://addons/terrain_3d/plugin.cfg", "res://addons/verlet_rope_4/plugin.cfg")
+enabled=PackedStringArray("res://addons/terrain_3d/plugin.cfg", "res://addons/verlet_rope_4/plugin.cfg")
 
 [global_group]
 
@@ -29,6 +29,7 @@ players=""
 item_manager=""
 plank=""
 food=""
+wheel=""
 
 [input]
 

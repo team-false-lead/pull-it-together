@@ -8,8 +8,8 @@ public partial class ItemDetector : Area3D
 	[Export] public float detectionRadius = 5.0f;
 	[Export] public string[] customGroupFilters;
 	public List<Node3D> itemsInside = new List<Node3D>();
-	[Signal] public new delegate void BodyEnteredEventHandler(Node3D body);
-	[Signal] public new delegate void BodyExitedEventHandler(Node3D body);
+	[Signal] public delegate void FilteredBodyEnteredEventHandler(Node3D body);
+	[Signal] public delegate void FilteredBodyExitedEventHandler(Node3D body);
 
 
 	// Called when the node enters the scene tree for the first time.
@@ -44,7 +44,7 @@ public partial class ItemDetector : Area3D
 				if (!string.IsNullOrEmpty(group) && body.IsInGroup(group))
 				{
 					itemsInside.Add(body);
-					EmitSignal(SignalName.BodyEntered, body);
+					EmitSignal(SignalName.FilteredBodyEntered, body);
 				}
 			}
 		}
@@ -65,7 +65,7 @@ public partial class ItemDetector : Area3D
 				if (!string.IsNullOrEmpty(group) && body.IsInGroup(group))
 				{
 					itemsInside.Remove(body);
-					EmitSignal(SignalName.BodyExited, body);
+					EmitSignal(SignalName.FilteredBodyExited, body);
 				}
 			}
 		}

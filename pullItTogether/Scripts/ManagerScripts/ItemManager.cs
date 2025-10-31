@@ -427,13 +427,12 @@ public partial class ItemManager : Node3D
 		}
 
 		instance.QueueFree(); // Free the local instance after spawning
-		// inform all peers including host
+							  // inform all peers including host
 		foreach (var peerId in multiplayer.GetPeers())
 		{
 			//if (peerId == multiplayer.GetUniqueId()) continue;
 			itemSpawnRegistry.RpcId(peerId, nameof(ItemSpawnRegistry.ClientSpawnItem), tempScenePath, tempId, tempTransform, 1);
 		}
-		
 
 		//requestingItem.QueueFree(); // remove the used item
 		itemSpawnRegistry.ClientDespawnItem(itemId); // remove locally first
@@ -873,5 +872,95 @@ public partial class ItemManager : Node3D
 	public void DoDamageWheel(string wheelId, int damageAmount)
 	{
 		//GD.Print("ItemManager: DoDamageWheel called for " + wheelId);
+	}
+
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer)] 
+	public void RequestBeaverPickupItem(string beaverId, string plankId)
+	{
+		GD.Print("ItemManager: RequestBeaverPickupItem called for " + beaverId);
+		if (isMultiplayerSession && !multiplayer.IsServer()) return; // Only the server should handle beaver pickup
+		DoBeaverPickupItem(beaverId, plankId);
+	}
+
+	public void DoBeaverPickupItem(string beaverId, string itemId)
+	{
+		GD.Print("ItemManager: DoBeaverPickupItem called for " + itemId);
+
+		var item = FindInteractableById(itemId);
+		if (item == null) { GD.Print("Item null"); return; }
+
+		var beaver = FindEntityById(beaverId) as Beaver;
+		if (beaver == null) { GD.Print("Beaver null"); return; }
+
+		var slot = beaver.GetInventorySlot();
+		if (slot == null) { GD.Print("Slot null"); return; }
+
+		item.Freeze = true;
+		item.GravityScale = 0;
+		item.LinearVelocity = Vector3.Zero;
+		item.AngularVelocity = Vector3.Zero;
+
+		// Disable collisions
+		item.CollisionLayer = 0;
+		item.CollisionMask = 0;
+
+		item.StartFollowingSlot(slot);
+		//plank.Carrier = beaver;
+	}
+
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer)] // Allow any peer to request beaver spawning wheel
+	public void RequestBeaverSpawnWheel(string beaverId)
+	{
+		GD.Print("ItemManager: RequestBeaverSpawnWheel called for " + beaverId);
+		if (isMultiplayerSession && !multiplayer.IsServer()) return; // Only the server should handle beaver spawning
+		DoBeaverSpawnWheel(beaverId);
+	}
+
+	public void DoBeaverSpawnWheel(string beaverId)
+	{
+		GD.Print("ItemManager: DoBeaverSpawnWheel called for " + beaverId);
+
+		var beaver = FindEntityById(beaverId) as Beaver;
+		if (beaver == null) { GD.Print("Beaver null"); return; }
+
+		var wheelScene = beaver.SpawnOnUseScene;
+		if (wheelScene == null) { GD.Print("Wheel Scene null"); return; }
+
+		var instance = wheelScene.Instantiate<RigidBody3D>(); // assuming all interactables and entities are RigidBody3D or derived
+		PreAssignId(instance);
+
+		itemSpawnRegistry.AddChild(instance, true); // local temp instance
+		instance.SetOwner(GetTree().CurrentScene); // Ensure the instance is owned by the current scene
+
+		Vector3 spawnPosition = beaver.GetInventorySlot().GlobalPosition;
+		instance.GlobalTransform = new Transform3D(Basis.Identity, spawnPosition);
+
+		string tempId = "";
+		string tempScenePath = "";
+		Transform3D tempTransform = instance.GlobalTransform;
+
+		if (instance is Interactable instanceInteractable)
+		{
+			tempId = instanceInteractable.interactableId;
+			instanceInteractable.scenePath = wheelScene.ResourcePath;
+			tempScenePath = instanceInteractable.scenePath;
+		}
+		else
+		{
+			GD.PrintErr("ItemManager: DoBeaverSpawnWheel - Spawned item is not an Interactable.");
+			instance.QueueFree(); // Free the local instance no matter what
+			return; // exit early and do not broadcast
+		}
+
+		instance.QueueFree(); // Free the local instance after spawning
+							  // inform all peers including host
+		foreach (var peerId in multiplayer.GetPeers())
+		{
+			//if (peerId == multiplayer.GetUniqueId()) continue;
+			itemSpawnRegistry.RpcId(peerId, nameof(ItemSpawnRegistry.ClientSpawnItem), tempScenePath, tempId, tempTransform, 1);
+		}
+		itemSpawnRegistry.RpcId(multiplayer.GetUniqueId(), nameof(ItemSpawnRegistry.ClientSpawnItem), tempScenePath, tempId, tempTransform, 1);
+
+		DoBeaverPickupItem(beaverId, tempId); // have beaver pick up the spawned wheel
 	}
 }

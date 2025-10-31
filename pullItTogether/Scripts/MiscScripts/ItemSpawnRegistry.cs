@@ -59,7 +59,7 @@ public partial class ItemSpawnRegistry : MultiplayerSpawner
         }
     }
 
-    [Rpc(MultiplayerApi.RpcMode.AnyPeer)]
+    [Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true)]
     public void ClientSpawnItem(string scenePath, string itemId, Transform3D transform, int authorityPeerId)
     {
         // Check if item with the same ID already exists
