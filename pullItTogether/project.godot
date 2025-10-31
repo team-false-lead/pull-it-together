@@ -91,3 +91,7 @@ pause={
 3d_physics/layer_4="Objects"
 3d_physics/layer_5="AnimatableBody"
 3d_physics/layer_6="RigidBody"
+
+[physics]
+
+common/physics_interpolation=true

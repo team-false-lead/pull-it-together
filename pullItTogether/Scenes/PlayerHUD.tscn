@@ -134,6 +134,31 @@ theme_override_styles/fill = SubResource("StyleBoxFlat_nn08x")
 fill_mode = 1
 show_percentage = false
 
+[node name="OutOfHealthLabel" type="Label" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -250.0
+offset_top = 63.0
+offset_right = 250.0
+offset_bottom = 153.0
+grow_horizontal = 2
+theme_override_font_sizes/font_size = 35
+text = "You are out of health! Wait for someone to pick you up or heal you!"
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="DebugTrackerLabel" type="Label" parent="."]
+layout_mode = 0
+offset_right = 283.0
+offset_bottom = 153.0
+text = "FPS: 1,000,000
+Network ping: enough
+Fun: infinity
+Wagon: yes"
+
 [node name="LookingAtLabel" type="Label" parent="."]
 layout_mode = 1
 anchors_preset = 8

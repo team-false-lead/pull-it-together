@@ -2,14 +2,11 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bod3ukpg1k2u6"
+uid="uid://dtsmad0lud1ro"
 path.s3tc="res://.godot/imported/mdl_wagon_full_4.png-1455c5168469ab8d5acb62d961855bf1.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
-}
-generator_parameters={
-"md5": "737dfa868b531af28dfe515eb120ed72"
 }
 
 [deps]
