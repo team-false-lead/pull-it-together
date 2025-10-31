@@ -1,4 +1,4 @@
-[gd_resource type="BehaviorTree" load_steps=50 format=3 uid="uid://cdntafo1eagv5"]
+[gd_resource type="BehaviorTree" load_steps=52 format=3 uid="uid://cdntafo1eagv5"]
 
 [ext_resource type="Script" uid="uid://du445sow2w3lg" path="res://ai/tasks/MoveTo.gd" id="1_v88ds"]
 [ext_resource type="Script" uid="uid://c0omlb2afmd1g" path="res://ai/tasks/PickupPlank.gd" id="2_7y0tj"]
@@ -49,7 +49,7 @@ value = SubResource("BBVariant_mu0o3")
 
 [sub_resource type="BTAction" id="BTAction_7s2bl"]
 script = ExtResource("5_7r8yy")
-patrol_radius = 5.0
+patrol_radius = 15.0
 
 [sub_resource type="BTAction" id="BTAction_v88ds"]
 script = ExtResource("1_v88ds")
@@ -97,19 +97,6 @@ script = ExtResource("2_7y0tj")
 custom_name = "Grab Plank"
 children = [SubResource("BTCheckVar_2c5ag"), SubResource("BTTimeLimit_v88ds"), SubResource("BTAction_rewac")]
 
-[sub_resource type="BBVariant" id="BBVariant_1jble"]
-type = 1
-saved_value = true
-resource_name = "true"
-
-[sub_resource type="BTCheckVar" id="BTCheckVar_gey36"]
-variable = &"plankInRange"
-value = SubResource("BBVariant_1jble")
-
-[sub_resource type="BTRepeatUntilSuccess" id="BTRepeatUntilSuccess_2c5ag"]
-custom_name = "StopIfPlankInRange"
-children = [SubResource("BTCheckVar_gey36")]
-
 [sub_resource type="BBVariant" id="BBVariant_7s2bl"]
 type = 1
 saved_value = true
@@ -127,6 +114,32 @@ resource_name = "true"
 [sub_resource type="BTCheckVar" id="BTCheckVar_pak3h"]
 variable = &"hasWheelTarget"
 value = SubResource("BBVariant_7y0tj")
+
+[sub_resource type="BBVariant" id="BBVariant_v88ds"]
+type = 1
+saved_value = true
+resource_name = "true"
+
+[sub_resource type="BTCheckVar" id="BTCheckVar_7y0tj"]
+variable = &"hasPlank"
+value = SubResource("BBVariant_v88ds")
+
+[sub_resource type="BTRepeatUntilSuccess" id="BTRepeatUntilSuccess_pak3h"]
+custom_name = "StopIfHasPlank"
+children = [SubResource("BTCheckVar_7y0tj")]
+
+[sub_resource type="BBVariant" id="BBVariant_1jble"]
+type = 1
+saved_value = true
+resource_name = "true"
+
+[sub_resource type="BTCheckVar" id="BTCheckVar_gey36"]
+variable = &"plankInRange"
+value = SubResource("BBVariant_1jble")
+
+[sub_resource type="BTRepeatUntilSuccess" id="BTRepeatUntilSuccess_2c5ag"]
+custom_name = "StopIfPlankInRange"
+children = [SubResource("BTCheckVar_gey36")]
 
 [sub_resource type="BTAction" id="BTAction_lsdq3"]
 script = ExtResource("1_v88ds")
@@ -152,15 +165,15 @@ value = SubResource("BBVariant_2c5ag")
 children = [SubResource("BTAction_lsdq3"), SubResource("BTAction_7r8yy"), SubResource("BTWait_1jble"), SubResource("BTCheckVar_1shfx")]
 
 [sub_resource type="BTRepeatUntilSuccess" id="BTRepeatUntilSuccess_wxpr4"]
+custom_name = "Attack"
 children = [SubResource("BTSequence_rewac")]
+
+[sub_resource type="BTParallel" id="BTParallel_7s2bl"]
+children = [SubResource("BTRepeatUntilSuccess_pak3h"), SubResource("BTRepeatUntilSuccess_2c5ag"), SubResource("BTRepeatUntilSuccess_wxpr4")]
 
 [sub_resource type="BTSequence" id="BTSequence_hmibo"]
 custom_name = "Attack Wheel"
-children = [SubResource("BTCheckVar_v88ds"), SubResource("BTCheckVar_pak3h"), SubResource("BTRepeatUntilSuccess_wxpr4")]
-
-[sub_resource type="BTParallel" id="BTParallel_1shfx"]
-custom_name = "AttackUnlessPlank"
-children = [SubResource("BTRepeatUntilSuccess_2c5ag"), SubResource("BTSequence_hmibo")]
+children = [SubResource("BTCheckVar_v88ds"), SubResource("BTCheckVar_pak3h"), SubResource("BTParallel_7s2bl")]
 
 [sub_resource type="BBVariant" id="BBVariant_rewac"]
 type = 1
@@ -204,11 +217,9 @@ children = [SubResource("BTRepeatUntilSuccess_hmibo"), SubResource("BTSequence_m
 [sub_resource type="BTWait" id="BTWait_7s2bl"]
 custom_name = "Fail Safe Wait"
 
-[sub_resource type="BTSelector" id="BTSelector_mbbb1"]
-
 [sub_resource type="BTSelector" id="BTSelector_jrsvk"]
 custom_name = "Sel - Root"
-children = [SubResource("BTSequence_mu0o3"), SubResource("BTSequence_jrsvk"), SubResource("BTParallel_1shfx"), SubResource("BTParallel_mbbb1"), SubResource("BTWait_7s2bl"), SubResource("BTSelector_mbbb1")]
+children = [SubResource("BTSequence_mu0o3"), SubResource("BTSequence_jrsvk"), SubResource("BTSequence_hmibo"), SubResource("BTParallel_mbbb1"), SubResource("BTWait_7s2bl")]
 
 [resource]
 blackboard_plan = SubResource("BlackboardPlan_mu0o3")

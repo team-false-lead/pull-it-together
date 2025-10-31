@@ -905,6 +905,7 @@ public partial class ItemManager : Node3D
 		item.CollisionMask = 0;
 
 		item.StartFollowingSlot(slot);
+		beaver.hasPlank = true;
 		//plank.Carrier = beaver;
 	}
 

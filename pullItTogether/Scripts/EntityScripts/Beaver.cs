@@ -50,7 +50,7 @@ public partial class Beaver : Entity
     // By default, entities do not accept being used on them
     public override bool CanAcceptUseFrom(CharacterBody3D user, Interactable source)
     {
-        if (source.IsInGroup("plank"))
+        if (source.IsInGroup("plank") && !hasPlank)
         {
             return true;
         }
