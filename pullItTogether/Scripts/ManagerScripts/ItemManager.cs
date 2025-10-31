@@ -953,7 +953,7 @@ public partial class ItemManager : Node3D
 		}
 
 		//instance.QueueFree(); // Free the local instance after spawning // actually dont cause host needs to keep it
-							  // inform all peers including host
+		// inform all peers including host
 		foreach (var peerId in multiplayer.GetPeers())
 		{
 			//if (peerId == multiplayer.GetUniqueId()) continue;
@@ -962,5 +962,29 @@ public partial class ItemManager : Node3D
 		//itemSpawnRegistry.RpcId(multiplayer.GetUniqueId(), nameof(ItemSpawnRegistry.ClientSpawnItem), tempScenePath, tempId, tempTransform, 1);
 
 		DoBeaverPickupItem(beaverId, tempId); // have beaver pick up the spawned wheel
+	}
+
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer)] // Allow any peer to request beaver giving plank
+	public void RequestGiveBeaverPlank(string beaverId, string plankId)
+	{
+		GD.Print("ItemManager: RequestBeaverGivePlank called for " + beaverId);
+		if (isMultiplayerSession && !multiplayer.IsServer()) return; // Only the server should handle beaver giving plank
+		DoGiveBeaverPlank(beaverId, plankId);
+	}
+
+	public void DoGiveBeaverPlank(string beaverId, string plankId)
+	{
+		GD.Print("ItemManager: GiveBeaverPlank called for " + beaverId);
+
+		var beaver = FindEntityById(beaverId) as Beaver;
+		if (beaver == null) { GD.Print("Beaver null"); return; }
+
+		var plank = FindInteractableById(plankId);
+		if (plank == null) { GD.Print("Plank null"); return; }
+
+		var plankGiver = plank.Carrier as PlayerController;
+		if (plankGiver == null) { GD.Print("Plank Giver null"); return; }
+		plankGiver.DropObject(); // have player drop the plank
+		DoBeaverPickupItem(beaverId, plankId); // have beaver pick up the plank
 	}
 }

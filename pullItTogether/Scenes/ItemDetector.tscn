@@ -35,6 +35,7 @@ shape = SubResource("CylinderShape3D_vl058")
 debug_color = Color(0, 0, 0, 0.42)
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="CollisionShape3D"]
+visible = false
 material_override = SubResource("StandardMaterial3D_mxlqg")
 transparency = 0.9
 cast_shadow = 0
