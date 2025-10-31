@@ -368,6 +368,6 @@ collision_mask = 15
 size = Vector3(1, 4.29089, 38.4169)
 
 [node name="Superstorm" parent="." node_paths=PackedStringArray("interactablesNode") instance=ExtResource("18_tys2t")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 80)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -22, 309.671)
 stormSpeed = 1.25
 interactablesNode = NodePath("../Interactables")
