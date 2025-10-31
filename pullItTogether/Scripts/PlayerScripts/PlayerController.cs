@@ -81,8 +81,16 @@ public partial class PlayerController : CharacterBody3D
 	[Export] private PauseMenu pauseMenu;
 	private Label debugTrackerLabel;
 
+	// Heaving parameters
+	private bool isHeaving = false;
+	private bool canHeave = true;
+	[Export] public float heaveEnergyCost = 6f;
+	[Export] public float heaveSpeed = 20f;
+	[Export] public float heaveTime = 0.5f;
+	[Export] public float heaveCooldown = 2.5f;
+	private Vector3 heaveVelocity = Vector3.Zero;
 
-    public bool IsDowned
+	public bool IsDowned
 	{
 		get { return currentHealth <= 0; }
 	}
@@ -347,8 +355,16 @@ public partial class PlayerController : CharacterBody3D
             camera.Fov = Mathf.Lerp(camera.Fov, fov, (float)delta * fovChangeSpeed);
         }
 
-        // add tether force if holding rope
-        if (tetherAnchor != null)
+		if (isHeaving)
+		{
+			camera.Fov = Mathf.Lerp(camera.Fov, fov * fovChange, (float)delta * fovChangeSpeed);
+			var keepY = velocity.Y;
+            velocity = heaveVelocity;
+			velocity.Y = keepY;
+        }
+
+		// add tether force if holding rope
+		if (tetherAnchor != null)
 		{
 			velocity = TetherToRopeAnchor(delta, velocity);
 		}
@@ -820,5 +836,40 @@ public partial class PlayerController : CharacterBody3D
 		rotation.X = 0;
 		rotation.Z = 0;
 		GlobalRotation = rotation;
+	}
+
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+	public void DoHeave()
+	{
+		//GD.Print(IsLocalControlled());
+		if (!IsLocalControlled()) return; // only local player processes heave
+		//GD.Print("Heave requested. isHeaving: " + isHeaving + ", canHeave: " + canHeave);
+		if (isHeaving || !canHeave) return; // already heaving or on cooldown
+
+		Vector2 inputDir = Input.GetVector("left", "right", "forward", "back"); // WASD
+		Vector3 direction = (head.Transform.Basis * new Vector3(inputDir.X, 0, inputDir.Y)).Normalized();
+		if (direction == Vector3.Zero)
+		{
+			direction = -head.Transform.Basis.Z; // if no input, heave forward
+		}
+		ChangeCurrentEnergy(-heaveEnergyCost); // flat energy cost for heave
+		heaveVelocity = new Vector3(direction.X, Velocity.Y, direction.Z).Normalized() * heaveSpeed;
+
+		float savedTetherBuffer = tetherBuffer;
+		tetherBuffer += 0.5f;
+
+		isHeaving = true;
+		canHeave = false;
+		SceneTreeTimer heaveTimer = GetTree().CreateTimer(heaveTime);
+		SceneTreeTimer heaveCooldownTimer = GetTree().CreateTimer(heaveCooldown);
+		heaveTimer.Timeout += () =>
+		{
+			isHeaving = false;
+			tetherBuffer = savedTetherBuffer;
+		};
+		heaveCooldownTimer.Timeout += () =>
+		{
+			canHeave = true; // can heave again
+		};
 	}
 }

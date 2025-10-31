@@ -245,6 +245,22 @@ public partial class RopeGrabPoint : Interactable
 
     public override void TryUseSelf(CharacterBody3D user)
     {
-        return; //logic for adding heave force to pull things
+        //GD.Print("RopeGrabPoint: TryUseSelf called by " + user.Name);
+        //GD.Print("Carrier: " + (Carrier != null ? Carrier.Name : "null"));
+        if (user is PlayerController player)
+        {
+            if (multiplayerActive && !multiplayer.IsServer())
+            {
+                var error = player.RpcId(player.GetMultiplayerAuthority(), nameof(PlayerController.DoHeave));
+                if (error != Error.Ok)
+                {
+                    GD.PrintErr("RopeGrabPoint: Failed to request player heave via RPC. Error: " + error);
+                }
+            }
+            else
+            {
+                player.DoHeave();
+            }
+        }
     }
 }
