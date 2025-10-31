@@ -422,11 +422,11 @@ public partial class ItemManager : Node3D
 		else
 		{
 			GD.PrintErr("ItemManager: DoSpawnItem - Spawned item is neither Interactable nor Entity.");
-			instance.QueueFree(); // Free the local instance no matter what
+			//instance.QueueFree(); // Free the local instance no matter what // actually dont cause host needs to keep it
 			return; // exit early and do not broadcast
 		}
 
-		instance.QueueFree(); // Free the local instance after spawning
+		//instance.QueueFree(); // Free the local instance after spawning // actually dont cause host needs to keep it
 		// inform all peers including host
 		foreach (var peerId in multiplayer.GetPeers())
 		{
