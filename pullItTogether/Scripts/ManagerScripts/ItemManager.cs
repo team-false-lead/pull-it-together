@@ -61,7 +61,7 @@ public partial class ItemManager : Node3D
 	{
 		if (Input.IsActionJustPressed("drop")) // Q  // actually not drop but print dictionary contents for debugging
 		{
-			if (isMultiplayerSession && !multiplayer.IsServer()) return;
+			if (multiplayer.HasMultiplayerPeer() && isMultiplayerSession && !multiplayer.IsServer()) return;
 			PrintDictionaryContents();
 		}
 	}
@@ -260,7 +260,7 @@ public partial class ItemManager : Node3D
 	// Handle new children added to the ItemManager, assign IDs if they are interactables
 	private void OnChildEnteredTree(Node newChild)
 	{
-		if (!multiplayer.IsServer()) return;
+		if (multiplayer.HasMultiplayerPeer() && !multiplayer.IsServer()) return;
 
 		if (newChild is Interactable item)
 		{
@@ -298,7 +298,7 @@ public partial class ItemManager : Node3D
 	// Handle new peers connecting to the multiplayer session, inform them to remove placeholders
 	private void OnPeerConnected(long id)
 	{
-		if (!multiplayer.IsServer()) return;
+		if (multiplayer.HasMultiplayerPeer() && !multiplayer.IsServer()) return;
 
 		GD.Print("ItemManager: Peer connected with ID " + id);
 		RpcId(id, nameof(ClientRemovePlaceholders));
@@ -378,7 +378,7 @@ public partial class ItemManager : Node3D
 	public void RequestSpawnItem(string requestingItemId)
 	{
 		GD.Print("ItemManager: RequestSpawnItem called from " + requestingItemId);
-		if (isMultiplayerSession && !multiplayer.IsServer()) return; // Only the server should handle spawning
+		if (multiplayer.HasMultiplayerPeer() && isMultiplayerSession && !multiplayer.IsServer()) return; // Only the server should handle spawning
 		DoSpawnItem(requestingItemId);
 	}
 
@@ -449,7 +449,7 @@ public partial class ItemManager : Node3D
 	public void RequestPickupItem(string itemId)
 	{
 		GD.Print("ItemManager: RequestPickupItem called for " + itemId);
-		if (isMultiplayerSession && !multiplayer.IsServer()) return; // Only the server should handle item movement
+		if (multiplayer.HasMultiplayerPeer() && isMultiplayerSession && !multiplayer.IsServer()) return; // Only the server should handle item movement
 
 		long requesterId = multiplayer.GetRemoteSenderId();
 		if (requesterId == 0) // host called
@@ -506,7 +506,7 @@ public partial class ItemManager : Node3D
 	public void RequestDropItem(string itemId)
 	{
 		GD.Print("ItemManager: RequestDropItem called for " + itemId);
-		if (isMultiplayerSession && !multiplayer.IsServer()) return; // Only the server should handle item dropping
+		if (multiplayer.HasMultiplayerPeer() && isMultiplayerSession && !multiplayer.IsServer()) return; // Only the server should handle item dropping
 		DoDropItem(itemId);
 	}
 
@@ -591,7 +591,7 @@ public partial class ItemManager : Node3D
 	public async void RequestHoldRope(string itemId)
 	{
 		GD.Print("ItemManager: RequestHoldRope called for " + itemId);
-		if (isMultiplayerSession && !multiplayer.IsServer()) return;
+		if (multiplayer.HasMultiplayerPeer() && isMultiplayerSession && !multiplayer.IsServer()) return;
 
 		long requesterId = multiplayer.GetRemoteSenderId();
 		if (requesterId == 0) // host called
@@ -662,7 +662,7 @@ public partial class ItemManager : Node3D
 	public void RequestReleaseRope(string itemId)
 	{
 		GD.Print("ItemManager: RequestReleaseRope called for " + itemId);
-		if (isMultiplayerSession && !multiplayer.IsServer()) return; // Only the server should handle item dropping
+		if (multiplayer.HasMultiplayerPeer() && isMultiplayerSession && !multiplayer.IsServer()) return; // Only the server should handle item dropping
 		DoReleaseRope(itemId);
 	}
 
@@ -694,7 +694,7 @@ public partial class ItemManager : Node3D
 	{
 		//GD.Print("ItemManager: RequestForceDropAll called");
 		// only server should execute
-		if (isMultiplayerSession && !multiplayer.IsServer()) return;
+		if (multiplayer.HasMultiplayerPeer() && isMultiplayerSession && !multiplayer.IsServer()) return;
 		ForceDropAll(); // execute locally on server or singleplayer
 	}
 
@@ -724,7 +724,7 @@ public partial class ItemManager : Node3D
 	public void RequestCookFood(string campfireId, string foodId)
 	{
 		GD.Print("ItemManager: RequestCookFood called for " + foodId);
-		if (isMultiplayerSession && !multiplayer.IsServer()) return; // Only the server should handle cooking
+		if (multiplayer.HasMultiplayerPeer() && isMultiplayerSession && !multiplayer.IsServer()) return; // Only the server should handle cooking
 		DoCookFood(campfireId, foodId);
 	}
 
@@ -783,7 +783,7 @@ public partial class ItemManager : Node3D
 	{
 		GD.Print("ItemManager: RequestFeedTarget called for " + itemId + " to peer ID " + targetPeerId);
 		GD.Print("ItemManager: isMultiplayerSession=" + isMultiplayerSession + ", IsServer=" + multiplayer.IsServer());
-		if (isMultiplayerSession && !multiplayer.IsServer()) return; // Only the server should handle feeding
+		if (multiplayer.HasMultiplayerPeer() && isMultiplayerSession && !multiplayer.IsServer()) return; // Only the server should handle feeding
 		DoFeedTarget(itemId, targetPeerId);
 	}
 
@@ -833,7 +833,7 @@ public partial class ItemManager : Node3D
 	public void RequestRepairWheel(string wheelId, string plankId)
 	{
 		GD.Print("ItemManager: RequestRepairWheel called for " + wheelId);
-		if (isMultiplayerSession && !multiplayer.IsServer()) return; // Only the server should handle repairing
+		if (multiplayer.HasMultiplayerPeer() && isMultiplayerSession && !multiplayer.IsServer()) return; // Only the server should handle repairing
 		DoRepairWheel(wheelId, plankId);
 	}
 

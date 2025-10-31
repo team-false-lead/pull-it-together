@@ -216,5 +216,3 @@ func _release_color_of_player(peer_id: int) -> void:
 	_assigned_colors.erase(peer_id)
 	_free_color_indices.append(index)
 	_free_color_indices.sort()
-
-

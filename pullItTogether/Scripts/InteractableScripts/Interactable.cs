@@ -20,6 +20,12 @@ public abstract partial class Interactable : RigidBody3D
 
     private Node3D followTarget;
     private bool isFollowing;
+    [Export] private float movementPenalty = 1.0f;
+
+    public float MovementPenalty
+    {
+        get { return movementPenalty; }
+    }
 
     //checks for multiplayer synchronizer on ready
     //if no id and not server, warn that waiting for id replication

@@ -1,0 +1,23 @@
+[gd_scene load_steps=4 format=3 uid="uid://bj45lpd2k30mj"]
+
+[ext_resource type="Script" uid="uid://1bwso462ry2q" path="res://Scripts/InteractableScripts/PlayerInteractable.cs" id="1_3quag"]
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_gntrk"]
+properties/0/path = NodePath(".:interactableId")
+properties/0/spawn = true
+properties/0/replication_mode = 2
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_r1we1"]
+
+[node name="PlayerInteractable" type="RigidBody3D"]
+collision_layer = 32
+collision_mask = 0
+freeze = true
+script = ExtResource("1_3quag")
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
+replication_config = SubResource("SceneReplicationConfig_gntrk")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.216008, 0)
+shape = SubResource("CapsuleShape3D_r1we1")
