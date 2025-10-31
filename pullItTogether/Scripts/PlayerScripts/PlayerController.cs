@@ -241,11 +241,22 @@ public partial class PlayerController : CharacterBody3D
 		if (Input.IsActionJustPressed("pause"))
 			TogglePaused(!isPaused);
 
-		
+
 		if (Input.IsActionPressed("sprint") && IsOnFloor() && !isSprinting)
-			isSprinting = true;
+		{
+			if (heldObject != null && heldObject is RopeGrabPoint ropeGrabPoint)
+			{
+				heldObject.TryUseSelf(this); // heave if try to sprint while holding rope
+			}
+			else
+			{
+				isSprinting = true;
+			}
+		}
 		else if (!Input.IsActionPressed("sprint") && isSprinting)
+		{
 			isSprinting = false;
+		}
 	}
 
 	// Handles movement, jumping, sprinting, head bobbing, and interaction input, probably needs to be split up later
