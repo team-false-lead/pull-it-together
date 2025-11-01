@@ -344,9 +344,9 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 36.1473, 27.4261, -597.16)
 [node name="Tonic9" parent="Placeholders" instance=ExtResource("14_pigjd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 36.9695, 27.4261, -597.16)
 
-[node name="WagonPrototype" parent="Placeholders" node_paths=PackedStringArray("wheels") instance=ExtResource("10_nvhef")]
+[node name="WagonPrototype" parent="Placeholders" instance=ExtResource("10_nvhef")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12.8767, 2.17943, -2.87124)
-wheels = []
+frictionPerWheel = 0.0
 
 [node name="ToonShader" parent="." instance=ExtResource("16_iddi4")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.51888, 0, -16.3447)
