@@ -59,11 +59,18 @@ public partial class PlayerController : CharacterBody3D
 	[Export] public float currentEnergy;
 	private ProgressBar energyBar;
 	private ProgressBar fatigueBar;
+	private Label outOfHealthLabel;
 	[Export] private float maxEnergyReductionRate;
 	[Export] private float sprintingEnergyReduction;
 	[Export] private float jumpingEnergyCost;
 	[Export] private float energyRegen;
+	[Export] private Label3D helpMeLabel;
 	[Export] private float pullingEnergyCost;
+    [Signal] public delegate void ChangeHUDEventHandler();
+	[Signal] public delegate void OnDownedEventHandler();
+    [Signal] public delegate void OnRevivedEventHandler();
+
+	// Storm parameters
 	private Label inStormLabel;
 	private bool inStorm = false;
 	private Label lookingAtLabel;
@@ -72,7 +79,13 @@ public partial class PlayerController : CharacterBody3D
 	// Pause menu parameters
 	private bool isPaused;
 	[Export] private PauseMenu pauseMenu;
-	[Signal] public delegate void ChangeHUDEventHandler();
+	private Label debugTrackerLabel;
+
+
+    public bool IsDowned
+	{
+		get { return currentHealth <= 0; }
+	}
 
 	public override void _EnterTree()
 	{
@@ -87,9 +100,10 @@ public partial class PlayerController : CharacterBody3D
 			Input.SetMouseMode(Input.MouseModeEnum.Captured);
 
 			GetTree().Root.GetNode("Main/MapManager/TestTerrain/Terrain3D").Call("set_camera", camera);
+            GetTree().Root.GetNode("Main/MapManager/TestTerrain/Terrain3D").Call("set_physics_process", true);
 
-			// Hide all nodes in the "self_hide" group
-			foreach (var child in GetTree().GetNodesInGroup("self_hide"))
+            // Hide all nodes in the "self_hide" group
+            foreach (var child in GetTree().GetNodesInGroup("self_hide"))
 			{
 				if (child is Node3D node && IsAncestorOf(node))
 				{
@@ -110,7 +124,9 @@ public partial class PlayerController : CharacterBody3D
             // Hard-coded values for now
             healthBar = HUD.GetNode<ProgressBar>("HealthBar/HealthProgressBar");
             energyBar = HUD.GetNode<ProgressBar>("EnergyBar/EnergyProgressBar");
-			fatigueBar = HUD.GetNode<ProgressBar>("EnergyBar/FatigueProgressBar");
+            fatigueBar = HUD.GetNode<ProgressBar>("EnergyBar/FatigueProgressBar");
+			outOfHealthLabel = HUD.GetNode<Label>("OutOfHealthLabel");
+			debugTrackerLabel = HUD.GetNode<Label>("DebugTrackerLabel");
 			inStormLabel = HUD.GetNode<Label>("InStormLabel");
 			lookingAtLabel = HUD.GetNode<Label>("LookingAtLabel");
 
@@ -121,10 +137,10 @@ public partial class PlayerController : CharacterBody3D
 			energyBar.MaxValue = energyBar.Value = fatigueBar.MaxValue = maxEnergy;
 			fatigueBar.Value = 0;
 		}
-		else
-		{
-			Input.SetMouseMode(Input.MouseModeEnum.Visible);
-		}
+		//else
+		//{
+		//	Input.SetMouseMode(Input.MouseModeEnum.Visible);
+		//}
 
 		Connect("ChangeHUD", new Callable(this, nameof(UpdateLocalHud)));
 
@@ -145,6 +161,8 @@ public partial class PlayerController : CharacterBody3D
 			mapManager.Connect("map_reloaded", new Callable(this, nameof(OnMapReloaded)));
 		}
 
+		GameStateTracker gameStateTracker = GetTree().CurrentScene.GetNode<GameStateTracker>("%MapManager/TestTerrain/GameStateTracker");
+		gameStateTracker.AddPlayerToPlayerList(this);
 		ApplyBodyColor(bodyColor);
 	}
 
@@ -247,8 +265,8 @@ public partial class PlayerController : CharacterBody3D
 			velocity += GetGravity() * (float)delta;
 		}
 
-		// Do not process movement inputs when controls are paused.
-		if (!isPaused)
+		// Do not process movement inputs when controls are paused or when out of health.
+		if (!isPaused && !IsDowned)
 		{
             // Handle Jump.
             if (Input.IsActionJustPressed("jump") && IsOnFloor())
@@ -315,11 +333,10 @@ public partial class PlayerController : CharacterBody3D
         }
 		else
 		{
-            if (IsOnFloor()) // full control when on the ground
+            if (IsOnFloor())
             {
                 velocity.X = Mathf.Lerp(velocity.X, 0, (float)delta * inertiaGroundValue);
                 velocity.Z = Mathf.Lerp(velocity.Z, 0, (float)delta * inertiaGroundValue);
-                
             }
             else // inertia when in the air
             {
@@ -336,13 +353,20 @@ public partial class PlayerController : CharacterBody3D
 			velocity = TetherToRopeAnchor(delta, velocity);
 		}
 
+		// For heavier objects that we will definitely add more of later, apply a movement penalty.
+		if (heldObject != null)
+		{
+			velocity.X *= heldObject.MovementPenalty;
+			velocity.Z *= heldObject.MovementPenalty;
+		}
+
 		Velocity = velocity;
 		MoveAndSlide();
 
 		// Handle interaction input
 		if (Input.IsActionJustPressed("use"))// LMB
 			OnUsedPressed();
-		if (Input.IsActionJustPressed("pickup")) // E
+		if (Input.IsActionJustPressed("pickup") && !IsDowned) // E
 		{
 			if (heldObject == null)
 			{
@@ -396,7 +420,7 @@ public partial class PlayerController : CharacterBody3D
 		ChangeMaxEnergy(maxEnergyChange);
 
 		// Leo's really cool health/energy/fatigue testing code
-		if (Input.IsKeyPressed(Key.Kp1)) // When Numpad 1 is pressed, reduce health
+		if (Input.IsKeyPressed(Key.Kp1) && !IsDowned) // When Numpad 1 is pressed, reduce health
 			ChangeCurrentHealth(-10);
 		else if (Input.IsKeyPressed(Key.Kp2)) // When Numpad 2 is pressed, restore health
 			ChangeCurrentHealth(10);
@@ -408,6 +432,16 @@ public partial class PlayerController : CharacterBody3D
 			ChangeMaxEnergy(-10);
 		else if (Input.IsKeyPressed(Key.Kp8)) // When Numpad 8 is pressed, restore fatigue
 			ChangeMaxEnergy(10);
+
+		//debugTrackerLabel.Text = "FPS: " + Engine.GetFramesPerSecond() +
+		//	"\nFrame time: " + Math.Round(1 / Engine.GetFramesPerSecond(), 4) + " sec";
+		double totalFrameTime = Performance.GetMonitor(Performance.Monitor.TimeProcess);
+		debugTrackerLabel.Text = "FPS: " + Engine.GetFramesPerSecond() +
+			"\nFrame time: " + Math.Round(totalFrameTime * 1000, 4) + " ms";
+		if (Multiplayer.HasMultiplayerPeer() && Multiplayer.IsServer())
+			debugTrackerLabel.Text += "\nIs lobby host";
+		else
+			debugTrackerLabel.Text += "\nIs lobby peer";
     }
 
 	// Simple head bobbing effect
@@ -684,27 +718,31 @@ public partial class PlayerController : CharacterBody3D
 
 	public void ExitLobby()
 	{
+        GameStateTracker gameStateTracker = GetTree().CurrentScene.GetNode<GameStateTracker>("%MapManager/TestTerrain/GameStateTracker");
+        gameStateTracker.RemovePlayerFromPlayerList(this);
         GetTree().CurrentScene.GetNodeOrNull<Node>("NetworkManager").CallDeferred("leave");
-		// TEMP: if this player is the host, quit the application
-		//if (Multiplayer.IsServer() || Multiplayer == null)
-		//{
-		//	GetTree().Quit();
-		//}
     }
 
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
 	public void ChangeCurrentHealth(float diff)
 	{
+		// If recovering health from a downed state, emit the revival event
+		if (currentHealth == 0 && diff > 0)
+        {
+            Scale = Vector3.One;
+            EmitSignal("OnRevived");
+        }
+
 		currentHealth = Mathf.Min(currentHealth + diff, maxHealth);
 		if (currentHealth <= 0)
 		{
 			currentHealth = 0;
-			// The rest of the death code goes here
+			DropObject();
+			Scale = new Vector3(0.75f, 0.75f, 0.75f);
+            EmitSignal("OnDowned");
 		}
+
 		EmitSignal("ChangeHUD");
-		//UpdateLocalHud();
-		//healthBar.Value = currentHealth;
-		//GD.Print("Current health: " + currentHealth);
 	}
 
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
@@ -754,7 +792,34 @@ public partial class PlayerController : CharacterBody3D
 		healthBar.Value = currentHealth;
 		energyBar.Value = currentEnergy;
 		fatigueBar.Value = Mathf.Abs(maxEnergy - 100);
+		helpMeLabel.Visible = currentHealth <= 0;
+		outOfHealthLabel.Visible = helpMeLabel.Visible || outOfHealthLabel.Text != "You are out of health! Wait for someone to pick you up or heal you!";
 		inStormLabel.Visible = inStorm;
 		lookingAtLabel.Text = lookingAtText;
     }
+
+	public void SetOutOfHealthLabelText(string text)
+	{
+		if (outOfHealthLabel == null) return;
+		outOfHealthLabel.Text = text;
+		outOfHealthLabel.Visible = true;
+	}
+
+	public void RecenterViewAfterDrop()
+	{
+		AlignBody(interactableRB); // align body to updated interactableRB
+		head.Rotation = new Vector3(0, Rotation.Y - 90, 0); // reset head yaw to player (body) yaw
+		camera.Rotation = new Vector3(camera.Rotation.X, 0, 0); // reset camera pitch to 0
+	}
+
+	public void AlignBody(Node3D target)
+	{
+		var forward = -target.GlobalTransform.Basis.Z;
+		float targetYaw = Mathf.Atan2(forward.X, forward.Z); //black magic to get yaw from forward vector
+		var rotation = GlobalRotation;
+		rotation.Y = targetYaw;
+		rotation.X = 0;
+		rotation.Z = 0;
+		GlobalRotation = rotation;
+	}
 }

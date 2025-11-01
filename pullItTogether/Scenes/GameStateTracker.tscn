@@ -1,0 +1,14 @@
+[gd_scene load_steps=3 format=3 uid="uid://ddkl7vjoqp5kd"]
+
+[ext_resource type="Script" uid="uid://cqke368piplst" path="res://Scripts/ManagerScripts/GameStateTracker.cs" id="1_2ackt"]
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_2ackt"]
+properties/0/path = NodePath(".:numOfDownedPlayers")
+properties/0/spawn = true
+properties/0/replication_mode = 1
+
+[node name="GameStateTracker" type="Node"]
+script = ExtResource("1_2ackt")
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
+replication_config = SubResource("SceneReplicationConfig_2ackt")
