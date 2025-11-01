@@ -558,7 +558,7 @@ public partial class ItemManager : Node3D
 		// Tween to the inventory slot
 		var tween = GetTree().CreateTween();
 		tween.SetTrans(Tween.TransitionType.Sine).SetEase(Tween.EaseType.InOut);
-		tween.TweenProperty(proxy, "global_position", targetPos, 0.01f);
+		tween.TweenProperty(proxy, "global_position", targetPos, 0.05f);
 		await ToSignal(tween, "finished");
 
 		proxyScript.isTweening = false;

@@ -192,10 +192,10 @@ shape = SubResource("BoxShape3D_5rxyb")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.7, -0.179746, -3.35201)
 
 [node name="RopeStartPoint3" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.7, -0.179746, -5.90841)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.594, -0.34, -5.5254)
 
 [node name="RopeStartPoint4" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.67452, -0.179746, -5.90841)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.877, -0.34, -5.525)
 
 [node name="GrabPointResetSlot" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.593533, 0.0238122, -5.69558)
