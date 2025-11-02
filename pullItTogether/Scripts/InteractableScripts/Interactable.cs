@@ -6,20 +6,27 @@ public abstract partial class Interactable : RigidBody3D
 {
     [Export] public PackedScene SpawnOnUseScene; // Optional scene to spawn when used
     [Export] public float dropClearance = 0.5f; // per item drop clearance roughly based on size
-    [Export] public string interactableId = "";
+    [Export] public string interactableId = "bruh";
+    public string scenePath = "";
     public uint savedLayer, savedMask;
     public Vector3 savedScale;
     protected Node mapManager;
-    protected bool multiplayerActive; 
+    protected bool multiplayerActive;
     protected MultiplayerApi multiplayer => GetTree().GetMultiplayer();
     protected Node3D levelInteractablesNode;
     protected ItemManager itemManager;
     public virtual bool CanBeCarried() { return true; }
     public CharacterBody3D Carrier { get; set; } = null;
 
-    private Node3D followTarget;
-    private bool isFollowing;
+    protected Node3D followTarget;
+    protected bool isFollowing;
     [Export] private float movementPenalty = 1.0f;
+
+    public new Vector3 GlobalPosition
+    {
+        get { return base.GlobalPosition; }
+        set { base.GlobalPosition = value; }  //GD.Print("Setting global position to " + value); }
+    }
 
     public float MovementPenalty
     {
@@ -206,4 +213,10 @@ public abstract partial class Interactable : RigidBody3D
     public virtual bool CanAcceptUseFrom(CharacterBody3D user, Interactable source) { return false; }
     public virtual void AcceptUseFrom(CharacterBody3D user, Interactable source) { }
 
+    [Rpc(MultiplayerApi.RpcMode.AnyPeer)]
+    public void ClientSetMyInteractableId(string id)
+    {
+        GD.Print(GetPlayerController().Name + " Setting interactable ID to: " + id);
+        interactableId = id;
+    }
 }
