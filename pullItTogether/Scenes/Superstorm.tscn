@@ -15,6 +15,7 @@ radius = 200.0
 [sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_3diyf"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ot4pr"]
+cull_mode = 2
 albedo_color = Color(0.52, 0.664, 1, 1)
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_up175"]
