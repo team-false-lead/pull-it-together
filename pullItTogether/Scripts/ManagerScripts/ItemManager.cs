@@ -61,7 +61,8 @@ public partial class ItemManager : Node3D
 	{
 		if (Input.IsActionJustPressed("drop")) // Q  // actually not drop but print dictionary contents for debugging
 		{
-			if (isMultiplayerSession && !multiplayer.IsServer()) return;
+			//if (multiplayer.HasMultiplayerPeer() && isMultiplayerSession && !multiplayer.IsServer()) return;
+			GD.Print(GetPlayerControllerById(GetMultiplayerAuthority()).Name);
 			PrintDictionaryContents();
 		}
 	}
@@ -177,7 +178,7 @@ public partial class ItemManager : Node3D
 	// Assign a unique ID to an interactable item if it doesn't already have one, and track it in the dictionary
 	public void AssignInteractableId(Interactable item)
 	{
-		if (string.IsNullOrEmpty(item.interactableId))
+		if (string.IsNullOrEmpty(item.interactableId) || item.interactableId == "bruh")
 		{
 			item.interactableId = $"{item.Name}_{Guid.NewGuid():N}"; // Generate unique ID
 																	 //item.Name = id; // breaks peer-to-peer? and it keeps auto moving this line really far right
@@ -260,7 +261,7 @@ public partial class ItemManager : Node3D
 	// Handle new children added to the ItemManager, assign IDs if they are interactables
 	private void OnChildEnteredTree(Node newChild)
 	{
-		if (!multiplayer.IsServer()) return;
+		if (multiplayer.HasMultiplayerPeer() && !multiplayer.IsServer()) return;
 
 		if (newChild is Interactable item)
 		{
@@ -278,12 +279,13 @@ public partial class ItemManager : Node3D
 
 	private void AddPlayerInteractable(Node newChild)
 	{
+		if (!multiplayer.IsServer()) return;
 		GD.Print("ItemManager: AddPlayerInteractable called for " + newChild.Name);
 		if (newChild is not CharacterBody3D player) return;
 		//player.IsNodeReady();
 		var PC = player as PlayerController;
 		var PlayerInteractable = PC.GetOwnInteractable();
-		AssignInteractableId(PlayerInteractable); // ensure their own interactable has an ID assigned
+		AssignInteractableId(PlayerInteractable); // ensure their own interactable has an ID assigned		
 		GD.Print("ItemManager: Added player interactable with ID " + PlayerInteractable.interactableId);
 		// Set up cleanup on item removal
 		PlayerInteractable.TreeExited += () =>
@@ -295,10 +297,21 @@ public partial class ItemManager : Node3D
 		};
 	}
 
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer)]
+	public void SendPlayerInteractableId(long playerId)
+	{
+		if (multiplayer.HasMultiplayerPeer() && isMultiplayerSession && !multiplayer.IsServer()) return;
+		var player = GetPlayerControllerById(playerId);
+		if (player == null) return;
+		var playerInteractable = player.GetOwnInteractable();
+		if (playerInteractable == null) return;
+		playerInteractable.RpcId(playerId, nameof(PlayerInteractable.ClientSetMyInteractableId), playerInteractable.interactableId);
+	}
+
 	// Handle new peers connecting to the multiplayer session, inform them to remove placeholders
 	private void OnPeerConnected(long id)
 	{
-		if (!multiplayer.IsServer()) return;
+		if (multiplayer.HasMultiplayerPeer() && !multiplayer.IsServer()) return;
 
 		GD.Print("ItemManager: Peer connected with ID " + id);
 		RpcId(id, nameof(ClientRemovePlaceholders));
@@ -378,7 +391,7 @@ public partial class ItemManager : Node3D
 	public void RequestSpawnItem(string requestingItemId)
 	{
 		GD.Print("ItemManager: RequestSpawnItem called from " + requestingItemId);
-		if (isMultiplayerSession && !multiplayer.IsServer()) return; // Only the server should handle spawning
+		if (multiplayer.HasMultiplayerPeer() && isMultiplayerSession && !multiplayer.IsServer()) return; // Only the server should handle spawning
 		DoSpawnItem(requestingItemId);
 	}
 
@@ -392,7 +405,7 @@ public partial class ItemManager : Node3D
 		var itemToSpawnScene = requestingItem.SpawnOnUseScene;
 		if (itemToSpawnScene == null) { GD.Print("SpawnOnUseScene null"); return; }
 
-		var instance = itemToSpawnScene.Instantiate<RigidBody3D>(); // assuming all interactables and entities are RigidBody3D or derived
+		var instance = itemToSpawnScene.Instantiate<Node3D>(); // assuming all interactables and entities are Node3D or derived
 		PreAssignId(instance);
 
 		itemSpawnRegistry.AddChild(instance, true); // local temp instance
@@ -448,7 +461,7 @@ public partial class ItemManager : Node3D
 	public void RequestPickupItem(string itemId)
 	{
 		GD.Print("ItemManager: RequestPickupItem called for " + itemId);
-		if (isMultiplayerSession && !multiplayer.IsServer()) return; // Only the server should handle item movement
+		if (multiplayer.HasMultiplayerPeer() && isMultiplayerSession && !multiplayer.IsServer()) return; // Only the server should handle item movement
 
 		long requesterId = multiplayer.GetRemoteSenderId();
 		if (requesterId == 0) // host called
@@ -505,7 +518,7 @@ public partial class ItemManager : Node3D
 	public void RequestDropItem(string itemId)
 	{
 		GD.Print("ItemManager: RequestDropItem called for " + itemId);
-		if (isMultiplayerSession && !multiplayer.IsServer()) return; // Only the server should handle item dropping
+		if (multiplayer.HasMultiplayerPeer() && isMultiplayerSession && !multiplayer.IsServer()) return; // Only the server should handle item dropping
 		DoDropItem(itemId);
 	}
 
@@ -517,7 +530,11 @@ public partial class ItemManager : Node3D
 		var item = FindInteractableById(itemId);
 		if (item == null) { GD.Print("Item null"); return; }
 
-		//if (item.GetParent<Node3D>() != this)
+		//if (item is PlayerInteractable playerInteractable)
+		//{
+		//	playerInteractable.GetPlayerController().RecenterViewAfterDrop();
+		//}
+		//else if (item.GetParent<Node3D>() != this)
 		//{
 		//	item.GetParent<Node3D>().RemoveChild(item);
 		//	this.AddChild(item, true);
@@ -590,7 +607,7 @@ public partial class ItemManager : Node3D
 	public async void RequestHoldRope(string itemId)
 	{
 		GD.Print("ItemManager: RequestHoldRope called for " + itemId);
-		if (isMultiplayerSession && !multiplayer.IsServer()) return;
+		if (multiplayer.HasMultiplayerPeer() && isMultiplayerSession && !multiplayer.IsServer()) return;
 
 		long requesterId = multiplayer.GetRemoteSenderId();
 		if (requesterId == 0) // host called
@@ -645,7 +662,7 @@ public partial class ItemManager : Node3D
 		// Tween to the inventory slot
 		var tween = GetTree().CreateTween();
 		tween.SetTrans(Tween.TransitionType.Sine).SetEase(Tween.EaseType.InOut);
-		tween.TweenProperty(proxy, "global_position", targetPos, 0.25f);
+		tween.TweenProperty(proxy, "global_position", targetPos, 0.05f);
 		await ToSignal(tween, "finished");
 
 		proxyScript.isTweening = false;
@@ -661,7 +678,7 @@ public partial class ItemManager : Node3D
 	public void RequestReleaseRope(string itemId)
 	{
 		GD.Print("ItemManager: RequestReleaseRope called for " + itemId);
-		if (isMultiplayerSession && !multiplayer.IsServer()) return; // Only the server should handle item dropping
+		if (multiplayer.HasMultiplayerPeer() && isMultiplayerSession && !multiplayer.IsServer()) return; // Only the server should handle item dropping
 		DoReleaseRope(itemId);
 	}
 
@@ -693,7 +710,7 @@ public partial class ItemManager : Node3D
 	{
 		//GD.Print("ItemManager: RequestForceDropAll called");
 		// only server should execute
-		if (isMultiplayerSession && !multiplayer.IsServer()) return;
+		if (multiplayer.HasMultiplayerPeer() && isMultiplayerSession && !multiplayer.IsServer()) return;
 		ForceDropAll(); // execute locally on server or singleplayer
 	}
 
@@ -723,7 +740,7 @@ public partial class ItemManager : Node3D
 	public void RequestCookFood(string campfireId, string foodId)
 	{
 		GD.Print("ItemManager: RequestCookFood called for " + foodId);
-		if (isMultiplayerSession && !multiplayer.IsServer()) return; // Only the server should handle cooking
+		if (multiplayer.HasMultiplayerPeer() && isMultiplayerSession && !multiplayer.IsServer()) return; // Only the server should handle cooking
 		DoCookFood(campfireId, foodId);
 	}
 
@@ -782,7 +799,7 @@ public partial class ItemManager : Node3D
 	{
 		GD.Print("ItemManager: RequestFeedTarget called for " + itemId + " to peer ID " + targetPeerId);
 		GD.Print("ItemManager: isMultiplayerSession=" + isMultiplayerSession + ", IsServer=" + multiplayer.IsServer());
-		if (isMultiplayerSession && !multiplayer.IsServer()) return; // Only the server should handle feeding
+		if (multiplayer.HasMultiplayerPeer() && isMultiplayerSession && !multiplayer.IsServer()) return; // Only the server should handle feeding
 		DoFeedTarget(itemId, targetPeerId);
 	}
 
@@ -832,7 +849,7 @@ public partial class ItemManager : Node3D
 	public void RequestRepairWheel(string wheelId, string plankId)
 	{
 		GD.Print("ItemManager: RequestRepairWheel called for " + wheelId);
-		if (isMultiplayerSession && !multiplayer.IsServer()) return; // Only the server should handle repairing
+		if (multiplayer.HasMultiplayerPeer() && isMultiplayerSession && !multiplayer.IsServer()) return; // Only the server should handle repairing
 		DoRepairWheel(wheelId, plankId);
 	}
 
@@ -845,10 +862,10 @@ public partial class ItemManager : Node3D
 		var wheel = FindEntityById(wheelId) as Wheel;
 		if (wheel == null) { GD.Print("Wheel null"); return; }
 
-		GD.Print("Wheel: Accepted use from " + plank.Name);
-		GD.Print("Wheel: Current Health " + wheel.currentHealth + "/" + wheel.maxHealth);
+		//GD.Print("Wheel: Accepted use from " + plank.Name);
+		//GD.Print("Wheel: Current Health " + wheel.currentHealth + "/" + wheel.maxHealth);
 		wheel.currentHealth += wheel.repairAmount;
-		GD.Print("Wheel: Updated Health " + wheel.currentHealth + "/" + wheel.maxHealth);
+		//GD.Print("Wheel: Updated Health " + wheel.currentHealth + "/" + wheel.maxHealth);
 		if (wheel.currentHealth >= wheel.maxHealth)
 		{
 			wheel.currentHealth = wheel.maxHealth;
@@ -869,9 +886,18 @@ public partial class ItemManager : Node3D
 	}
 
 	// logic for damaging wheel request 
-	public void DoDamageWheel(string wheelId, int damageAmount)
+	public void DoDamageWheel(string wheelId, float damageAmount)
 	{
-		//GD.Print("ItemManager: DoDamageWheel called for " + wheelId);
+		var wheel = FindEntityById(wheelId) as Wheel;
+		if (wheel == null) { GD.Print("Wheel null"); return; }
+
+		wheel.currentHealth -= damageAmount;
+		//GD.Print(wheel.Name + ": Updated Health " + wheel.currentHealth + "/" + wheel.maxHealth);
+		if (wheel.currentHealth <= 0)
+		{
+			wheel.currentHealth = 0;
+			GD.Print("Wheel: " + wheel.Name + " has been destroyed!");
+		}
 	}
 
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer)] 

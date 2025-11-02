@@ -1,10 +1,10 @@
-[gd_scene load_steps=16 format=3 uid="uid://ckpgu08xdcwp4"]
+[gd_scene load_steps=15 format=3 uid="uid://ckpgu08xdcwp4"]
 
 [ext_resource type="Script" uid="uid://cor1xxd0lnxxg" path="res://Scripts/PlayerScripts/PlayerController.cs" id="1_kyqiw"]
 [ext_resource type="PackedScene" uid="uid://cx0brpfq1upti" path="res://Scenes/PlayerHUD.tscn" id="2_dewec"]
 [ext_resource type="Script" uid="uid://dmbbfw34d8nf1" path="res://Scripts/PlayerScripts/PlayerCameraSync.cs" id="2_gntrk"]
 [ext_resource type="PackedScene" uid="uid://cncbaoc3e5h5f" path="res://Scenes/PauseMenu.tscn" id="3_dewec"]
-[ext_resource type="Script" uid="uid://1bwso462ry2q" path="res://Scripts/InteractableScripts/PlayerInteractable.cs" id="3_gntrk"]
+[ext_resource type="PackedScene" uid="uid://bj45lpd2k30mj" path="res://Scenes/Interactables/PlayerInteractable.tscn" id="4_dewec"]
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_hyhp3"]
 properties/0/path = NodePath(".:position")
@@ -27,13 +27,19 @@ properties/5/spawn = true
 properties/5/replication_mode = 1
 properties/6/path = NodePath(".:maxEnergy")
 properties/6/spawn = true
-properties/6/replication_mode = 1
+properties/6/replication_mode = 2
 properties/7/path = NodePath(".:currentEnergy")
 properties/7/spawn = true
-properties/7/replication_mode = 1
-properties/8/path = NodePath(".:bodyColor")
+properties/7/replication_mode = 2
+properties/8/path = NodePath(".:scale")
 properties/8/spawn = true
-properties/8/replication_mode = 1
+properties/8/replication_mode = 2
+properties/9/path = NodePath("HelpMeLabel:visible")
+properties/9/spawn = true
+properties/9/replication_mode = 2
+properties/10/path = NodePath("Head/Camera3D/Inventory:position")
+properties/10/spawn = true
+properties/10/replication_mode = 1
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_r1we1"]
 
@@ -54,12 +60,7 @@ albedo_color = Color(0.054902, 0.67451, 0.976471, 1)
 
 [sub_resource type="SphereMesh" id="SphereMesh_gntrk"]
 
-[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_gntrk"]
-properties/0/path = NodePath(".:interactableId")
-properties/0/spawn = true
-properties/0/replication_mode = 1
-
-[node name="Player" type="CharacterBody3D" node_paths=PackedStringArray("head", "camera", "collisionPusher", "interactableRB", "pauseMenu") groups=["players"]]
+[node name="Player" type="CharacterBody3D" node_paths=PackedStringArray("head", "camera", "collisionPusher", "interactableRB", "helpMeLabel", "pauseMenu") groups=["players"]]
 collision_layer = 2
 collision_mask = 5
 script = ExtResource("1_kyqiw")
@@ -75,6 +76,8 @@ maxEnergyReductionRate = 0.2
 sprintingEnergyReduction = 4.0
 jumpingEnergyCost = 10.0
 energyRegen = 2.0
+pullingEnergyCost = 3.0
+helpMeLabel = NodePath("HelpMeLabel")
 pauseMenu = NodePath("PauseMenu")
 
 [node name="PlayerCameraSync" type="Node" parent="." node_paths=PackedStringArray("Camera")]
@@ -128,18 +131,15 @@ collision_mask = 8
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.216008, 0)
 shape = SubResource("CapsuleShape3D_r1we1")
 
-[node name="PlayerInteractable" type="RigidBody3D" parent="."]
-collision_layer = 32
-collision_mask = 0
-freeze = true
-script = ExtResource("3_gntrk")
+[node name="PlayerInteractable" parent="." instance=ExtResource("4_dewec")]
+movementPenalty = 0.66
 
-[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="PlayerInteractable"]
-replication_config = SubResource("SceneReplicationConfig_gntrk")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="PlayerInteractable"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.216008, 0)
-shape = SubResource("CapsuleShape3D_r1we1")
+[node name="HelpMeLabel" type="Label3D" parent="."]
+transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 1.73722, 0)
+visible = false
+modulate = Color(1, 0, 0, 1)
+text = "!!"
+font_size = 100
 
 [node name="PauseMenu" parent="." instance=ExtResource("3_dewec")]
 visible = false

@@ -59,6 +59,11 @@ public partial class RopeGrabPoint : Interactable
             Freeze = true;
             GravityScale = 0;
         }
+
+        //if (Input.IsActionJustPressed("jump")) // debug
+        //{
+        //    DeferredResetJoint();
+        //}
     }
 
     //temp until fix for rope jitter and update refresh
@@ -98,7 +103,7 @@ public partial class RopeGrabPoint : Interactable
         //rope.CollisionLayer = 0;
         rope.CollisionMask = savedRopeMask & ~carrierLayerBit & ~savedLayer; // drop player and self from rope collisions
         //carrierScript.SetTetherAnchor(joint.StartCustomLocation, rope.RopeLength, carrierTetherBuffer, carrierTetherStrength);
-        carrierScript.RpcId(carrierScript.GetMultiplayerAuthority(), nameof(PlayerController.RequestSetTetherAnchorPath), joint.StartCustomLocation.GetPath(), rope.RopeLength, carrierTetherBuffer, carrierTetherStrength);
+        carrierScript.RpcId(carrierScript.GetMultiplayerAuthority(), nameof(PlayerController.RequestSetTetherAnchorPath), simJoint.StartCustomLocation.GetPath(), simRope.RopeLength, carrierTetherBuffer, carrierTetherStrength);
         Rpc(nameof(ClientMoveSimRope), slotPath);
 
         Carrier = carrier;
@@ -178,7 +183,8 @@ public partial class RopeGrabPoint : Interactable
     }
 
     // need to reset the joint after changing any settings
-    private void DeferredResetJoint()
+    [Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true)]
+    public void DeferredResetJoint()
     {
         if (joint != null)
         {

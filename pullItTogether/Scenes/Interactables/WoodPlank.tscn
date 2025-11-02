@@ -6,22 +6,22 @@
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_0kels"]
 properties/0/path = NodePath(".:position")
 properties/0/spawn = true
-properties/0/replication_mode = 1
+properties/0/replication_mode = 2
 properties/1/path = NodePath(".:rotation")
 properties/1/spawn = true
-properties/1/replication_mode = 1
+properties/1/replication_mode = 2
 properties/2/path = NodePath(".:interactableId")
 properties/2/spawn = true
-properties/2/replication_mode = 1
+properties/2/replication_mode = 2
 properties/3/path = NodePath(".:scale")
 properties/3/spawn = true
-properties/3/replication_mode = 1
+properties/3/replication_mode = 2
 properties/4/path = NodePath(".:collision_mask")
 properties/4/spawn = true
-properties/4/replication_mode = 1
+properties/4/replication_mode = 2
 properties/5/path = NodePath(".:collision_layer")
 properties/5/spawn = true
-properties/5/replication_mode = 1
+properties/5/replication_mode = 2
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_fmbki"]
 resource_local_to_scene = true
@@ -32,6 +32,7 @@ resource_local_to_scene = true
 size = Vector3(0.1, 0.5, 2)
 
 [node name="WoodPlank" type="RigidBody3D" groups=["plank"]]
+physics_interpolation_mode = 1
 collision_layer = 8
 collision_mask = 29
 script = ExtResource("1_0kels")

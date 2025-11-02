@@ -57,11 +57,12 @@ level_scene = ExtResource("4_v1gob")
 [node name="PlayersContainer" type="Node3D" parent="MapManager"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.90816, 0)
 
-[node name="PlayerSpawner" type="MultiplayerSpawner" parent="MapManager/PlayersContainer" node_paths=PackedStringArray("spawn_point") groups=["player_spawner"]]
+[node name="PlayerSpawner" type="MultiplayerSpawner" parent="MapManager/PlayersContainer" node_paths=PackedStringArray("spawn_point", "map_manager") groups=["player_spawner"]]
 spawn_path = NodePath("..")
 script = ExtResource("5_v1gob")
 player_scene = ExtResource("6_jw32o")
 spawn_point = NodePath("SpawnPoint01")
+map_manager = NodePath("../..")
 
 [node name="SpawnPoint01" type="Node3D" parent="MapManager/PlayersContainer/PlayerSpawner"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.46775, 3.43957, -2.10603)

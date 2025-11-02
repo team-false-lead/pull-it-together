@@ -1,40 +1,41 @@
-[gd_scene load_steps=20 format=3 uid="uid://b2cc2nt2bpja0"]
+[gd_scene load_steps=23 format=3 uid="uid://b2cc2nt2bpja0"]
 
 [ext_resource type="Script" uid="uid://dja12uyulc7ee" path="res://addons/verlet_rope_4/Physics/VerletRopeRigid.cs" id="1_24ylq"]
 [ext_resource type="Script" uid="uid://toi5sicfb28n" path="res://Scripts/Wagon/Wagon.cs" id="1_f8cd6"]
 [ext_resource type="Script" uid="uid://cuw8dk3lkvm2n" path="res://addons/verlet_rope_4/Physics/Joints/VerletJointRigid.cs" id="2_by6hu"]
 [ext_resource type="Script" uid="uid://c3oxgehluk75x" path="res://addons/verlet_rope_4/Physics/VerletRopeSimulated.cs" id="2_wf68l"]
 [ext_resource type="Script" uid="uid://cvxw3h20i7vjf" path="res://addons/verlet_rope_4/Physics/Joints/VerletJointSimulated.cs" id="3_bdj2n"]
+[ext_resource type="PackedScene" uid="uid://cvvdqeqd1hyw2" path="res://Scenes/Entities/Wheels/WheelFrontLeft.tscn" id="3_kkr0m"]
 [ext_resource type="Script" uid="uid://576r8y5ml8oo" path="res://Scripts/InteractableScripts/RopeGrabPoint.cs" id="3_q3xkn"]
+[ext_resource type="PackedScene" uid="uid://ddytphieibg3f" path="res://Scenes/Entities/Wheels/WheelFrontRight.tscn" id="4_4mj3o"]
 [ext_resource type="PackedScene" uid="uid://b638mtt6nax88" path="res://Scenes/Interactables/RopeProxy.tscn" id="4_f8cd6"]
-[ext_resource type="PackedScene" uid="uid://daxkf804xn7id" path="res://Models/Wagon/mdl_wagon_full.fbx" id="6_cqmbo"]
+[ext_resource type="PackedScene" uid="uid://vgh3mhnrifqw" path="res://Scenes/Entities/Wheels/WheelBackLeft.tscn" id="5_4mj3o"]
+[ext_resource type="PackedScene" uid="uid://catebv8ff61vh" path="res://Models/Wagon/Body/mdl_wagon_body.fbx" id="6_bdj2n"]
+[ext_resource type="PackedScene" uid="uid://cx5a2prwbkxr8" path="res://Scenes/Entities/Wheels/WheelBackRight.tscn" id="6_w40pc"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_vlqqi"]
 friction = 0.05
 bounce = 0.25
 absorbent = true
 
-[sub_resource type="BoxMesh" id="BoxMesh_vlqqi"]
+[sub_resource type="SphereShape3D" id="SphereShape3D_cqmbo"]
+radius = 0.675
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_vlqqi"]
-albedo_color = Color(0.384329, 0.237842, 1.29953e-06, 1)
+[sub_resource type="SphereShape3D" id="SphereShape3D_4mj3o"]
+radius = 0.8
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_w40pc"]
+size = Vector3(2.3, 2.4, 5)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_vlqqi"]
-size = Vector3(0.042, 2.5, 5.775)
+size = Vector3(0.042, 2.5, 5.3)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_5rxyb"]
 size = Vector3(3, 0.1, 5.31152)
 
-[sub_resource type="CylinderMesh" id="CylinderMesh_5rxyb"]
-top_radius = 0.7
-bottom_radius = 0.7
-height = 0.1
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_bxu3g"]
-albedo_color = Color(0.514254, 0.350825, 0.246575, 1)
-
-[sub_resource type="SphereShape3D" id="SphereShape3D_cqmbo"]
-radius = 0.6
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_w40pc"]
+radius = 0.2
+height = 1.7
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_roc07"]
 
@@ -71,11 +72,35 @@ properties/8/replication_mode = 1
 properties/9/path = NodePath("GrabPoint2:visible")
 properties/9/spawn = true
 properties/9/replication_mode = 1
+properties/10/path = NodePath("GrabPoint3:interactableId")
+properties/10/spawn = true
+properties/10/replication_mode = 1
+properties/11/path = NodePath("GrabPoint4:interactableId")
+properties/11/spawn = true
+properties/11/replication_mode = 1
+properties/12/path = NodePath("GrabPoint3:collision_layer")
+properties/12/spawn = true
+properties/12/replication_mode = 1
+properties/13/path = NodePath("GrabPoint4:collision_layer")
+properties/13/spawn = true
+properties/13/replication_mode = 1
+properties/14/path = NodePath("GrabPoint3:collision_mask")
+properties/14/spawn = true
+properties/14/replication_mode = 1
+properties/15/path = NodePath("GrabPoint4:collision_mask")
+properties/15/spawn = true
+properties/15/replication_mode = 1
+properties/16/path = NodePath("GrabPoint3:visible")
+properties/16/spawn = true
+properties/16/replication_mode = 1
+properties/17/path = NodePath("GrabPoint4:visible")
+properties/17/spawn = true
+properties/17/replication_mode = 1
 
-[node name="RigidBody3D" type="RigidBody3D" groups=["wagon"]]
+[node name="WagonPrototype" type="RigidBody3D" node_paths=PackedStringArray("wheels") groups=["wagon"]]
 collision_layer = 4
 collision_mask = 9
-mass = 900.0
+mass = 850.0
 physics_material_override = SubResource("PhysicsMaterial_vlqqi")
 center_of_mass_mode = 1
 center_of_mass = Vector3(0, -3, -0.75)
@@ -83,25 +108,73 @@ can_sleep = false
 constant_force = Vector3(0, 100, 0)
 script = ExtResource("1_f8cd6")
 linearXMultiplier = 0.5
-angularYMultiplier = 0.95
+angularYMultiplier = 0.96
+wheels = [NodePath("Wheels/WheelFL"), NodePath("Wheels/WheelFR"), NodePath("Wheels/WheelBL"), NodePath("Wheels/WheelBR")]
+frictionPerWheel = 0.02
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-transform = Transform3D(2.5, 0, 0, 0, 0.5, 0, 0, 0, 5.5, 0, 0, 0)
-visible = false
-mesh = SubResource("BoxMesh_vlqqi")
-surface_material_override/0 = SubResource("StandardMaterial3D_vlqqi")
+[node name="WagonBodyMesh" parent="." instance=ExtResource("6_bdj2n")]
+transform = Transform3D(-150, 0, -1.74846e-05, 0, 150, 0, 1.31134e-05, 0, -200, 0, -0.782943, 0.315071)
+
+[node name="Wheels" type="Node3D" parent="."]
+
+[node name="WheelFL" parent="Wheels" node_paths=PackedStringArray("wheelCollision") instance=ExtResource("3_kkr0m")]
+transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 1.532, -0.699, -1.981)
+wheelCollision = NodePath("../../FLeftWheelCollision")
+
+[node name="WheelFR" parent="Wheels" node_paths=PackedStringArray("wheelCollision") instance=ExtResource("4_4mj3o")]
+transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, -1.5316, -0.699413, -1.98129)
+wheelCollision = NodePath("../../FRightWheelCollision")
+
+[node name="WheelBL" parent="Wheels" node_paths=PackedStringArray("wheelCollision") instance=ExtResource("5_4mj3o")]
+transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 1.56871, -0.532007, 2.02385)
+wheelCollision = NodePath("../../BLWheelCollision")
+
+[node name="WheelBR" parent="Wheels" node_paths=PackedStringArray("wheelCollision") instance=ExtResource("6_w40pc")]
+transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, -1.569, -0.532, 2.024)
+wheelCollision = NodePath("../../BRWheelCollision")
+
+[node name="FLeftWheelCollision" type="CollisionShape3D" parent="."]
+transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 1.45117, -0.674502, -2)
+shape = SubResource("SphereShape3D_cqmbo")
+
+[node name="FRightWheelCollision" type="CollisionShape3D" parent="."]
+transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, -1.451, -0.675, -2)
+shape = SubResource("SphereShape3D_cqmbo")
+
+[node name="BLWheelCollision" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.56871, -0.532007, 2.02385)
+shape = SubResource("SphereShape3D_4mj3o")
+
+[node name="BRWheelCollision" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.569, -0.532, 2.024)
+shape = SubResource("SphereShape3D_4mj3o")
+
+[node name="InsideWagonArea" type="Area3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.34345, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="InsideWagonArea"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.523118, 0.308961)
+shape = SubResource("BoxShape3D_w40pc")
 
 [node name="LeftCollision" type="CollisionShape3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.28039, 0.88935, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.28039, 0.88935, 0.237807)
 shape = SubResource("BoxShape3D_vlqqi")
 
 [node name="RightCollision" type="CollisionShape3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.28, 0.882283, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.28, 0.882283, 0.237807)
 shape = SubResource("BoxShape3D_vlqqi")
 
 [node name="BaseCollision" type="CollisionShape3D" parent="."]
-transform = Transform3D(0.921355, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.395824, 0.276889)
+transform = Transform3D(0.921355, 0, 0, 0, 1.92959, 0, 0, 0, 1, 0, -0.445465, 0.276889)
 shape = SubResource("BoxShape3D_5rxyb")
+
+[node name="FrontAxelCollision" type="CollisionShape3D" parent="."]
+transform = Transform3D(-4.02737e-08, 1.92959, 0, -0.921355, -8.43453e-08, 0, 0, 0, 1, 0, -0.690889, -2.01938)
+shape = SubResource("CapsuleShape3D_w40pc")
+
+[node name="BackAxelCollision" type="CollisionShape3D" parent="."]
+transform = Transform3D(-4.02737e-08, 1.92959, 0, -0.921355, -8.43453e-08, 0, 0, 0, 1, 0, -0.544519, 1.94252)
+shape = SubResource("CapsuleShape3D_w40pc")
 
 [node name="TopCollision" type="CollisionShape3D" parent="."]
 transform = Transform3D(0.461396, -0.0425, 0, 0.266387, 0.0736121, 0, 0, 0, 1.05126, -0.678, 2.437, -0.026)
@@ -111,84 +184,33 @@ shape = SubResource("BoxShape3D_5rxyb")
 transform = Transform3D(0.461396, 0.0425, 0, -0.266387, 0.0736121, 0, 0, 0, 1.05126, 0.678485, 2.43717, -0.0225084)
 shape = SubResource("BoxShape3D_5rxyb")
 
-[node name="Wheels" type="Node3D" parent="."]
-visible = false
-
-[node name="Wheel" type="MeshInstance3D" parent="Wheels"]
-transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, -1.31992, -0.537599, -2)
-mesh = SubResource("CylinderMesh_5rxyb")
-skeleton = NodePath("")
-surface_material_override/0 = SubResource("StandardMaterial3D_bxu3g")
-
-[node name="Wheel2" type="MeshInstance3D" parent="Wheels"]
-transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, -1.31992, -0.537599, 2)
-mesh = SubResource("CylinderMesh_5rxyb")
-skeleton = NodePath("")
-surface_material_override/0 = SubResource("StandardMaterial3D_bxu3g")
-
-[node name="Wheel3" type="MeshInstance3D" parent="Wheels"]
-transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 1.32, -0.537599, -2)
-mesh = SubResource("CylinderMesh_5rxyb")
-skeleton = NodePath("")
-surface_material_override/0 = SubResource("StandardMaterial3D_bxu3g")
-
-[node name="Wheel4" type="MeshInstance3D" parent="Wheels"]
-transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 1.32, -0.537599, 2)
-mesh = SubResource("CylinderMesh_5rxyb")
-skeleton = NodePath("")
-surface_material_override/0 = SubResource("StandardMaterial3D_bxu3g")
-
 [node name="LipCollision" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 0.171821, 0, 0, 0, 0.149358, 0, -0.329264, -2.57036)
 shape = SubResource("BoxShape3D_5rxyb")
 
-[node name="FLeftWheelCollision" type="CollisionShape3D" parent="."]
-transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, -1.451, -0.675, -2)
-shape = SubResource("SphereShape3D_cqmbo")
-
-[node name="FRightWheelCollision" type="CollisionShape3D" parent="."]
-transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 1.45117, -0.674502, -2)
-shape = SubResource("SphereShape3D_cqmbo")
-
-[node name="BLeftWheelCollision" type="CollisionShape3D" parent="."]
-transform = Transform3D(-6.55671e-08, -1.5, 0, 1.5, -6.55671e-08, 0, 0, 0, 1.5, -1.454, -0.407, 1.999)
-shape = SubResource("SphereShape3D_cqmbo")
-
-[node name="BRightWheelCollision" type="CollisionShape3D" parent="."]
-transform = Transform3D(-6.55671e-08, -1.5, 0, 1.5, -6.55671e-08, 0, 0, 0, 1.5, 1.4539, -0.406865, 1.99924)
-shape = SubResource("SphereShape3D_cqmbo")
-
 [node name="RopeStartPoint" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.7, -0.179746, -3.35201)
 
+[node name="RopeStartPoint3" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.594, -0.34, -5.5254)
+
+[node name="RopeStartPoint4" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.877, -0.34, -5.525)
+
 [node name="GrabPointResetSlot" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.593533, 0.0238122, -5.69558)
+
+[node name="GrabPointResetSlot3" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.613, -0.026, -8)
+
+[node name="GrabPointResetSlot4" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.76152, -0.026, -8)
 
 [node name="RopeStartPoint2" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.770333, -0.179746, -3.35201)
 
 [node name="GrabPointResetSlot2" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.876799, 0.0238122, -5.69558)
-
-[node name="VerletRopeRigid" type="Node3D" parent="."]
-visible = false
-script = ExtResource("1_24ylq")
-SimulationSegments = 6
-CollisionLayer = 8
-CollisionMask = 13
-IsStartPinned = false
-RopeWidth = 0.1
-UseVisibleOnScreenNotifier = false
-metadata/_custom_type_script = "uid://dja12uyulc7ee"
-
-[node name="VerletJointRigid" type="Node" parent="VerletRopeRigid" node_paths=PackedStringArray("VerletRope", "StartBody", "StartCustomLocation", "EndBody", "EndCustomLocation")]
-script = ExtResource("2_by6hu")
-VerletRope = NodePath("..")
-StartBody = NodePath("../..")
-StartCustomLocation = NodePath("../../RopeStartPoint")
-EndBody = NodePath("../../GrabPoint")
-EndCustomLocation = NodePath("../../GrabPoint")
-metadata/_custom_type_script = "uid://cuw8dk3lkvm2n"
 
 [node name="GrabPoint" type="RigidBody3D" parent="." node_paths=PackedStringArray("resetPoint", "rope", "joint", "simRope", "simJoint")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.61327, -0.0263452, -5.69641)
@@ -216,7 +238,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25, 0)
 billboard = 2
 text = "Rope"
 
-[node name="VerletRopeRigid2" type="Node3D" parent="."]
+[node name="VerletRopeRigid" type="Node3D" parent="."]
 visible = false
 script = ExtResource("1_24ylq")
 SimulationSegments = 6
@@ -227,14 +249,158 @@ RopeWidth = 0.1
 UseVisibleOnScreenNotifier = false
 metadata/_custom_type_script = "uid://dja12uyulc7ee"
 
-[node name="VerletJointRigid2" type="Node" parent="VerletRopeRigid2" node_paths=PackedStringArray("VerletRope", "StartBody", "StartCustomLocation", "EndBody", "EndCustomLocation")]
+[node name="VerletJointRigid" type="Node" parent="VerletRopeRigid" node_paths=PackedStringArray("VerletRope", "StartBody", "StartCustomLocation", "EndBody", "EndCustomLocation")]
 script = ExtResource("2_by6hu")
 VerletRope = NodePath("..")
 StartBody = NodePath("../..")
-StartCustomLocation = NodePath("../../RopeStartPoint2")
-EndBody = NodePath("../../GrabPoint2")
-EndCustomLocation = NodePath("../../GrabPoint2")
+StartCustomLocation = NodePath("../../RopeStartPoint")
+EndBody = NodePath("../../GrabPoint")
+EndCustomLocation = NodePath("../../GrabPoint")
 metadata/_custom_type_script = "uid://cuw8dk3lkvm2n"
+
+[node name="VerletRopeSimulated" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -6.5159)
+script = ExtResource("2_wf68l")
+SimulationParticles = 6
+StaticCollisionMask = 8
+DynamicCollisionMask = 13
+metadata/_custom_type_script = "uid://c3oxgehluk75x"
+
+[node name="JointSimulated" type="Node" parent="VerletRopeSimulated" node_paths=PackedStringArray("VerletRope", "StartBody", "StartCustomLocation", "EndBody", "EndCustomLocation")]
+script = ExtResource("3_bdj2n")
+VerletRope = NodePath("..")
+StartBody = NodePath("../..")
+StartCustomLocation = NodePath("../../RopeStartPoint")
+EndBody = NodePath("../../GrabPoint")
+EndCustomLocation = NodePath("../../GrabPoint")
+metadata/verlet_rope_physical_create_simulated_joint = 695312099
+
+[node name="GrabPoint3" type="RigidBody3D" parent="." node_paths=PackedStringArray("resetPoint", "rope", "joint", "simRope", "simJoint")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.613, -0.026, -8)
+collision_layer = 8
+mass = 0.1
+script = ExtResource("3_q3xkn")
+ropeProxyScene = ExtResource("4_f8cd6")
+resetPoint = NodePath("../GrabPointResetSlot3")
+rope = NodePath("../VerletRopeRigid3")
+joint = NodePath("../VerletRopeRigid3/VerletJointRigid")
+simRope = NodePath("../VerletRopeSimulated3")
+simJoint = NodePath("../VerletRopeSimulated3/JointSimulated")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GrabPoint3"]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, 0)
+shape = SubResource("SphereShape3D_roc07")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GrabPoint3"]
+transform = Transform3D(0.25, 0, 0, 0, 0.25, 0, 0, 0, 0.25, 0, 0, 0)
+mesh = SubResource("SphereMesh_m5r0p")
+skeleton = NodePath("")
+
+[node name="Label3D" type="Label3D" parent="GrabPoint3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25, 0)
+billboard = 2
+text = "Rope"
+
+[node name="VerletRopeRigid3" type="Node3D" parent="."]
+visible = false
+script = ExtResource("1_24ylq")
+SimulationSegments = 6
+CollisionLayer = 8
+CollisionMask = 13
+IsStartPinned = false
+RopeWidth = 0.1
+UseVisibleOnScreenNotifier = false
+metadata/_custom_type_script = "uid://dja12uyulc7ee"
+
+[node name="VerletJointRigid" type="Node" parent="VerletRopeRigid3" node_paths=PackedStringArray("VerletRope", "StartBody", "StartCustomLocation", "EndBody", "EndCustomLocation")]
+script = ExtResource("2_by6hu")
+VerletRope = NodePath("..")
+StartBody = NodePath("../..")
+StartCustomLocation = NodePath("../../RopeStartPoint3")
+EndBody = NodePath("../../GrabPoint3")
+EndCustomLocation = NodePath("../../GrabPoint3")
+metadata/_custom_type_script = "uid://cuw8dk3lkvm2n"
+
+[node name="VerletRopeSimulated3" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -6.5159)
+script = ExtResource("2_wf68l")
+SimulationParticles = 6
+StaticCollisionMask = 8
+DynamicCollisionMask = 13
+metadata/_custom_type_script = "uid://c3oxgehluk75x"
+
+[node name="JointSimulated" type="Node" parent="VerletRopeSimulated3" node_paths=PackedStringArray("VerletRope", "StartBody", "StartCustomLocation", "EndBody", "EndCustomLocation")]
+script = ExtResource("3_bdj2n")
+VerletRope = NodePath("..")
+StartBody = NodePath("../../GrabPoint")
+StartCustomLocation = NodePath("../../GrabPoint")
+EndBody = NodePath("../../GrabPoint3")
+EndCustomLocation = NodePath("../../GrabPoint3")
+metadata/verlet_rope_physical_create_simulated_joint = 695312099
+
+[node name="GrabPoint4" type="RigidBody3D" parent="." node_paths=PackedStringArray("resetPoint", "rope", "joint", "simRope", "simJoint")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.605177, -0.026, -8)
+collision_layer = 8
+mass = 0.1
+script = ExtResource("3_q3xkn")
+ropeProxyScene = ExtResource("4_f8cd6")
+resetPoint = NodePath("../GrabPointResetSlot4")
+rope = NodePath("../VerletRopeRigid4")
+joint = NodePath("../VerletRopeRigid4/VerletJointRigid")
+simRope = NodePath("../VerletRopeSimulated4")
+simJoint = NodePath("../VerletRopeSimulated4/JointSimulated")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="GrabPoint4"]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, 0)
+shape = SubResource("SphereShape3D_roc07")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="GrabPoint4"]
+transform = Transform3D(0.25, 0, 0, 0, 0.25, 0, 0, 0, 0.25, 0, 0, 0)
+mesh = SubResource("SphereMesh_m5r0p")
+skeleton = NodePath("")
+
+[node name="Label3D" type="Label3D" parent="GrabPoint4"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25, 0)
+billboard = 2
+text = "Rope"
+
+[node name="VerletRopeRigid4" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.21818, 0, 0)
+visible = false
+script = ExtResource("1_24ylq")
+SimulationSegments = 6
+CollisionLayer = 8
+CollisionMask = 13
+IsStartPinned = false
+RopeWidth = 0.1
+UseVisibleOnScreenNotifier = false
+metadata/_custom_type_script = "uid://dja12uyulc7ee"
+
+[node name="VerletJointRigid" type="Node" parent="VerletRopeRigid4" node_paths=PackedStringArray("VerletRope", "StartBody", "StartCustomLocation", "EndBody", "EndCustomLocation")]
+script = ExtResource("2_by6hu")
+VerletRope = NodePath("..")
+StartBody = NodePath("../..")
+StartCustomLocation = NodePath("../../RopeStartPoint4")
+EndBody = NodePath("../../GrabPoint4")
+EndCustomLocation = NodePath("../../GrabPoint4")
+metadata/_custom_type_script = "uid://cuw8dk3lkvm2n"
+
+[node name="VerletRopeSimulated4" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.21818, 0, -6.5159)
+script = ExtResource("2_wf68l")
+SimulationParticles = 6
+StaticCollisionMask = 8
+DynamicCollisionMask = 13
+metadata/_custom_type_script = "uid://c3oxgehluk75x"
+
+[node name="JointSimulated" type="Node" parent="VerletRopeSimulated4" node_paths=PackedStringArray("VerletRope", "StartBody", "StartCustomLocation", "EndBody", "EndCustomLocation")]
+script = ExtResource("3_bdj2n")
+VerletRope = NodePath("..")
+StartBody = NodePath("../../GrabPoint2")
+StartCustomLocation = NodePath("../../GrabPoint2")
+EndBody = NodePath("../../GrabPoint4")
+EndCustomLocation = NodePath("../../GrabPoint4")
+metadata/verlet_rope_physical_create_simulated_joint = 695312099
 
 [node name="GrabPoint2" type="RigidBody3D" parent="." node_paths=PackedStringArray("resetPoint", "rope", "joint", "simRope", "simJoint")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.641263, -0.0263452, -5.69641)
@@ -262,44 +428,25 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25, 0)
 billboard = 2
 text = "Rope"
 
-[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
-replication_config = SubResource("SceneReplicationConfig_q3xkn")
+[node name="VerletRopeRigid2" type="Node3D" parent="."]
+visible = false
+script = ExtResource("1_24ylq")
+SimulationSegments = 6
+CollisionLayer = 8
+CollisionMask = 13
+IsStartPinned = false
+RopeWidth = 0.1
+UseVisibleOnScreenNotifier = false
+metadata/_custom_type_script = "uid://dja12uyulc7ee"
 
-[node name="LipCollision2" type="CollisionShape3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, -7.51053e-09, -0.189841, 0, 0.171821, -8.29824e-09, 0, 0.162839, 2.93336)
-shape = SubResource("BoxShape3D_5rxyb")
-
-[node name="WagonMesh" parent="." instance=ExtResource("6_cqmbo")]
-transform = Transform3D(-150, 0, -3.01992e-05, 0, 150, 0, 2.26494e-05, 0, -200, 0, -1.26518, 0.315071)
-
-[node name="LipCollision3" type="CollisionShape3D" parent="."]
-transform = Transform3D(0.917671, 0, 0, 0, 0.171821, 0, 0, 0, 0.176289, 0, 0.321475, -1.84926)
-shape = SubResource("BoxShape3D_5rxyb")
-
-[node name="LipCollision4" type="CollisionShape3D" parent="."]
-transform = Transform3D(0.872849, 0, 0, 0, -7.51053e-09, -0.136416, 0, 0.171821, -5.96295e-09, 0, 0.0137263, -1.3262)
-shape = SubResource("BoxShape3D_5rxyb")
-
-[node name="LipCollision5" type="CollisionShape3D" parent="."]
-transform = Transform3D(0.872849, 0, 0, 0, -7.51053e-09, -0.107404, 0, 0.171821, -4.6948e-09, 0, -0.0815835, -2.07631)
-shape = SubResource("BoxShape3D_5rxyb")
-
-[node name="VerletRopeSimulated" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -6.5159)
-script = ExtResource("2_wf68l")
-SimulationParticles = 6
-StaticCollisionMask = 8
-DynamicCollisionMask = 13
-metadata/_custom_type_script = "uid://c3oxgehluk75x"
-
-[node name="JointSimulated" type="Node" parent="VerletRopeSimulated" node_paths=PackedStringArray("VerletRope", "StartBody", "StartCustomLocation", "EndBody", "EndCustomLocation")]
-script = ExtResource("3_bdj2n")
+[node name="VerletJointRigid2" type="Node" parent="VerletRopeRigid2" node_paths=PackedStringArray("VerletRope", "StartBody", "StartCustomLocation", "EndBody", "EndCustomLocation")]
+script = ExtResource("2_by6hu")
 VerletRope = NodePath("..")
 StartBody = NodePath("../..")
-StartCustomLocation = NodePath("../../RopeStartPoint")
-EndBody = NodePath("../../GrabPoint")
-EndCustomLocation = NodePath("../../GrabPoint")
-metadata/verlet_rope_physical_create_simulated_joint = 695312099
+StartCustomLocation = NodePath("../../RopeStartPoint2")
+EndBody = NodePath("../../GrabPoint2")
+EndCustomLocation = NodePath("../../GrabPoint2")
+metadata/_custom_type_script = "uid://cuw8dk3lkvm2n"
 
 [node name="VerletRopeSimulated2" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -6.5159)
@@ -317,3 +464,22 @@ StartCustomLocation = NodePath("../../RopeStartPoint2")
 EndBody = NodePath("../../GrabPoint2")
 EndCustomLocation = NodePath("../../GrabPoint2")
 metadata/verlet_rope_physical_create_simulated_joint = 695312099
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
+replication_config = SubResource("SceneReplicationConfig_q3xkn")
+
+[node name="LipCollision2" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -7.51053e-09, -0.189841, 0, 0.171821, -8.29824e-09, 0, 0.162839, 2.93336)
+shape = SubResource("BoxShape3D_5rxyb")
+
+[node name="LipCollision3" type="CollisionShape3D" parent="."]
+transform = Transform3D(0.917671, 0, 0, 0, 0.171821, 0, 0, 0, 0.176289, 0, 0.321475, -1.84926)
+shape = SubResource("BoxShape3D_5rxyb")
+
+[node name="LipCollision4" type="CollisionShape3D" parent="."]
+transform = Transform3D(0.872849, 0, 0, 0, -7.51053e-09, -0.136416, 0, 0.171821, -5.96295e-09, 0, 0.0137263, -1.3262)
+shape = SubResource("BoxShape3D_5rxyb")
+
+[node name="LipCollision5" type="CollisionShape3D" parent="."]
+transform = Transform3D(0.872849, 0, 0, 0, -7.51053e-09, -0.107404, 0, 0.171821, -4.6948e-09, 0, -0.0815835, -2.07631)
+shape = SubResource("BoxShape3D_5rxyb")
