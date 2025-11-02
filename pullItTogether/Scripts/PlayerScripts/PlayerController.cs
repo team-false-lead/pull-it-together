@@ -66,6 +66,7 @@ public partial class PlayerController : CharacterBody3D
 	[Export] private float energyRegen;
 	[Export] private float pullingEnergyCost;
 	[Export] private Label3D helpMeLabel;
+	[Export] private float pullingEnergyCost;
     [Signal] public delegate void ChangeHUDEventHandler();
 	[Signal] public delegate void OnDownedEventHandler();
     [Signal] public delegate void OnRevivedEventHandler();
@@ -103,8 +104,8 @@ public partial class PlayerController : CharacterBody3D
 
 			//GetTree().Root.GetNode("Main/MapManager/TestTerrain/Terrain3D").Call("set_camera", camera); // moved hardcoded to when we have mapmanager ref
 
-			// Hide all nodes in the "self_hide" group
-			foreach (var child in GetTree().GetNodesInGroup("self_hide"))
+            // Hide all nodes in the "self_hide" group
+            foreach (var child in GetTree().GetNodesInGroup("self_hide"))
 			{
 				if (child is Node3D node && IsAncestorOf(node))
 				{
