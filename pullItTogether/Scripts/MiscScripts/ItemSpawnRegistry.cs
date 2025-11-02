@@ -59,7 +59,7 @@ public partial class ItemSpawnRegistry : MultiplayerSpawner
         }
     }
 
-    [Rpc(MultiplayerApi.RpcMode.AnyPeer)]
+    [Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
     public void ClientSpawnItem(string scenePath, string itemId, Transform3D transform, int authorityPeerId)
     {
         // Check if item with the same ID already exists
@@ -102,7 +102,7 @@ public partial class ItemSpawnRegistry : MultiplayerSpawner
         }
     }
 
-    [Rpc(MultiplayerApi.RpcMode.AnyPeer)]
+    [Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
     public void ClientDespawnItem(string itemId)
     {
         foreach (var child in GetChildren())
@@ -140,7 +140,7 @@ public partial class ItemSpawnRegistry : MultiplayerSpawner
         }
     }
 
-    [Rpc(MultiplayerApi.RpcMode.AnyPeer)]
+    [Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
     public void ClientSpawnWagon(string scenePath, Transform3D transform, int authorityPeerId, string[] childrenRelativePaths, string[] childrenIds)
     {
         foreach (var child in GetChildren())

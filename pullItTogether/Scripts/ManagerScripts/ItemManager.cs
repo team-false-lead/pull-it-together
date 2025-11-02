@@ -174,11 +174,11 @@ public partial class ItemManager : Node3D
 		}
 	}
 
-	private void CollectWagonChildren(Node3D wagonInstance, List<string> childrenRelativePaths, List<string> childrenIds)
+	private void CollectWagonChildren(Node wagonInstance, List<string> childrenRelativePaths, List<string> childrenIds)
 	{
 		foreach (var child in wagonInstance.GetChildren())
 		{
-			CollectWagonChildren(child as Node3D, childrenRelativePaths, childrenIds);// recurse into children
+			CollectWagonChildren(child, childrenRelativePaths, childrenIds);// recurse into children
 
 			if (child is Interactable childInteractable)
 			{
