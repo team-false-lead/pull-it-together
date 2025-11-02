@@ -24,7 +24,7 @@ properties/4/spawn = true
 properties/4/replication_mode = 1
 properties/5/path = NodePath(".:currentHealth")
 properties/5/spawn = true
-properties/5/replication_mode = 2
+properties/5/replication_mode = 1
 properties/6/path = NodePath(".:maxEnergy")
 properties/6/spawn = true
 properties/6/replication_mode = 2
@@ -37,6 +37,9 @@ properties/8/replication_mode = 2
 properties/9/path = NodePath("HelpMeLabel:visible")
 properties/9/spawn = true
 properties/9/replication_mode = 2
+properties/10/path = NodePath("Head/Camera3D/Inventory:position")
+properties/10/spawn = true
+properties/10/replication_mode = 1
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_r1we1"]
 
@@ -73,8 +76,8 @@ maxEnergyReductionRate = 0.2
 sprintingEnergyReduction = 4.0
 jumpingEnergyCost = 10.0
 energyRegen = 2.0
-helpMeLabel = NodePath("HelpMeLabel")
 pullingEnergyCost = 3.0
+helpMeLabel = NodePath("HelpMeLabel")
 pauseMenu = NodePath("PauseMenu")
 
 [node name="PlayerCameraSync" type="Node" parent="." node_paths=PackedStringArray("Camera")]
