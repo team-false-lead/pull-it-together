@@ -1,8 +1,8 @@
-[gd_scene load_steps=17 format=3 uid="uid://cht8jumec3xyy"]
+[gd_scene load_steps=17 format=3 uid="uid://ba4fbx16j3l67"]
 
 [ext_resource type="PackedScene" uid="uid://cnn1gi0bkh08o" path="res://Scenes/ItemDetector.tscn" id="1_1ql20"]
 [ext_resource type="Script" uid="uid://c1abo8mkv7so7" path="res://Scripts/EntityScripts/Beaver.cs" id="1_vg7qi"]
-[ext_resource type="PackedScene" uid="uid://dn1vnmiwf6cc0" path="res://Scenes/Interactables/WheelInteractable.tscn" id="2_lhu0b"]
+[ext_resource type="PackedScene" uid="uid://bf85wqff4ynsy" path="res://Scenes/Interactables/WheelInteractable.tscn" id="2_lhu0b"]
 [ext_resource type="BehaviorTree" uid="uid://cdntafo1eagv5" path="res://ai/trees/Beaver.tres" id="3_y4j34"]
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_on6pt"]
