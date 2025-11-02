@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=3 uid="uid://b518v5yn7ig5o"]
+[gd_scene load_steps=24 format=3 uid="uid://b518v5yn7ig5o"]
 
 [ext_resource type="Terrain3DAssets" uid="uid://dal3jhw6241qg" path="res://demo/data/assets.tres" id="1_in7uf"]
 [ext_resource type="Script" uid="uid://d2gutl4cngqlt" path="res://Scripts/ManagerScripts/ItemManager.cs" id="2_bn2kb"]
@@ -9,6 +9,7 @@
 [ext_resource type="PackedScene" uid="uid://woij3e5klul2" path="res://Scenes/Maps/TransitionArea.tscn" id="10_bn2kb"]
 [ext_resource type="PackedScene" uid="uid://b2cc2nt2bpja0" path="res://Scenes/Interactables/WagonPrototype.tscn" id="10_nvhef"]
 [ext_resource type="PackedScene" uid="uid://dnrj6qm3hslwt" path="res://Scenes/Interactables/Food_Goodberry.tscn" id="12_w1dx0"]
+[ext_resource type="PackedScene" uid="uid://ba4fbx16j3l67" path="res://Scenes/Entities/Beaver.tscn" id="13_eicjb"]
 [ext_resource type="PackedScene" uid="uid://cllu1opbcu5ux" path="res://Scenes/Interactables/Food_Poisonberry.tscn" id="13_nvhef"]
 [ext_resource type="PackedScene" uid="uid://dutt28pb7vdid" path="res://Scenes/Interactables/Food_Tonic.tscn" id="14_pigjd"]
 [ext_resource type="PackedScene" uid="uid://drat1km3kl28w" path="res://Scenes/Interactables/Food_Meat.tscn" id="15_6x6jt"]
@@ -178,11 +179,12 @@ text = "GO HERE"
 font_size = 500
 outline_size = 50
 
-[node name="Interactables" type="Node3D" parent="." groups=["item_manager"]]
+[node name="Interactables" type="Node3D" parent="." node_paths=PackedStringArray("itemSpawnRegistry") groups=["item_manager"]]
 unique_name_in_owner = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 13.3926, 0)
 script = ExtResource("2_bn2kb")
 placeholdersPath = NodePath("../Placeholders")
+itemSpawnRegistry = NodePath("ItemSpawner")
 
 [node name="ItemSpawner" type="MultiplayerSpawner" parent="Interactables"]
 spawn_path = NodePath("..")
@@ -346,6 +348,9 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 36.9695, 27.4261, -597.16)
 
 [node name="WagonPrototype" parent="Placeholders" instance=ExtResource("10_nvhef")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12.8767, 2.17943, -2.87124)
+
+[node name="Beaver" parent="Placeholders" instance=ExtResource("13_eicjb")]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 1.03403, 1.24039, -59.6997)
 
 [node name="ToonShader" parent="." instance=ExtResource("16_iddi4")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.51888, 0, -16.3447)

@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=3 uid="uid://bf85wqff4ynsy"]
+[gd_scene load_steps=5 format=3 uid="uid://c4dipwth8vfgc"]
 
 [ext_resource type="Script" uid="uid://jr4alxp0f2wt" path="res://Scripts/InteractableScripts/WoodPlank.cs" id="1_y3kp4"]
 [ext_resource type="PackedScene" uid="uid://c23wta4jwa0mo" path="res://Models/Wagon/Wheels/mdl_wheel_fl.fbx" id="2_t5vtf"]
@@ -6,10 +6,10 @@
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_on6pt"]
 properties/0/path = NodePath(".:position")
 properties/0/spawn = true
-properties/0/replication_mode = 1
+properties/0/replication_mode = 2
 properties/1/path = NodePath(".:rotation")
 properties/1/spawn = true
-properties/1/replication_mode = 1
+properties/1/replication_mode = 2
 properties/2/path = NodePath(".:interactableId")
 properties/2/spawn = true
 properties/2/replication_mode = 2
