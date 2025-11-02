@@ -2,17 +2,20 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dtsmad0lud1ro"
-path.s3tc="res://.godot/imported/mdl_wagon_full_4.png-1455c5168469ab8d5acb62d961855bf1.s3tc.ctex"
+uid="uid://c2rn66g6gqcjk"
+path.s3tc="res://.godot/imported/mdl_wheel_br_0.png-4d9f6e5207b035af9afa5fa1f9f6f068.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
 }
+generator_parameters={
+"md5": "e18b59d62b059ac73be2e442d247884f"
+}
 
 [deps]
 
-source_file="res://Models/Wagon/mdl_wagon_full_4.png"
-dest_files=["res://.godot/imported/mdl_wagon_full_4.png-1455c5168469ab8d5acb62d961855bf1.s3tc.ctex"]
+source_file="res://Models/Wagon/Wheels/mdl_wheel_br_0.png"
+dest_files=["res://.godot/imported/mdl_wheel_br_0.png-4d9f6e5207b035af9afa5fa1f9f6f068.s3tc.ctex"]
 
 [params]
 
@@ -20,12 +23,12 @@ compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/hdr_compression=1
-compress/normal_map=1
+compress/normal_map=0
 compress/channel_pack=0
 mipmaps/generate=true
 mipmaps/limit=-1
-roughness/mode=1
-roughness/src_normal="res://Models/Wagon/mdl_wagon_full_4.png"
+roughness/mode=0
+roughness/src_normal=""
 process/fix_alpha_border=true
 process/premult_alpha=false
 process/normal_map_invert_y=false

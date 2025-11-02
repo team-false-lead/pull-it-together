@@ -2,20 +2,20 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dgy4f55l1sjjg"
-path.s3tc="res://.godot/imported/mdl_wagon_full_1.png-28377fcd1cbf1e155afb47baf5354336.s3tc.ctex"
+uid="uid://c05h8noxitali"
+path.s3tc="res://.godot/imported/mdl_wheel_fr_0.png-53702176845a79de19593495f280fc65.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
 }
 generator_parameters={
-"md5": "71c34beb3028b840bb22befbc5b5bba7"
+"md5": "e18b59d62b059ac73be2e442d247884f"
 }
 
 [deps]
 
-source_file="res://Models/Wagon/mdl_wagon_full_1.png"
-dest_files=["res://.godot/imported/mdl_wagon_full_1.png-28377fcd1cbf1e155afb47baf5354336.s3tc.ctex"]
+source_file="res://Models/Wagon/Wheels/mdl_wheel_fr_0.png"
+dest_files=["res://.godot/imported/mdl_wheel_fr_0.png-53702176845a79de19593495f280fc65.s3tc.ctex"]
 
 [params]
 

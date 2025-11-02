@@ -1,0 +1,42 @@
+[gd_scene load_steps=5 format=3 uid="uid://vgh3mhnrifqw"]
+
+[ext_resource type="Script" uid="uid://xr0o4x6waeh4" path="res://Scripts/EntityScripts/Wheel.cs" id="1_fkyjg"]
+[ext_resource type="PackedScene" uid="uid://gm1fo7en4k31" path="res://Models/Wagon/Wheels/mdl_wheel_bl.fbx" id="2_fkyjg"]
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_on6pt"]
+properties/0/path = NodePath(".:position")
+properties/0/spawn = true
+properties/0/replication_mode = 2
+properties/1/path = NodePath(".:rotation")
+properties/1/spawn = true
+properties/1/replication_mode = 2
+properties/2/path = NodePath(".:entityId")
+properties/2/spawn = true
+properties/2/replication_mode = 2
+properties/3/path = NodePath(".:currentHealth")
+properties/3/spawn = true
+properties/3/replication_mode = 2
+properties/4/path = NodePath(".:damageAmountMax")
+properties/4/spawn = true
+properties/4/replication_mode = 2
+properties/5/path = NodePath(".:damageAmountMin")
+properties/5/spawn = true
+properties/5/replication_mode = 2
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_fkyjg"]
+radius = 0.8
+
+[node name="WheelBL" type="StaticBody3D"]
+transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 0, 0, 0)
+collision_layer = 32
+script = ExtResource("1_fkyjg")
+currentHealth = 100.0
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
+replication_config = SubResource("SceneReplicationConfig_on6pt")
+
+[node name="WheelBLMesh" parent="." instance=ExtResource("2_fkyjg")]
+transform = Transform3D(-7.43094e-06, 170, 0, -170, -7.43094e-06, 0, 0, 0, 170, 0, 0, 0)
+
+[node name="BLWheelCollision" type="CollisionShape3D" parent="."]
+shape = SubResource("SphereShape3D_fkyjg")
