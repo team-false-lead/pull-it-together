@@ -5,6 +5,7 @@ using System;
 /// Entity is the base class for all objects that can be interacted with by the player but are not carried.
 public abstract partial class Entity : Node3D
 {
+    [Export] public PackedScene SpawnOnUseScene; // Optional scene to spawn when used
     [Export] public string entityId = "";
     public string scenePath = "";
     protected Node mapManager;

@@ -9,7 +9,7 @@ public partial class Wagon : RigidBody3D
     //this makes the wagon move more like it has wheels
     [Export] float linearXMultiplier = 0.25f;
     [Export] float angularYMultiplier = 0.75f;
-    [Export] Wheel[] wheels;
+    [Export] public Wheel[] wheels;
     [Export] float frictionPerWheel;
     public float wheel1 = 0;
     public float wheel2 = 0;

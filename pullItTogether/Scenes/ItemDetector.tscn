@@ -1,0 +1,42 @@
+[gd_scene load_steps=6 format=3 uid="uid://cnn1gi0bkh08o"]
+
+[ext_resource type="Script" uid="uid://bjvkiggljuhnt" path="res://Scripts/MiscScripts/ItemDetector.cs" id="1_mxlqg"]
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_3diyf"]
+properties/0/path = NodePath(".:position")
+properties/0/spawn = true
+properties/0/replication_mode = 2
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_vl058"]
+resource_local_to_scene = true
+height = 5.0
+radius = 5.0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_mxlqg"]
+transparency = 1
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_3lrif"]
+resource_local_to_scene = true
+top_radius = 5.0
+bottom_radius = 5.0
+height = 5.0
+
+[node name="ItemDetector" type="Area3D" node_paths=PackedStringArray("collider")]
+collision_layer = 0
+collision_mask = 44
+script = ExtResource("1_mxlqg")
+collider = NodePath("CollisionShape3D")
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
+replication_config = SubResource("SceneReplicationConfig_3diyf")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("CylinderShape3D_vl058")
+debug_color = Color(0, 0, 0, 0.42)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="CollisionShape3D"]
+visible = false
+material_override = SubResource("StandardMaterial3D_mxlqg")
+transparency = 0.9
+cast_shadow = 0
+mesh = SubResource("CylinderMesh_3lrif")
