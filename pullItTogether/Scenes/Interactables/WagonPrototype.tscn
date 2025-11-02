@@ -110,7 +110,7 @@ script = ExtResource("1_f8cd6")
 linearXMultiplier = 0.5
 angularYMultiplier = 0.96
 wheels = [NodePath("Wheels/WheelFL"), NodePath("Wheels/WheelFR"), NodePath("Wheels/WheelBL"), NodePath("Wheels/WheelBR")]
-frictionPerWheel = 0.015
+frictionPerWheel = 0.02
 
 [node name="WagonBodyMesh" parent="." instance=ExtResource("6_bdj2n")]
 transform = Transform3D(-150, 0, -1.74846e-05, 0, 150, 0, 1.31134e-05, 0, -200, 0, -0.782943, 0.315071)
