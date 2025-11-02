@@ -17,6 +17,9 @@ var _player_color_palette := [
 var _assigned_colors := {}
 var _free_color_indices := []
 
+@export var map_manager: Node = null
+var game_state_tracker: Node = null
+
 func _ready() -> void:
 	# easier access via group if needed later
 	if not is_in_group("player_spawner"):
@@ -25,7 +28,7 @@ func _ready() -> void:
 	# set custom spawn function
 	spawn_function = _create_player
 
-	var map_manager = get_tree().get_root().get_node_or_null("%MapManager") as MapManager
+	#map_manager = get_tree().get_root().get_node_or_null("%MapManager")
 	if map_manager:
 		map_manager.map_deloaded.connect(despawn_all)
 
@@ -86,6 +89,7 @@ func _create_player(peer_id: int) -> Node:
 			await get_tree().process_frame       # ensure replicated on clients
 			player.rpc("SetColor", color)        # ALL peers incl. owner get their own color
 		, CONNECT_ONE_SHOT)
+		#var game_state_tracker = get_tree().current_scene.get_node("%MapManager/TestTerrain/GameStateTracker") # trying to avoid hardcoding path
 
 	player.name = "Player%d" % peer_id
 	player.set_multiplayer_authority(peer_id)
@@ -95,8 +99,10 @@ func _create_player(peer_id: int) -> Node:
 	# place and configure when added to scene tree
 	player.tree_entered.connect(func():
 		_place_at_spawn(player)
-		_configure_local_view(player, peer_id),
+		_configure_local_view(player, peer_id)
+		_add_host_to_game_state_tracker(peer_id),
 	CONNECT_ONE_SHOT)
+
 
 	# remove from players dict when removed from scene tree
 	player.tree_exited.connect(func():
@@ -105,6 +111,13 @@ func _create_player(peer_id: int) -> Node:
 	CONNECT_ONE_SHOT)
 
 	return player
+
+func _add_host_to_game_state_tracker(peer_id: int) -> void:
+	if multiplayer.is_server():
+		if game_state_tracker == null:
+			game_state_tracker = map_manager.level_instance.get_node_or_null("GameStateTracker")
+		if game_state_tracker:
+			game_state_tracker.call("AddPlayerToPlayerList", peer_id)
 
 # respawn player if exists otherwise create new and spawn
 func spawn_or_respawn_player(peer_id: int) -> void:
@@ -173,6 +186,11 @@ func _on_peer_connected(peer_id: int) -> void:
 		_assign_color_to_player(peer_id)
 		spawn_or_respawn_player(peer_id)
 
+		if game_state_tracker == null:
+			game_state_tracker = map_manager.level_instance.get_node_or_null("GameStateTracker")
+		if game_state_tracker:
+			game_state_tracker.call("AddPlayerToPlayerList", peer_id)
+
 		await get_tree().process_frame
 		for id in players.keys():
 			var player := players[id]
@@ -184,6 +202,7 @@ func _on_peer_connected(peer_id: int) -> void:
 
 func _on_peer_disconnected(peer_id: int) -> void:
 	if players.has(peer_id):
+		game_state_tracker.call("RemovePlayerFromPlayerList", peer_id)
 		_release_color_of_player(peer_id)
 		despawn_player(peer_id)
 		print("Peer disconnected: ", peer_id)

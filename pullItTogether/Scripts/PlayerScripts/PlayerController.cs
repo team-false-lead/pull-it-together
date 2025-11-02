@@ -49,6 +49,7 @@ public partial class PlayerController : CharacterBody3D
 	private float maxTetherDist;
 	private float tetherBuffer;
 	private float tetherStrength;
+	public bool resetRopeInTetherRange = false;
 
 	// Health and energy parameters
 	[Export] private PackedScene hudScene;
@@ -64,8 +65,8 @@ public partial class PlayerController : CharacterBody3D
 	[Export] private float sprintingEnergyReduction;
 	[Export] private float jumpingEnergyCost;
 	[Export] private float energyRegen;
-	[Export] private Label3D helpMeLabel;
 	[Export] private float pullingEnergyCost;
+	[Export] private Label3D helpMeLabel;
     [Signal] public delegate void ChangeHUDEventHandler();
 	[Signal] public delegate void OnDownedEventHandler();
     [Signal] public delegate void OnRevivedEventHandler();
@@ -80,6 +81,8 @@ public partial class PlayerController : CharacterBody3D
 	private bool isPaused;
 	[Export] private PauseMenu pauseMenu;
 	private Label debugTrackerLabel;
+
+	private GameStateTracker gameStateTracker;
 
 
     public bool IsDowned
@@ -99,8 +102,7 @@ public partial class PlayerController : CharacterBody3D
 		{
 			Input.SetMouseMode(Input.MouseModeEnum.Captured);
 
-			GetTree().Root.GetNode("Main/MapManager/TestTerrain/Terrain3D").Call("set_camera", camera);
-            GetTree().Root.GetNode("Main/MapManager/TestTerrain/Terrain3D").Call("set_physics_process", true);
+			//GetTree().Root.GetNode("Main/MapManager/TestTerrain/Terrain3D").Call("set_camera", camera); // moved hardcoded to when we have mapmanager ref
 
             // Hide all nodes in the "self_hide" group
             foreach (var child in GetTree().GetNodesInGroup("self_hide"))
@@ -159,10 +161,10 @@ public partial class PlayerController : CharacterBody3D
 		if (mapManager != null)
 		{
 			mapManager.Connect("map_reloaded", new Callable(this, nameof(OnMapReloaded)));
+			var level_instance = (Node)mapManager.Get("level_instance");
+			gameStateTracker = level_instance.GetNodeOrNull<GameStateTracker>("GameStateTracker");
+			level_instance.GetNodeOrNull<Node3D>("Terrain3D").Call("set_camera", camera);
 		}
-
-		GameStateTracker gameStateTracker = GetTree().CurrentScene.GetNode<GameStateTracker>("%MapManager/TestTerrain/GameStateTracker");
-		gameStateTracker.AddPlayerToPlayerList(this);
 		ApplyBodyColor(bodyColor);
 	}
 
@@ -173,7 +175,7 @@ public partial class PlayerController : CharacterBody3D
 	}
 
 	// Check if this player instance is controlled by the local user
-	private bool IsLocalControlled()
+	public bool IsLocalControlled()
 	{
 		if (!Multiplayer.HasMultiplayerPeer()) return true; // singleplayer
 		if (!NetworkReady()) return false; 
@@ -247,10 +249,6 @@ public partial class PlayerController : CharacterBody3D
 		if (collisionPusherAB != null)
 		{
 			collisionPusherAB.GlobalTransform = GlobalTransform;
-		}
-		if (interactableRB != null)
-		{
-			interactableRB.GlobalTransform = GlobalTransform;
 		}
 
 		if (!IsLocalControlled()) return; // local player processes movement
@@ -409,7 +407,6 @@ public partial class PlayerController : CharacterBody3D
 			lookingAtText = "";
 		}
 		EmitSignal("ChangeHUD");
-		
 
 		// If the player isn't doing anything that would spend energy, regain energy
 		if (energyChange == 0 && IsOnFloor())
@@ -662,6 +659,7 @@ public partial class PlayerController : CharacterBody3D
 	// Remove the tether anchor
 	public void RemoveTetherAnchor()
 	{
+		resetRopeInTetherRange = false;
 		tetherAnchor = null;
 	}
 
@@ -670,6 +668,20 @@ public partial class PlayerController : CharacterBody3D
 	{
 		Vector3 toPlayer = GlobalTransform.Origin - tetherAnchor.GlobalTransform.Origin;
 		float dist = toPlayer.Length();
+
+		if (!resetRopeInTetherRange)
+        {
+            var inventorySlot = GetInventorySlot();
+			Vector3 toSlot = inventorySlot.GlobalTransform.Origin - tetherAnchor.GlobalTransform.Origin;
+			float slotDist = toSlot.Length();
+
+			if (slotDist <= maxTetherDist && heldObject is RopeGrabPoint rope)
+			{
+				rope.RpcId(1, nameof(RopeGrabPoint.DeferredResetJoint));
+				resetRopeInTetherRange = true;
+				GD.Print("Rope tether reset joint called");
+			}
+        }
 
 		//if player is past max tether distance, apply force to pull back
 		if (dist > maxTetherDist)
@@ -684,6 +696,7 @@ public partial class PlayerController : CharacterBody3D
 			if (dist > maxTetherDist + tetherBuffer)
 			{
 				GlobalTransform = new Transform3D(GlobalTransform.Basis, tetherAnchor.GlobalTransform.Origin + outwardVector * (maxTetherDist + tetherBuffer));
+				//velocity += -(outwardVector * (1.5f * tetherStrength * (float)delta * distPastMax));
 			}
 
 			// Also spend energy if at max distance.
@@ -717,14 +730,15 @@ public partial class PlayerController : CharacterBody3D
 
 	public void ExitLobby()
 	{
-        GameStateTracker gameStateTracker = GetTree().CurrentScene.GetNode<GameStateTracker>("%MapManager/TestTerrain/GameStateTracker");
-        gameStateTracker.RemovePlayerFromPlayerList(this);
+        //GameStateTracker gameStateTracker = GetTree().CurrentScene.GetNode<GameStateTracker>("%MapManager/TestTerrain/GameStateTracker");
+        //gameStateTracker.RemovePlayerFromPlayerList(this);
         GetTree().CurrentScene.GetNodeOrNull<Node>("NetworkManager").CallDeferred("leave");
     }
 
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
 	public void ChangeCurrentHealth(float diff)
 	{
+		bool wasAlreadyDowned = currentHealth <= 0;
 		// If recovering health from a downed state, emit the revival event
 		if (currentHealth == 0 && diff > 0)
         {
@@ -738,7 +752,11 @@ public partial class PlayerController : CharacterBody3D
 			currentHealth = 0;
 			DropObject();
 			Scale = new Vector3(0.75f, 0.75f, 0.75f);
-            EmitSignal("OnDowned");
+			if (!wasAlreadyDowned)
+            {
+                EmitSignal("OnDowned");
+				gameStateTracker.RpcId(1, nameof(GameStateTracker.CheckLossState), GetMultiplayerAuthority(), currentHealth); // check for loss state on server
+            }	
 		}
 
 		EmitSignal("ChangeHUD");
@@ -797,6 +815,7 @@ public partial class PlayerController : CharacterBody3D
 		lookingAtLabel.Text = lookingAtText;
     }
 
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
 	public void SetOutOfHealthLabelText(string text)
 	{
 		if (outOfHealthLabel == null) return;

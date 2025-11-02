@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://daxkf804xn7id"
-path="res://.godot/imported/mdl_wagon_full.fbx-60638b6e33ac1b68bdd9e09db1fe0bb0.scn"
+path="res://.godot/imported/mdl_wagon_full.fbx-c27f85fd11b99b7cd3b79c532b44e5a5.scn"
 
 [deps]
 
-source_file="res://Models/Wagon/mdl_wagon_full.fbx"
-dest_files=["res://.godot/imported/mdl_wagon_full.fbx-60638b6e33ac1b68bdd9e09db1fe0bb0.scn"]
+source_file="res://Models/Wagon/Wagon Full/mdl_wagon_full.fbx"
+dest_files=["res://.godot/imported/mdl_wagon_full.fbx-c27f85fd11b99b7cd3b79c532b44e5a5.scn"]
 
 [params]
 
