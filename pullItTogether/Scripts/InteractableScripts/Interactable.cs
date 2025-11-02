@@ -25,7 +25,7 @@ public abstract partial class Interactable : RigidBody3D
     public new Vector3 GlobalPosition
     {
         get { return base.GlobalPosition; }
-        set { base.GlobalPosition = value; GD.Print("Setting global position to " + value); }
+        set { base.GlobalPosition = value; }  //GD.Print("Setting global position to " + value); }
     }
 
     public float MovementPenalty

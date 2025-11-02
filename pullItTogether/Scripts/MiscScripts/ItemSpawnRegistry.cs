@@ -168,14 +168,20 @@ public partial class ItemSpawnRegistry : MultiplayerSpawner
         for (int i = 0; i < childrenRelativePaths.Length; i++)
         {
             var childPath = childrenRelativePaths[i];
-            var childId = childrenIds[i];
             var childNode = instance.GetNodeOrNull<Node3D>(childPath);
+            var childId = childrenIds[i];
+
+            if (childNode == null)
+            {
+                GD.PrintErr("ItemSpawnRegistry: Failed to find child node at path: " + childrenRelativePaths[i] + " in spawned wagon.");
+                continue;
+            }
             if (childNode is Interactable childInteractable)
             {
                 childInteractable.interactableId = childId;
                 itemManager.AssignInteractableId(childInteractable);
             }
-            else if (childNode is Entity childEntity)
+            if (childNode is Entity childEntity)
             {
                 childEntity.entityId = childId;
                 itemManager.AssignEntityId(childEntity);

@@ -163,7 +163,7 @@ public partial class ItemManager : Node3D
 	{
 		if (!isMultiplayerSession || !multiplayer.IsServer()) return; // only server broadcasts
 
-		var childrenRelativePaths = new List<string>();
+		var childrenRelativePaths = new List<NodePath>();
 		var childrenIds = new List<string>();
 
 		CollectWagonChildren(wagonInstance, childrenRelativePaths, childrenIds);
@@ -175,22 +175,36 @@ public partial class ItemManager : Node3D
 		}
 	}
 
-	private void CollectWagonChildren(Node wagonInstance, List<string> childrenRelativePaths, List<string> childrenIds)
+	private void CollectWagonChildren(Node wagonInstance, List<NodePath> childrenRelativePaths, List<string> childrenIds)
 	{
 		foreach (var child in wagonInstance.GetChildren())
 		{
-			CollectWagonChildren(child, childrenRelativePaths, childrenIds);// recurse into children
+			//CollectWagonChildren(child, childrenRelativePaths, childrenIds);// recurse into children
+			if (child.Name == "Wheels")
+            {
+				foreach (var wheel in child.GetChildren())
+				{	
+					if (wheel is Entity wheelEntity)
+					{
+						AssignEntityId(wheelEntity);
+						childrenRelativePaths.Add(wagonInstance.GetPathTo(wheelEntity));
+						childrenIds.Add(wheelEntity.entityId);
+					}
+                }
+            }
 
 			if (child is Interactable childInteractable)
 			{
 				AssignInteractableId(childInteractable);
-				childrenRelativePaths.Add(wagonInstance.GetPathTo(childInteractable).ToString());
+				childrenRelativePaths.Add(wagonInstance.GetPathTo(childInteractable));
 				childrenIds.Add(childInteractable.interactableId);
 			}
 			else if (child is Entity childEntity)
 			{
 				AssignEntityId(childEntity);
-				childrenRelativePaths.Add(wagonInstance.GetPathTo(childEntity).ToString());
+				GD.Print("Assigning Entity ID: " + childEntity.entityId);
+				GD.Print("Child Path: " + wagonInstance.GetPathTo(childEntity));
+				childrenRelativePaths.Add(wagonInstance.GetPathTo(childEntity));
 				childrenIds.Add(childEntity.entityId);
 			}
 		}
@@ -361,7 +375,7 @@ public partial class ItemManager : Node3D
 		{
 			var wagon = GetTree().GetFirstNodeInGroup("wagon") as Node3D;
 			
-			var childrenRelativePaths = new List<string>();
+			var childrenRelativePaths = new List<NodePath>();
 			var childrenIds = new List<string>();
 
 			CollectWagonChildren(wagon, childrenRelativePaths, childrenIds);
@@ -380,7 +394,7 @@ public partial class ItemManager : Node3D
 		foreach (var kvp in entities)
 		{
 			var entity = kvp.Value;
-			if (entity == null || !IsInstanceValid(entity)) continue;
+			if (entity == null || !IsInstanceValid(entity) || entity is Wheel) continue;
 			itemSpawnRegistry.RpcId(id, nameof(ItemSpawnRegistry.ClientSpawnItem), entity.scenePath, entity.entityId, entity.GlobalTransform, 1);
 		}
 	}
@@ -418,7 +432,7 @@ public partial class ItemManager : Node3D
 				entities.Remove(id); // Clean up invalid reference
 			}
 		}
-		GD.Print("ItemManager: Entity with ID " + id + " not found or invalid.");
+		//GD.Print("ItemManager: Entity with ID " + id + " not found or invalid.");
 		return null;
 	}
 
@@ -909,7 +923,7 @@ public partial class ItemManager : Node3D
 		if (plank == null) { GD.Print("Plank null"); return; }
 
 		var wheel = FindEntityById(wheelId) as Wheel;
-		if (wheel == null) { GD.Print("Wheel null"); return; }
+		if (wheel == null) { GD.Print(" Do Repair Wheel null"); return; }
 
 		//GD.Print("Wheel: Accepted use from " + plank.Name);
 		//GD.Print("Wheel: Current Health " + wheel.currentHealth + "/" + wheel.maxHealth);
@@ -938,7 +952,7 @@ public partial class ItemManager : Node3D
 	public void DoDamageWheel(string wheelId, float damageAmount)
 	{
 		var wheel = FindEntityById(wheelId) as Wheel;
-		if (wheel == null) { GD.Print("Wheel null"); return; }
+		if (wheel == null) { GD.Print("Do Damage Wheel null"); return; }
 
 		wheel.currentHealth -= damageAmount;
 		//GD.Print(wheel.Name + ": Updated Health " + wheel.currentHealth + "/" + wheel.maxHealth);
