@@ -66,7 +66,6 @@ public partial class PlayerController : CharacterBody3D
 	[Export] private float energyRegen;
 	[Export] private float pullingEnergyCost;
 	[Export] private Label3D helpMeLabel;
-	[Export] private float pullingEnergyCost;
     [Signal] public delegate void ChangeHUDEventHandler();
 	[Signal] public delegate void OnDownedEventHandler();
     [Signal] public delegate void OnRevivedEventHandler();

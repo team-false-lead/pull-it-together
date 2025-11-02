@@ -76,8 +76,8 @@ maxEnergyReductionRate = 0.2
 sprintingEnergyReduction = 4.0
 jumpingEnergyCost = 10.0
 energyRegen = 2.0
-helpMeLabel = NodePath("HelpMeLabel")
 pullingEnergyCost = 3.0
+helpMeLabel = NodePath("HelpMeLabel")
 pauseMenu = NodePath("PauseMenu")
 
 [node name="PlayerCameraSync" type="Node" parent="." node_paths=PackedStringArray("Camera")]
