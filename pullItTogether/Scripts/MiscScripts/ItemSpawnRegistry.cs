@@ -59,7 +59,7 @@ public partial class ItemSpawnRegistry : MultiplayerSpawner
         }
     }
 
-    [Rpc(MultiplayerApi.RpcMode.AnyPeer)]
+    [Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
     public void ClientSpawnItem(string scenePath, string itemId, Transform3D transform, int authorityPeerId)
     {
         // Check if item with the same ID already exists
@@ -102,7 +102,7 @@ public partial class ItemSpawnRegistry : MultiplayerSpawner
         }
     }
 
-    [Rpc(MultiplayerApi.RpcMode.AnyPeer)]
+    [Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
     public void ClientDespawnItem(string itemId)
     {
         foreach (var child in GetChildren())
@@ -136,6 +136,55 @@ public partial class ItemSpawnRegistry : MultiplayerSpawner
                 //await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
                 childEntity.QueueFree();
                 return;
+            }
+        }
+    }
+
+    [Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    public void ClientSpawnWagon(string scenePath, Transform3D transform, int authorityPeerId, string[] childrenRelativePaths, string[] childrenIds)
+    {
+        foreach (var child in GetChildren())
+        {
+            if (child is Wagon)
+            {
+                // Wagon already exists, no need to spawn again
+                return;
+            }
+        }
+
+        var scene = ResourceLoader.Load<PackedScene>(scenePath);
+        if (scene == null)
+        {
+            GD.PrintErr("ItemSpawnRegistry: Failed to load wagon scene for spawning: " + scenePath);
+            return;
+        }
+
+        var instance = scene.Instantiate<Node3D>();
+        instance.GlobalTransform = transform;
+        instance.SetMultiplayerAuthority(authorityPeerId);
+        this.AddChild(instance, true); // Spawn the instance
+        instance.SetOwner(GetTree().CurrentScene); // Ensure the instance is owned by the current scene
+
+        for (int i = 0; i < childrenRelativePaths.Length; i++)
+        {
+            var childPath = childrenRelativePaths[i];
+            var childNode = instance.GetNodeOrNull<Node3D>(childPath);
+            var childId = childrenIds[i];
+
+            if (childNode == null)
+            {
+                GD.PrintErr("ItemSpawnRegistry: Failed to find child node at path: " + childrenRelativePaths[i] + " in spawned wagon.");
+                continue;
+            }
+            if (childNode is Interactable childInteractable)
+            {
+                childInteractable.interactableId = childId;
+                itemManager.AssignInteractableId(childInteractable);
+            }
+            if (childNode is Entity childEntity)
+            {
+                childEntity.entityId = childId;
+                itemManager.AssignEntityId(childEntity);
             }
         }
     }
