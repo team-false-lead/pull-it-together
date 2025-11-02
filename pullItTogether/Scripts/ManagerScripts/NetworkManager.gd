@@ -13,6 +13,7 @@ var mode : PeerMode = PeerMode.NONE # 0=STEAM, 1=LOCAL, 2=NONE
 var _signals_hooked := false
 var _is_leaving := false
 var _stored_initial_peer : MultiplayerPeer = null
+var default_max_players: int = 4
 
 # ---------- General ----------
 func _ready() -> void:
@@ -49,7 +50,8 @@ func set_peer_mode(peer_mode : PeerMode) -> void:
 
 # ---------- Steam (Expresso Bits) ----------
 func host_steam() -> bool:
-	leave() # reset any existing session
+	#leave() # reset any existing session
+	_remove_transport_peer()
 	set_peer_mode(PeerMode.STEAM)
 	var sp: SteamMultiplayerPeer = peer
 	var err: int = sp.create_host(0)  # 0 = virtual port
@@ -64,7 +66,8 @@ func host_steam() -> bool:
 	return true
 
 func join_steam(host_steam_id_64 : int) -> bool:
-	leave() # reset any existing session
+	#leave() # reset any existing session
+	_remove_transport_peer()
 	set_peer_mode(PeerMode.STEAM)
 	var sp: SteamMultiplayerPeer = peer
 	var err: int
@@ -87,7 +90,8 @@ func join_steam(host_steam_id_64 : int) -> bool:
 # ---------- Local ENet ----------
 # default to localhost (same machine), change address as needed
 func host_local(address : String = "127.0.0.1", port : int = 2450, max_clients : int = 4) -> bool:
-	leave() # reset any existing session
+	#leave() # reset any existing session
+	_remove_transport_peer()
 	set_peer_mode(PeerMode.LOCAL)
 	peer.set_bind_ip(address) # only for Enet
 	var err: int = peer.create_server(port, max_clients)
@@ -104,7 +108,8 @@ func host_local(address : String = "127.0.0.1", port : int = 2450, max_clients :
 
 # default to localhost (same machine), change address as needed
 func join_local(address : String = "127.0.0.1", port : int = 2450) -> bool:
-	leave() # reset any existing session
+	#leave() # reset any existing session
+	_remove_transport_peer()
 	set_peer_mode(PeerMode.LOCAL)
 	var err: int = peer.create_client(address, port)
 	if err != OK:
@@ -121,6 +126,33 @@ func join_local(address : String = "127.0.0.1", port : int = 2450) -> bool:
 	return true
 
 # ---------- Common ----------
+# helper to remove transport thingies, similar to leave but without signals or notifications, used in start/join
+func _remove_transport_peer() -> void:
+	# Disconnect signals
+	if _signals_hooked:
+		var mp: MultiplayerAPI = multiplayer
+		if mp.peer_connected.is_connected(Callable(self, "_on_peer_connected")):
+			mp.peer_connected.disconnect(Callable(self, "_on_peer_connected"))
+		if mp.peer_disconnected.is_connected(Callable(self, "_on_peer_disconnected")):
+			mp.peer_disconnected.disconnect(Callable(self, "_on_peer_disconnected"))
+		if mp.connection_failed.is_connected(Callable(self, "_on_connection_failed")):
+			mp.connection_failed.disconnect(Callable(self, "_on_connection_failed"))
+		if mp.server_disconnected.is_connected(Callable(self, "_on_server_disconnected")):
+			mp.server_disconnected.disconnect(Callable(self, "_on_server_disconnected"))
+	_signals_hooked = false
+
+	# Close peer connection
+	if peer:
+		if mode == PeerMode.STEAM and peer.has_method("leave_lobby"):
+			peer.leave_lobby() # steam specific
+		elif peer.has_method("close"):
+			peer.close()
+	
+	multiplayer.multiplayer_peer = null
+	peer = null
+	mode = PeerMode.NONE
+	_is_leaving = false
+
 # leave session
 func leave(notify_peers: bool = true) -> void:
 	if _is_leaving:
@@ -191,6 +223,16 @@ func _wait_for_connection(timeout: float = 10.0) -> bool:
 	return true
 
 func _on_peer_connected(id: int) -> void:   
+	if multiplayer.is_server():
+		var peer_ids : PackedInt32Array = multiplayer.get_peers()
+		var current_player_count := peer_ids.size() + 1 # +1 for host
+		if current_player_count > default_max_players:
+			print("Max players exceeded, kicking peer: %d" % id)
+			if peer and peer.has_method(("disconnect_peer")):
+				peer.disconnect_peer(id)
+			else:
+				rpc_id(id, "_host_disconnect") # should handle steam and enet
+			return
 	emit_signal("peer_connected", id)
 
 func _on_peer_disconnected(id: int) -> void: 

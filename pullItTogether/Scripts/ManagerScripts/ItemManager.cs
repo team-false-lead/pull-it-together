@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 public partial class ItemManager : Node3D
 {
 	[Export] public NodePath placeholdersPath;
+	[Export] public ItemSpawnRegistry itemSpawnRegistry;
 
 	private Dictionary<string, Interactable> interactables = new();
 	private Dictionary<string, Entity> entities = new();
@@ -112,12 +113,100 @@ public partial class ItemManager : Node3D
 			if (placeholderScene == null) { GD.PrintErr("ItemManager: Failed to load scene at path " + placeholderScenePath); continue; }
 
 			var instance = placeholderScene.Instantiate<Node3D>();
+			itemSpawnRegistry.AddChild(instance, true); // spawn authoritative instance for the host
+			PreAssignId(instance);// assign IDs before broadcasting later
 
-			PreAssignId(instance);// assign IDs before adding to scene
-
-			this.AddChild(instance, true);
 			instance.GlobalTransform = placeholder.GlobalTransform;
 			instance.SetOwner(GetTree().CurrentScene); // Ensure the instance is owned by the current scene
+			instance.SetMultiplayerAuthority(1);
+
+			if (instance is Wagon wagonInstance)
+			{
+				// Special handling for wagons to include their children
+				BroadcastWagonSpawnToPeers(placeholderScenePath, wagonInstance, 1);
+				continue;
+			}
+
+			string itemId = "";
+			if (instance is Interactable instanceInteractable)
+			{
+				itemId = instanceInteractable.interactableId;
+				if (instanceInteractable is RopeGrabPoint)
+				{
+					continue; // skip rope grab points cause they dont have a scene path, and the wagon should spawn them automatically
+				}
+				instanceInteractable.scenePath = placeholderScenePath;
+				BroadcastSpawnToPeers(instanceInteractable.scenePath, itemId, instance.GlobalTransform, 1);
+			}
+			else if (instance is Entity instanceEntity)
+			{
+				itemId = instanceEntity.entityId;
+				instanceEntity.scenePath = placeholderScenePath;
+				BroadcastSpawnToPeers(instanceEntity.scenePath, itemId, instance.GlobalTransform, 1);
+			}
+		}
+	}
+
+	// Broadcast item spawn to all connected peers
+	private void BroadcastSpawnToPeers(string scenePath, string itemId, Transform3D transform, long authority)
+	{
+		if (!isMultiplayerSession || !multiplayer.IsServer()) return; // only server broadcasts
+
+		foreach (var peerId in multiplayer.GetPeers())
+		{
+			if (peerId == multiplayer.GetUniqueId()) continue; // skip host
+			itemSpawnRegistry.RpcId(peerId, nameof(ItemSpawnRegistry.ClientSpawnItem), scenePath, itemId, transform, authority);
+		}
+	}
+
+	private void BroadcastWagonSpawnToPeers(string scenePath, Node3D wagonInstance, long authority)
+	{
+		if (!isMultiplayerSession || !multiplayer.IsServer()) return; // only server broadcasts
+
+		var childrenRelativePaths = new List<NodePath>();
+		var childrenIds = new List<string>();
+
+		CollectWagonChildren(wagonInstance, childrenRelativePaths, childrenIds);
+
+		foreach (var peerId in multiplayer.GetPeers())
+		{
+			if (peerId == multiplayer.GetUniqueId()) continue; // skip host
+			itemSpawnRegistry.RpcId(peerId, nameof(ItemSpawnRegistry.ClientSpawnWagon), scenePath, wagonInstance.GlobalTransform, authority, childrenRelativePaths.ToArray(), childrenIds.ToArray());
+		}
+	}
+
+	private void CollectWagonChildren(Node wagonInstance, List<NodePath> childrenRelativePaths, List<string> childrenIds)
+	{
+		foreach (var child in wagonInstance.GetChildren())
+		{
+			//CollectWagonChildren(child, childrenRelativePaths, childrenIds);// recurse into children
+			if (child.Name == "Wheels")
+            {
+				foreach (var wheel in child.GetChildren())
+				{	
+					if (wheel is Entity wheelEntity)
+					{
+						AssignEntityId(wheelEntity);
+						childrenRelativePaths.Add(wagonInstance.GetPathTo(wheelEntity));
+						childrenIds.Add(wheelEntity.entityId);
+					}
+                }
+            }
+
+			if (child is Interactable childInteractable)
+			{
+				AssignInteractableId(childInteractable);
+				childrenRelativePaths.Add(wagonInstance.GetPathTo(childInteractable));
+				childrenIds.Add(childInteractable.interactableId);
+			}
+			else if (child is Entity childEntity)
+			{
+				AssignEntityId(childEntity);
+				GD.Print("Assigning Entity ID: " + childEntity.entityId);
+				GD.Print("Child Path: " + wagonInstance.GetPathTo(childEntity));
+				childrenRelativePaths.Add(wagonInstance.GetPathTo(childEntity));
+				childrenIds.Add(childEntity.entityId);
+			}
 		}
 	}
 
@@ -141,7 +230,7 @@ public partial class ItemManager : Node3D
 	}
 
 	// Assign a unique ID to an interactable item if it doesn't already have one, and track it in the dictionary
-	private void AssignInteractableId(Interactable item)
+	public void AssignInteractableId(Interactable item)
 	{
 		if (string.IsNullOrEmpty(item.interactableId) || item.interactableId == "bruh")
 		{
@@ -177,7 +266,7 @@ public partial class ItemManager : Node3D
 	}
 
 	// Assign a unique ID to an entity if it doesn't already have one, and track it in the dictionary
-	private void AssignEntityId(Entity entity)
+	public void AssignEntityId(Entity entity)
 	{
 		if (string.IsNullOrEmpty(entity.entityId))
 		{
@@ -280,6 +369,34 @@ public partial class ItemManager : Node3D
 
 		GD.Print("ItemManager: Peer connected with ID " + id);
 		RpcId(id, nameof(ClientRemovePlaceholders));
+
+		// inform the new peer about wagon
+		if (GetTree().GetNodesInGroup("wagon").Count > 0)
+		{
+			var wagon = GetTree().GetFirstNodeInGroup("wagon") as Node3D;
+			
+			var childrenRelativePaths = new List<NodePath>();
+			var childrenIds = new List<string>();
+
+			CollectWagonChildren(wagon, childrenRelativePaths, childrenIds);
+			itemSpawnRegistry.RpcId(id, nameof(ItemSpawnRegistry.ClientSpawnWagon), wagon.SceneFilePath, wagon.GlobalTransform, 1, childrenRelativePaths.ToArray(), childrenIds.ToArray());
+		}
+
+		// Inform the new peer about existing interactables
+		foreach (var kvp in interactables)
+		{
+			var item = kvp.Value;
+			if (item == null || !IsInstanceValid(item) || item is RopeGrabPoint || item is PlayerInteractable) continue;
+			itemSpawnRegistry.RpcId(id, nameof(ItemSpawnRegistry.ClientSpawnItem), item.scenePath, item.interactableId, item.GlobalTransform, 1);
+		}
+
+		// Inform the new peer about existing entities
+		foreach (var kvp in entities)
+		{
+			var entity = kvp.Value;
+			if (entity == null || !IsInstanceValid(entity) || entity is Wheel) continue;
+			itemSpawnRegistry.RpcId(id, nameof(ItemSpawnRegistry.ClientSpawnItem), entity.scenePath, entity.entityId, entity.GlobalTransform, 1);
+		}
 	}
 
 	//find the interactable item by its unique id
@@ -315,7 +432,7 @@ public partial class ItemManager : Node3D
 				entities.Remove(id); // Clean up invalid reference
 			}
 		}
-		GD.Print("ItemManager: Entity with ID " + id + " not found or invalid.");
+		//GD.Print("ItemManager: Entity with ID " + id + " not found or invalid.");
 		return null;
 	}
 
@@ -357,12 +474,53 @@ public partial class ItemManager : Node3D
 		var instance = itemToSpawnScene.Instantiate<Node3D>(); // assuming all interactables and entities are Node3D or derived
 		PreAssignId(instance);
 
-		this.AddChild(instance, true);
+		itemSpawnRegistry.AddChild(instance, true); // local temp instance
 		instance.SetOwner(GetTree().CurrentScene); // Ensure the instance is owned by the current scene
 
 		Vector3 dropPosition = GetDropPosition(requestingItem); // drop in front of the user of the item
 		instance.GlobalTransform = new Transform3D(Basis.Identity, dropPosition);
-		requestingItem.QueueFree(); // remove the used item
+
+		string tempId = "";
+		string tempScenePath = "";
+		Transform3D tempTransform = instance.GlobalTransform;
+
+		if (instance is Interactable instanceInteractable)
+		{
+			tempId = instanceInteractable.interactableId;
+			instanceInteractable.scenePath = requestingItem.SpawnOnUseScene.ResourcePath;
+			tempScenePath = instanceInteractable.scenePath;
+			//itemSpawnRegistry.RpcId(peerId, nameof(ItemSpawnRegistry.ClientSpawnItem), instanceInteractable.scenePath, tempId, instance.GlobalTransform, 1);
+		}
+		else if (instance is Entity instanceEntity)
+		{
+			tempId = instanceEntity.entityId;
+			instanceEntity.scenePath = requestingItem.SpawnOnUseScene.ResourcePath;
+			tempScenePath = instanceEntity.scenePath;
+			//itemSpawnRegistry.RpcId(peerId, nameof(ItemSpawnRegistry.ClientSpawnItem), instanceEntity.scenePath, tempId, instance.GlobalTransform, 1);
+		}
+		else
+		{
+			GD.PrintErr("ItemManager: DoSpawnItem - Spawned item is neither Interactable nor Entity.");
+			//instance.QueueFree(); // Free the local instance no matter what // actually dont cause host needs to keep it
+			return; // exit early and do not broadcast
+		}
+
+		//instance.QueueFree(); // Free the local instance after spawning // actually dont cause host needs to keep it
+		// inform all peers including host
+		foreach (var peerId in multiplayer.GetPeers())
+		{
+			//if (peerId == multiplayer.GetUniqueId()) continue;
+			itemSpawnRegistry.RpcId(peerId, nameof(ItemSpawnRegistry.ClientSpawnItem), tempScenePath, tempId, tempTransform, 1);
+		}
+		
+
+		//requestingItem.QueueFree(); // remove the used item
+		itemSpawnRegistry.ClientDespawnItem(itemId); // remove locally first
+		foreach (var peerId in multiplayer.GetPeers())
+		{
+			//if (peerId == multiplayer.GetUniqueId()) continue;
+			itemSpawnRegistry.RpcId(peerId, nameof(ItemSpawnRegistry.ClientDespawnItem), itemId);
+		}
 	}
 
 	// item pickup request
@@ -395,13 +553,13 @@ public partial class ItemManager : Node3D
 		var slot = carrier.GetInventorySlot();
 		if (slot == null) { GD.Print("Slot null"); return; }
 
-		// Reparent item to the ItemManager if it's not already a child and if it's not a PlayerInteractable
-		if (item.GetParent<Node3D>() != this && !(item is PlayerInteractable))
-		{
-			item.GetParent<Node3D>().RemoveChild(item); // Remove from current parent
-			this.AddChild(item, true); // Reattach to this node, will get assigned an ID if needed
-			item.SetOwner(GetTree().CurrentScene); // Ensure the instance is owned by the current scene
-        }
+		// Reparent item to the ItemManager if it's not already a child
+		//if (item.GetParent<Node3D>() != this)
+		//{
+		//	item.GetParent<Node3D>().RemoveChild(item); // Remove from current parent
+		//	this.AddChild(item, true); // Reattach to this node, will get assigned an ID if needed
+		//	item.SetOwner(GetTree().CurrentScene); // Ensure the instance is owned by the current scene
+        //}
 
 		// Save current collision settings
 		item.savedMask = item.CollisionMask;
@@ -439,16 +597,12 @@ public partial class ItemManager : Node3D
 		var item = FindInteractableById(itemId);
 		if (item == null) { GD.Print("Item null"); return; }
 
-		if (item is PlayerInteractable playerInteractable)
-		{
-			playerInteractable.GetPlayerController().RecenterViewAfterDrop();
-		}
-		else if (item.GetParent<Node3D>() != this)
-		{
-			item.GetParent<Node3D>().RemoveChild(item);
-			this.AddChild(item, true);
-			item.SetOwner(GetTree().CurrentScene);
-		}
+		//if (item.GetParent<Node3D>() != this)
+		//{
+		//	item.GetParent<Node3D>().RemoveChild(item);
+		//	this.AddChild(item, true);
+		//	item.SetOwner(GetTree().CurrentScene);
+		//}
 
 		item.StopFollowingSlot();// called before resetting physics
 
@@ -553,7 +707,7 @@ public partial class ItemManager : Node3D
 		var proxy = proxyScene.Instantiate<AnimatableBody3D>();
 		if (proxy == null) { GD.Print("Proxy null"); return; }
 
-		this.AddChild(proxy, true); // Add to the scene
+		itemSpawnRegistry.AddChild(proxy, true); // Add to the scene
 		proxy.SetOwner(GetTree().CurrentScene); // Ensure the instance is owned by the current scene
 
 		proxy.TopLevel = true;
@@ -691,7 +845,13 @@ public partial class ItemManager : Node3D
 		campfire.usesLeft--;
 		if (campfire.usesLeft <= 0)
 		{
-			campfire.QueueFree(); // Remove campfire after uses are exhausted
+			//campfire.QueueFree(); // Remove campfire after uses are exhausted
+			itemSpawnRegistry.ClientDespawnItem(campfireId); // despawn locally first
+			foreach (var peerId in multiplayer.GetPeers())
+			{
+				//if (peerId == multiplayer.GetUniqueId()) continue;
+				itemSpawnRegistry.RpcId(peerId, nameof(ItemSpawnRegistry.ClientDespawnItem), campfireId);
+			}
 		}
 	}
 
@@ -738,7 +898,13 @@ public partial class ItemManager : Node3D
 			targetPlayer.RpcId(targetPeerIdLong, nameof(PlayerController.ChangeMaxEnergy), food.potentialEnergyAddedRaw);
 		}
 
-		food.QueueFree(); // remove the food item after feeding
+		//food.QueueFree(); // remove the food item after feeding
+		itemSpawnRegistry.ClientDespawnItem(itemId); // despawn locally first
+		foreach (var peerId in multiplayer.GetPeers())
+		{
+			//if (peerId == multiplayer.GetUniqueId()) continue;
+			itemSpawnRegistry.RpcId(peerId, nameof(ItemSpawnRegistry.ClientDespawnItem), itemId);
+		}
 	}
 
 	// logic for repairing wheel request
@@ -757,7 +923,7 @@ public partial class ItemManager : Node3D
 		if (plank == null) { GD.Print("Plank null"); return; }
 
 		var wheel = FindEntityById(wheelId) as Wheel;
-		if (wheel == null) { GD.Print("Wheel null"); return; }
+		if (wheel == null) { GD.Print(" Do Repair Wheel null"); return; }
 
 		//GD.Print("Wheel: Accepted use from " + plank.Name);
 		//GD.Print("Wheel: Current Health " + wheel.currentHealth + "/" + wheel.maxHealth);
@@ -773,14 +939,20 @@ public partial class ItemManager : Node3D
 			GD.Print("Wheel: " + wheel.Name + " repaired to " + wheel.currentHealth + "/" + wheel.maxHealth);
 		}
 		//add logic for repairing wheel here
-		plank.QueueFree(); // remove the used plank
+		//plank.QueueFree(); // remove the used plank
+		itemSpawnRegistry.ClientDespawnItem(plankId); // remove locally first
+		foreach (var peerId in multiplayer.GetPeers())
+		{
+			//if (peerId == multiplayer.GetUniqueId()) continue;
+			itemSpawnRegistry.RpcId(peerId, nameof(ItemSpawnRegistry.ClientDespawnItem), plankId);
+		}
 	}
 
 	// logic for damaging wheel request 
 	public void DoDamageWheel(string wheelId, float damageAmount)
 	{
 		var wheel = FindEntityById(wheelId) as Wheel;
-		if (wheel == null) { GD.Print("Wheel null"); return; }
+		if (wheel == null) { GD.Print("Do Damage Wheel null"); return; }
 
 		wheel.currentHealth -= damageAmount;
 		//GD.Print(wheel.Name + ": Updated Health " + wheel.currentHealth + "/" + wheel.maxHealth);

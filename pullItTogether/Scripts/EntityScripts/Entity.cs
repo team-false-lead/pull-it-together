@@ -6,6 +6,7 @@ using System;
 public abstract partial class Entity : Node3D
 {
     [Export] public string entityId = "";
+    public string scenePath = "";
     protected Node mapManager;
     protected bool multiplayerActive;
     protected MultiplayerApi multiplayer => GetTree().GetMultiplayer();
