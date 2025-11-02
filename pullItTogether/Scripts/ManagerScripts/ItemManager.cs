@@ -1077,7 +1077,9 @@ public partial class ItemManager : Node3D
 
 		var plankGiver = plank.Carrier as PlayerController;
 		if (plankGiver == null) { GD.Print("Plank Giver null"); return; }
-		plankGiver.DropObject(); // have player drop the plank
-		DoBeaverPickupItem(beaverId, plankId); // have beaver pick up the plank
+		plankGiver.RpcId(plankGiver.GetMultiplayerAuthority(), nameof(PlayerController.DropObject));
+		
+		//just dropping the plank first the beaver should detect it and pick it up through its BT
+		//DoBeaverPickupItem(beaverId, plankId); // have beaver pick up the plank
 	}
 }

@@ -607,10 +607,12 @@ public partial class PlayerController : CharacterBody3D
 	}
 
 	// Drop the currently held object
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
 	public void DropObject()
 	{
 		if (HandleInvalidHeldObject()) return; // if invalid item was handled return, weird auto call on join?
 
+		GD.Print("Player " + Name + " Dropping held object: " + heldObject.interactableId);
 		if (heldObject.TryDrop(this) == true)
 		{
 			heldObject = null;
