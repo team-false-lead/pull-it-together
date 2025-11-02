@@ -49,6 +49,7 @@ public partial class PlayerController : CharacterBody3D
 	private float maxTetherDist;
 	private float tetherBuffer;
 	private float tetherStrength;
+	public bool resetRopeInTetherRange = false;
 
 	// Health and energy parameters
 	[Export] private PackedScene hudScene;
@@ -658,6 +659,7 @@ public partial class PlayerController : CharacterBody3D
 	// Remove the tether anchor
 	public void RemoveTetherAnchor()
 	{
+		resetRopeInTetherRange = false;
 		tetherAnchor = null;
 	}
 
@@ -666,6 +668,20 @@ public partial class PlayerController : CharacterBody3D
 	{
 		Vector3 toPlayer = GlobalTransform.Origin - tetherAnchor.GlobalTransform.Origin;
 		float dist = toPlayer.Length();
+
+		if (!resetRopeInTetherRange)
+        {
+            var inventorySlot = GetInventorySlot();
+			Vector3 toSlot = inventorySlot.GlobalTransform.Origin - tetherAnchor.GlobalTransform.Origin;
+			float slotDist = toSlot.Length();
+
+			if (slotDist <= maxTetherDist && heldObject is RopeGrabPoint rope)
+			{
+				rope.RpcId(1, nameof(RopeGrabPoint.DeferredResetJoint));
+				resetRopeInTetherRange = true;
+				GD.Print("Rope tether reset joint called");
+			}
+        }
 
 		//if player is past max tether distance, apply force to pull back
 		if (dist > maxTetherDist)
@@ -680,6 +696,7 @@ public partial class PlayerController : CharacterBody3D
 			if (dist > maxTetherDist + tetherBuffer)
 			{
 				GlobalTransform = new Transform3D(GlobalTransform.Basis, tetherAnchor.GlobalTransform.Origin + outwardVector * (maxTetherDist + tetherBuffer));
+				//velocity += -(outwardVector * (1.5f * tetherStrength * (float)delta * distPastMax));
 			}
 
 			// Also spend energy if at max distance.

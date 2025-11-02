@@ -354,7 +354,7 @@ public partial class ItemManager : Node3D
 		var itemToSpawnScene = requestingItem.SpawnOnUseScene;
 		if (itemToSpawnScene == null) { GD.Print("SpawnOnUseScene null"); return; }
 
-		var instance = itemToSpawnScene.Instantiate<RigidBody3D>(); // assuming all interactables and entities are RigidBody3D or derived
+		var instance = itemToSpawnScene.Instantiate<Node3D>(); // assuming all interactables and entities are Node3D or derived
 		PreAssignId(instance);
 
 		this.AddChild(instance, true);
@@ -571,7 +571,7 @@ public partial class ItemManager : Node3D
 		// Tween to the inventory slot
 		var tween = GetTree().CreateTween();
 		tween.SetTrans(Tween.TransitionType.Sine).SetEase(Tween.EaseType.InOut);
-		tween.TweenProperty(proxy, "global_position", targetPos, 0.25f);
+		tween.TweenProperty(proxy, "global_position", targetPos, 0.05f);
 		await ToSignal(tween, "finished");
 
 		proxyScript.isTweening = false;
@@ -759,10 +759,10 @@ public partial class ItemManager : Node3D
 		var wheel = FindEntityById(wheelId) as Wheel;
 		if (wheel == null) { GD.Print("Wheel null"); return; }
 
-		GD.Print("Wheel: Accepted use from " + plank.Name);
-		GD.Print("Wheel: Current Health " + wheel.currentHealth + "/" + wheel.maxHealth);
+		//GD.Print("Wheel: Accepted use from " + plank.Name);
+		//GD.Print("Wheel: Current Health " + wheel.currentHealth + "/" + wheel.maxHealth);
 		wheel.currentHealth += wheel.repairAmount;
-		GD.Print("Wheel: Updated Health " + wheel.currentHealth + "/" + wheel.maxHealth);
+		//GD.Print("Wheel: Updated Health " + wheel.currentHealth + "/" + wheel.maxHealth);
 		if (wheel.currentHealth >= wheel.maxHealth)
 		{
 			wheel.currentHealth = wheel.maxHealth;
@@ -777,8 +777,17 @@ public partial class ItemManager : Node3D
 	}
 
 	// logic for damaging wheel request 
-	public void DoDamageWheel(string wheelId, int damageAmount)
+	public void DoDamageWheel(string wheelId, float damageAmount)
 	{
-		//GD.Print("ItemManager: DoDamageWheel called for " + wheelId);
+		var wheel = FindEntityById(wheelId) as Wheel;
+		if (wheel == null) { GD.Print("Wheel null"); return; }
+
+		wheel.currentHealth -= damageAmount;
+		//GD.Print(wheel.Name + ": Updated Health " + wheel.currentHealth + "/" + wheel.maxHealth);
+		if (wheel.currentHealth <= 0)
+		{
+			wheel.currentHealth = 0;
+			GD.Print("Wheel: " + wheel.Name + " has been destroyed!");
+		}
 	}
 }
