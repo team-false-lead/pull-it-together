@@ -1,28 +1,53 @@
 using Godot;
 using System;
 
-/// PlayerInteractable represents the (later) pickupable player that can be fed.
+/// PlayerInteractable represents the pickup-able player that can also be fed.
 public partial class PlayerInteractable : Interactable
 {
+
+    public override void _Ready()
+    {
+        base._Ready();
+
+        if (itemManager == null) InitReferences();
+        if(multiplayer.HasMultiplayerPeer() && !multiplayer.IsServer())
+        {
+            itemManager.RpcId(1, nameof(ItemManager.SendPlayerInteractableId), multiplayer.GetUniqueId());
+        }
+    }
+
+
     public override void _PhysicsProcess(double delta)
     {
-        base._PhysicsProcess(delta); 
-        if (Carrier != null)
+        if (Input.IsActionJustPressed("drop")) // Q  // actually not drop but print dictionary contents for debugging
+		{
+			//if (multiplayer.HasMultiplayerPeer() && isMultiplayerSession && !multiplayer.IsServer()) return;
+			GD.Print(GetPlayerController().Name);
+			GD.Print("my id = " + interactableId);
+		}
+
+        base._PhysicsProcess(delta);
+        //if (GetPlayerController().IsLocalControlled())
+        //    GD.Print(GetPlayerController().Name + " " + followTarget);
+        //GD.Print(interactableId);
+        if (isFollowing && followTarget != null)
         {
             // When being carried, sync the player's position to their interactable's position.
             PlayerController player = GetPlayerController();
-            player.GlobalPosition = GlobalPosition;
+            player.GlobalPosition = followTarget.GlobalPosition;
             player.GlobalRotation = GlobalRotation;
 
+            //GD.Print(GlobalPosition);
             // If the player regains health, instantly drop this interactable.
             if (!player.IsDowned)
                 ((PlayerController)Carrier).DropObject();
         }
     }
 
-    public override bool CanBeCarried() 
-    { 
-        return GetPlayerController().IsDowned; 
+    public override bool CanBeCarried()
+    {
+        return false; // Player carrying will be a next sprint thing
+        //return GetPlayerController().IsDowned;
     }
 
     // By default, objects do not accept being used on them
@@ -69,5 +94,4 @@ public partial class PlayerInteractable : Interactable
 
     // By default, objects can use on entities other if the target accepts it
     public override bool CanUseOnEntity(CharacterBody3D user, Entity target) { return false; }
-
 }

@@ -60,7 +60,8 @@ public partial class ItemManager : Node3D
 	{
 		if (Input.IsActionJustPressed("drop")) // Q  // actually not drop but print dictionary contents for debugging
 		{
-			if (multiplayer.HasMultiplayerPeer() && isMultiplayerSession && !multiplayer.IsServer()) return;
+			//if (multiplayer.HasMultiplayerPeer() && isMultiplayerSession && !multiplayer.IsServer()) return;
+			GD.Print(GetPlayerControllerById(GetMultiplayerAuthority()).Name);
 			PrintDictionaryContents();
 		}
 	}
@@ -142,7 +143,7 @@ public partial class ItemManager : Node3D
 	// Assign a unique ID to an interactable item if it doesn't already have one, and track it in the dictionary
 	private void AssignInteractableId(Interactable item)
 	{
-		if (string.IsNullOrEmpty(item.interactableId))
+		if (string.IsNullOrEmpty(item.interactableId) || item.interactableId == "bruh")
 		{
 			item.interactableId = $"{item.Name}_{Guid.NewGuid():N}"; // Generate unique ID
 																	 //item.Name = id; // breaks peer-to-peer? and it keeps auto moving this line really far right
@@ -243,12 +244,13 @@ public partial class ItemManager : Node3D
 
 	private void AddPlayerInteractable(Node newChild)
 	{
+		if (!multiplayer.IsServer()) return;
 		GD.Print("ItemManager: AddPlayerInteractable called for " + newChild.Name);
 		if (newChild is not CharacterBody3D player) return;
 		//player.IsNodeReady();
 		var PC = player as PlayerController;
 		var PlayerInteractable = PC.GetOwnInteractable();
-		AssignInteractableId(PlayerInteractable); // ensure their own interactable has an ID assigned
+		AssignInteractableId(PlayerInteractable); // ensure their own interactable has an ID assigned		
 		GD.Print("ItemManager: Added player interactable with ID " + PlayerInteractable.interactableId);
 		// Set up cleanup on item removal
 		PlayerInteractable.TreeExited += () =>
@@ -258,6 +260,17 @@ public partial class ItemManager : Node3D
 				GD.Print("ItemManager: Tree Exited, Removed player interactable with ID " + PlayerInteractable.interactableId);
 			}
 		};
+	}
+
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer)]
+	public void SendPlayerInteractableId(long playerId)
+	{
+		if (multiplayer.HasMultiplayerPeer() && isMultiplayerSession && !multiplayer.IsServer()) return;
+		var player = GetPlayerControllerById(playerId);
+		if (player == null) return;
+		var playerInteractable = player.GetOwnInteractable();
+		if (playerInteractable == null) return;
+		playerInteractable.RpcId(playerId, nameof(PlayerInteractable.ClientSetMyInteractableId), playerInteractable.interactableId);
 	}
 
 	// Handle new peers connecting to the multiplayer session, inform them to remove placeholders

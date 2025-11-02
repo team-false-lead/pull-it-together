@@ -32,6 +32,7 @@ emission = Color(0.141176, 0.25098, 0.360784, 1)
 collision_mask = 2
 script = ExtResource("1_up175")
 stormSpeed = 2.5
+stormDPS = 0.0
 rainParticles = NodePath("GPUParticles3D")
 rainDensity = 3.0
 stormCollider = NodePath("CollisionShape3D")
