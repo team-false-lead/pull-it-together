@@ -1,5 +1,6 @@
-[gd_scene load_steps=23 format=3 uid="uid://b518v5yn7ig5o"]
+[gd_scene load_steps=24 format=3 uid="uid://b518v5yn7ig5o"]
 
+[ext_resource type="PackedScene" uid="uid://ddkl7vjoqp5kd" path="res://Scenes/GameStateTracker.tscn" id="1_eicjb"]
 [ext_resource type="Terrain3DAssets" uid="uid://dal3jhw6241qg" path="res://demo/data/assets.tres" id="1_in7uf"]
 [ext_resource type="Script" uid="uid://d2gutl4cngqlt" path="res://Scripts/ManagerScripts/ItemManager.cs" id="2_bn2kb"]
 [ext_resource type="Script" uid="uid://u1f0pfpkqwoc" path="res://Scripts/MiscScripts/ItemSpawnRegistry.cs" id="3_dobrn"]
@@ -75,6 +76,9 @@ _shader_parameters = {
 size = Vector3(100, 50, 100)
 
 [node name="TestTerrain" type="Node3D"]
+
+[node name="GameStateTracker" parent="." node_paths=PackedStringArray("transitionArea") instance=ExtResource("1_eicjb")]
+transitionArea = NodePath("../TransitionArea")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_w1dx0")
