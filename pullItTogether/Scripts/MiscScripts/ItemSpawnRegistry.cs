@@ -139,4 +139,47 @@ public partial class ItemSpawnRegistry : MultiplayerSpawner
             }
         }
     }
+
+    [Rpc(MultiplayerApi.RpcMode.AnyPeer)]
+    public void ClientSpawnWagon(string scenePath, Transform3D transform, int authorityPeerId, string[] childrenRelativePaths, string[] childrenIds)
+    {
+        foreach (var child in GetChildren())
+        {
+            if (child is Wagon)
+            {
+                // Wagon already exists, no need to spawn again
+                return;
+            }
+        }
+
+        var scene = ResourceLoader.Load<PackedScene>(scenePath);
+        if (scene == null)
+        {
+            GD.PrintErr("ItemSpawnRegistry: Failed to load wagon scene for spawning: " + scenePath);
+            return;
+        }
+
+        var instance = scene.Instantiate<Node3D>();
+        instance.GlobalTransform = transform;
+        instance.SetMultiplayerAuthority(authorityPeerId);
+        this.AddChild(instance, true); // Spawn the instance
+        instance.SetOwner(GetTree().CurrentScene); // Ensure the instance is owned by the current scene
+
+        for (int i = 0; i < childrenRelativePaths.Length; i++)
+        {
+            var childPath = childrenRelativePaths[i];
+            var childId = childrenIds[i];
+            var childNode = instance.GetNodeOrNull<Node3D>(childPath);
+            if (childNode is Interactable childInteractable)
+            {
+                childInteractable.interactableId = childId;
+                itemManager.AssignInteractableId(childInteractable);
+            }
+            else if (childNode is Entity childEntity)
+            {
+                childEntity.entityId = childId;
+                itemManager.AssignEntityId(childEntity);
+            }
+        }
+    }
 }

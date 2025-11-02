@@ -119,6 +119,13 @@ public partial class ItemManager : Node3D
 			instance.SetOwner(GetTree().CurrentScene); // Ensure the instance is owned by the current scene
 			instance.SetMultiplayerAuthority(1);
 
+			if (instance is Wagon wagonInstance)
+			{
+				// Special handling for wagons to include their children
+				BroadcastWagonSpawnToPeers(placeholderScenePath, wagonInstance, 1);
+				continue;
+			}
+
 			string itemId = "";
 			if (instance is Interactable instanceInteractable)
 			{
@@ -136,10 +143,6 @@ public partial class ItemManager : Node3D
 				instanceEntity.scenePath = placeholderScenePath;
 				BroadcastSpawnToPeers(instanceEntity.scenePath, itemId, instance.GlobalTransform, 1);
 			}
-			//else
-            //{
-            //    BroadcastSpawnToPeers(placeholderScenePath, itemId, instance.GlobalTransform, 1);
-            //}
 		}
 	}
 
@@ -152,6 +155,43 @@ public partial class ItemManager : Node3D
 		{
 			if (peerId == multiplayer.GetUniqueId()) continue; // skip host
 			itemSpawnRegistry.RpcId(peerId, nameof(ItemSpawnRegistry.ClientSpawnItem), scenePath, itemId, transform, authority);
+		}
+	}
+
+	private void BroadcastWagonSpawnToPeers(string scenePath, Node3D wagonInstance, long authority)
+	{
+		if (!isMultiplayerSession || !multiplayer.IsServer()) return; // only server broadcasts
+
+		var childrenRelativePaths = new List<string>();
+		var childrenIds = new List<string>();
+
+		CollectWagonChildren(wagonInstance, childrenRelativePaths, childrenIds);
+
+		foreach (var peerId in multiplayer.GetPeers())
+		{
+			if (peerId == multiplayer.GetUniqueId()) continue; // skip host
+			itemSpawnRegistry.RpcId(peerId, nameof(ItemSpawnRegistry.ClientSpawnWagon), scenePath, wagonInstance.GlobalTransform, authority, childrenRelativePaths.ToArray(), childrenIds.ToArray());
+		}
+	}
+
+	private void CollectWagonChildren(Node3D wagonInstance, List<string> childrenRelativePaths, List<string> childrenIds)
+	{
+		foreach (var child in wagonInstance.GetChildren())
+		{
+			CollectWagonChildren(child as Node3D, childrenRelativePaths, childrenIds);// recurse into children
+
+			if (child is Interactable childInteractable)
+			{
+				AssignInteractableId(childInteractable);
+				childrenRelativePaths.Add(wagonInstance.GetPathTo(childInteractable).ToString());
+				childrenIds.Add(childInteractable.interactableId);
+			}
+			else if (child is Entity childEntity)
+			{
+				AssignEntityId(childEntity);
+				childrenRelativePaths.Add(wagonInstance.GetPathTo(childEntity).ToString());
+				childrenIds.Add(childEntity.entityId);
+			}
 		}
 	}
 
@@ -302,6 +342,18 @@ public partial class ItemManager : Node3D
 
 		GD.Print("ItemManager: Peer connected with ID " + id);
 		RpcId(id, nameof(ClientRemovePlaceholders));
+
+		// inform the new peer about wagon
+		if (GetTree().GetNodesInGroup("wagon").Count > 0)
+		{
+			var wagon = GetTree().GetFirstNodeInGroup("wagon") as Node3D;
+			
+			var childrenRelativePaths = new List<string>();
+			var childrenIds = new List<string>();
+
+			CollectWagonChildren(wagon, childrenRelativePaths, childrenIds);
+			itemSpawnRegistry.RpcId(id, nameof(ItemSpawnRegistry.ClientSpawnWagon), wagon.SceneFilePath, wagon.GlobalTransform, 1, childrenRelativePaths.ToArray(), childrenIds.ToArray());
+		}
 
 		// Inform the new peer about existing interactables
 		foreach (var kvp in interactables)
