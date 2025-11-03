@@ -1,0 +1,49 @@
+[remap]
+
+importer="scene"
+importer_version=1
+type="PackedScene"
+uid="uid://bh5f0wl1eywap"
+path="res://.godot/imported/mdl_campfire.fbx-84143a4d45c6853c3ee6ad4acc99d7b8.scn"
+
+[deps]
+
+source_file="res://Models/Entities/mdl_campfire.fbx"
+dest_files=["res://.godot/imported/mdl_campfire.fbx-84143a4d45c6853c3ee6ad4acc99d7b8.scn"]
+
+[params]
+
+nodes/root_type="MeshInstance3D"
+nodes/root_name="CampfireMesh"
+nodes/apply_root_scale=true
+nodes/root_scale=1.0
+nodes/import_as_skeleton_bones=false
+nodes/use_node_type_suffixes=true
+meshes/ensure_tangents=true
+meshes/generate_lods=true
+meshes/create_shadow_meshes=true
+meshes/light_baking=1
+meshes/lightmap_texel_size=0.2
+meshes/force_disable_compression=false
+skins/use_named_skins=true
+animation/import=true
+animation/fps=30
+animation/trimming=true
+animation/remove_immutable_tracks=true
+animation/import_rest_as_RESET=false
+import_script/path=""
+_subresources={
+"materials": {
+"M_Rock": {
+"use_external/enabled": true,
+"use_external/path": "uid://41bg7y8xt0l1"
+},
+"M_Wood": {
+"use_external/enabled": true,
+"use_external/path": "uid://b7d6rik1f8wko"
+}
+}
+}
+fbx/importer=0
+fbx/allow_geometry_helper_nodes=false
+fbx/embedded_image_handling=1

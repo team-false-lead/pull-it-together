@@ -5,13 +5,13 @@
 [ext_resource type="Script" uid="uid://cuw8dk3lkvm2n" path="res://addons/verlet_rope_4/Physics/Joints/VerletJointRigid.cs" id="2_by6hu"]
 [ext_resource type="Script" uid="uid://c3oxgehluk75x" path="res://addons/verlet_rope_4/Physics/VerletRopeSimulated.cs" id="2_wf68l"]
 [ext_resource type="Script" uid="uid://cvxw3h20i7vjf" path="res://addons/verlet_rope_4/Physics/Joints/VerletJointSimulated.cs" id="3_bdj2n"]
-[ext_resource type="PackedScene" path="res://Scenes/Entities/Wheels/WheelFrontLeft.tscn" id="3_kkr0m"]
+[ext_resource type="PackedScene" uid="uid://cvvdqeqd1hyw2" path="res://Scenes/Entities/Wheels/WheelFrontLeft.tscn" id="3_kkr0m"]
 [ext_resource type="Script" uid="uid://576r8y5ml8oo" path="res://Scripts/InteractableScripts/RopeGrabPoint.cs" id="3_q3xkn"]
-[ext_resource type="PackedScene" path="res://Scenes/Entities/Wheels/WheelFrontRight.tscn" id="4_4mj3o"]
+[ext_resource type="PackedScene" uid="uid://ddytphieibg3f" path="res://Scenes/Entities/Wheels/WheelFrontRight.tscn" id="4_4mj3o"]
 [ext_resource type="PackedScene" uid="uid://b638mtt6nax88" path="res://Scenes/Interactables/RopeProxy.tscn" id="4_f8cd6"]
-[ext_resource type="PackedScene" path="res://Scenes/Entities/Wheels/WheelBackLeft.tscn" id="5_4mj3o"]
+[ext_resource type="PackedScene" uid="uid://vgh3mhnrifqw" path="res://Scenes/Entities/Wheels/WheelBackLeft.tscn" id="5_4mj3o"]
 [ext_resource type="PackedScene" uid="uid://catebv8ff61vh" path="res://Models/Wagon/Body/mdl_wagon_body.fbx" id="6_bdj2n"]
-[ext_resource type="PackedScene" path="res://Scenes/Entities/Wheels/WheelBackRight.tscn" id="6_w40pc"]
+[ext_resource type="PackedScene" uid="uid://cx5a2prwbkxr8" path="res://Scenes/Entities/Wheels/WheelBackRight.tscn" id="6_w40pc"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_vlqqi"]
 friction = 0.05

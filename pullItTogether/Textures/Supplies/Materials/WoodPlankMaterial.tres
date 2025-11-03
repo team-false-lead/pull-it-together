@@ -1,0 +1,7 @@
+[gd_resource type="StandardMaterial3D" load_steps=2 format=3 uid="uid://cvf84d2t0368h"]
+
+[ext_resource type="Texture2D" uid="uid://bvs1ghq6bfadf" path="res://Textures/Supplies/txr_plankBaseColor.png" id="1_4fy1q"]
+
+[resource]
+albedo_color = Color(0.637843, 0.637843, 0.637843, 1)
+albedo_texture = ExtResource("1_4fy1q")

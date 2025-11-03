@@ -1,6 +1,7 @@
-[gd_scene load_steps=5 format=3 uid="uid://b575wgt5fc8yc"]
+[gd_scene load_steps=11 format=3 uid="uid://b575wgt5fc8yc"]
 
 [ext_resource type="Script" uid="uid://cs7tk8faukvvy" path="res://Scripts/EntityScripts/Campfire.cs" id="1_dcn0c"]
+[ext_resource type="PackedScene" uid="uid://bh5f0wl1eywap" path="res://Models/Entities/mdl_campfire.fbx" id="2_4ptku"]
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_on6pt"]
 properties/0/path = NodePath(".:position")
@@ -21,10 +22,37 @@ resource_local_to_scene = true
 height = 0.5
 radius = 0.75
 
-[sub_resource type="CylinderMesh" id="CylinderMesh_aiyb2"]
-resource_local_to_scene = true
-bottom_radius = 0.75
-height = 0.5
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_4ptku"]
+gravity = Vector3(0, 10, 0)
+turbulence_enabled = true
+turbulence_noise_strength = 3.07
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_7o68m"]
+transparency = 1
+albedo_color = Color(0.39, 0.39, 0.39, 0.662745)
+
+[sub_resource type="SphereMesh" id="SphereMesh_da15m"]
+material = SubResource("StandardMaterial3D_7o68m")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_7o68m"]
+emission_shape_offset = Vector3(0, 0.265, 0)
+emission_shape_scale = Vector3(0.5, 0.5, 0.5)
+emission_shape = 1
+emission_sphere_radius = 1.0
+gravity = Vector3(0, 0.25, 0)
+turbulence_enabled = true
+turbulence_noise_strength = 3.07
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_da15m"]
+albedo_color = Color(0.868977, 0.412043, 5.77569e-07, 1)
+emission_enabled = true
+emission = Color(0.823417, 0.446911, 0.195804, 1)
+emission_energy_multiplier = 4.5
+
+[sub_resource type="SphereMesh" id="SphereMesh_sxpyk"]
+material = SubResource("StandardMaterial3D_da15m")
+radius = 0.1
+height = 0.2
 
 [node name="Campfire" type="RigidBody3D"]
 collision_layer = 9
@@ -37,10 +65,30 @@ replication_config = SubResource("SceneReplicationConfig_on6pt")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 shape = SubResource("CylinderShape3D_on6pt")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="CollisionShape3D"]
-mesh = SubResource("CylinderMesh_aiyb2")
-
 [node name="Label3D" type="Label3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.602306, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.896183, 0)
 billboard = 2
 text = "Campfire"
+
+[node name="CampfireMesh" parent="." instance=ExtResource("2_4ptku")]
+transform = Transform3D(100, 0, 0, 0, 100, 0, 0, 0, 100, 0, -0.244201, 0)
+
+[node name="GPUParticles3D" type="GPUParticles3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.536478, 0)
+amount = 12
+lifetime = 2.0
+speed_scale = 0.1
+randomness = 0.4
+trail_lifetime = 2.55
+process_material = SubResource("ParticleProcessMaterial_4ptku")
+draw_pass_1 = SubResource("SphereMesh_da15m")
+
+[node name="GPUParticles3D2" type="GPUParticles3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.135034, 0)
+amount = 25
+lifetime = 2.0
+speed_scale = 6.72
+randomness = 0.4
+trail_lifetime = 2.55
+process_material = SubResource("ParticleProcessMaterial_7o68m")
+draw_pass_1 = SubResource("SphereMesh_sxpyk")
