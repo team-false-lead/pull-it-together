@@ -296,7 +296,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 162.266, 2.84659, -283.194)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -106.835, 4.09451, -378.918)
 
 [node name="WoodPlank9" parent="Placeholders" instance=ExtResource("5_pd0wi")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 151.456, 4.6406, -387.069)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 151.456, 5.62426, -387.069)
 
 [node name="Goodberry6" parent="Placeholders" instance=ExtResource("12_w1dx0")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -73.6444, -3.12256, -316.148)
@@ -405,6 +405,21 @@ transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, -40.54
 
 [node name="Beaver2" parent="Placeholders" instance=ExtResource("13_iddi4")]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 64.565, 4.31032, -409.752)
+
+[node name="WoodPlank19" parent="Placeholders" instance=ExtResource("5_pd0wi")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.6744, 1.05835, -105.746)
+SpawnOnUseScene = null
+
+[node name="WoodPlank20" parent="Placeholders" instance=ExtResource("5_pd0wi")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 106.932, 7.51607, -150.672)
+SpawnOnUseScene = null
+
+[node name="WoodPlank21" parent="Placeholders" instance=ExtResource("5_pd0wi")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 233.654, 4.64874, -298.402)
+SpawnOnUseScene = null
+
+[node name="WoodPlank22" parent="Placeholders" instance=ExtResource("5_pd0wi")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.3891, 14.3068, -599.851)
 
 [node name="ToonShader" parent="." instance=ExtResource("16_iddi4")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.51888, 0, -16.3447)
