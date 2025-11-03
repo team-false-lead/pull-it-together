@@ -66,7 +66,7 @@ replication_config = SubResource("SceneReplicationConfig_on6pt")
 shape = SubResource("CylinderShape3D_on6pt")
 
 [node name="Label3D" type="Label3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.602306, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.896183, 0)
 billboard = 2
 text = "Campfire"
 
