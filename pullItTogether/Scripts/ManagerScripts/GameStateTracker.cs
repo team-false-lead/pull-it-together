@@ -37,9 +37,6 @@ public partial class GameStateTracker : Node
     [Export] private float stormSafeDistance = 250f; // temp safe distance until we have a better way to define it (current map from storm to win point = 1300)
     [Export] private float weatherWeight = 0.65f;
     [Export] private float terrainWeight = 0.35f;
-    [Export] private float resilienceHealthWeight = 0.5f;
-    [Export] private float resilienceEnergyWeight = 0.15f;
-    [Export] private float resilienceRepairWeight = 0.35f;
 
     public override void _Ready()
     {
@@ -228,40 +225,53 @@ public partial class GameStateTracker : Node
         }
 
         float playersStatusStressRaw = GetPlayersStatusStressLevel(pcArray);
-        float wagonStressRaw = GetWagonStressLevel();
+        float wagonStressRaw = GetWagonStressLevel(pcArray);
         float stormStressRaw = GetStormStressLevel();
         float environmentalStressRaw = GetEnvironmentalStressLevel();
         float stressWeighted = (playersStatusStressRaw * playerStatusWeight) + (wagonStressRaw * wagonStressWeight) + (stormStressRaw * superstormStressWeight) + (environmentalStressRaw * environmentalStressWeight);
-        float teamResilience = GetTeamResilienceLevel(pcArray);
-        float totalStressLevel = stressWeighted - teamResilience;
-        totalStressLevel = Mathf.Clamp(totalStressLevel, 0f, 1f);
+        //float teamResilience = GetTeamResilienceLevel(pcArray);
+        //float totalStressLevel = stressWeighted - teamResilience;
+        float totalStressLevel = Mathf.Clamp(stressWeighted, 0f, 1f);
 
         GD.Print("StressTick: Players=", playersStatusStressRaw, ", Wagon=", wagonStressRaw, ", Storm=", stormStressRaw, ", Env=", environmentalStressRaw);
-        GD.Print("StressTick: TotalStressLevel=", totalStressLevel, ", WeightedStress=", stressWeighted, ", TeamResilience=", teamResilience);
+        GD.Print("StressTick: TotalStressLevel=", totalStressLevel); //, ", WeightedStress=", stressWeighted, ", TeamResilience=", teamResilience);
     }
 
     private float GetPlayersStatusStressLevel(PlayerController[] players)
     {
         if (players == null || players.Length == 0) { GD.PrintErr("Players array is null or empty in GetPlayersStatusStressLevel"); return 0f; }
 
-        float playersStressLevel = 0f;
         int downedCount = 0;
+        float totalHealthPercentage = 0f;
+        float totalEnergyPercentage = 0f;
+        float totalHpLoss = 0f;
+        float totalEnergyLoss = 0f;
 
         foreach (var player in players)
         {
             if (player == null) { GD.PrintErr("Player is null in GetPlayersStatusStressLevel"); continue; }
 
-            float healthPercentage = player.currentHealth / 100f;
-            float energyPercentage = player.maxEnergy / 100f;
-            float downedStatus = player.currentHealth <= 0 ? 1f : 0f;
-
-            if (downedStatus > 0f) downedCount++;
-            float playerStress = ((1 - healthPercentage) * playerHealthWeight) + ((1 - energyPercentage) * playerEnergyWeight) + (downedStatus * playerDownedWeight);
-
-            playersStressLevel += playerStress * (1f / players.Length);
+            totalHealthPercentage += (player.currentHealth / 100f) * (1f / players.Length);
+            totalEnergyPercentage += (player.maxEnergy / 100f) * (1f / players.Length);
+            totalHpLoss += 100f - player.currentHealth;
+            totalEnergyLoss += 100f - player.maxEnergy;
+            if (player.currentHealth <= 0) downedCount++;
         }
 
+        (float hpRestorePotential, float energyRestorePotential, float _) = GetTeamResilienceLevel(players, false); // false = check food, true = check repair
+        float hpMitigation = totalHpLoss > 0 ? Mathf.Clamp(hpRestorePotential / totalHpLoss, 0f, 1f) : 0f;
+        hpMitigation = Mathf.Clamp(hpMitigation * teamResilienceStrength, 0f, teamResilienceMax); // cap mitigation
+        float hpLossPercentage = 1f - totalHealthPercentage;
+        float hpStressRaw = hpLossPercentage * (1f - hpMitigation);
+
+        float energyMitigation = totalEnergyLoss > 0 ? Mathf.Clamp(energyRestorePotential / totalEnergyLoss, 0f, 1f) : 0f;
+        energyMitigation = Mathf.Clamp(energyMitigation * teamResilienceStrength, 0f, teamResilienceMax); // cap mitigation
+        float energyLossPercentage = 1f - totalEnergyPercentage;
+        float energyStressRaw = energyLossPercentage * (1f - energyMitigation);
+
         float downedPercentage = (float)downedCount / players.Length;
+        float playersStressLevel = (hpStressRaw * playerHealthWeight) + (energyStressRaw * playerEnergyWeight) + (downedPercentage * playerDownedWeight);
+
         if (downedPercentage >= 0.5f)
         {
             playersStressLevel = Mathf.Max(playersStressLevel, majorityDownedMinStressLevel); // set to at least majority downed stress level
@@ -271,14 +281,14 @@ public partial class GameStateTracker : Node
     }
 
 
-    private float GetWagonStressLevel()
+    private float GetWagonStressLevel(PlayerController[] players)
     {
         if (wagonNode == null) { GD.PrintErr("Wagon is null in GetWagonStressLevel"); return 0f; }
         var wagon = wagonNode as Wagon;
         if (wagon == null) { GD.PrintErr("Wagon script is null in GetWagonStressLevel"); return 0f; }
 
-        var totalWheelHealth = 0f;
-        var totalWheelsBroken = 0;
+        float totalWheelHealth = 0f;
+        int totalWheelsBroken = 0;
         foreach (var wheel in wagon.wheels)
         {
             totalWheelHealth += wheel.currentHealth;
@@ -287,9 +297,22 @@ public partial class GameStateTracker : Node
                 totalWheelsBroken++;
             }
         }
-        var wheelHealthPercentage = totalWheelHealth / 400f; // max health is 100 per wheel
-        var wheelBrokenPercentage = totalWheelsBroken / 4f;
-        var wagonStressLevel = ((1 - wheelHealthPercentage) * wheelHealthWeight) + (wheelBrokenPercentage * wheelBrokenWeight);
+        float wheelHealthPercentage = totalWheelHealth / 400f; // max health is 100 per wheel
+        float totalWheelDamage = 400f - totalWheelHealth;
+        float wheelBrokenPercentage = totalWheelsBroken / 4f;
+
+        (float _, float _, float repairPotential) = GetTeamResilienceLevel(players, true); // false = check food, true = check repair
+        float damageMitigation = totalWheelDamage > 0 ? Mathf.Clamp(repairPotential / totalWheelDamage, 0f, 1f) : 0f;
+        damageMitigation = Mathf.Clamp(damageMitigation * teamResilienceStrength, 0f, teamResilienceMax); // cap mitigation
+        float damageLossPercentage = 1f - wheelHealthPercentage;
+        float damageStressRaw = damageLossPercentage * (1f - damageMitigation);
+
+        float totalPlanks = repairPotential / wagon.wheels[0].repairAmount; // get number of planks available for repairs
+        float potentialWheelsfixedPercentage = totalWheelsBroken > 0 ? Mathf.Clamp(totalPlanks / totalWheelsBroken, 0f, 1f) : 0f;
+        potentialWheelsfixedPercentage = Mathf.Clamp(potentialWheelsfixedPercentage * teamResilienceStrength, 0f, teamResilienceMax);
+        float brokenStressRaw = wheelBrokenPercentage * (1f - potentialWheelsfixedPercentage);
+
+        float wagonStressLevel = (damageStressRaw * wheelHealthWeight) + (brokenStressRaw * wheelBrokenWeight);
         return wagonStressLevel;
     }
 
@@ -332,11 +355,11 @@ public partial class GameStateTracker : Node
         return totalEnvironmentalStress;
     }
 
-    private float GetTeamResilienceLevel(PlayerController[] players) // (float hpMit, float energyMit, float repairMit)
+    private (float hpMit, float energyMit, float repairMit) GetTeamResilienceLevel(PlayerController[] players, bool checkRepairInstead = false) // (float hpMit, float energyMit, float repairMit)
     {
-        if (wagonNode == null) { GD.PrintErr("Wagon is null in GetTeamResilienceLevel"); return 0f; }
+        if (wagonNode == null) { GD.PrintErr("Wagon is null in GetTeamResilienceLevel"); return (0f, 0f, 0f); }
         var wagon = wagonNode as Wagon;
-        if (wagon == null) { GD.PrintErr("Wagon script is null in GetTeamResilienceLevel"); return 0f; }
+        if (wagon == null) { GD.PrintErr("Wagon script is null in GetTeamResilienceLevel"); return (0f, 0f, 0f); }
         float currentTotalHpLoss = 0f;
         float currentTotalEnergyLoss = 0f;
         float currentTotalRepairLoss = 0f;
@@ -346,7 +369,7 @@ public partial class GameStateTracker : Node
         float totalPotentialRepairValue = 0f;
 
         //List<string> interactableIdsCounted = new List<string>();
-        var counted = new HashSet<string>();
+        var counted = new HashSet<string>(); // faster lookup
 
         void CountFoodOnce(Food food)
         {
@@ -384,8 +407,10 @@ public partial class GameStateTracker : Node
 
         foreach (var item in wagon.itemDetector.itemsInside)
         {
-            CountFoodOnce(item as Food);
-            CountPlankOnce(item as WoodPlank);
+            if (checkRepairInstead)
+                CountPlankOnce(item as WoodPlank);
+            else
+                CountFoodOnce(item as Food);
         }
 
         foreach (var player in players)
@@ -395,28 +420,30 @@ public partial class GameStateTracker : Node
             currentTotalHpLoss += 100f - player.currentHealth;
             currentTotalEnergyLoss += 100f - player.maxEnergy;
 
-            CountFoodOnce(player.heldObject as Food);
-            CountPlankOnce(player.heldObject as WoodPlank);
+            if (checkRepairInstead)
+                CountPlankOnce(player.heldObject as WoodPlank); // manual check since held objects collision isnt detected
+            else
+                CountFoodOnce(player.heldObject as Food);
 
             foreach (var item in player.itemDetector.itemsInside)
             {
-                CountFoodOnce(item as Food);
-                CountPlankOnce(item as WoodPlank);
+                if (checkRepairInstead)
+                    CountPlankOnce(item as WoodPlank);
+                else
+                    CountFoodOnce(item as Food);
             }
         }
 
-        float totalHPMitigation = currentTotalHpLoss > 0 ? Mathf.Clamp(totalPotentialHpValue / currentTotalHpLoss, 0f, 1f) : 0f;
-        float totalEnergyMitigation = currentTotalEnergyLoss > 0 ? Mathf.Clamp(totalPotentialEnergyValue / currentTotalEnergyLoss, 0f, 1f) : 0f;
-        float totalRepairMitigation = currentTotalRepairLoss > 0 ? Mathf.Clamp(totalPotentialRepairValue / currentTotalRepairLoss, 0f, 1f) : 0f;
+        return (totalPotentialHpValue, totalPotentialEnergyValue, totalPotentialRepairValue);
+        
+        //float totalHPMitigation = currentTotalHpLoss > 0 ? Mathf.Clamp(totalPotentialHpValue / currentTotalHpLoss, 0f, 1f) : 0f;
+        //float totalEnergyMitigation = currentTotalEnergyLoss > 0 ? Mathf.Clamp(totalPotentialEnergyValue / currentTotalEnergyLoss, 0f, 1f) : 0f;
+        //float totalRepairMitigation = currentTotalRepairLoss > 0 ? Mathf.Clamp(totalPotentialRepairValue / currentTotalRepairLoss, 0f, 1f) : 0f;
 
-        float resilienceRaw = 1f - ((1f - totalHPMitigation) * (1f - totalEnergyMitigation) * (1f - totalRepairMitigation));
-        float resilienceLevel = resilienceRaw * teamResilienceStrength;
-        resilienceLevel = Mathf.Min(resilienceLevel, teamResilienceMax); //cap resilience level
-        return resilienceLevel;
-        //return (totalHPMitigation, totalEnergyMitigation, totalRepairMitigation);
-
-        // i need to split this into 3 separate mitigations so i can apply them separately in player health/energy regen and wagon repair
-        // and not have them all clumped into one resilience value, that is too powerful of stress reduction
+        //float resilienceRaw = 1f - ((1f - totalHPMitigation) * (1f - totalEnergyMitigation) * (1f - totalRepairMitigation));
+        //float resilienceLevel = resilienceRaw * teamResilienceStrength;
+        //resilienceLevel = Mathf.Min(resilienceLevel, teamResilienceMax); //cap resilience level
+        //return resilienceLevel;
     }
     
 
