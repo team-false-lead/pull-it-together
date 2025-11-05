@@ -623,7 +623,7 @@ public partial class PlayerController : CharacterBody3D
 		{
 			if (offhandObject != null) // When both hands are full, drop the held object
 				DropObject();
-			else
+			else if (!obj.isTwoHanded)
 				MoveObjectToOffhand(heldObject);
 		}
 
