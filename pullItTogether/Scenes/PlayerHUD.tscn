@@ -150,15 +150,6 @@ text = "You are out of health! Wait for someone to pick you up or heal you!"
 horizontal_alignment = 1
 autowrap_mode = 2
 
-[node name="DebugTrackerLabel" type="Label" parent="."]
-layout_mode = 0
-offset_right = 283.0
-offset_bottom = 153.0
-text = "FPS: 1,000,000
-Network ping: enough
-Fun: infinity
-Wagon: yes"
-
 [node name="LookingAtLabel" type="Label" parent="."]
 layout_mode = 1
 anchors_preset = 8
@@ -189,3 +180,31 @@ grow_vertical = 0
 text = "IN STORM!"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="DebugContainer" type="VBoxContainer" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="DebugTrackerLabel" type="Label" parent="DebugContainer"]
+layout_mode = 2
+text = "FPS: 1,000,000
+Network ping: enough
+Fun: infinity
+Wagon: yes"
+
+[node name="TotalStressLabel" type="Label" parent="DebugContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Team Stress: 0.7511"
+
+[node name="RawStressLabel" type="Label" parent="DebugContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 17
+text = "Raw Stress
+Players: 
+Wagon:
+Storm:
+Env: 
+
+"

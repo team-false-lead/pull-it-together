@@ -38,6 +38,12 @@ public partial class GameStateTracker : Node
     [Export] private float weatherWeight = 0.65f;
     [Export] private float terrainWeight = 0.35f;
 
+    public float playersStatusStressRaw;
+    public float wagonStressRaw;
+    public float stormStressRaw;
+    public float environmentalStressRaw;
+    public float totalStressLevel;
+
     public override void _Ready()
     {
         base._Ready();
@@ -224,17 +230,17 @@ public partial class GameStateTracker : Node
             }
         }
 
-        float playersStatusStressRaw = GetPlayersStatusStressLevel(pcArray);
-        float wagonStressRaw = GetWagonStressLevel(pcArray);
-        float stormStressRaw = GetStormStressLevel();
-        float environmentalStressRaw = GetEnvironmentalStressLevel();
+        playersStatusStressRaw = GetPlayersStatusStressLevel(pcArray);
+        wagonStressRaw = GetWagonStressLevel(pcArray);
+        stormStressRaw = GetStormStressLevel();
+        environmentalStressRaw = GetEnvironmentalStressLevel();
         float stressWeighted = (playersStatusStressRaw * playerStatusWeight) + (wagonStressRaw * wagonStressWeight) + (stormStressRaw * superstormStressWeight) + (environmentalStressRaw * environmentalStressWeight);
         //float teamResilience = GetTeamResilienceLevel(pcArray);
         //float totalStressLevel = stressWeighted - teamResilience;
-        float totalStressLevel = Mathf.Clamp(stressWeighted, 0f, 1f);
+        totalStressLevel = Mathf.Clamp(stressWeighted, 0f, 1f);
 
-        GD.Print("StressTick: Players=", Math.Round(playersStatusStressRaw, 4), ", Wagon=", Math.Round(wagonStressRaw, 4), ", Storm=", Math.Round(stormStressRaw, 4), ", Env=", Math.Round(environmentalStressRaw, 4));
-        GD.Print("StressTick: TotalStressLevel=", Math.Round(totalStressLevel, 4)); //, ", WeightedStress=", stressWeighted, ", TeamResilience=", teamResilience);
+        //GD.Print("StressTick: Players=", Math.Round(playersStatusStressRaw, 4), ", Wagon=", Math.Round(wagonStressRaw, 4), ", Storm=", Math.Round(stormStressRaw, 4), ", Env=", Math.Round(environmentalStressRaw, 4));
+        //GD.Print("StressTick: TotalStressLevel=", Math.Round(totalStressLevel, 4)); //, ", WeightedStress=", stressWeighted, ", TeamResilience=", teamResilience);
     }
 
     private float GetPlayersStatusStressLevel(PlayerController[] players)
