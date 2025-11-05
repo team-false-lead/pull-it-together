@@ -340,7 +340,7 @@ public partial class PlayerController : CharacterBody3D
                 if (IsOnFloor()) // Don't decrease energy in midair or while idle
                 {
                     energyChange -= sprintingEnergyReduction * (float)delta;
-					maxEnergyChange -= sprintingEnergyReduction * 0.3f * (float)delta;
+					maxEnergyChange -= sprintingEnergyReduction * 0.2f * (float)delta;
 				}
             }
             else
@@ -886,7 +886,9 @@ public partial class PlayerController : CharacterBody3D
 			direction = -head.Transform.Basis.Z; // if no input, heave forward
 		}
 		ChangeCurrentEnergy(-heaveEnergyCost); // flat energy cost for heave
-		heaveVelocity = new Vector3(direction.X, Velocity.Y, direction.Z).Normalized() * heaveSpeed;
+        ChangeMaxEnergy(-heaveEnergyCost * 0.2f);
+
+        heaveVelocity = new Vector3(direction.X, Velocity.Y, direction.Z).Normalized() * heaveSpeed;
 
 		float savedTetherBuffer = tetherBuffer;
 		tetherBuffer += 0.5f;
