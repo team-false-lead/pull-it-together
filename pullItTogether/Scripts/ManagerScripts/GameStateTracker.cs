@@ -233,8 +233,8 @@ public partial class GameStateTracker : Node
         //float totalStressLevel = stressWeighted - teamResilience;
         float totalStressLevel = Mathf.Clamp(stressWeighted, 0f, 1f);
 
-        GD.Print("StressTick: Players=", playersStatusStressRaw, ", Wagon=", wagonStressRaw, ", Storm=", stormStressRaw, ", Env=", environmentalStressRaw);
-        GD.Print("StressTick: TotalStressLevel=", totalStressLevel); //, ", WeightedStress=", stressWeighted, ", TeamResilience=", teamResilience);
+        GD.Print("StressTick: Players=", Math.Round(playersStatusStressRaw, 4), ", Wagon=", Math.Round(wagonStressRaw, 4), ", Storm=", Math.Round(stormStressRaw, 4), ", Env=", Math.Round(environmentalStressRaw, 4));
+        GD.Print("StressTick: TotalStressLevel=", Math.Round(totalStressLevel, 4)); //, ", WeightedStress=", stressWeighted, ", TeamResilience=", teamResilience);
     }
 
     private float GetPlayersStatusStressLevel(PlayerController[] players)
@@ -341,11 +341,11 @@ public partial class GameStateTracker : Node
         float terrainStress = 0f;
         foreach (Event gameEvent in currentEvents)
         {
-            if (gameEvent.Type == Event.EventType.Weather)
+            if (gameEvent.eventType == Event.EventType.Weather)
             {
                 weatherStress = 1f;
             }
-            else if (gameEvent.Type == Event.EventType.Terrain)
+            else if (gameEvent.eventType == Event.EventType.Terrain)
             {
                 terrainStress = 1f;
             }

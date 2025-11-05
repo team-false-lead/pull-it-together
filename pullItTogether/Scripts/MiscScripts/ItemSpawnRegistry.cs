@@ -188,4 +188,44 @@ public partial class ItemSpawnRegistry : MultiplayerSpawner
             }
         }
     }
+
+    [Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    public void ClientSpawnEvent(string scenePath, Transform3D transform, int authorityPeerId, string[] childrenRelativePaths, string[] childrenIds)
+    {
+        var scene = ResourceLoader.Load<PackedScene>(scenePath);
+        if (scene == null)
+        {
+            GD.PrintErr("ItemSpawnRegistry: Failed to load event scene for spawning: " + scenePath);
+            return;
+        }
+
+        var instance = scene.Instantiate<Node3D>();
+        instance.GlobalTransform = transform;
+        instance.SetMultiplayerAuthority(authorityPeerId);
+        this.AddChild(instance, true); // Spawn the instance
+        instance.SetOwner(GetTree().CurrentScene); // Ensure the instance is owned by the current scene
+
+        for (int i = 0; i < childrenRelativePaths.Length; i++)
+        {
+            var childPath = childrenRelativePaths[i];
+            var childNode = instance.GetNodeOrNull<Node3D>(childPath);
+            var childId = childrenIds[i];
+
+            if (childNode == null)
+            {
+                GD.PrintErr("ItemSpawnRegistry: Failed to find child node at path: " + childrenRelativePaths[i] + " in spawned event.");
+                continue;
+            }
+            if (childNode is Interactable childInteractable)
+            {
+                childInteractable.interactableId = childId;
+                itemManager.AssignInteractableId(childInteractable);
+            }
+            if (childNode is Entity childEntity)
+            {
+                childEntity.entityId = childId;
+                itemManager.AssignEntityId(childEntity);
+            }
+        }
+    }
 }

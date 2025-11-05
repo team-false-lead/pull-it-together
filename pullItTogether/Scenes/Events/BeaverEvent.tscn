@@ -1,0 +1,10 @@
+[gd_scene load_steps=3 format=3 uid="uid://xo4detf0bw0"]
+
+[ext_resource type="Script" uid="uid://dbkwelwbd88yq" path="res://Scripts/MiscScripts/Event.cs" id="1_yspis"]
+[ext_resource type="PackedScene" uid="uid://ba4fbx16j3l67" path="res://Scenes/Entities/Beaver.tscn" id="2_vtih2"]
+
+[node name="BeaverEvent" type="Node3D"]
+script = ExtResource("1_yspis")
+eventType = 3
+
+[node name="Beaver" parent="." instance=ExtResource("2_vtih2")]

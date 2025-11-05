@@ -1,8 +1,9 @@
 using Godot;
 using System;
 
-public abstract partial class Event : Node
+public partial class Event : Node3D
 {
+    public int cooldownValue = 2;
     public enum EventType
     {
         Weather,
@@ -13,5 +14,12 @@ public abstract partial class Event : Node
         Wacky
     }
 
-    [Export] public EventType Type = EventType.Weather;
+    [Export] public EventType eventType = EventType.Weather;
+    [Export] private float estimatedStressReduction = 0.05f;
+    [Export] public int currentCooldown = 0;
+
+    public override void _Ready()
+    {
+
+    }
 }
