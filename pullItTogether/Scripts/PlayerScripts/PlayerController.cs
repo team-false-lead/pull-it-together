@@ -603,16 +603,21 @@ public partial class PlayerController : CharacterBody3D
 	// pickup currently looked at object, drop current held object if any
 	public void PickupObject(Interactable obj)
 	{
-		if (heldObject != null)
-        { 
+		// When picking up a two-handed object, drop all currently-held objects.
+		// Null checks aren't strictly necessary since DropObject() does that anyways,
+		// but this code can probably be improved a bit
+		if (obj.isTwoHanded)
+		{
+			DropObject();
+			DropObject();
+		}
+		else if (heldObject != null)
+        {
 			// When both hands are full, drop the held object
             if (offhandObject != null)
-			{
 				DropObject();
-				MoveObjectToOffhand(heldObject); // Call to move the held item back to the offhand. There might be a better way to do this
-			}
-			else
-				MoveObjectToOffhand(heldObject);
+
+			MoveObjectToOffhand(heldObject); // Move anything in the player's active hand to their offhand
 		}
 
 		if (obj.TryPickup(this) == true)
