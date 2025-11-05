@@ -632,7 +632,7 @@ public partial class PlayerController : CharacterBody3D
 		// If there's already an object in the player's offhand, return early
 		//if (offhandObject != null) return;
 
-		if (obj.TryChangeToSlot(this, GetOffhandSlot()))
+		if (obj.TryChangeToSlot(this, offhandPath))
 		{
 			offhandObject = obj;
 			heldObject = null;
@@ -645,7 +645,7 @@ public partial class PlayerController : CharacterBody3D
         // If there's already an object in the player's offhand, return early
         //if (offhandObject != null) return;
 
-        if (obj.TryChangeToSlot(this, GetInventorySlot()))
+        if (obj.TryChangeToSlot(this, inventorySlotPath))
         {
             heldObject = obj;
 			offhandObject = null;
@@ -725,7 +725,7 @@ public partial class PlayerController : CharacterBody3D
 	private void SwapItemsInOffhand()
 	{
 		Interactable tempItem = offhandObject;
-		if (heldObject.TryChangeToSlot(this, GetOffhandSlot()) && tempItem.TryChangeToSlot(this, GetInventorySlot()))
+		if (heldObject.TryChangeToSlot(this, offhandPath) && tempItem.TryChangeToSlot(this, inventorySlotPath))
         {
             GD.Print("Swapped items!");
 			offhandObject = heldObject;

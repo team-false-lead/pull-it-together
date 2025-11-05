@@ -112,7 +112,7 @@ public abstract partial class Interactable : RigidBody3D
         return true;
     }
 
-    public virtual bool TryChangeToSlot(CharacterBody3D carrier, Node3D slot)
+    public virtual bool TryChangeToSlot(CharacterBody3D carrier, NodePath slotPath)
     {
         if (!CanBeCarried()) return false;
 
@@ -134,7 +134,7 @@ public abstract partial class Interactable : RigidBody3D
         }
         else // Server or single-player handles pickup directly
         {
-            itemManager.DoChangeItemSlot(id, multiplayer.GetUniqueId(), slot);
+            itemManager.DoChangeItemSlot(id, multiplayer.GetUniqueId(), slotPath);
         }
 
         //server handles pickup logic

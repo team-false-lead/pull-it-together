@@ -579,9 +579,23 @@ public partial class ItemManager : Node3D
 		item.Carrier = carrier;
 	}
 
-	public void DoChangeItemSlot(string itemId, long requesterId, Node3D slot)
+    // Item slot change request
+    [Rpc(MultiplayerApi.RpcMode.AnyPeer)] // Allow any peer to request item pickup
+    public void RequestChangeItemSlot(string itemId, NodePath slot)
+    {
+        GD.Print("ItemManager: RequestChangeItemSlot called for " + itemId);
+        if (multiplayer.HasMultiplayerPeer() && isMultiplayerSession && !multiplayer.IsServer()) return; // Only the server should handle item movement
+
+        long requesterId = multiplayer.GetRemoteSenderId();
+        if (requesterId == 0) // host called
+        {
+            requesterId = multiplayer.GetUniqueId(); // fallback to local player in singleplayer
+        }
+    }
+
+    public void DoChangeItemSlot(string itemId, long requesterId, NodePath slotPath)
 	{
-        GD.Print("ItemManager: DoChangeItemSlot called for " + itemId + ", moving to slot " + slot);
+        GD.Print("ItemManager: DoChangeItemSlot called for " + itemId + ", moving to slot " + slotPath);
 
         var item = FindInteractableById(itemId);
         if (item == null) { GD.Print("Item null"); return; }
@@ -589,6 +603,7 @@ public partial class ItemManager : Node3D
         PlayerController carrier = GetPlayerControllerById(requesterId);
         if (carrier == null) { GD.Print("Carrier null"); return; }
 
+		Node3D slot = carrier.GetNodeOrNull<Node3D>(slotPath);
         if (slot == null) { GD.Print("Slot null"); return; }
 
         // Moving items to offhand should only be done when an item has already been held,
@@ -596,30 +611,6 @@ public partial class ItemManager : Node3D
 		// an item directly into their offhand, however, there is a problem.
 		//if (item.Carrier != carrier) { GD.Print("Item doesn't have a carrier"); return; }
         item.StartFollowingSlot(slot);
-    }
-
-	public void DoSwapItems(string activeItemId, string offhandItemId, long requesterId)
-	{
-        GD.Print("ItemManager: DoSwapItems called for " + activeItemId + " and " + offhandItemId);
-
-        var activeItem = FindInteractableById(activeItemId);
-        if (activeItem == null) { GD.Print("Active item null"); return; }
-
-        var offhandItem = FindInteractableById(offhandItemId);
-        if (offhandItem == null) { GD.Print("Offhand item null"); return; }
-
-        PlayerController carrier = GetPlayerControllerById(requesterId);
-        if (carrier == null) { GD.Print("Carrier null"); return; }
-
-        var slot = carrier.GetInventorySlot();
-        if (slot == null) { GD.Print("Inventory slot null"); return; }
-
-        var offhandSlot = carrier.GetOffhandSlot();
-        if (slot == null) { GD.Print("Offhand slot null"); return; }
-
-		// All that work just to call two functions
-		activeItem.StartFollowingSlot(offhandSlot);
-		offhandItem.StartFollowingSlot(slot);
     }
 
 	// item drop request
