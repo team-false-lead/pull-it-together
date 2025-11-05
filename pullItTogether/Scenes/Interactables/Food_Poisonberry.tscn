@@ -37,7 +37,7 @@ properties/8/replication_mode = 2
 radius = 0.06
 height = 0.2
 
-[node name="Poisonberry" type="RigidBody3D" node_paths=PackedStringArray("rawMesh", "cookedMesh", "label3D") groups=["food"]]
+[node name="Poisonberry" type="RigidBody3D" node_paths=PackedStringArray("rawMesh", "cookedMesh", "label3D") groups=["food", "interactable"]]
 collision_layer = 8
 collision_mask = 29
 script = ExtResource("1_ax30y")

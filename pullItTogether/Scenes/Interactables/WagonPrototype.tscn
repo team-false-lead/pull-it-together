@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=3 uid="uid://b2cc2nt2bpja0"]
+[gd_scene load_steps=24 format=3 uid="uid://b2cc2nt2bpja0"]
 
 [ext_resource type="Script" uid="uid://dja12uyulc7ee" path="res://addons/verlet_rope_4/Physics/VerletRopeRigid.cs" id="1_24ylq"]
 [ext_resource type="Script" uid="uid://toi5sicfb28n" path="res://Scripts/Wagon/Wagon.cs" id="1_f8cd6"]
@@ -12,6 +12,7 @@
 [ext_resource type="PackedScene" uid="uid://vgh3mhnrifqw" path="res://Scenes/Entities/Wheels/WheelBackLeft.tscn" id="5_4mj3o"]
 [ext_resource type="PackedScene" uid="uid://catebv8ff61vh" path="res://Models/Wagon/Body/mdl_wagon_body.fbx" id="6_bdj2n"]
 [ext_resource type="PackedScene" uid="uid://cx5a2prwbkxr8" path="res://Scenes/Entities/Wheels/WheelBackRight.tscn" id="6_w40pc"]
+[ext_resource type="PackedScene" uid="uid://cnn1gi0bkh08o" path="res://Scenes/ItemDetector.tscn" id="13_mc2ob"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_vlqqi"]
 friction = 0.05
@@ -97,7 +98,7 @@ properties/17/path = NodePath("GrabPoint4:visible")
 properties/17/spawn = true
 properties/17/replication_mode = 2
 
-[node name="WagonPrototype" type="RigidBody3D" node_paths=PackedStringArray("wheels") groups=["wagon"]]
+[node name="WagonPrototype" type="RigidBody3D" node_paths=PackedStringArray("wheels", "itemDetector") groups=["wagon"]]
 collision_layer = 4
 collision_mask = 9
 mass = 850.0
@@ -111,6 +112,7 @@ linearXMultiplier = 0.5
 angularYMultiplier = 0.96
 wheels = [NodePath("Wheels/WheelFL"), NodePath("Wheels/WheelFR"), NodePath("Wheels/WheelBL"), NodePath("Wheels/WheelBR")]
 frictionPerWheel = 0.02
+itemDetector = NodePath("ItemDetector")
 
 [node name="WagonBodyMesh" parent="." instance=ExtResource("6_bdj2n")]
 transform = Transform3D(-150, 0, -1.74846e-05, 0, 150, 0, 1.31134e-05, 0, -200, 0, -0.782943, 0.315071)
@@ -487,3 +489,7 @@ shape = SubResource("BoxShape3D_5rxyb")
 [node name="LipCollision5" type="CollisionShape3D" parent="."]
 transform = Transform3D(0.872849, 0, 0, 0, -7.51053e-09, -0.107404, 0, 0.171821, -4.6948e-09, 0, -0.0815835, -2.07631)
 shape = SubResource("BoxShape3D_5rxyb")
+
+[node name="ItemDetector" parent="." instance=ExtResource("13_mc2ob")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.180116)
+detectionRadius = 15.0

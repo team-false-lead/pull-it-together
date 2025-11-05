@@ -30,6 +30,8 @@ item_manager=""
 plank=""
 food=""
 wheel=""
+entity=""
+interactable=""
 
 [input]
 

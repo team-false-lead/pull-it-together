@@ -37,7 +37,7 @@ public partial class ItemDetector : Area3D
 
 	private void _onBodyEntered(Node3D body)
 	{
-		if (customGroupFilters.Length > 0)
+		if (customGroupFilters != null && customGroupFilters.Length > 0)
 		{
 			foreach (string group in customGroupFilters)
 			{
@@ -51,14 +51,14 @@ public partial class ItemDetector : Area3D
 		else if (body.IsInGroup("interactable") || body.IsInGroup("entity"))
 		{
 			itemsInside.Add(body);
-			EmitSignal(SignalName.BodyEntered, body);
+			//EmitSignal(SignalName.BodyEntered, body);
 		}
 
 	}
 
 	private void _onBodyExited(Node3D body)
 	{
-		if (customGroupFilters.Length > 0)
+		if (customGroupFilters != null && customGroupFilters.Length > 0)
 		{
 			foreach (string group in customGroupFilters)
 			{
@@ -72,7 +72,7 @@ public partial class ItemDetector : Area3D
 		else if (body.IsInGroup("interactable") || body.IsInGroup("entity"))
 		{
 			itemsInside.Remove(body);
-			EmitSignal(SignalName.BodyExited, body);
+			//EmitSignal(SignalName.BodyExited, body);
 		}
 	}
 }

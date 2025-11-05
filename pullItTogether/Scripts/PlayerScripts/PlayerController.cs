@@ -32,7 +32,7 @@ public partial class PlayerController : CharacterBody3D
 	private float bobTimer = 0.0f;
 
 	// Interaction parameters
-	private Interactable heldObject = null;
+	public Interactable heldObject = null;
 	private bool HeldValid() => heldObject != null && IsInstanceValid(heldObject) && !heldObject.IsQueuedForDeletion() && heldObject.IsInsideTree();
 	[Export] public NodePath inventorySlotPath;
 	[Export] public float interactRange = 3.0f;
@@ -90,8 +90,9 @@ public partial class PlayerController : CharacterBody3D
 	[Export] public float heaveTime = 0.5f;
 	[Export] public float heaveCooldown = 2.5f;
 	private Vector3 heaveVelocity = Vector3.Zero;
-	
+
 	private GameStateTracker gameStateTracker;
+	[Export] public ItemDetector itemDetector;
 
 
 	public bool IsDowned

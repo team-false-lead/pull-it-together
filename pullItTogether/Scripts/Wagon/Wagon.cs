@@ -11,6 +11,7 @@ public partial class Wagon : RigidBody3D
     [Export] float angularYMultiplier = 0.75f;
     [Export] public Wheel[] wheels;
     [Export] float frictionPerWheel;
+    [Export] public ItemDetector itemDetector;
     public float wheel1 = 0;
     public float wheel2 = 0;
     public float wheel3 = 0;

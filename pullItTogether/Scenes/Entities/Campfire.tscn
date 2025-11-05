@@ -54,7 +54,7 @@ material = SubResource("StandardMaterial3D_da15m")
 radius = 0.1
 height = 0.2
 
-[node name="Campfire" type="RigidBody3D"]
+[node name="Campfire" type="RigidBody3D" groups=["entity"]]
 collision_layer = 9
 collision_mask = 29
 script = ExtResource("1_dcn0c")
