@@ -397,26 +397,11 @@ public partial class PlayerController : CharacterBody3D
 			OnUsedPressed();
 		if (Input.IsActionJustPressed("pickup") && !IsDowned) // E
 		{
-			if (heldObject == null)
-			{
-				var target = GetInteractableLookedAt();
-				if (target != null)
-				{
-					//GD.Print(target.ToString());
-					PickupObject(target);
-				}
-			}
+			var target = GetInteractableLookedAt();
+			if (target != null)
+				PickupObject(target);
 			else
-			{
-                var target = GetInteractableLookedAt();
-				if (target != null && offhandObject == null)
-				{
-					//GD.Print(target.ToString());
-					PickupObject(target);
-				}
-				else
-					DropObject();
-            }
+				DropObject();
 		}
 		if (Input.IsActionJustPressed("swap_items"))
 		{
@@ -435,7 +420,6 @@ public partial class PlayerController : CharacterBody3D
 				{
 					var interactable = FindInteractable(colliderNode);
 					var entity = FindEntity(colliderNode);
-					//debug prints for now
 					if (interactable != null)
 					{
 						lookingAtText = interactable.Name;
@@ -620,10 +604,14 @@ public partial class PlayerController : CharacterBody3D
 	public void PickupObject(Interactable obj)
 	{
 		if (heldObject != null)
-		{
-			if (offhandObject != null) // When both hands are full, drop the held object
+        { 
+			// When both hands are full, drop the held object
+            if (offhandObject != null)
+			{
 				DropObject();
-			else if (!obj.isTwoHanded)
+				MoveObjectToOffhand(heldObject); // Call to move the held item back to the offhand. There might be a better way to do this
+			}
+			else
 				MoveObjectToOffhand(heldObject);
 		}
 
@@ -674,9 +662,7 @@ public partial class PlayerController : CharacterBody3D
 				heldObject = null;
 			// Otherwise, move the object in the offhand slot to the inventory slot.
 			else
-			{
 				MoveObjectToInventory(offhandObject);
-			}
 		}
 	}
 
