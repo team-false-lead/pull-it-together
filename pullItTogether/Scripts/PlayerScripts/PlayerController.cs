@@ -11,11 +11,11 @@ public partial class PlayerController : CharacterBody3D
 {
 	// Movement parameters
 	public float speed;
-	public float walkSpeed = 5.0f;
-	public float sprintSpeed = 8.0f;
+	[Export] public float walkSpeed = 4.0f;
+    [Export] public float sprintSpeed = 6.5f;
 	public float jumpVelocity = 4.5f;
-	public float inertiaAirValue = 3.0f;
-	public float inertiaGroundValue = 7.0f;
+	public float inertiaAirValue = 1.5f;
+	public float inertiaGroundValue = 3.5f;
 	private bool isSprinting;
 
 	// Camera and look parameters
