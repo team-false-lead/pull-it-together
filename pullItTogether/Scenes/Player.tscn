@@ -69,6 +69,7 @@ camera = NodePath("Head/Camera3D")
 fovChange = 1.1
 bobAmplitude = 0.04
 inventorySlotPath = NodePath("Head/Camera3D/Inventory/InventorySlot1")
+offhandPath = NodePath("Head/Camera3D/Inventory/InventorySlot2")
 collisionPusher = NodePath("AnimatableBody3D")
 interactableRB = NodePath("PlayerInteractable")
 hudScene = ExtResource("2_dewec")
@@ -120,6 +121,12 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.238014, -1.04144)
 [node name="InventorySlot1" type="MeshInstance3D" parent="Head/Camera3D/Inventory" groups=["player_mesh"]]
 unique_name_in_owner = true
 transform = Transform3D(0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1, 1, 0, 0)
+material_override = SubResource("StandardMaterial3D_kyqiw")
+mesh = SubResource("SphereMesh_gntrk")
+
+[node name="InventorySlot2" type="MeshInstance3D" parent="Head/Camera3D/Inventory" groups=["player_mesh"]]
+unique_name_in_owner = true
+transform = Transform3D(0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1, -1, -0.25, 0.1)
 material_override = SubResource("StandardMaterial3D_kyqiw")
 mesh = SubResource("SphereMesh_gntrk")
 

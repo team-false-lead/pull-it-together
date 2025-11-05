@@ -33,8 +33,11 @@ public partial class PlayerController : CharacterBody3D
 
 	// Interaction parameters
 	private Interactable heldObject = null;
+	private Interactable offhandOject = null;
 	private bool HeldValid() => heldObject != null && IsInstanceValid(heldObject) && !heldObject.IsQueuedForDeletion() && heldObject.IsInsideTree();
+	private bool OffhandValid () => offhandOject != null && IsInstanceValid(heldObject) && !offhandOject.IsQueuedForDeletion() && heldObject.IsInsideTree();
 	[Export] public NodePath inventorySlotPath;
+	[Export] public NodePath offhandPath;
 	[Export] public float interactRange = 3.0f;
 	//[Export] public int interactLayer = 4;
 
