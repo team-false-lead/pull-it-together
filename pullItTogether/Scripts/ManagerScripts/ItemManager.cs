@@ -581,7 +581,7 @@ public partial class ItemManager : Node3D
 
     // Item slot change request
     [Rpc(MultiplayerApi.RpcMode.AnyPeer)] // Allow any peer to request item pickup
-    public void RequestChangeItemSlot(string itemId, NodePath slot)
+    public void RequestChangeItemSlot(string itemId, NodePath slotPath)
     {
         GD.Print("ItemManager: RequestChangeItemSlot called for " + itemId);
         if (multiplayer.HasMultiplayerPeer() && isMultiplayerSession && !multiplayer.IsServer()) return; // Only the server should handle item movement
@@ -591,6 +591,8 @@ public partial class ItemManager : Node3D
         {
             requesterId = multiplayer.GetUniqueId(); // fallback to local player in singleplayer
         }
+
+		DoChangeItemSlot(itemId, requesterId, slotPath);
     }
 
     public void DoChangeItemSlot(string itemId, long requesterId, NodePath slotPath)

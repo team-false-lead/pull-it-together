@@ -122,15 +122,12 @@ public abstract partial class Interactable : RigidBody3D
         // Request pickup via RPC if not server, 
         if (multiplayerActive && !multiplayer.IsServer())
         {
-            //var error = itemManager.RpcId(1, nameof(ItemManager.RequestPickupItem), id); // Request pickup via RPC, 1 is server ID
-            //if (error != Error.Ok)
-            //{
-            //    GD.PrintErr("Interactable: Failed to request item pickup via RPC. Error: " + error);
-            //    return false; //failed pickup request
-            //}
-            // Temp: return false in multiplayer
-            GD.PrintErr("Multiplayer functionality incomplete.");
-            return false;
+            var error = itemManager.RpcId(1, nameof(ItemManager.RequestChangeItemSlot), id, slotPath); // Request swap via RPC, 1 is server ID
+            if (error != Error.Ok)
+            {
+                GD.PrintErr("Interactable: Failed to request item slot swap via RPC. Error: " + error);
+                return false; // failed pickup request
+            }
         }
         else // Server or single-player handles pickup directly
         {
@@ -138,7 +135,6 @@ public abstract partial class Interactable : RigidBody3D
         }
 
         //server handles pickup logic
-
         Carrier = carrier;
         return true;
     }

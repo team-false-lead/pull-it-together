@@ -208,7 +208,8 @@ public partial class PlayerController : CharacterBody3D
 		TintMeshIfFound("Head/HeadMesh", color);
 		TintMeshIfFound("Head/Camera3D/EyesMesh", color);
 		TintMeshIfFound("Head/Camera3D/Inventory/InventorySlot1", color);
-	}
+        TintMeshIfFound("Head/Camera3D/Inventory/InventorySlot2", color);
+    }
 
 	private void TintMeshIfFound(string path, Color color)
 	{
@@ -642,9 +643,6 @@ public partial class PlayerController : CharacterBody3D
 
 	public void MoveObjectToInventory(Interactable obj)
 	{
-        // If there's already an object in the player's offhand, return early
-        //if (offhandObject != null) return;
-
         if (obj.TryChangeToSlot(this, inventorySlotPath))
         {
             heldObject = obj;
