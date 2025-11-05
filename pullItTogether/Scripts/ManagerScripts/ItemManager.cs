@@ -581,7 +581,7 @@ public partial class ItemManager : Node3D
 
 	public void DoChangeItemSlot(string itemId, long requesterId, Node3D slot)
 	{
-        GD.Print("ItemManager: DoPickupItem called for " + itemId);
+        GD.Print("ItemManager: DoChangeItemSlot called for " + itemId + ", moving to slot " + slot);
 
         var item = FindInteractableById(itemId);
         if (item == null) { GD.Print("Item null"); return; }

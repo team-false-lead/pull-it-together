@@ -418,6 +418,11 @@ public partial class PlayerController : CharacterBody3D
 					DropObject();
             }
 		}
+		if (Input.IsActionJustPressed("swap_items"))
+		{
+			if (heldObject != null && offhandObject != null)
+				SwapItemsInOffhand();
+		}
 
 		//get looked at object for debug and highlighting later
 		var lookedAtObject = RayCastForward();
@@ -728,7 +733,13 @@ public partial class PlayerController : CharacterBody3D
 
 	private void SwapItemsInOffhand()
 	{
-
+		Interactable tempItem = offhandObject;
+		if (heldObject.TryChangeToSlot(this, GetOffhandSlot()) && tempItem.TryChangeToSlot(this, GetInventorySlot()))
+        {
+            GD.Print("Swapped items!");
+			offhandObject = heldObject;
+			heldObject = tempItem;
+        }
 	}
 
 	// Set up a tether anchor point for rope mechanics
