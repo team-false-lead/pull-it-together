@@ -33,9 +33,9 @@ public partial class PlayerController : CharacterBody3D
 
 	// Interaction parameters
 	private Interactable heldObject = null;
-	private Interactable offhandOject = null;
+	private Interactable offhandObject = null;
 	private bool HeldValid() => heldObject != null && IsInstanceValid(heldObject) && !heldObject.IsQueuedForDeletion() && heldObject.IsInsideTree();
-	private bool OffhandValid () => offhandOject != null && IsInstanceValid(heldObject) && !offhandOject.IsQueuedForDeletion() && heldObject.IsInsideTree();
+	private bool OffhandValid () => offhandObject != null && IsInstanceValid(heldObject) && !offhandObject.IsQueuedForDeletion() && heldObject.IsInsideTree();
 	[Export] public NodePath inventorySlotPath;
 	[Export] public NodePath offhandPath;
 	[Export] public float interactRange = 3.0f;
@@ -407,7 +407,16 @@ public partial class PlayerController : CharacterBody3D
 				}
 			}
 			else
-				DropObject();
+			{
+                var target = GetInteractableLookedAt();
+				if (target != null && offhandObject == null)
+				{
+					//GD.Print(target.ToString());
+					PickupObject(target);
+				}
+				else
+					DropObject();
+            }
 		}
 
 		//get looked at object for debug and highlighting later
@@ -447,7 +456,7 @@ public partial class PlayerController : CharacterBody3D
 		ChangeCurrentEnergy(energyChange);
 		ChangeMaxEnergy(maxEnergyChange);
 
-		// Leo's really cool health/energy/fatigue testing code
+		// Leo's really cool health/energy/fatigue testing and cheating code
 		if (Input.IsKeyPressed(Key.Kp1) && !IsDowned) // When Numpad 1 is pressed, reduce health
 			ChangeCurrentHealth(-10);
 		else if (Input.IsKeyPressed(Key.Kp2)) // When Numpad 2 is pressed, restore health
@@ -461,8 +470,6 @@ public partial class PlayerController : CharacterBody3D
 		else if (Input.IsKeyPressed(Key.Kp8)) // When Numpad 8 is pressed, restore fatigue
 			ChangeMaxEnergy(10);
 
-		//debugTrackerLabel.Text = "FPS: " + Engine.GetFramesPerSecond() +
-		//	"\nFrame time: " + Math.Round(1 / Engine.GetFramesPerSecond(), 4) + " sec";
 		double totalFrameTime = Performance.GetMonitor(Performance.Monitor.TimeProcess);
 		debugTrackerLabel.Text = "FPS: " + Engine.GetFramesPerSecond() +
 			"\nFrame time: " + Math.Round(totalFrameTime * 1000, 4) + " ms";
@@ -498,11 +505,21 @@ public partial class PlayerController : CharacterBody3D
 		return GetNode<Node3D>(inventorySlotPath);
 	}
 
-	// Handle the "use" action input
-	private void OnUsedPressed()
+    public Node3D GetOffhandSlot()
+    {
+        if (offhandPath == null || offhandPath == String.Empty) return null;
+        return GetNode<Node3D>(offhandPath);
+    }
+
+    // Handle the "use" action input
+    private void OnUsedPressed()
 	{
 		if (!IsLocalControlled() || heldObject == null) return; // Only the local player can interact
 		UseHeldObject();
+		// If the object was used successfully and there's something in the player's offhand, move
+		// the offhand item to the inventory slot
+		if (heldObject == null && offhandObject != null)
+			MoveObjectToInventory(offhandObject);
 	}
 
 	// Raycast forward from the camera to find what the player is looking at
@@ -599,7 +616,10 @@ public partial class PlayerController : CharacterBody3D
 	{
 		if (heldObject != null)
 		{
-			DropObject();
+			if (offhandObject != null) // When both hands are full, drop the held object
+				DropObject();
+			else
+				MoveObjectToOffhand(heldObject);
 		}
 
 		if (obj.TryPickup(this) == true)
@@ -608,6 +628,32 @@ public partial class PlayerController : CharacterBody3D
 			//GD.Print("Picked up object: " + obj.interactableId);
 		}
 	}
+
+	public void MoveObjectToOffhand(Interactable obj)
+	{
+		// If there's already an object in the player's offhand, return early
+		//if (offhandObject != null) return;
+
+		if (obj.TryChangeToSlot(this, GetOffhandSlot()))
+		{
+			offhandObject = obj;
+			heldObject = null;
+            GD.Print("Moved object to offhand: " + obj.interactableId);
+        }
+	}
+
+	public void MoveObjectToInventory(Interactable obj)
+	{
+        // If there's already an object in the player's offhand, return early
+        //if (offhandObject != null) return;
+
+        if (obj.TryChangeToSlot(this, GetInventorySlot()))
+        {
+            heldObject = obj;
+			offhandObject = null;
+            GD.Print("Moved object to inventory: " + obj.interactableId);
+        }
+    }
 
 	// Drop the currently held object
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
@@ -618,7 +664,14 @@ public partial class PlayerController : CharacterBody3D
 		GD.Print("Player " + Name + " Dropping held object: " + heldObject.interactableId);
 		if (heldObject.TryDrop(this) == true)
 		{
-			heldObject = null;
+			// If the offhand slot is empty, set the held object to empty too.
+			if (!OffhandValid())
+				heldObject = null;
+			// Otherwise, move the object in the offhand slot to the inventory slot.
+			else
+			{
+				MoveObjectToInventory(offhandObject);
+			}
 		}
 	}
 
@@ -671,6 +724,11 @@ public partial class PlayerController : CharacterBody3D
 		{
 			GD.PushWarning("RequestSetTetherAnchorPath: Anchor node path error" + anchorPath.ToString());
 		}
+	}
+
+	private void SwapItemsInOffhand()
+	{
+
 	}
 
 	// Set up a tether anchor point for rope mechanics

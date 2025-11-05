@@ -579,6 +579,49 @@ public partial class ItemManager : Node3D
 		item.Carrier = carrier;
 	}
 
+	public void DoChangeItemSlot(string itemId, long requesterId, Node3D slot)
+	{
+        GD.Print("ItemManager: DoPickupItem called for " + itemId);
+
+        var item = FindInteractableById(itemId);
+        if (item == null) { GD.Print("Item null"); return; }
+
+        PlayerController carrier = GetPlayerControllerById(requesterId);
+        if (carrier == null) { GD.Print("Carrier null"); return; }
+
+        if (slot == null) { GD.Print("Slot null"); return; }
+
+        // Moving items to offhand should only be done when an item has already been held,
+        // so changing the item's physics isn't necessary. If the player is somehow moving
+		// an item directly into their offhand, however, there is a problem.
+		//if (item.Carrier != carrier) { GD.Print("Item doesn't have a carrier"); return; }
+        item.StartFollowingSlot(slot);
+    }
+
+	public void DoSwapItems(string activeItemId, string offhandItemId, long requesterId)
+	{
+        GD.Print("ItemManager: DoSwapItems called for " + activeItemId + " and " + offhandItemId);
+
+        var activeItem = FindInteractableById(activeItemId);
+        if (activeItem == null) { GD.Print("Active item null"); return; }
+
+        var offhandItem = FindInteractableById(offhandItemId);
+        if (offhandItem == null) { GD.Print("Offhand item null"); return; }
+
+        PlayerController carrier = GetPlayerControllerById(requesterId);
+        if (carrier == null) { GD.Print("Carrier null"); return; }
+
+        var slot = carrier.GetInventorySlot();
+        if (slot == null) { GD.Print("Inventory slot null"); return; }
+
+        var offhandSlot = carrier.GetOffhandSlot();
+        if (slot == null) { GD.Print("Offhand slot null"); return; }
+
+		// All that work just to call two functions
+		activeItem.StartFollowingSlot(offhandSlot);
+		offhandItem.StartFollowingSlot(slot);
+    }
+
 	// item drop request
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer)] // Allow any peer to request item drop
 	public void RequestDropItem(string itemId)

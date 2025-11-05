@@ -111,6 +111,37 @@ public abstract partial class Interactable : RigidBody3D
         return true;
     }
 
+    public virtual bool TryChangeToSlot(CharacterBody3D carrier, Node3D slot)
+    {
+        if (!CanBeCarried()) return false;
+
+        if (itemManager == null) InitReferences();
+        var id = GetInteractableId(); //get unique id, default to name
+
+        // Request pickup via RPC if not server, 
+        if (multiplayerActive && !multiplayer.IsServer())
+        {
+            //var error = itemManager.RpcId(1, nameof(ItemManager.RequestPickupItem), id); // Request pickup via RPC, 1 is server ID
+            //if (error != Error.Ok)
+            //{
+            //    GD.PrintErr("Interactable: Failed to request item pickup via RPC. Error: " + error);
+            //    return false; //failed pickup request
+            //}
+            // Temp: return false in multiplayer
+            GD.PrintErr("Multiplayer functionality incomplete.");
+            return false;
+        }
+        else // Server or single-player handles pickup directly
+        {
+            itemManager.DoChangeItemSlot(id, multiplayer.GetUniqueId(), slot);
+        }
+
+        //server handles pickup logic
+
+        Carrier = carrier;
+        return true;
+    }
+
     // Drop the object from the carrier
     public virtual bool TryDrop(CharacterBody3D carrier)
     {
