@@ -1,5 +1,6 @@
 using Godot;
 using System;
+using System.Diagnostics;
 using static Godot.WebSocketPeer;
 
 // a wheel that can be repaired with wooden planks
@@ -13,6 +14,8 @@ public partial class Wheel : Entity
     [Export] public float damageAmountMin = 0f;
     [Export] public CollisionShape3D wheelCollision;
     public float speed;
+    public float currentYVel;
+    public float prevYVel;
     public Wagon wagonScript;
     public Random rnd = new Random();
     public override void _Ready()
@@ -63,8 +66,7 @@ public partial class Wheel : Entity
         //{
         //    itemManager.DoDamageWheel(GetEntityId(), damageAmount);
         //}
-
-        
+        prevYVel = currentYVel;
 
         if (Visible == true)
         {
@@ -96,6 +98,8 @@ public partial class Wheel : Entity
                 itemManager.DoDamageWheel(GetEntityId(), MathF.Abs(speed) * (float)(rnd.NextDouble() * (damageAmountMax - damageAmountMin) * delta));
             }
 
+            ImpulseDamage(delta);
+
             //if(currentHealth < 10)
             //GD.Print(currentHealth);
         }
@@ -118,6 +122,25 @@ public partial class Wheel : Entity
 
             }
         }
+    }
+
+    public void ImpulseDamage(double delta)
+    {
+        currentYVel = wagonScript.localVelocity.Y;
+
+        float velocityDelta = Math.Abs(prevYVel - currentYVel);
+
+        if(velocityDelta > .5)
+        {
+            Debug.Print(velocityDelta + "");
+
+        }
+
+        if (velocityDelta > 1.25)
+        {
+            //itemManager.DoDamageWheel(GetEntityId(), 100);
+        }
+
     }
 
 }
