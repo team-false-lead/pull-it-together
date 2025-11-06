@@ -209,6 +209,8 @@ public partial class PlayerController : CharacterBody3D
 		TintMeshIfFound("Head/Camera3D/EyesMesh", color);
 		TintMeshIfFound("Head/Camera3D/Inventory/InventorySlot1", color);
         TintMeshIfFound("Head/Camera3D/Inventory/InventorySlot2", color);
+        TintMeshIfFound("Head/Camera3D/Inventory/LeftArmMesh", color);
+        TintMeshIfFound("Head/Camera3D/Inventory/RightArmMesh", color);
     }
 
 	private void TintMeshIfFound(string path, Color color)
@@ -505,10 +507,10 @@ public partial class PlayerController : CharacterBody3D
     private void OnUsedPressed()
 	{
 		if (!IsLocalControlled() || heldObject == null) return; // Only the local player can interact
-		UseHeldObject();
-		// If the object was used successfully and there's something in the player's offhand, move
-		// the offhand item to the inventory slot
-		if (heldObject == null && offhandObject != null)
+        UseHeldObject();
+        // If the object was used successfully and there's something in the player's offhand, move
+        // the offhand item to the inventory slot
+        if (!HeldValid() && offhandObject != null)
 			MoveObjectToInventory(offhandObject);
 	}
 
