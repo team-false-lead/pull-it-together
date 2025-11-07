@@ -10,7 +10,7 @@ public partial class Wheel : Entity
     [Export] public float maxHealth = 100f;
     //[Export] public bool isBroken = false;
     [Export] public float repairAmount = 34f;
-    [Export] public float damageAmountMax = 0.75f;
+    [Export] public float damageAmountMax = 0.4f;
     [Export] public float damageAmountMin = 0f;
     [Export] public CollisionShape3D wheelCollision;
     public float speed;
@@ -18,10 +18,13 @@ public partial class Wheel : Entity
     public float prevYVel;
     public Wagon wagonScript;
     public Random rnd = new Random();
+    GpuParticles3D damageParticles;
+
     public override void _Ready()
     {
         wagonScript = GetTree().GetFirstNodeInGroup("wagon") as Wagon;
         if (itemManager == null) InitReferences();
+        damageParticles = GetNode<GpuParticles3D>("DamageParticles");
     }
 
     // By default, entities do not accept being used on them
@@ -134,6 +137,7 @@ public partial class Wheel : Entity
         {
             Debug.Print("Damage: " + velocityDelta * 5);
             itemManager.DoDamageWheel(GetEntityId(), velocityDelta * 5);
+            damageParticles.Restart();
         }
 
     }
