@@ -130,14 +130,9 @@ public partial class Wheel : Entity
 
         float velocityDelta = Math.Abs(prevYVel - currentYVel);
 
-        if(velocityDelta > .5)
-        {
-            Debug.Print("Damage: " + velocityDelta * 5);
-
-        }
-
         if (velocityDelta > 0.5f)
         {
+            Debug.Print("Damage: " + velocityDelta * 5);
             itemManager.DoDamageWheel(GetEntityId(), velocityDelta * 5);
         }
 
