@@ -132,13 +132,13 @@ public partial class Wheel : Entity
 
         if(velocityDelta > .5)
         {
-            Debug.Print(velocityDelta + "");
+            Debug.Print("Damage: " + velocityDelta * 5);
 
         }
 
-        if (velocityDelta > 1.25)
+        if (velocityDelta > 0.5f)
         {
-            //itemManager.DoDamageWheel(GetEntityId(), 100);
+            itemManager.DoDamageWheel(GetEntityId(), velocityDelta * 5);
         }
 
     }
