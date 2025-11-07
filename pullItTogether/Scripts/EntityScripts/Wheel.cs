@@ -99,6 +99,7 @@ public partial class Wheel : Entity
             if (MathF.Abs(speed) > 0.25f)
             {
                 itemManager.DoDamageWheel(GetEntityId(), MathF.Abs(speed) * (float)(rnd.NextDouble() * (damageAmountMax - damageAmountMin) * delta));
+                //Debug.Print(currentHealth + "");
             }
 
             ImpulseDamage(delta);
@@ -135,9 +136,12 @@ public partial class Wheel : Entity
 
         if (velocityDelta > 0.5f)
         {
-            Debug.Print("Damage: " + velocityDelta * 5);
-            itemManager.DoDamageWheel(GetEntityId(), velocityDelta * 5);
-            damageParticles.Restart();
+            if (rnd.Next(0, 4) == 0)
+            {
+                //Debug.Print("Damage: " + velocityDelta * 5);
+                itemManager.DoDamageWheel(GetEntityId(), velocityDelta * 5);
+                damageParticles.Restart();
+            }
         }
 
     }
