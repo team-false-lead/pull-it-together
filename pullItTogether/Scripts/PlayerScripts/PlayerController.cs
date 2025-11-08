@@ -35,7 +35,7 @@ public partial class PlayerController : CharacterBody3D
 	private Interactable heldObject = null;
 	private Interactable offhandObject = null;
 	private bool HeldValid() => heldObject != null && IsInstanceValid(heldObject) && !heldObject.IsQueuedForDeletion() && heldObject.IsInsideTree();
-	private bool OffhandValid () => offhandObject != null && IsInstanceValid(heldObject) && !offhandObject.IsQueuedForDeletion() && heldObject.IsInsideTree();
+	private bool OffhandValid () => offhandObject != null && IsInstanceValid(offhandObject) && !offhandObject.IsQueuedForDeletion() && offhandObject.IsInsideTree();
 	[Export] public NodePath inventorySlotPath;
 	[Export] public NodePath offhandPath;
 	[Export] public float interactRange = 3.0f;
@@ -253,7 +253,7 @@ public partial class PlayerController : CharacterBody3D
 
 		if (Input.IsActionPressed("sprint") && IsOnFloor() && !isSprinting)
 		{
-			if (heldObject != null && heldObject is RopeGrabPoint ropeGrabPoint)
+			if (HeldValid() && heldObject is RopeGrabPoint ropeGrabPoint)
 			{
 				heldObject.TryUseSelf(this); // heave if try to sprint while holding rope
 			}
@@ -386,7 +386,7 @@ public partial class PlayerController : CharacterBody3D
 		}
 
 		// For heavier objects that we will definitely add more of later, apply a movement penalty.
-		if (heldObject != null)
+		if (HeldValid())
 		{
 			velocity.X *= heldObject.MovementPenalty;
 			velocity.Z *= heldObject.MovementPenalty;
@@ -408,9 +408,12 @@ public partial class PlayerController : CharacterBody3D
 		}
 		if (Input.IsActionJustPressed("swap_items"))
 		{
-			if (heldObject != null && offhandObject != null)
+			if (HeldValid() && OffhandValid())
 				SwapItemsInOffhand();
 		}
+
+		if (!HeldValid() && OffhandValid())
+			MoveObjectToInventory(offhandObject);
 
 		//get looked at object for debug and highlighting later
 		var lookedAtObject = RayCastForward();
@@ -506,12 +509,12 @@ public partial class PlayerController : CharacterBody3D
     // Handle the "use" action input
     private void OnUsedPressed()
 	{
-		if (!IsLocalControlled() || heldObject == null) return; // Only the local player can interact
+		if (!IsLocalControlled() || !HeldValid()) return; // Only the local player can interact
         UseHeldObject();
         // If the object was used successfully and there's something in the player's offhand, move
         // the offhand item to the inventory slot
-        if (!HeldValid() && offhandObject != null)
-			MoveObjectToInventory(offhandObject);
+        //if (!HeldValid() && offhandObject != null)
+		//	MoveObjectToInventory(offhandObject);
 	}
 
 	// Raycast forward from the camera to find what the player is looking at
@@ -606,6 +609,12 @@ public partial class PlayerController : CharacterBody3D
 	// pickup currently looked at object, drop current held object if any
 	public void PickupObject(Interactable obj)
 	{
+		HandleInvalidHeldObject(); 
+		if (HeldValid() && heldObject.isTwoHanded)
+        {
+			DropObject();
+        }
+
 		// When picking up a two-handed object, drop all currently-held objects.
 		// Null checks aren't strictly necessary since DropObject() does that anyways,
 		// but this code can probably be improved a bit
@@ -614,10 +623,10 @@ public partial class PlayerController : CharacterBody3D
 			DropObject();
 			DropObject();
 		}
-		else if (heldObject != null)
+		else if (HeldValid())
         {
 			// When both hands are full, drop the held object
-            if (offhandObject != null)
+            if (OffhandValid())
 				DropObject();
 
 			MoveObjectToOffhand(heldObject); // Move anything in the player's active hand to their offhand
@@ -724,6 +733,7 @@ public partial class PlayerController : CharacterBody3D
 
 	private void SwapItemsInOffhand()
 	{
+		HandleInvalidHeldObject();
 		Interactable tempItem = offhandObject;
 		if (heldObject.TryChangeToSlot(this, offhandPath) && tempItem.TryChangeToSlot(this, inventorySlotPath))
         {
