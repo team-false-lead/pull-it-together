@@ -425,7 +425,7 @@ public partial class PlayerController : CharacterBody3D
 					}
 					else if (entity != null)
 					{
-						lookingAtText = entity.Name;
+						lookingAtText = entity.publicName;
 					}
 				}
 			}

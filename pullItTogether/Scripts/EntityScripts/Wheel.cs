@@ -25,6 +25,7 @@ public partial class Wheel : Entity
         wagonScript = GetTree().GetFirstNodeInGroup("wagon") as Wagon;
         if (itemManager == null) InitReferences();
         damageParticles = GetNode<GpuParticles3D>("DamageParticles");
+        publicName = "Wheel: Healthy";
     }
 
     // By default, entities do not accept being used on them
@@ -78,18 +79,22 @@ public partial class Wheel : Entity
             if (currentHealth >= 75 && RotationDegrees.Z != 90)
             {
                 RotationDegrees = new Vector3(Rotation.X, Rotation.Y, 90);
+                publicName = "Wheel: Healthy";
             }
             if (currentHealth < 75 && currentHealth >= 50 && RotationDegrees.Z != 96)
             {
                 RotationDegrees = new Vector3(Rotation.X, Rotation.Y, 96);
+                publicName = "Wheel: Chipped";
             }
             if (currentHealth < 50 && currentHealth >= 25 && RotationDegrees.Z != 102)
             {
                 RotationDegrees = new Vector3(Rotation.X, Rotation.Y, 102);
+                publicName = "Wheel: Damaged";
             }
             if (currentHealth < 25 && RotationDegrees.Z != 108)
             {
                 RotationDegrees = new Vector3(Rotation.X, Rotation.Y, 108);
+                publicName = "Wheel: Critical";
             }
 
 
@@ -115,6 +120,7 @@ public partial class Wheel : Entity
             {
                 Visible = false;
                 wheelCollision.Scale = new Vector3(.4f, .4f, .4f);
+                publicName = "Wheel: Broken";
             }
         }
         else if (currentHealth > 0)
