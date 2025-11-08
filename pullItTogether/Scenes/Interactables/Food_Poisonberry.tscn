@@ -47,6 +47,7 @@ label3D = NodePath("Label3D")
 healthAddedRaw = -20.0
 healthAddedCooked = -10.0
 potentialEnergyAddedCooked = 40.0
+publicName = "Poisonberry"
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 replication_config = SubResource("SceneReplicationConfig_lwjo8")
