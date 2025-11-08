@@ -42,12 +42,12 @@ initial_velocity_max = 2.0
 gravity = Vector3(0, -5, 0)
 turbulence_noise_strength = 3.07
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_i3wkb"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_dwcrf"]
 albedo_color = Color(0.517647, 0.447059, 0.305882, 1)
 
-[sub_resource type="BoxMesh" id="BoxMesh_6poiw"]
-material = SubResource("StandardMaterial3D_i3wkb")
-size = Vector3(0.05, 0.2, 0.05)
+[sub_resource type="BoxMesh" id="BoxMesh_80wb2"]
+material = SubResource("StandardMaterial3D_dwcrf")
+size = Vector3(0.1, 0.4, 0.1)
 
 [node name="WheelBR" type="StaticBody3D"]
 transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 0, 0, 0)
@@ -67,10 +67,9 @@ shape = SubResource("SphereShape3D_3j3jf")
 [node name="DamageParticles" type="GPUParticles3D" parent="."]
 transform = Transform3D(1, -4.37427e-08, 4.37114e-08, -4.37427e-08, -0.000715538, 1, -4.37114e-08, -1, -0.000715538, 0.175707, 0.0341603, 0)
 emitting = false
-amount = 18
 one_shot = true
-speed_scale = 3.0
+speed_scale = 2.0
 randomness = 1.0
 trail_lifetime = 2.55
 process_material = SubResource("ParticleProcessMaterial_3j3jf")
-draw_pass_1 = SubResource("BoxMesh_6poiw")
+draw_pass_1 = SubResource("BoxMesh_80wb2")
