@@ -79,17 +79,17 @@ public partial class Wheel : Entity
             {
                 RotationDegrees = new Vector3(Rotation.X, Rotation.Y, 90);
             }
-            if (currentHealth < 75 && currentHealth >= 50 && RotationDegrees.Z != 93)
-            {
-                RotationDegrees = new Vector3(Rotation.X, Rotation.Y, 93);
-            }
-            if (currentHealth < 50 && currentHealth >= 25 && RotationDegrees.Z != 96)
+            if (currentHealth < 75 && currentHealth >= 50 && RotationDegrees.Z != 96)
             {
                 RotationDegrees = new Vector3(Rotation.X, Rotation.Y, 96);
             }
-            if (currentHealth < 25 && RotationDegrees.Z != 99)
+            if (currentHealth < 50 && currentHealth >= 25 && RotationDegrees.Z != 102)
             {
-                RotationDegrees = new Vector3(Rotation.X, Rotation.Y, 99);
+                RotationDegrees = new Vector3(Rotation.X, Rotation.Y, 102);
+            }
+            if (currentHealth < 25 && RotationDegrees.Z != 108)
+            {
+                RotationDegrees = new Vector3(Rotation.X, Rotation.Y, 108);
             }
 
 
