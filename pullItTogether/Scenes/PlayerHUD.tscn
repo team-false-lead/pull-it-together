@@ -1,6 +1,6 @@
 [gd_scene load_steps=6 format=3 uid="uid://cx0brpfq1upti"]
 
-[ext_resource type="Texture2D" uid="uid://b7s337s1vub8l" path="res://Textures/temp-crosshair.png" id="1_g363m"]
+[ext_resource type="Texture2D" uid="uid://b7s337s1vub8l" path="res://Textures/UI/temp-crosshair.png" id="1_g363m"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_gntrk"]
 bg_color = Color(9.62615e-07, 0.720765, 0.318998, 1)
