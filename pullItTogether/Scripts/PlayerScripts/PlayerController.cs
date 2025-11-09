@@ -391,23 +391,26 @@ public partial class PlayerController : CharacterBody3D
 		Velocity = velocity;
 		MoveAndSlide();
 
-		// Handle interaction input
-		if (Input.IsActionJustPressed("use"))// LMB
-			OnUsedPressed();
-		if (Input.IsActionJustPressed("pickup") && !IsDowned) // E
+		if (!isPaused)
 		{
-			if (heldObject == null)
-			{
-				var target = GetInteractableLookedAt();
-				if (target != null)
-				{
-					//GD.Print(target.ToString());
-					PickupObject(target);
-				}
-			}
-			else
-				DropObject();
-		}
+            // Handle interaction input
+            if (Input.IsActionJustPressed("use"))// LMB
+                OnUsedPressed();
+            if (Input.IsActionJustPressed("pickup") && !IsDowned) // E
+            {
+                if (heldObject == null)
+                {
+                    var target = GetInteractableLookedAt();
+                    if (target != null)
+                    {
+                        //GD.Print(target.ToString());
+                        PickupObject(target);
+                    }
+                }
+                else
+                    DropObject();
+            }
+        }
 
 		//get looked at object for debug and highlighting later
 		var lookedAtObject = RayCastForward();
