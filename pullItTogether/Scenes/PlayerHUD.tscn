@@ -189,3 +189,16 @@ grow_vertical = 0
 text = "IN STORM!"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="ItemInstructionsLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 701.0
+offset_top = 493.0
+offset_right = 1141.0
+offset_bottom = 606.0
+theme_override_font_sizes/font_size = 18
+text = "Left-click: Use
+E: Drop
+Tab: Switch items"
+horizontal_alignment = 2
+autowrap_mode = 2

@@ -81,6 +81,7 @@ public partial class PlayerController : CharacterBody3D
 	private bool isPaused;
 	[Export] private PauseMenu pauseMenu;
 	private Label debugTrackerLabel;
+	private Label itemInstructionsLabel;
 
 	// Heaving parameters
 	private bool isHeaving = false;
@@ -140,6 +141,7 @@ public partial class PlayerController : CharacterBody3D
 			debugTrackerLabel = HUD.GetNode<Label>("DebugTrackerLabel");
 			inStormLabel = HUD.GetNode<Label>("InStormLabel");
 			lookingAtLabel = HUD.GetNode<Label>("LookingAtLabel");
+			itemInstructionsLabel = HUD.GetNode<Label>("ItemInstructionsLabel");
 
 			// Set health and energy values to their default
 			currentHealth = maxHealth;
@@ -467,6 +469,8 @@ public partial class PlayerController : CharacterBody3D
 			debugTrackerLabel.Text += "\nIs lobby host";
 		else
 			debugTrackerLabel.Text += "\nIs lobby peer";
+
+		UpdateItemInstructionsText();
     }
 
 	// Simple head bobbing effect
@@ -869,6 +873,46 @@ public partial class PlayerController : CharacterBody3D
 		rotation.X = 0;
 		rotation.Z = 0;
 		GlobalRotation = rotation;
+	}
+
+	/// <summary>
+	/// Sets the item instructions text based on whether or not an item is held,
+	/// another item is being looked at, etc.
+	/// </summary>
+	private void UpdateItemInstructionsText()
+	{
+		string instructionsString = "";
+
+		// When looking at an interactable, display the pick-up interactable text
+		Interactable i = GetInteractableLookedAt();
+		if (i != null && i.CanBeCarried())
+		{
+			if (HeldValid())
+				instructionsString += "[E]: Switch " + heldObject.Name + " with " + i.Name + "\n";
+			else
+				instructionsString += "[E]: Pick up " + i.Name + "\n";
+		}
+
+		// If holding an item:
+		if (HeldValid())
+		{
+			// Display the drop item text when not looking at an interactable
+			if (i == null)
+				instructionsString += "[E]: Drop " + heldObject.Name + "\n";
+
+			// If the item can be used, display the use item prompt
+			Entity e = GetEntityLookedAt();
+			if (e != null && heldObject.CanUseOnEntity(this, e))
+				instructionsString += "Left-click: Use " + heldObject.Name + " on " + e.Name;
+			else if (i != null && heldObject.CanUseOnInteractable(this, i))
+				instructionsString += "Left-click: Use " + heldObject.Name + " on " + i.Name;
+			else if (heldObject.CanUseSelf(this))
+				instructionsString += "Left-click: Use " + heldObject.Name;
+        }
+
+		// TO-DO: Off-hand stuff when that gets merged into dev
+
+		itemInstructionsLabel.Text = instructionsString;
 	}
 
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
