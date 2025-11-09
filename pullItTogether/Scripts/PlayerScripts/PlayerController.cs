@@ -76,6 +76,7 @@ public partial class PlayerController : CharacterBody3D
 	private bool inStorm = false;
 	private Label lookingAtLabel;
 	private string lookingAtText = "";
+	private MeshInstance3D lookedAtMesh;
 	
 	// Pause menu parameters
 	private bool isPaused;

@@ -52,6 +52,15 @@ public partial class Food : Interactable
         }
     }
 
+    public override void ToggleHighlighted(bool highlighted)
+    {
+        MeshInstance3D activeMesh;
+        if (isCooked)
+            activeMesh = cookedMesh;
+        else
+            activeMesh = rawMesh;
+    }
+
     // Logic for using the food item on an interactable Player (feeding)
     //public override void TryUseOnInteractable(CharacterBody3D user, Interactable target)
     //{
