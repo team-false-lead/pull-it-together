@@ -421,11 +421,11 @@ public partial class PlayerController : CharacterBody3D
 					//debug prints for now
 					if (interactable != null)
 					{
-						lookingAtText = interactable.Name;
+						lookingAtText = interactable.publicName;
 					}
 					else if (entity != null)
 					{
-						lookingAtText = entity.Name;
+						lookingAtText = entity.publicName;
 					}
 				}
 			}
