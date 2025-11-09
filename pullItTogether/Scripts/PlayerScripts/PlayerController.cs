@@ -76,7 +76,7 @@ public partial class PlayerController : CharacterBody3D
 	private bool inStorm = false;
 	private Label lookingAtLabel;
 	private string lookingAtText = "";
-	private MeshInstance3D lookedAtMesh;
+	private Node3D lastLookedAtItem;
 	
 	// Pause menu parameters
 	private bool isPaused;
@@ -424,21 +424,34 @@ public partial class PlayerController : CharacterBody3D
 				{
 					var interactable = FindInteractable(colliderNode);
 					var entity = FindEntity(colliderNode);
-					//debug prints for now
 					if (interactable != null)
 					{
+						if (lastLookedAtItem != interactable)
+						{
+							ResetLookedAtItem();
+							lastLookedAtItem = interactable;
+							interactable.ToggleHighlighted(true);
+						}
+
 						lookingAtText = interactable.publicName;
 					}
 					else if (entity != null)
 					{
+						if (lastLookedAtItem != entity)
+						{
+							ResetLookedAtItem();
+							lastLookedAtItem = entity;
+							entity.ToggleHighlighted(true);
+						}
 						lookingAtText = entity.publicName;
 					}
-				}
-			}
+                }
+            }
 		}
 		else
 		{
 			lookingAtText = "";
+			ResetLookedAtItem();
 		}
 		EmitSignal("ChangeHUD");
 
@@ -955,4 +968,13 @@ public partial class PlayerController : CharacterBody3D
 			canHeave = true; // can heave again
 		};
 	}
+
+	private void ResetLookedAtItem()
+	{
+        if (lastLookedAtItem is Interactable i)
+            i.ToggleHighlighted(false);
+        else if (lastLookedAtItem is Entity e)
+            e.ToggleHighlighted(false);
+		lastLookedAtItem = null;
+    }
 }

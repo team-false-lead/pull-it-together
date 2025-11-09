@@ -196,3 +196,4 @@ transform = Transform3D(200, 0, 0, 0, -8.74228e-06, 200, 0, -200, -8.74228e-06, 
 visible = false
 mesh = SubResource("ArrayMesh_88b2m")
 surface_material_override/0 = ExtResource("4_88qst")
+surface_material_override/1 = ExtResource("4_88qst")

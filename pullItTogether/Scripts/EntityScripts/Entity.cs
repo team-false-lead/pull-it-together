@@ -60,5 +60,5 @@ public abstract partial class Entity : Node3D
     public virtual void AcceptUseFrom(CharacterBody3D user, Interactable source) { }
 
 
-    public virtual MeshInstance3D GetActiveMesh() { return null; }
+    public virtual void ToggleHighlighted(bool highlighted) { }
 }

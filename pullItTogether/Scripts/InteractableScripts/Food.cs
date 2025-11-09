@@ -59,6 +59,13 @@ public partial class Food : Interactable
             activeMesh = cookedMesh;
         else
             activeMesh = rawMesh;
+
+        for (int i = 0; i < activeMesh.GetSurfaceOverrideMaterialCount(); i++)
+        {
+            activeMesh.GetSurfaceOverrideMaterial(i).Set("emission_enabled", highlighted);
+            if (highlighted)
+                activeMesh.GetSurfaceOverrideMaterial(i).Set("emission", Colors.Yellow);
+        }
     }
 
     // Logic for using the food item on an interactable Player (feeding)
