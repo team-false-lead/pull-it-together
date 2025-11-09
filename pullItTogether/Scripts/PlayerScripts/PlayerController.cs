@@ -891,9 +891,9 @@ public partial class PlayerController : CharacterBody3D
 		if (i != null && i.CanBeCarried())
 		{
 			if (HeldValid())
-				instructionsString += "[E]: Switch " + heldObject.Name + " with " + i.Name + "\n";
+				instructionsString += "[E]: Switch " + heldObject.publicName + " with " + i.publicName + "\n";
 			else
-				instructionsString += "[E]: Pick up " + i.Name + "\n";
+				instructionsString += "[E]: Pick up " + i.publicName + "\n";
 		}
 
 		// If holding an item:
@@ -901,16 +901,16 @@ public partial class PlayerController : CharacterBody3D
 		{
 			// Display the drop item text when not looking at an interactable
 			if (i == null)
-				instructionsString += "[E]: Drop " + heldObject.Name + "\n";
+				instructionsString += "[E]: Drop " + heldObject.publicName + "\n";
 
 			// If the item can be used, display the use item prompt
 			Entity e = GetEntityLookedAt();
 			if (e != null && heldObject.CanUseOnEntity(this, e))
-				instructionsString += "Left-click: Use " + heldObject.Name + " on " + e.Name;
+				instructionsString += "Left-click: Use " + heldObject.publicName + " on " + e.publicName;
 			else if (i != null && heldObject.CanUseOnInteractable(this, i))
-				instructionsString += "Left-click: Use " + heldObject.Name + " on " + i.Name;
+				instructionsString += "Left-click: Use " + heldObject.publicName + " on " + i.publicName;
 			else if (heldObject.CanUseSelf(this))
-				instructionsString += "Left-click: Use " + heldObject.Name;
+				instructionsString += "Left-click: Use " + heldObject.publicName;
 
 			// TO-DO: Be more specific with certain objects (i.e. Cook food or repair wheel)
         }
