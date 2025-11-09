@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=4 uid="uid://dnrj6qm3hslwt"]
+[gd_scene load_steps=12 format=4 uid="uid://dnrj6qm3hslwt"]
 
 [ext_resource type="Script" uid="uid://c7yf60mlbjaqe" path="res://Scripts/InteractableScripts/Food.cs" id="1_mvv33"]
 [ext_resource type="Material" uid="uid://bijn0vyh232qq" path="res://Textures/Food/Materials/GoodberryMaterial.tres" id="2_jctab"]
@@ -96,9 +96,6 @@ _surfaces = [{
 blend_shape_mode = 0
 shadow_mesh = SubResource("ArrayMesh_li22s")
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_88b2m"]
-albedo_texture = ExtResource("3_88qst")
-
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_emob3"]
 albedo_texture = ExtResource("3_88qst")
 
@@ -188,7 +185,7 @@ text = "Goodberry"
 [node name="GoodberryMesh" type="MeshInstance3D" parent="."]
 transform = Transform3D(200, 0, 0, 0, -8.74228e-06, 200, 0, -200, -8.74228e-06, 0, 0.0459526, 0)
 mesh = SubResource("ArrayMesh_88qst")
-surface_material_override/0 = SubResource("StandardMaterial3D_88b2m")
+surface_material_override/0 = SubResource("StandardMaterial3D_emob3")
 surface_material_override/1 = SubResource("StandardMaterial3D_emob3")
 
 [node name="GoodberryCookedMesh" type="MeshInstance3D" parent="."]
