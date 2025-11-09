@@ -908,6 +908,8 @@ public partial class PlayerController : CharacterBody3D
 				instructionsString += "Left-click: Use " + heldObject.Name + " on " + i.Name;
 			else if (heldObject.CanUseSelf(this))
 				instructionsString += "Left-click: Use " + heldObject.Name;
+
+			// TO-DO: Be more specific with certain objects (i.e. Cook food or repair wheel)
         }
 
 		// TO-DO: Off-hand stuff when that gets merged into dev
