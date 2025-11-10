@@ -3,5 +3,6 @@
 [ext_resource type="Texture2D" uid="uid://raf4ou0yr7d8" path="res://Textures/Food/ALL_Goodberry_Diffuse.png" id="1_i4fxg"]
 
 [resource]
+resource_local_to_scene = true
 albedo_color = Color(0.36, 0.1692, 0.2646, 1)
 albedo_texture = ExtResource("1_i4fxg")

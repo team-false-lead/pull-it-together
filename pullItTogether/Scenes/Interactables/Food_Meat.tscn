@@ -73,6 +73,7 @@ blend_shape_mode = 0
 shadow_mesh = SubResource("ArrayMesh_j6hv1")
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_qvg0e"]
+resource_local_to_scene = true
 albedo_texture = ExtResource("4_knjl6")
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_0x64q"]
@@ -110,6 +111,7 @@ blend_shape_mode = 0
 shadow_mesh = SubResource("ArrayMesh_0x64q")
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_56of8"]
+resource_local_to_scene = true
 albedo_texture = ExtResource("5_knjl6")
 
 [node name="Meat" type="RigidBody3D" node_paths=PackedStringArray("rawMesh", "cookedMesh", "label3D") groups=["food"]]
