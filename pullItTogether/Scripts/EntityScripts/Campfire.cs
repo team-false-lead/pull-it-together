@@ -10,7 +10,7 @@ public partial class Campfire : Entity
     //override to accept food items
     public override bool CanAcceptUseFrom(CharacterBody3D user, Interactable source)
     {
-        if (source.IsInGroup("food"))
+        if (source.IsInGroup("food") && source is Food food && !food.isCooked) // Can't accept use from cooked food
         {
             return true;
         }
@@ -39,4 +39,17 @@ public partial class Campfire : Entity
         }
     }
 
+    public override void ToggleHighlighted(bool highlighted)
+    {
+        // Annoying for loop since there are a bunch of meshes
+        foreach (Node3D child in GetNode<Node3D>("SM_Campfire").GetChildren())
+        {
+            if (child is MeshInstance3D mesh)
+            {
+                mesh.GetSurfaceOverrideMaterial(0).Set("emission_enabled", highlighted);
+                if (highlighted)
+                    mesh.GetSurfaceOverrideMaterial(0).Set("emission", Colors.Green);
+            }
+        }
+    }
 }

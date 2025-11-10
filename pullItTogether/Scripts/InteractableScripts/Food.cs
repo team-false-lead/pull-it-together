@@ -38,7 +38,6 @@ public partial class Food : Interactable
         // Request feeding via RPC if not server
         if (multiplayerActive && !multiplayer.IsServer())
         {
-
             var error = itemManager.RpcId(1, nameof(ItemManager.RequestFeedTarget), id, targetPeerId);
             if (error != Error.Ok)
             {

@@ -437,7 +437,7 @@ public partial class PlayerController : CharacterBody3D
 					}
 					else if (entity != null)
 					{
-						if (lastLookedAtItem != entity)
+						if (lastLookedAtItem != entity && HeldValid() && entity.CanAcceptUseFrom(this, heldObject))
 						{
 							ResetLookedAtItem();
 							lastLookedAtItem = entity;
@@ -521,7 +521,8 @@ public partial class PlayerController : CharacterBody3D
 	{
 		if (!IsLocalControlled() || heldObject == null) return; // Only the local player can interact
 		UseHeldObject();
-	}
+        ResetLookedAtItem();
+    }
 
 	// Raycast forward from the camera to find what the player is looking at
 	public Dictionary RayCastForward()
@@ -637,7 +638,8 @@ public partial class PlayerController : CharacterBody3D
 		if (heldObject.TryDrop(this) == true)
 		{
 			heldObject = null;
-		}
+            ResetLookedAtItem();
+        }
 	}
 
 	// Use the held object on itself or on a target
@@ -665,7 +667,7 @@ public partial class PlayerController : CharacterBody3D
 			if (!IsInstanceValid(heldObject) || heldObject.IsQueuedForDeletion())
 			{
 				heldObject = null; // The held object was destroyed during use
-			}
+            }
 			return;
 		}
 
@@ -674,7 +676,7 @@ public partial class PlayerController : CharacterBody3D
 		if (!IsInstanceValid(heldObject) || heldObject.IsQueuedForDeletion())
 		{
 			heldObject = null; // The held object was destroyed during use
-		}
+        }
 	}
 
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
