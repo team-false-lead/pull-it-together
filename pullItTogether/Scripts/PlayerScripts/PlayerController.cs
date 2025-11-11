@@ -677,7 +677,7 @@ public partial class PlayerController : CharacterBody3D
         {
             heldObject = obj;
 			offhandObject = null;
-            GD.Print("Moved object to inventory: " + obj.interactableId);
+            GD.Print("Moved object to inventory: " + obj.interactableId); 
         }
     }
 
@@ -761,6 +761,7 @@ public partial class PlayerController : CharacterBody3D
             GD.Print("Swapped items!");
 			offhandObject = heldObject;
 			heldObject = tempItem;
+            ResetLookedAtItem();
         }
 	}
 
