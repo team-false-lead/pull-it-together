@@ -425,8 +425,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.3891, 14.3068, -599.851)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.51888, 0, -16.3447)
 
 [node name="Superstorm" parent="." node_paths=PackedStringArray("interactablesNode") instance=ExtResource("18_tys2t")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -22, 309.671)
-stormSpeed = 1.25
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -22, 382.558)
 interactablesNode = NodePath("../Interactables")
 
 [node name="Trees" type="Node3D" parent="."]
