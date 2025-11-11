@@ -417,6 +417,9 @@ public partial class PlayerController : CharacterBody3D
 				MoveObjectToInventory(offhandObject);
 		}
 
+		if (!Multiplayer.IsServer()) // Peer-side players have to reset their looked-at item every frame because of networking shenanigans
+			ResetLookedAtItem();
+
 		//get looked at object for debug and highlighting later
 		var lookedAtObject = RayCastForward();
 		if (lookedAtObject.Count > 0)
