@@ -8,6 +8,7 @@ public abstract partial class Interactable : RigidBody3D
     [Export] public float dropClearance = 0.5f; // per item drop clearance roughly based on size
     [Export] public string interactableId = "";
     [Export] public bool isTwoHanded;
+    [Export] public string publicName = "";
     public string scenePath = "";
     public uint savedLayer, savedMask;
     public Vector3 savedScale;

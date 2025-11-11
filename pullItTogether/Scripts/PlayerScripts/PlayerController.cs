@@ -11,11 +11,11 @@ public partial class PlayerController : CharacterBody3D
 {
 	// Movement parameters
 	public float speed;
-	public float walkSpeed = 5.0f;
-	public float sprintSpeed = 8.0f;
+	[Export] public float walkSpeed = 4.0f;
+    [Export] public float sprintSpeed = 6.5f;
 	public float jumpVelocity = 4.5f;
-	public float inertiaAirValue = 3.0f;
-	public float inertiaGroundValue = 7.0f;
+	public float inertiaAirValue = 1.5f;
+	public float inertiaGroundValue = 3.5f;
 	private bool isSprinting;
 
 	// Camera and look parameters
@@ -342,12 +342,8 @@ public partial class PlayerController : CharacterBody3D
 			{
 				speed = sprintSpeed;
                 camera.Fov = Mathf.Lerp(camera.Fov, fov * fovChange, (float)delta * fovChangeSpeed);
-
-                if (IsOnFloor()) // Don't decrease energy in midair or while idle
-                {
-                    energyChange -= sprintingEnergyReduction * (float)delta;
-					maxEnergyChange -= sprintingEnergyReduction * 0.3f * (float)delta;
-				}
+                energyChange -= sprintingEnergyReduction * (float)delta;
+				maxEnergyChange -= sprintingEnergyReduction * 0.2f * (float)delta;
             }
             else
             {
@@ -428,11 +424,11 @@ public partial class PlayerController : CharacterBody3D
 					var entity = FindEntity(colliderNode);
 					if (interactable != null)
 					{
-						lookingAtText = interactable.Name;
+						lookingAtText = interactable.publicName;
 					}
 					else if (entity != null)
 					{
-						lookingAtText = entity.Name;
+						lookingAtText = entity.publicName;
 					}
 				}
 			}
@@ -444,7 +440,7 @@ public partial class PlayerController : CharacterBody3D
 		EmitSignal("ChangeHUD");
 
 		// If the player isn't doing anything that would spend energy, regain energy
-		if (energyChange == 0 && IsOnFloor())
+		if (energyChange == 0)
 			energyChange = energyRegen * (float)delta;
 
 		// Update the player's current energy
@@ -959,7 +955,9 @@ public partial class PlayerController : CharacterBody3D
 			direction = -head.Transform.Basis.Z; // if no input, heave forward
 		}
 		ChangeCurrentEnergy(-heaveEnergyCost); // flat energy cost for heave
-		heaveVelocity = new Vector3(direction.X, Velocity.Y, direction.Z).Normalized() * heaveSpeed;
+        ChangeMaxEnergy(-heaveEnergyCost * 0.2f);
+
+        heaveVelocity = new Vector3(direction.X, Velocity.Y, direction.Z).Normalized() * heaveSpeed;
 
 		float savedTetherBuffer = tetherBuffer;
 		tetherBuffer += 0.5f;

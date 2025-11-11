@@ -77,13 +77,13 @@ offhandPath = NodePath("Head/Camera3D/Inventory/InventorySlot2")
 collisionPusher = NodePath("AnimatableBody3D")
 interactableRB = NodePath("PlayerInteractable")
 hudScene = ExtResource("2_dewec")
-maxEnergyReductionRate = 0.2
-sprintingEnergyReduction = 4.0
-jumpingEnergyCost = 10.0
-energyRegen = 2.0
-pullingEnergyCost = 3.0
+maxEnergyReductionRate = 0.15
+sprintingEnergyReduction = 8.0
+energyRegen = 7.0
+pullingEnergyCost = 6.0
 helpMeLabel = NodePath("HelpMeLabel")
 pauseMenu = NodePath("PauseMenu")
+heaveEnergyCost = 12.0
 
 [node name="PlayerCameraSync" type="Node" parent="." node_paths=PackedStringArray("Camera")]
 script = ExtResource("2_gntrk")

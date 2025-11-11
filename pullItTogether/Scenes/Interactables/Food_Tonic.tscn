@@ -47,6 +47,7 @@ healthAddedRaw = 40.0
 healthAddedCooked = 40.0
 potentialEnergyAddedRaw = 0.0
 potentialEnergyAddedCooked = 0.0
+publicName = "Tonic"
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 replication_config = SubResource("SceneReplicationConfig_lwjo8")
