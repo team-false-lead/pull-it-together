@@ -57,6 +57,7 @@ height = 0.2
 [node name="Campfire" type="RigidBody3D"]
 collision_layer = 8
 script = ExtResource("1_dcn0c")
+publicName = "Campfire"
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 replication_config = SubResource("SceneReplicationConfig_on6pt")

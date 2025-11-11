@@ -21,6 +21,7 @@ public partial class Food : Interactable
         {
             rawMesh.Visible = false;
             cookedMesh.Visible = true;
+            publicName = "Cooked " + publicName;
         }
     }
     // Logic for using the food item on self (eating)
