@@ -430,7 +430,8 @@ public partial class PlayerController : CharacterBody3D
 					var entity = FindEntity(colliderNode);
 					if (interactable != null)
 					{
-						if (lastLookedAtItem != interactable)
+						if (lastLookedAtItem != interactable && (interactable.CanBeCarried() 
+							|| (HeldValid() && interactable.CanAcceptUseFrom(this, heldObject))))
 						{
 							ResetLookedAtItem();
 							lastLookedAtItem = interactable;
