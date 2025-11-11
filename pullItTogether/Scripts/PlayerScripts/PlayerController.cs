@@ -336,12 +336,8 @@ public partial class PlayerController : CharacterBody3D
 			{
 				speed = sprintSpeed;
                 camera.Fov = Mathf.Lerp(camera.Fov, fov * fovChange, (float)delta * fovChangeSpeed);
-
-                if (IsOnFloor()) // Don't decrease energy in midair or while idle
-                {
-                    energyChange -= sprintingEnergyReduction * (float)delta;
-					maxEnergyChange -= sprintingEnergyReduction * 0.2f * (float)delta;
-				}
+                energyChange -= sprintingEnergyReduction * (float)delta;
+				maxEnergyChange -= sprintingEnergyReduction * 0.2f * (float)delta;
             }
             else
             {
@@ -437,7 +433,7 @@ public partial class PlayerController : CharacterBody3D
 		EmitSignal("ChangeHUD");
 
 		// If the player isn't doing anything that would spend energy, regain energy
-		if (energyChange == 0 && IsOnFloor())
+		if (energyChange == 0)
 			energyChange = energyRegen * (float)delta;
 
 		// Update the player's current energy
