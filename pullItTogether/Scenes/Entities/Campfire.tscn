@@ -1,7 +1,8 @@
-[gd_scene load_steps=11 format=3 uid="uid://b575wgt5fc8yc"]
+[gd_scene load_steps=12 format=3 uid="uid://b575wgt5fc8yc"]
 
 [ext_resource type="Script" uid="uid://cs7tk8faukvvy" path="res://Scripts/EntityScripts/Campfire.cs" id="1_dcn0c"]
 [ext_resource type="PackedScene" uid="uid://bh5f0wl1eywap" path="res://Models/Entities/mdl_campfire.fbx" id="2_4ptku"]
+[ext_resource type="PackedScene" uid="uid://cnn1gi0bkh08o" path="res://Scenes/ItemDetector.tscn" id="3_7o68m"]
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_on6pt"]
 properties/0/path = NodePath(".:position")
@@ -54,9 +55,10 @@ material = SubResource("StandardMaterial3D_da15m")
 radius = 0.1
 height = 0.2
 
-[node name="Campfire" type="RigidBody3D"]
+[node name="Campfire" type="RigidBody3D" node_paths=PackedStringArray("playerDetector")]
 collision_layer = 8
 script = ExtResource("1_dcn0c")
+playerDetector = NodePath("ItemDetector")
 publicName = "Campfire"
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
@@ -92,3 +94,8 @@ randomness = 0.4
 trail_lifetime = 2.55
 process_material = SubResource("ParticleProcessMaterial_7o68m")
 draw_pass_1 = SubResource("SphereMesh_sxpyk")
+
+[node name="ItemDetector" parent="." instance=ExtResource("3_7o68m")]
+detectionRadius = 0.75
+detectionHeight = 1.25
+customGroupFilters = PackedStringArray("players")

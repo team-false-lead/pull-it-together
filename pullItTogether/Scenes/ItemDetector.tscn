@@ -23,7 +23,7 @@ height = 5.0
 
 [node name="ItemDetector" type="Area3D" node_paths=PackedStringArray("collider")]
 collision_layer = 0
-collision_mask = 44
+collision_mask = 46
 script = ExtResource("1_mxlqg")
 collider = NodePath("CollisionShape3D")
 
@@ -35,7 +35,6 @@ shape = SubResource("CylinderShape3D_vl058")
 debug_color = Color(0, 0, 0, 0.42)
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="CollisionShape3D"]
-visible = false
 material_override = SubResource("StandardMaterial3D_mxlqg")
 transparency = 0.9
 cast_shadow = 0
