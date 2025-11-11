@@ -71,19 +71,19 @@ public partial class Food : Interactable
     //public override void TryUseOnInteractable(CharacterBody3D user, Interactable target)
     //{
     //    if (user == null) return;
-//
+    //
     //    if (CanUseOnInteractable(user, target) == false)
     //    {
     //        GD.Print("Food: Cannot use " + Name + " on " + target.Name);
     //        return;
     //    }
-//
+    //
     //    if (itemManager == null) InitReferences();
     //    var id = GetInteractableId(); //get unique id, default to name
-//
+    //
     //    var targetPC = target.GetPlayerController();
     //    long targetPeerId = targetPC.GetMultiplayerAuthority();
-//
+    //
     //    // Request feed via RPC if not server
     //    if (multiplayerActive && !multiplayer.IsServer())
     //    {

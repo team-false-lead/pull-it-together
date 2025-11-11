@@ -32,7 +32,7 @@ public partial class Wheel : Entity
     //override to accept food items
     public override bool CanAcceptUseFrom(CharacterBody3D user, Interactable source)
     {
-        if (source.IsInGroup("plank"))
+        if (currentHealth < maxHealth && source.IsInGroup("plank"))
         {
             return true;
         }
