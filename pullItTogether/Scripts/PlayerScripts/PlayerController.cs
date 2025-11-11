@@ -973,7 +973,7 @@ public partial class PlayerController : CharacterBody3D
 		Interactable i = GetInteractableLookedAt();
 		if (i != null && i.CanBeCarried())
 		{
-			if (HeldValid())
+			if (HeldValid() && OffhandValid())
 				instructionsString += "[E]: Switch " + heldObject.publicName + " with " + i.publicName + "\n";
 			else
 				instructionsString += "[E]: Pick up " + i.publicName + "\n";
@@ -998,8 +998,13 @@ public partial class PlayerController : CharacterBody3D
 			// TO-DO: Be more specific with certain objects (i.e. Cook food or repair wheel)
         }
 
-		// TO-DO: Off-hand stuff when that gets merged into dev
+		// If holding something in offhand, display the Tab to switch prompt
+		if (OffhandValid())
+		{
+			instructionsString += "\n[Tab]: Swap held " + heldObject.publicName + " with " + offhandObject.publicName + " in offhand";
+		}
 
+		// Set the item instructions label accordingly
 		itemInstructionsLabel.Text = instructionsString;
 	}
 
