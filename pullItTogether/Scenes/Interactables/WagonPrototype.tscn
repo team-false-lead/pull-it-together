@@ -223,6 +223,7 @@ rope = NodePath("../VerletRopeRigid")
 joint = NodePath("../VerletRopeRigid/VerletJointRigid")
 simRope = NodePath("../VerletRopeSimulated")
 simJoint = NodePath("../VerletRopeSimulated/JointSimulated")
+isTwoHanded = true
 publicName = "Rope"
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="GrabPoint"]
@@ -287,6 +288,7 @@ rope = NodePath("../VerletRopeRigid3")
 joint = NodePath("../VerletRopeRigid3/VerletJointRigid")
 simRope = NodePath("../VerletRopeSimulated3")
 simJoint = NodePath("../VerletRopeSimulated3/JointSimulated")
+isTwoHanded = true
 publicName = "Rope"
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="GrabPoint3"]
@@ -351,6 +353,7 @@ rope = NodePath("../VerletRopeRigid4")
 joint = NodePath("../VerletRopeRigid4/VerletJointRigid")
 simRope = NodePath("../VerletRopeSimulated4")
 simJoint = NodePath("../VerletRopeSimulated4/JointSimulated")
+isTwoHanded = true
 publicName = "Rope"
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="GrabPoint4"]
@@ -416,6 +419,7 @@ rope = NodePath("../VerletRopeRigid2")
 joint = NodePath("../VerletRopeRigid2/VerletJointRigid2")
 simRope = NodePath("../VerletRopeSimulated2")
 simJoint = NodePath("../VerletRopeSimulated2/JointSimulated")
+isTwoHanded = true
 publicName = "Rope"
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="GrabPoint2"]

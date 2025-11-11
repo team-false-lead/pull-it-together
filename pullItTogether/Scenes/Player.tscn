@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3 uid="uid://ckpgu08xdcwp4"]
+[gd_scene load_steps=16 format=3 uid="uid://ckpgu08xdcwp4"]
 
 [ext_resource type="Script" uid="uid://cor1xxd0lnxxg" path="res://Scripts/PlayerScripts/PlayerController.cs" id="1_kyqiw"]
 [ext_resource type="PackedScene" uid="uid://cx0brpfq1upti" path="res://Scenes/PlayerHUD.tscn" id="2_dewec"]
@@ -55,6 +55,10 @@ albedo_color = Color(0.054902, 0.67451, 0.976471, 1)
 
 [sub_resource type="BoxMesh" id="BoxMesh_rliju"]
 
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_5ixxa"]
+radius = 0.05
+height = 1.0
+
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_kyqiw"]
 albedo_color = Color(0.054902, 0.67451, 0.976471, 1)
 
@@ -69,6 +73,7 @@ camera = NodePath("Head/Camera3D")
 fovChange = 1.1
 bobAmplitude = 0.04
 inventorySlotPath = NodePath("Head/Camera3D/Inventory/InventorySlot1")
+offhandPath = NodePath("Head/Camera3D/Inventory/InventorySlot2")
 collisionPusher = NodePath("AnimatableBody3D")
 interactableRB = NodePath("PlayerInteractable")
 hudScene = ExtResource("2_dewec")
@@ -117,9 +122,27 @@ skeleton = NodePath("../..")
 [node name="Inventory" type="Node3D" parent="Head/Camera3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.238014, -1.04144)
 
+[node name="LeftArmMesh" type="MeshInstance3D" parent="Head/Camera3D/Inventory"]
+transform = Transform3D(0.812893, 0.578465, -0.0677054, -0.260134, 0.464625, 0.846436, 0.521091, -0.670449, 0.528168, 0.691017, -0.247199, 0.355816)
+mesh = SubResource("CapsuleMesh_5ixxa")
+skeleton = NodePath("../../../..")
+surface_material_override/0 = SubResource("StandardMaterial3D_rliju")
+
+[node name="RightArmMesh" type="MeshInstance3D" parent="Head/Camera3D/Inventory"]
+transform = Transform3D(0.713063, -0.698617, -0.0589639, 0.124722, 0.0436394, 0.991232, -0.689918, -0.714164, 0.11825, -0.644432, -0.287959, 0.463448)
+mesh = SubResource("CapsuleMesh_5ixxa")
+skeleton = NodePath("../../../..")
+surface_material_override/0 = SubResource("StandardMaterial3D_rliju")
+
 [node name="InventorySlot1" type="MeshInstance3D" parent="Head/Camera3D/Inventory" groups=["player_mesh"]]
 unique_name_in_owner = true
 transform = Transform3D(0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1, 1, 0, 0)
+material_override = SubResource("StandardMaterial3D_kyqiw")
+mesh = SubResource("SphereMesh_gntrk")
+
+[node name="InventorySlot2" type="MeshInstance3D" parent="Head/Camera3D/Inventory" groups=["player_mesh"]]
+unique_name_in_owner = true
+transform = Transform3D(0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1, -1, -0.25, 0.1)
 material_override = SubResource("StandardMaterial3D_kyqiw")
 mesh = SubResource("SphereMesh_gntrk")
 
