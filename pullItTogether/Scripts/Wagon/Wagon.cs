@@ -75,6 +75,29 @@ public partial class Wagon : RigidBody3D
 
         PhysicsMaterialOverride.Friction = 0.05f + wheel1 + wheel2 + wheel3 + wheel4;
         //GD.Print(PhysicsMaterialOverride.Friction);
+        ScaleWeightPlayerCount();
     }
 
+    public void ScaleWeightPlayerCount()
+    {
+        var playersArray = GetTree().GetNodesInGroup("players"); // get current players
+        //GD.Print(playersArray.Count + ": " + Mass);
+
+        if (playersArray.Count == 1 && Mass != 400f)
+        {
+            Mass = 400f;
+        }
+        else if (playersArray.Count == 2 && Mass != 550f)
+        {
+            Mass = 550f;
+        }
+        else if (playersArray.Count == 3 && Mass != 700f)
+        {
+            Mass = 700f;
+        }
+        else if (playersArray.Count == 4 && Mass != 850f)
+        {
+            Mass = 850f;
+        }
+    }
 }
