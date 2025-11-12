@@ -1,4 +1,4 @@
-[gd_scene load_steps=28 format=3 uid="uid://b518v5yn7ig5o"]
+[gd_scene load_steps=29 format=3 uid="uid://b518v5yn7ig5o"]
 
 [ext_resource type="PackedScene" uid="uid://ddkl7vjoqp5kd" path="res://Scenes/GameStateTracker.tscn" id="1_eicjb"]
 [ext_resource type="Terrain3DAssets" uid="uid://dal3jhw6241qg" path="res://demo/data/assets.tres" id="1_in7uf"]
@@ -16,6 +16,7 @@
 [ext_resource type="PackedScene" uid="uid://drat1km3kl28w" path="res://Scenes/Interactables/Food_Meat.tscn" id="15_6x6jt"]
 [ext_resource type="PackedScene" uid="uid://wn25tsfnopfm" path="res://Scenes/Interactables/Hatchet.tscn" id="15_nvhef"]
 [ext_resource type="PackedScene" uid="uid://bysb2u8m55de2" path="res://Shaders/ToonShader.tscn" id="16_iddi4"]
+[ext_resource type="PackedScene" uid="uid://daq3xk4re0xl8" path="res://Scenes/Interactables/Bow.tscn" id="16_pigjd"]
 [ext_resource type="PackedScene" uid="uid://ddfftfo3cb1gj" path="res://Scenes/TempTree.tscn" id="17_w1dx0"]
 [ext_resource type="PackedScene" uid="uid://bvxg2stfsjosw" path="res://Scenes/Superstorm.tscn" id="18_tys2t"]
 
@@ -427,7 +428,10 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.3891, 14.3068, -599.851)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.07689, 1.10564, -26.3125)
 
 [node name="Hatchet" parent="Placeholders" instance=ExtResource("15_nvhef")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.39227, 1.19851, -21.0722)
+transform = Transform3D(0.866025, -0.5, 0, 0.5, 0.866025, 0, 0, 0, 1, 5.39227, 1.19851, -21.0722)
+
+[node name="Bow" parent="Placeholders" instance=ExtResource("16_pigjd")]
+transform = Transform3D(0.866025, -0.5, 0, 0.5, 0.866025, 0, 0, 0, 1, 6.38839, 0.616709, -21.0181)
 
 [node name="ToonShader" parent="." instance=ExtResource("16_iddi4")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.51888, 0, -16.3447)

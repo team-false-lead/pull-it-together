@@ -480,7 +480,7 @@ public partial class ItemManager : Node3D
 		}
 		else
 			itemToSpawnScene = requestingItem.SpawnOnUseScene;
-		
+
 		GD.Print("ItemManager: Spawning item from " + itemToSpawnScene.ToString());
 		if (itemToSpawnScene == null) { GD.Print("SpawnOnUseScene null"); return; }
 
@@ -541,6 +541,24 @@ public partial class ItemManager : Node3D
 		}
 
 		//requestingItem.QueueFree(); // remove the used item
+		itemSpawnRegistry.ClientDespawnItem(itemId); // remove locally first
+		foreach (var peerId in multiplayer.GetPeers())
+		{
+			//if (peerId == multiplayer.GetUniqueId()) continue;
+			itemSpawnRegistry.RpcId(peerId, nameof(ItemSpawnRegistry.ClientDespawnItem), itemId);
+		}
+	}
+
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer)]
+	public void RequestDespawnItem(string itemId)
+	{
+		GD.Print("ItemManager: RequestDespawnItem called for " + itemId);
+		if (multiplayer.HasMultiplayerPeer() && isMultiplayerSession && !multiplayer.IsServer()) return; // Only the server should handle despawning
+		DoDespawnItem(itemId);
+	}
+
+	public void DoDespawnItem(string itemId)
+	{
 		itemSpawnRegistry.ClientDespawnItem(itemId); // remove locally first
 		foreach (var peerId in multiplayer.GetPeers())
 		{
@@ -1061,6 +1079,7 @@ public partial class ItemManager : Node3D
 
 		item.StartFollowingSlot(slot);
 		beaver.hasPlank = true;
+		beaver.heldPlankId = itemId;
 		//plank.Carrier = beaver;
 	}
 
@@ -1079,7 +1098,7 @@ public partial class ItemManager : Node3D
 		var beaver = FindEntityById(beaverId) as Beaver;
 		if (beaver == null) { GD.Print("Beaver null"); return; }
 
-		var wheelScene = beaver.SpawnOnUseScene;
+		var wheelScene = beaver.wheelScene;
 		if (wheelScene == null) { GD.Print("Wheel Scene null"); return; }
 
 		var instance = wheelScene.Instantiate<RigidBody3D>(); // assuming all interactables and entities are RigidBody3D or derived
@@ -1170,6 +1189,60 @@ public partial class ItemManager : Node3D
 			{
 				//if (peerId == multiplayer.GetUniqueId()) continue;
 				itemSpawnRegistry.RpcId(peerId, nameof(ItemSpawnRegistry.ClientDespawnItem), logId);
+			}
+		}
+	}
+
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer)] // Allow any peer to request firing arrow
+	public void RequestFireArrow(string bowId)
+	{
+		GD.Print("ItemManager: RequestFireArrow called for " + bowId);
+		if (multiplayer.HasMultiplayerPeer() && isMultiplayerSession && !multiplayer.IsServer()) return; // Only the server should handle firing
+		DoFireArrow(bowId);
+	}
+
+	public void DoFireArrow(string bowId)
+	{
+		var bow = FindInteractableById(bowId) as Bow;
+		if (bow == null) { GD.Print("Bow null"); return; }
+
+		PackedScene itemToSpawnScene = bow.SpawnOnUseScene;
+		if (itemToSpawnScene == null) { GD.Print("arrowScene null"); return; }
+		var instance = itemToSpawnScene.Instantiate<Node3D>(); // assuming all interactables and entities are Node3D or derived
+		instance.GlobalTransform = bow.GlobalTransform; // spawn at bow position and rotation before adding child
+
+		PreAssignId(instance);
+		itemSpawnRegistry.AddChild(instance, true); // local temp instance
+		instance.SetOwner(GetTree().CurrentScene); // Ensure the instance is owned by the current scene
+		
+
+		string tempId = "";
+		string tempScenePath = "";
+		Transform3D tempTransform = instance.GlobalTransform;
+
+		if (instance is Interactable instanceInteractable)
+		{
+			tempId = instanceInteractable.interactableId;
+			instanceInteractable.scenePath = bow.SpawnOnUseScene.ResourcePath;
+			tempScenePath = instanceInteractable.scenePath;
+		}
+		else
+			return; // exit early and do not broadcast
+
+		foreach (var peerId in multiplayer.GetPeers())
+		{
+			itemSpawnRegistry.RpcId(peerId, nameof(ItemSpawnRegistry.ClientSpawnItem), tempScenePath, tempId, tempTransform, 1);
+		}
+
+		bow.currentAmmo -= 1;
+		bow.UpdateAmmoLabel();
+		if (bow.currentAmmo <= 0)
+		{
+			itemSpawnRegistry.ClientDespawnItem(bowId); // despawn locally first
+			foreach (var peerId in multiplayer.GetPeers())
+			{
+				//if (peerId == multiplayer.GetUniqueId()) continue;
+				itemSpawnRegistry.RpcId(peerId, nameof(ItemSpawnRegistry.ClientDespawnItem), bowId);
 			}
 		}
 	}

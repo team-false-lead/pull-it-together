@@ -1,8 +1,9 @@
-[gd_scene load_steps=17 format=3 uid="uid://ba4fbx16j3l67"]
+[gd_scene load_steps=18 format=3 uid="uid://ba4fbx16j3l67"]
 
 [ext_resource type="PackedScene" uid="uid://cnn1gi0bkh08o" path="res://Scenes/ItemDetector.tscn" id="1_1ql20"]
 [ext_resource type="Script" uid="uid://c1abo8mkv7so7" path="res://Scripts/EntityScripts/Beaver.cs" id="1_vg7qi"]
 [ext_resource type="PackedScene" uid="uid://c4dipwth8vfgc" path="res://Scenes/Interactables/WheelInteractable.tscn" id="2_lhu0b"]
+[ext_resource type="PackedScene" uid="uid://drat1km3kl28w" path="res://Scenes/Interactables/Food_Meat.tscn" id="3_bwxc5"]
 [ext_resource type="BehaviorTree" uid="uid://cdntafo1eagv5" path="res://ai/trees/Beaver.tres" id="3_y4j34"]
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_on6pt"]
@@ -18,9 +19,12 @@ properties/2/replication_mode = 2
 properties/3/path = NodePath(".:entityId")
 properties/3/spawn = true
 properties/3/replication_mode = 2
-properties/4/path = NodePath("InventorySlot1:rotation")
+properties/4/path = NodePath(".:currentHealth")
 properties/4/spawn = true
 properties/4/replication_mode = 2
+properties/5/path = NodePath("BeaverSlot:rotation")
+properties/5/spawn = true
+properties/5/replication_mode = 2
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_ftxwn"]
 
@@ -68,12 +72,14 @@ collision_mask = 13
 axis_lock_angular_x = true
 axis_lock_angular_z = true
 script = ExtResource("1_vg7qi")
+damageToTake = 50.0
 label = NodePath("Label3D")
 plankDetector = NodePath("PlankDetector")
 wagonDetector = NodePath("WagonDetector2")
 BT = NodePath("BTPlayer")
-inventorySlot = NodePath("InventorySlot1")
-SpawnOnUseScene = ExtResource("2_lhu0b")
+inventorySlot = NodePath("BeaverSlot")
+wheelScene = ExtResource("2_lhu0b")
+SpawnOnUseScene = ExtResource("3_bwxc5")
 publicName = "Beaver?"
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
@@ -126,7 +132,7 @@ customGroupFilters = PackedStringArray("wagon", "wheel")
 behavior_tree = ExtResource("3_y4j34")
 blackboard_plan = SubResource("BlackboardPlan_lhu0b")
 
-[node name="InventorySlot1" type="MeshInstance3D" parent="." groups=["player_mesh"]]
+[node name="BeaverSlot" type="MeshInstance3D" parent="." groups=["player_mesh"]]
 unique_name_in_owner = true
 transform = Transform3D(-4.37114e-09, 0, 0.1, 0, 0.1, 0, -0.1, 0, -4.37114e-09, 0, -0.862907, 3.77189e-08)
 visible = false

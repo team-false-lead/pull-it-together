@@ -4,6 +4,8 @@ using System.Reflection.Metadata.Ecma335;
 
 public partial class Beaver : Entity
 {
+    [Export] public float currentHealth = 100; //export to use on multiPlayer syncer
+    [Export] public float damageToTake = 100;
     [Export] public Label3D label;
     [Export] public ItemDetector plankDetector;
     [Export] public ItemDetector wagonDetector;
@@ -11,6 +13,7 @@ public partial class Beaver : Entity
     [Export] public bool hasPlank = false;
     [Export] public bool plankInRange = false;
     public Interactable plankTarget = null;
+    public string heldPlankId = "";
     [Export] public bool wagonInRange = false;
     public Wagon wagonRef = null;
     [Export] public bool hasWheelTarget = false;
@@ -21,6 +24,7 @@ public partial class Beaver : Entity
     [Export] public Vector3 targetPosition;
     [Export] public Node3D inventorySlot;
     private bool spawnedWheel = false;
+    [Export] public PackedScene wheelScene;
 
     public override void _Ready()
     {
@@ -259,5 +263,18 @@ public partial class Beaver : Entity
             return inventorySlot;
         }
         return null;
+    }
+
+    public void TakeDamage(float damage)
+    {
+        currentHealth -= damage;
+        if (currentHealth <= 0)
+        {
+            if (hasPlank)
+            {
+                itemManager.DoDespawnItem(heldPlankId);
+            }
+            itemManager.DoSpawnItem(GetEntityId());
+        }
     }
 }
