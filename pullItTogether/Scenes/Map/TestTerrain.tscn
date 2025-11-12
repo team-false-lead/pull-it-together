@@ -1,10 +1,11 @@
-[gd_scene load_steps=26 format=3 uid="uid://b518v5yn7ig5o"]
+[gd_scene load_steps=27 format=3 uid="uid://b518v5yn7ig5o"]
 
 [ext_resource type="PackedScene" uid="uid://ddkl7vjoqp5kd" path="res://Scenes/GameStateTracker.tscn" id="1_eicjb"]
 [ext_resource type="Terrain3DAssets" uid="uid://dal3jhw6241qg" path="res://demo/data/assets.tres" id="1_in7uf"]
 [ext_resource type="Script" uid="uid://d2gutl4cngqlt" path="res://Scripts/ManagerScripts/ItemManager.cs" id="2_bn2kb"]
 [ext_resource type="Script" uid="uid://u1f0pfpkqwoc" path="res://Scripts/MiscScripts/ItemSpawnRegistry.cs" id="3_dobrn"]
 [ext_resource type="PackedScene" uid="uid://ba3m0401u3th5" path="res://Scenes/Interactables/WoodPlank.tscn" id="5_pd0wi"]
+[ext_resource type="PackedScene" uid="uid://bj45lpd2k30mj" path="res://Scenes/Interactables/PlayerInteractable.tscn" id="5_w1dx0"]
 [ext_resource type="PackedScene" uid="uid://b575wgt5fc8yc" path="res://Scenes/Entities/Campfire.tscn" id="8_iddi4"]
 [ext_resource type="PackedScene" uid="uid://woij3e5klul2" path="res://Scenes/Maps/TransitionArea.tscn" id="10_bn2kb"]
 [ext_resource type="PackedScene" uid="uid://b2cc2nt2bpja0" path="res://Scenes/Interactables/WagonPrototype.tscn" id="10_nvhef"]
@@ -194,6 +195,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 13.3926, 0)
 script = ExtResource("2_bn2kb")
 placeholdersPath = NodePath("../Placeholders")
 itemSpawnRegistry = NodePath("ItemSpawner")
+playerInteractableScene = ExtResource("5_w1dx0")
 
 [node name="ItemSpawner" type="MultiplayerSpawner" parent="Interactables"]
 spawn_path = NodePath("..")
