@@ -5,6 +5,7 @@
 [ext_resource type="Texture2D" uid="uid://byj4e47h2dceb" path="res://Textures/Entities/txr_campfire_bc.png" id="3_rr1nk"]
 [ext_resource type="Material" uid="uid://41bg7y8xt0l1" path="res://Textures/Entities/Materials/CampfireRockMaterial.tres" id="4_iver0"]
 [ext_resource type="Texture2D" uid="uid://bpdyhllicbkjk" path="res://Textures/Entities/txr_rock_bc.png" id="5_l2fxd"]
+[ext_resource type="PackedScene" uid="uid://cnn1gi0bkh08o" path="res://Scenes/ItemDetector.tscn" id="3_7o68m"]
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_on6pt"]
 properties/0/path = NodePath(".:position")
@@ -327,6 +328,7 @@ albedo_texture = ExtResource("5_l2fxd")
 collision_layer = 9
 collision_mask = 29
 script = ExtResource("1_dcn0c")
+playerDetector = NodePath("ItemDetector")
 publicName = "Campfire"
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
@@ -404,3 +406,8 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.000885912, 0.000988835, 0.0
 mesh = SubResource("ArrayMesh_7rcgs")
 skeleton = NodePath("")
 surface_material_override/0 = SubResource("StandardMaterial3D_mrxoh")
+
+[node name="ItemDetector" parent="." instance=ExtResource("3_7o68m")]
+detectionRadius = 0.75
+detectionHeight = 1.25
+customGroupFilters = PackedStringArray("players")
