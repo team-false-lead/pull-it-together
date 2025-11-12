@@ -10,7 +10,6 @@ public partial class Campfire : Entity
     [Export] public ItemDetector playerDetector;
     private List<Node3D> playersInside = new List<Node3D>();
 
-
     public override void _Ready()
     {
         base._Ready();

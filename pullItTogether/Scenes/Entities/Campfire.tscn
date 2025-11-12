@@ -1,11 +1,11 @@
-[gd_scene load_steps=35 format=4 uid="uid://b575wgt5fc8yc"]
+[gd_scene load_steps=36 format=4 uid="uid://b575wgt5fc8yc"]
 
 [ext_resource type="Script" uid="uid://cs7tk8faukvvy" path="res://Scripts/EntityScripts/Campfire.cs" id="1_dcn0c"]
 [ext_resource type="Material" uid="uid://b7d6rik1f8wko" path="res://Textures/Entities/Materials/CampfireMaterial.tres" id="2_sxpyk"]
+[ext_resource type="PackedScene" uid="uid://cnn1gi0bkh08o" path="res://Scenes/ItemDetector.tscn" id="3_7o68m"]
 [ext_resource type="Texture2D" uid="uid://byj4e47h2dceb" path="res://Textures/Entities/txr_campfire_bc.png" id="3_rr1nk"]
 [ext_resource type="Material" uid="uid://41bg7y8xt0l1" path="res://Textures/Entities/Materials/CampfireRockMaterial.tres" id="4_iver0"]
 [ext_resource type="Texture2D" uid="uid://bpdyhllicbkjk" path="res://Textures/Entities/txr_rock_bc.png" id="5_l2fxd"]
-[ext_resource type="PackedScene" uid="uid://cnn1gi0bkh08o" path="res://Scenes/ItemDetector.tscn" id="3_7o68m"]
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_on6pt"]
 properties/0/path = NodePath(".:position")
@@ -324,9 +324,9 @@ shadow_mesh = SubResource("ArrayMesh_wkixg")
 resource_local_to_scene = true
 albedo_texture = ExtResource("5_l2fxd")
 
-[node name="Campfire" type="RigidBody3D"]
-collision_layer = 9
-collision_mask = 29
+[node name="Campfire" type="RigidBody3D" node_paths=PackedStringArray("playerDetector")]
+collision_layer = 8
+collision_mask = 13
 script = ExtResource("1_dcn0c")
 playerDetector = NodePath("ItemDetector")
 publicName = "Campfire"
@@ -408,6 +408,8 @@ skeleton = NodePath("")
 surface_material_override/0 = SubResource("StandardMaterial3D_mrxoh")
 
 [node name="ItemDetector" parent="." instance=ExtResource("3_7o68m")]
+collision_layer = 8
+collision_mask = 62
 detectionRadius = 0.75
 detectionHeight = 1.25
 customGroupFilters = PackedStringArray("players")
