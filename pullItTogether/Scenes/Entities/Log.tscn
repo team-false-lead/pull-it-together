@@ -1,7 +1,8 @@
-[gd_scene load_steps=6 format=3 uid="uid://cudb13yj568gq"]
+[gd_scene load_steps=7 format=3 uid="uid://cudb13yj568gq"]
 
 [ext_resource type="Script" uid="uid://ckc1bulet1evy" path="res://Scripts/EntityScripts/Log.cs" id="1_k5r4r"]
 [ext_resource type="PackedScene" uid="uid://ba3m0401u3th5" path="res://Scenes/Interactables/WoodPlank.tscn" id="2_143cb"]
+[ext_resource type="Material" uid="uid://cvf84d2t0368h" path="res://Textures/Supplies/Materials/WoodPlankMaterial.tres" id="3_143cb"]
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_on6pt"]
 properties/0/path = NodePath(".:position")
@@ -39,6 +40,7 @@ transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 
 shape = SubResource("CylinderShape3D_on6pt")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="CollisionShape3D"]
+material_override = ExtResource("3_143cb")
 mesh = SubResource("CylinderMesh_e0oyi")
 
 [node name="Label3D" type="Label3D" parent="."]

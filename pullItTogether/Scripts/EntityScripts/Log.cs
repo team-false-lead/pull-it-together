@@ -12,7 +12,7 @@ public partial class Log : Entity
     //override to accept hatchet use
     public override bool CanAcceptUseFrom(CharacterBody3D user, Interactable source)
     {
-        if (source.IsInGroup("food"))
+        if (source.IsInGroup("hatchet"))
         {
             return true;
         }
@@ -22,13 +22,15 @@ public partial class Log : Entity
     // Logic for accepting use from hatchet 
     public override void AcceptUseFrom(CharacterBody3D user, Interactable source)
     {
+        Hatchet hatchet = source as Hatchet;
+
         if (itemManager == null) InitReferences();
         var id = GetEntityId(); //get unique id, default to name
 
         // Request chop via RPC if not server
         if (multiplayerActive && !multiplayer.IsServer())
         {
-            var error = itemManager.RpcId(1, nameof(ItemManager.RequestChopLog), id, source.GetInteractableId());
+            var error = itemManager.RpcId(1, nameof(ItemManager.RequestChopLog), id);
             if (error != Error.Ok)
             {
                 GD.PrintErr("Log: Failed to request chopping via RPC. Error: " + error);
@@ -37,8 +39,11 @@ public partial class Log : Entity
         }
         else // Server or single-player handles chop directly
         {
-            itemManager.DoChopLog(id, source.GetInteractableId());
+
+            itemManager.DoChopLog(id);
         }
+        if (hatchet != null)
+            hatchet.PlayChopAnimation();
     }
 
     public void GiveWoodPlanks()

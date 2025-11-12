@@ -1148,14 +1148,14 @@ public partial class ItemManager : Node3D
 	
 
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer)] // Allow any peer to request chopping log
-	public void RequestChopLog(string campfireId, string foodId)
+	public void RequestChopLog(string logId)
 	{
-		GD.Print("ItemManager: RequestChopLog called for " + foodId);
+		GD.Print("ItemManager: RequestChopLog called for " + logId);
 		if (multiplayer.HasMultiplayerPeer() && isMultiplayerSession && !multiplayer.IsServer()) return; // Only the server should handle chopping
-		DoChopLog(campfireId, foodId);
+		DoChopLog(logId);
 	}
 
-	public void DoChopLog(string logId, string hatchetId)
+	public void DoChopLog(string logId)
 	{
 		var log = FindEntityById(logId) as Log;
 		if (log == null) { GD.Print("Log null"); return; }
