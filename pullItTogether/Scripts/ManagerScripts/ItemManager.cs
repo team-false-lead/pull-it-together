@@ -414,7 +414,7 @@ public partial class ItemManager : Node3D
 				interactables.Remove(id); // Clean up invalid reference
 			}
 		}
-		GD.Print("ItemManager: Interactable with ID " + id + " not found or invalid.");
+		//GD.Print("ItemManager: Interactable with ID " + id + " not found or invalid.");
 		return null;
 	}
 
@@ -465,10 +465,23 @@ public partial class ItemManager : Node3D
 	public void DoSpawnItem(string itemId)
 	{
 		GD.Print("ItemManager: DoSpawnItem called for " + itemId);
-		var requestingItem = FindInteractableById(itemId);
-		if (requestingItem == null) { GD.Print("Requesting Item null"); return; }
-
-		var itemToSpawnScene = requestingItem.SpawnOnUseScene;
+		PackedScene itemToSpawnScene = null;
+		Interactable requestingItem = FindInteractableById(itemId);
+		Entity requestingEntity = FindEntityById(itemId);
+		if (requestingItem == null)
+		{
+			if (requestingEntity == null)
+			{
+				GD.Print("Requesting Item and Entity null");
+				return;
+			}
+			else
+				itemToSpawnScene = requestingEntity.SpawnOnUseScene;
+		}
+		else
+			itemToSpawnScene = requestingItem.SpawnOnUseScene;
+		
+		GD.Print("ItemManager: Spawning item from " + itemToSpawnScene.ToString());
 		if (itemToSpawnScene == null) { GD.Print("SpawnOnUseScene null"); return; }
 
 		var instance = itemToSpawnScene.Instantiate<Node3D>(); // assuming all interactables and entities are Node3D or derived
@@ -477,8 +490,15 @@ public partial class ItemManager : Node3D
 		itemSpawnRegistry.AddChild(instance, true); // local temp instance
 		instance.SetOwner(GetTree().CurrentScene); // Ensure the instance is owned by the current scene
 
-		Vector3 dropPosition = GetDropPosition(requestingItem); // drop in front of the user of the item
-		instance.GlobalTransform = new Transform3D(Basis.Identity, dropPosition);
+		Vector3 dropPosition;
+		float smallOffset = (float)GD.RandRange(0f, 1f);
+		if (requestingItem != null)
+			dropPosition = GetDropPosition(requestingItem); // drop in front of the user of the item
+		else
+			dropPosition = requestingEntity.GlobalTransform.Origin + new Vector3(smallOffset, smallOffset, smallOffset); // drop above the entity
+
+		instance.GlobalTransform = new Transform3D(instance.GlobalTransform.Basis, dropPosition);
+		GD.Print("ItemManager: Dropping spawned item at " + dropPosition.ToString());
 
 		string tempId = "";
 		string tempScenePath = "";
@@ -487,14 +507,21 @@ public partial class ItemManager : Node3D
 		if (instance is Interactable instanceInteractable)
 		{
 			tempId = instanceInteractable.interactableId;
-			instanceInteractable.scenePath = requestingItem.SpawnOnUseScene.ResourcePath;
+			if (requestingItem != null)
+				instanceInteractable.scenePath = requestingItem.SpawnOnUseScene.ResourcePath;
+			else
+				instanceInteractable.scenePath = requestingEntity.SpawnOnUseScene.ResourcePath;
 			tempScenePath = instanceInteractable.scenePath;
+
 			//itemSpawnRegistry.RpcId(peerId, nameof(ItemSpawnRegistry.ClientSpawnItem), instanceInteractable.scenePath, tempId, instance.GlobalTransform, 1);
 		}
 		else if (instance is Entity instanceEntity)
 		{
 			tempId = instanceEntity.entityId;
-			instanceEntity.scenePath = requestingItem.SpawnOnUseScene.ResourcePath;
+			if (requestingItem != null)
+				instanceEntity.scenePath = requestingItem.SpawnOnUseScene.ResourcePath;
+			else
+				instanceEntity.scenePath = requestingEntity.SpawnOnUseScene.ResourcePath;
 			tempScenePath = instanceEntity.scenePath;
 			//itemSpawnRegistry.RpcId(peerId, nameof(ItemSpawnRegistry.ClientSpawnItem), instanceEntity.scenePath, tempId, instance.GlobalTransform, 1);
 		}
@@ -1114,8 +1141,36 @@ public partial class ItemManager : Node3D
 		var plankGiver = plank.Carrier as PlayerController;
 		if (plankGiver == null) { GD.Print("Plank Giver null"); return; }
 		plankGiver.RpcId(plankGiver.GetMultiplayerAuthority(), nameof(PlayerController.DropObject));
-		
+
 		//just dropping the plank first the beaver should detect it and pick it up through its BT
 		//DoBeaverPickupItem(beaverId, plankId); // have beaver pick up the plank
+	}
+	
+
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer)] // Allow any peer to request chopping log
+	public void RequestChopLog(string campfireId, string foodId)
+	{
+		GD.Print("ItemManager: RequestChopLog called for " + foodId);
+		if (multiplayer.HasMultiplayerPeer() && isMultiplayerSession && !multiplayer.IsServer()) return; // Only the server should handle chopping
+		DoChopLog(campfireId, foodId);
+	}
+
+	public void DoChopLog(string logId, string hatchetId)
+	{
+		var log = FindEntityById(logId) as Log;
+		if (log == null) { GD.Print("Log null"); return; }
+
+		log.currentHealth -= log.damageToTake;
+		if (log.currentHealth <= 0)
+		{
+			log.GiveWoodPlanks();
+
+			itemSpawnRegistry.ClientDespawnItem(logId); // despawn locally first
+			foreach (var peerId in multiplayer.GetPeers())
+			{
+				//if (peerId == multiplayer.GetUniqueId()) continue;
+				itemSpawnRegistry.RpcId(peerId, nameof(ItemSpawnRegistry.ClientDespawnItem), logId);
+			}
+		}
 	}
 }
