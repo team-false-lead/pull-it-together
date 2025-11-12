@@ -280,7 +280,7 @@ public partial class PlayerController : CharacterBody3D
 		{
 			if (IsDowned)
             {
-				GlobalTransform = playerInteractable.GlobalTransform;
+				GlobalPosition = playerInteractable.GlobalPosition;
 				if (playerInteractable.Carrier != null)
                 {
 					return;
@@ -859,7 +859,6 @@ public partial class PlayerController : CharacterBody3D
 		// If recovering health from a downed state, emit the revival event
 		if (currentHealth == 0 && diff > 0)
         {
-			Scale = Vector3.One;
             EmitSignal("OnRevived");
         }
 
@@ -868,7 +867,6 @@ public partial class PlayerController : CharacterBody3D
 		{
 			currentHealth = 0;
 			DropObject();
-			Scale = new Vector3(0.75f, 0.75f, 0.75f);
 			if (!wasAlreadyDowned)
             {
                 EmitSignal("OnDowned");
