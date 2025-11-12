@@ -1006,7 +1006,7 @@ public partial class PlayerController : CharacterBody3D
 		// If holding something in offhand, display the Tab to switch prompt
 		if (OffhandValid())
 		{
-			instructionsString += "\n[Tab]: Swap held " + heldObject.publicName + " with " + offhandObject.publicName + " in offhand";
+			instructionsString += "\n[Tab]: Swap held items";
 		}
 
 		// Set the item instructions label accordingly
