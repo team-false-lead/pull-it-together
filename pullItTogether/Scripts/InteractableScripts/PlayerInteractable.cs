@@ -4,18 +4,52 @@ using System;
 /// PlayerInteractable represents the pickup-able player that can also be fed.
 public partial class PlayerInteractable : Interactable
 {
+    [Export] public PlayerController ownerPlayerController;
+    [Export] public long ownerPeerId = 0;
+    private bool hasSetOwnerPlayerController = false;
 
     public override void _Ready()
     {
         base._Ready();
 
         if (itemManager == null) InitReferences();
-        if(multiplayer.HasMultiplayerPeer() && !multiplayer.IsServer())
-        {
-            itemManager.RpcId(1, nameof(ItemManager.SendPlayerInteractableId), multiplayer.GetUniqueId());
-        }
+        //if(multiplayer.HasMultiplayerPeer() && !multiplayer.IsServer())
+        //{
+        //    itemManager.RpcId(1, nameof(ItemManager.SendPlayerInteractableId), multiplayer.GetUniqueId());
+        //}
+        hasSetOwnerPlayerController = SetOwnerPlayerController();
     }
 
+    private bool SetOwnerPlayerController()
+    {
+        if (ownerPlayerController != null) return true;
+
+        if (!multiplayer.HasMultiplayerPeer())
+        {
+            ownerPlayerController = GetTree().GetFirstNodeInGroup("players") as PlayerController;
+            return true;
+        }
+
+        if (ownerPeerId == 0) { GD.Print("PlayerInteractable: no owner peer id yet"); return false; }
+        foreach (var player in GetTree().GetNodesInGroup("players"))
+        {
+            if (player is PlayerController pc && pc.GetMultiplayerAuthority() == ownerPeerId)
+            {
+                ownerPlayerController = pc;
+                pc.playerInteractable = this;
+                GD.Print("PlayerInteractable: found owner player controller for peer id " + ownerPeerId);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    [Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    public void SetOwnerPeerId(long peerId)
+    {
+        ownerPeerId = peerId;
+        SetOwnerPlayerController();
+    }
 
     public override void _PhysicsProcess(double delta)
     {
@@ -33,21 +67,28 @@ public partial class PlayerInteractable : Interactable
         if (isFollowing && followTarget != null)
         {
             // When being carried, sync the player's position to their interactable's position.
-            PlayerController player = GetPlayerController();
-            player.GlobalPosition = followTarget.GlobalPosition;
-            player.GlobalRotation = GlobalRotation;
+            //PlayerController player = GetPlayerController();
+            //ownerPlayerController.GlobalPosition = GlobalPosition;
+            //ownerPlayerController.GlobalRotation = GlobalRotation;
+            //GlobalPosition = followTarget.GlobalPosition;
+            //GlobalRotation = followTarget.GlobalRotation;
 
             //GD.Print(GlobalPosition);
             // If the player regains health, instantly drop this interactable.
-            if (!player.IsDowned)
+            if (!ownerPlayerController.IsDowned)
                 ((PlayerController)Carrier).DropObject();
         }
+        if (!hasSetOwnerPlayerController)
+        {
+            hasSetOwnerPlayerController = SetOwnerPlayerController();
+        }
+
     }
 
     public override bool CanBeCarried()
     {
-        return false; // Player carrying will be a next sprint thing
-        //return GetPlayerController().IsDowned;
+        //return false; // Player carrying will be a next sprint thing
+        return ownerPlayerController.IsDowned;
     }
 
     // By default, objects do not accept being used on them
@@ -94,4 +135,9 @@ public partial class PlayerInteractable : Interactable
 
     // By default, objects can use on entities other if the target accepts it
     public override bool CanUseOnEntity(CharacterBody3D user, Entity target) { return false; }
+
+    public PlayerController GetPlayerController()
+    {
+        return ownerPlayerController;
+    }
 }

@@ -44,7 +44,7 @@ public partial class PlayerController : CharacterBody3D
 	// Collision parameters
 	[Export] public Node3D collisionPusher;
 	public AnimatableBody3D collisionPusherAB;
-	[Export] public Interactable interactableRB;
+	[Export] public Interactable playerInteractable;
 	private uint interactMaskUint = 40;
 
 	// Rope tether parameters when carrying rope grab point
@@ -276,6 +276,21 @@ public partial class PlayerController : CharacterBody3D
 		{
 			collisionPusherAB.GlobalTransform = GlobalTransform;
 		}
+		if (playerInteractable !=null)
+		{
+			if (IsDowned)
+            {
+				GlobalTransform = playerInteractable.GlobalTransform;
+				if (playerInteractable.Carrier != null)
+                {
+					return;
+                }
+            }
+			else
+            {
+                playerInteractable.GlobalTransform = GlobalTransform;
+            }
+        }
 
 		if (!IsLocalControlled()) return; // local player processes movement
 
@@ -528,7 +543,10 @@ public partial class PlayerController : CharacterBody3D
 		var state = GetWorld3D().DirectSpaceState;
 		var query = PhysicsRayQueryParameters3D.Create(origin, to);
 		query.CollisionMask = interactMaskUint;
-		query.Exclude = new Array<Rid> { GetRid(), collisionPusherAB.GetRid(), interactableRB.GetRid() }; // ignore self
+		if (playerInteractable != null && IsInstanceValid(playerInteractable) && !playerInteractable.IsQueuedForDeletion())
+			query.Exclude = new Array<Rid> { GetRid(), collisionPusherAB.GetRid(), playerInteractable.GetRid() }; // ignore self
+		else
+			query.Exclude = new Array<Rid> { GetRid(), collisionPusherAB.GetRid() }; // ignore self
 
 		var hit = state.IntersectRay(query);
 		return hit;
@@ -536,7 +554,7 @@ public partial class PlayerController : CharacterBody3D
 
 	public Interactable GetOwnInteractable()
 	{
-		return interactableRB;
+		return playerInteractable;
 	}
 
 	// Get the Interactable the player is currently looking at
@@ -841,7 +859,7 @@ public partial class PlayerController : CharacterBody3D
 		// If recovering health from a downed state, emit the revival event
 		if (currentHealth == 0 && diff > 0)
         {
-            Scale = Vector3.One;
+			Scale = Vector3.One;
             EmitSignal("OnRevived");
         }
 
@@ -924,9 +942,9 @@ public partial class PlayerController : CharacterBody3D
 
 	public void RecenterViewAfterDrop()
 	{
-		AlignBody(interactableRB); // align body to updated interactableRB
+		AlignBody(playerInteractable); // align body to updated playerInteractable
 		head.Rotation = new Vector3(0, Rotation.Y - 90, 0); // reset head yaw to player (body) yaw
-		camera.Rotation = new Vector3(camera.Rotation.X, 0, 0); // reset camera pitch to 0
+		camera.Rotation = new Vector3(0, 0, 0); // reset camera pitch to 0
 	}
 
 	public void AlignBody(Node3D target)

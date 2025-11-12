@@ -9,6 +9,7 @@ public partial class ItemManager : Node3D
 {
 	[Export] public NodePath placeholdersPath;
 	[Export] public ItemSpawnRegistry itemSpawnRegistry;
+	[Export] public PackedScene playerInteractableScene;
 
 	private Dictionary<string, Interactable> interactables = new();
 	private Dictionary<string, Entity> entities = new();
@@ -336,31 +337,60 @@ public partial class ItemManager : Node3D
 		if (!multiplayer.IsServer()) return;
 		GD.Print("ItemManager: AddPlayerInteractable called for " + newChild.Name);
 		if (newChild is not CharacterBody3D player) return;
-		//player.IsNodeReady();
+
 		var PC = player as PlayerController;
-		var PlayerInteractable = PC.GetOwnInteractable();
-		AssignInteractableId(PlayerInteractable); // ensure their own interactable has an ID assigned		
-		GD.Print("ItemManager: Added player interactable with ID " + PlayerInteractable.interactableId);
-		// Set up cleanup on item removal
-		PlayerInteractable.TreeExited += () =>
+		var newPlayerInteractable = playerInteractableScene.Instantiate<PlayerInteractable>();
+		AssignInteractableId(newPlayerInteractable); // ensure their own interactable has an ID assigned		
+		GD.Print("ItemManager: Added player interactable with ID " + newPlayerInteractable.interactableId);
+
+		itemSpawnRegistry.AddChild(newPlayerInteractable, true);
+		newPlayerInteractable.SetOwner(GetTree().CurrentScene);
+		newPlayerInteractable.SetMultiplayerAuthority(1);
+
+		newPlayerInteractable.scenePath = playerInteractableScene.ResourcePath;
+		newPlayerInteractable.ownerPeerId = PC.GetMultiplayerAuthority();
+		newPlayerInteractable.ownerPlayerController = PC;
+		newPlayerInteractable.GlobalTransform = player.GlobalTransform;
+		PC.playerInteractable = newPlayerInteractable;
+		GD.Print("ItemManager: Set owner player controller " + PC.Name + " for player interactable ID " + newPlayerInteractable.interactableId);
+
+		// Inform all peers
+		foreach (var peerId in multiplayer.GetPeers())
 		{
-			if (interactables.Remove(PlayerInteractable.interactableId))
+			//if (peerId == multiplayer.GetUniqueId()) continue;
+			itemSpawnRegistry.RpcId(peerId, nameof(ItemSpawnRegistry.ClientSpawnItem), newPlayerInteractable.scenePath, newPlayerInteractable.interactableId, newPlayerInteractable.GlobalTransform, 1);
+		}
+
+		newPlayerInteractable.Rpc(nameof(PlayerInteractable.SetOwnerPeerId), newPlayerInteractable.ownerPeerId);
+
+		// Set up cleanup on item removal
+		newPlayerInteractable.TreeExited += () =>
+		{
+			if (interactables.Remove(newPlayerInteractable.interactableId))
 			{
-				GD.Print("ItemManager: Tree Exited, Removed player interactable with ID " + PlayerInteractable.interactableId);
+				GD.Print("ItemManager: Tree Exited, Removed player interactable with ID " + newPlayerInteractable.interactableId);
+			}
+		};
+
+		player.TreeExited += () =>
+		{
+			if (interactables.Remove(newPlayerInteractable.interactableId))
+			{
+				GD.Print("ItemManager: Tree Exited, Removed player interactable with ID " + newPlayerInteractable.interactableId);
 			}
 		};
 	}
 
-	[Rpc(MultiplayerApi.RpcMode.AnyPeer)]
-	public void SendPlayerInteractableId(long playerId)
-	{
-		if (multiplayer.HasMultiplayerPeer() && isMultiplayerSession && !multiplayer.IsServer()) return;
-		var player = GetPlayerControllerById(playerId);
-		if (player == null) return;
-		var playerInteractable = player.GetOwnInteractable();
-		if (playerInteractable == null) return;
-		playerInteractable.RpcId(playerId, nameof(PlayerInteractable.ClientSetMyInteractableId), playerInteractable.interactableId);
-	}
+	//[Rpc(MultiplayerApi.RpcMode.AnyPeer)]
+	//public void SendPlayerInteractableId(long playerId)
+	//{
+	//	if (multiplayer.HasMultiplayerPeer() && isMultiplayerSession && !multiplayer.IsServer()) return;
+	//	var player = GetPlayerControllerById(playerId);
+	//	if (player == null) return;
+	//	var playerInteractable = player.GetOwnInteractable();
+	//	if (playerInteractable == null) return;
+	//	playerInteractable.RpcId(playerId, nameof(PlayerInteractable.ClientSetMyInteractableId), playerInteractable.interactableId);
+	//}
 
 	// Handle new peers connecting to the multiplayer session, inform them to remove placeholders
 	private void OnPeerConnected(long id)
@@ -386,8 +416,10 @@ public partial class ItemManager : Node3D
 		foreach (var kvp in interactables)
 		{
 			var item = kvp.Value;
-			if (item == null || !IsInstanceValid(item) || item is RopeGrabPoint || item is PlayerInteractable) continue;
+			if (item == null || !IsInstanceValid(item) || item is RopeGrabPoint) continue; // || item is PlayerInteractable
 			itemSpawnRegistry.RpcId(id, nameof(ItemSpawnRegistry.ClientSpawnItem), item.scenePath, item.interactableId, item.GlobalTransform, 1);
+			if (item is PlayerInteractable playerInteractable)
+				playerInteractable.RpcId(id, nameof(PlayerInteractable.SetOwnerPeerId), playerInteractable.ownerPeerId);
 		}
 
 		// Inform the new peer about existing entities
@@ -654,6 +686,7 @@ public partial class ItemManager : Node3D
 		// Restore collision settings
 		item.CollisionMask = item.savedMask;
 		item.CollisionLayer = item.savedLayer;
+		GD.Print("Restored = " + item.CollisionLayer + ", Saved = " + item.savedLayer);
 
 		Vector3 dropPosition = GetDropPosition(item);
 		item.GlobalTransform = new Transform3D(item.GlobalTransform.Basis, dropPosition); // Set position in the world

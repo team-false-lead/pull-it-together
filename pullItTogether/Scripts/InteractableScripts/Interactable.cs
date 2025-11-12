@@ -199,12 +199,12 @@ public abstract partial class Interactable : RigidBody3D
     }
 
     // Get the PlayerController parent of this interactable, if any
-    public PlayerController GetPlayerController()
-    {
-        var pc = this.GetParent<PlayerController>();
-        if (pc == null) return null;
-        return pc;
-    }
+    //public PlayerController GetPlayerController()
+    //{
+    //    var pc = this.GetParent<PlayerController>();
+    //    if (pc == null) return null;
+    //    return pc;
+    //}
 
     //get drop position moved to item manager for multiplayer sync
 
@@ -242,10 +242,10 @@ public abstract partial class Interactable : RigidBody3D
     public virtual bool CanAcceptUseFrom(CharacterBody3D user, Interactable source) { return false; }
     public virtual void AcceptUseFrom(CharacterBody3D user, Interactable source) { }
 
-    [Rpc(MultiplayerApi.RpcMode.AnyPeer)]
-    public void ClientSetMyInteractableId(string id)
-    {
-        GD.Print(GetPlayerController().Name + " Setting interactable ID to: " + id);
-        interactableId = id;
-    }
+    //[Rpc(MultiplayerApi.RpcMode.AnyPeer)]
+    //public void ClientSetMyInteractableId(string id)
+    //{
+    //    //GD.Print(GetPlayerController().Name + " Setting interactable ID to: " + id);
+    //    interactableId = id;
+    //}
 }
