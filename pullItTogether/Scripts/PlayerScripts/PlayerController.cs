@@ -85,7 +85,7 @@ public partial class PlayerController : CharacterBody3D
 	private bool isPaused;
 	[Export] private PauseMenu pauseMenu;
 	private Label debugTrackerLabel;
-	private Label itemInstructionsLabel;
+	private RichTextLabel itemInstructionsLabel;
 
 	// Heaving parameters
 	private bool isHeaving = false;
@@ -145,7 +145,7 @@ public partial class PlayerController : CharacterBody3D
 			debugTrackerLabel = HUD.GetNode<Label>("DebugTrackerLabel");
 			inStormLabel = HUD.GetNode<Label>("InStormLabel");
 			lookingAtLabel = HUD.GetNode<Label>("LookingAtLabel");
-			itemInstructionsLabel = HUD.GetNode<Label>("ItemInstructionsLabel");
+			itemInstructionsLabel = HUD.GetNode<RichTextLabel>("ItemInstructionsLabel");
 
 			// Set health and energy values to their default
 			currentHealth = maxHealth;
@@ -973,15 +973,18 @@ public partial class PlayerController : CharacterBody3D
 	private void UpdateItemInstructionsText()
 	{
 		string instructionsString = "";
+		string eKeyImage = "[img=20]res://Assets/UI/Keyboard & Mouse/Default/keyboard_e.png[/img]";
+        string leftClickImage = "[img=20]res://Assets/UI/Keyboard & Mouse/Default/mouse_left.png[/img]";
+		string tabKeyImage = "[img=20]res://Assets/UI/Keyboard & Mouse/Default/keyboard_tab.png[/img]";
 
-		// When looking at an interactable, display the pick-up interactable text
-		Interactable i = GetInteractableLookedAt();
+        // When looking at an interactable, display the pick-up interactable text
+        Interactable i = GetInteractableLookedAt();
 		if (i != null && i.CanBeCarried())
 		{
 			if (HeldValid() && OffhandValid())
-				instructionsString += "[E]: Switch " + heldObject.publicName + " with " + i.publicName + "\n";
+				instructionsString += eKeyImage + "- Switch " + heldObject.publicName + " with " + i.publicName + "\n";
 			else
-				instructionsString += "[E]: Pick up " + i.publicName + "\n";
+				instructionsString += eKeyImage + "- Pick up " + i.publicName + "\n";
 		}
 
 		// If holding an item:
@@ -989,16 +992,16 @@ public partial class PlayerController : CharacterBody3D
 		{
 			// Display the drop item text when not looking at an interactable
 			if (i == null)
-				instructionsString += "[E]: Drop " + heldObject.publicName + "\n";
+				instructionsString += eKeyImage + "- Drop " + heldObject.publicName + "\n";
 
 			// If the item can be used, display the use item prompt
 			Entity e = GetEntityLookedAt();
 			if (e != null && heldObject.CanUseOnEntity(this, e))
-				instructionsString += "Left-click: Use " + heldObject.publicName + " on " + e.publicName;
+				instructionsString += leftClickImage + "- Use " + heldObject.publicName + " on " + e.publicName;
 			else if (i != null && heldObject.CanUseOnInteractable(this, i))
-				instructionsString += "Left-click: Use " + heldObject.publicName + " on " + i.publicName;
+				instructionsString += leftClickImage + "- Use " + heldObject.publicName + " on " + i.publicName;
 			else if (heldObject.CanUseSelf(this))
-				instructionsString += "Left-click: Use " + heldObject.publicName;
+				instructionsString += leftClickImage + "- Use " + heldObject.publicName;
 
 			// TO-DO: Be more specific with certain objects (i.e. Cook food or repair wheel)
         }
@@ -1006,7 +1009,7 @@ public partial class PlayerController : CharacterBody3D
 		// If holding something in offhand, display the Tab to switch prompt
 		if (OffhandValid())
 		{
-			instructionsString += "\n[Tab]: Swap held items";
+			instructionsString += "\n" + tabKeyImage + "- Swap held items";
 		}
 
 		// Set the item instructions label accordingly
