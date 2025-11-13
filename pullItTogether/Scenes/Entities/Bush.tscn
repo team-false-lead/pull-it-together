@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://li4mrii8vo0v"]
+[gd_scene load_steps=8 format=3 uid="uid://lh3dmhh32tu1"]
 
 [ext_resource type="Script" uid="uid://m82x0scchx38" path="res://Scripts/EntityScripts/Bush.cs" id="1_epff6"]
 [ext_resource type="PackedScene" uid="uid://dnrj6qm3hslwt" path="res://Scenes/Interactables/Food_Goodberry.tscn" id="2_oep0d"]

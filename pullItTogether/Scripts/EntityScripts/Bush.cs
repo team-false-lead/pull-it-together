@@ -8,13 +8,13 @@ public partial class Bush : Entity
     [Export] public int maxBerriesToSpawn = 2;
     private int numBerriesToSpawn = 0;
     [Export] public PackedScene[] berryOptions;
-    private Random rnd;
+    private Random rnd = new Random();
 
     public override void _Ready()
     {
         base._Ready();
-        //SpawnOnUseScene = berryOptions[rnd.Next(0, berryOptions.Length)];
-        numBerriesToSpawn = 1;
+        SpawnOnUseScene = berryOptions[rnd.Next(0, berryOptions.Length)];
+        numBerriesToSpawn = rnd.Next(minBerriesToSpawn, maxBerriesToSpawn + 1);
     }
 
     // By default, entities do not accept being used on them
@@ -42,7 +42,7 @@ public partial class Bush : Entity
                 var error = itemManager.RpcId(1, nameof(ItemManager.RequestSpawnItem), id);
                 if (error != Error.Ok)
                 {
-                    GD.PrintErr("Log: Failed to request wood plank spawn via RPC. Error: " + error);
+                    GD.PrintErr("Bush: Failed to request berry spawn via RPC. Error: " + error);
                     return;
                 }
             }

@@ -505,18 +505,20 @@ public partial class PlayerController : CharacterBody3D
     // Handle the "use" action input
     private void OnUsedPressed()
 	{
-		if (!IsLocalControlled() || !HeldValid()) return; // Only the local player can interact
-        UseHeldObject();
-        // If the object was used successfully and there's something in the player's offhand, move
-        // the offhand item to the inventory slot
-        //if (!HeldValid() && offhandObject != null)
+		if (!IsLocalControlled()) return; // Only the local player can interact || !HeldValid()
+		UseHeldObject();
+		// If the object was used successfully and there's something in the player's offhand, move
+		// the offhand item to the inventory slot
+		//if (!HeldValid() && offhandObject != null)
 		//	MoveObjectToInventory(offhandObject);
+		TryInteractEntity();
 	}
 
 	private void TryInteractEntity()
 	{
-        //check if looking at an entity second
-        var targetEntity = GetEntityLookedAt();
+		//check if looking at an entity second
+		var targetEntity = GetEntityLookedAt();
+		//GD.Print("PlayerController: TryInteractEntity called, targetEntity: " + (targetEntity != null ? targetEntity.Name : "null"));
         if (targetEntity != null) //target is entity
         {
             if(targetEntity.CanAcceptUseFrom(this, null))
