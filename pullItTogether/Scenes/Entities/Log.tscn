@@ -62,6 +62,7 @@ collision_layer = 9
 collision_mask = 29
 freeze = true
 script = ExtResource("1_k5r4r")
+damageToTake = 34.0
 SpawnOnUseScene = ExtResource("2_143cb")
 publicName = "Log"
 
