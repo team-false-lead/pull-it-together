@@ -513,6 +513,20 @@ public partial class PlayerController : CharacterBody3D
 		//	MoveObjectToInventory(offhandObject);
 	}
 
+	private void TryInteractEntity()
+	{
+        //check if looking at an entity second
+        var targetEntity = GetEntityLookedAt();
+        if (targetEntity != null) //target is entity
+        {
+            if(targetEntity.CanAcceptUseFrom(this, null))
+			{
+				targetEntity.AcceptUseFrom(this, null);
+			}
+            
+        }
+    }
+
 	// Raycast forward from the camera to find what the player is looking at
 	public Dictionary RayCastForward()
 	{
