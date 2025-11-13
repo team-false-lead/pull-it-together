@@ -506,12 +506,13 @@ public partial class PlayerController : CharacterBody3D
     private void OnUsedPressed()
 	{
 		if (!IsLocalControlled()) return; // Only the local player can interact || !HeldValid()
-		UseHeldObject();
+		if (UseHeldObject()) return;
+		TryInteractEntity(); //try entity interaction if no held object used
 		// If the object was used successfully and there's something in the player's offhand, move
 		// the offhand item to the inventory slot
 		//if (!HeldValid() && offhandObject != null)
 		//	MoveObjectToInventory(offhandObject);
-		TryInteractEntity();
+		
 	}
 
 	private void TryInteractEntity()
@@ -693,9 +694,9 @@ public partial class PlayerController : CharacterBody3D
 	}
 
 	// Use the held object on itself or on a target
-	public void UseHeldObject()
+	public bool UseHeldObject()
 	{
-		if (HandleInvalidHeldObject()) return; // if invalid item was handled return
+		if (HandleInvalidHeldObject()) return false; // if invalid item was handled return
 
 		//check if looking at another interactable first
 		var targetInteractable = GetInteractableLookedAt();
@@ -706,7 +707,7 @@ public partial class PlayerController : CharacterBody3D
 			{
 				heldObject = null; // The held object was destroyed during use
 			}
-			return;
+			return true;
 		}
 
 		//check if looking at an entity second
@@ -718,7 +719,7 @@ public partial class PlayerController : CharacterBody3D
 			{
 				heldObject = null; // The held object was destroyed during use
 			}
-			return;
+			return true;
 		}
 
 		//use on self if no target found
@@ -726,7 +727,9 @@ public partial class PlayerController : CharacterBody3D
 		if (!IsInstanceValid(heldObject) || heldObject.IsQueuedForDeletion())
 		{
 			heldObject = null; // The held object was destroyed during use
+			return true;
 		}
+		return false;
 	}
 
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]

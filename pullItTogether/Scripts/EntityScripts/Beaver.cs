@@ -54,7 +54,7 @@ public partial class Beaver : Entity
     // By default, entities do not accept being used on them
     public override bool CanAcceptUseFrom(CharacterBody3D user, Interactable source)
     {
-        if (source.IsInGroup("plank") && !hasPlank)
+        if (source.IsInGroup("hatchet") || (source.IsInGroup("plank") && !hasPlank))
         {
             return true;
         }
@@ -64,6 +64,13 @@ public partial class Beaver : Entity
     // Logic for accepting use from food items
     public override void AcceptUseFrom(CharacterBody3D user, Interactable source)
     {
+        if (source is Hatchet hatchet)
+        {
+            hatchet.PlayChopAnimation();
+            TakeDamage(100f); // remove hard code later
+            return;
+        }
+
         if (itemManager == null) InitReferences();
         var id = GetEntityId(); //get unique id, default to name
 
