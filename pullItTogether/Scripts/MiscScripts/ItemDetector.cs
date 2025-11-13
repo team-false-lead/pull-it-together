@@ -5,6 +5,8 @@ using System.Collections.Generic;
 public partial class ItemDetector : Area3D
 {
 	[Export] CollisionShape3D collider;
+	[Export] MeshInstance3D mesh;
+	[Export] public bool customColliderShape = false;
 	[Export] public float detectionRadius = 5.0f;
     [Export] public float detectionHeight = 5.0f;
     [Export] public string[] customGroupFilters;
@@ -18,18 +20,20 @@ public partial class ItemDetector : Area3D
 	{
 		BodyEntered += _onBodyEntered;
 		BodyExited += _onBodyExited;
-		if (collider != null)
+		if (collider == null) { GD.PrintErr("ItemDetector: No collider assigned"); return; }
+		
+		if (!customColliderShape)
 		{
 			var colliderShape = collider.Shape as CylinderShape3D;
 			if (colliderShape != null)
 			{
 				colliderShape.Radius = detectionRadius;
-                colliderShape.Height = detectionHeight;
+				colliderShape.Height = detectionHeight;
 
-            }
-            if (collider.GetChild(0) is MeshInstance3D meshInstance)
+			}
+			if (mesh != null)
 			{
-				if (meshInstance.Mesh is CylinderMesh cylinderMesh)
+				if (mesh.Mesh is CylinderMesh cylinderMesh)
 				{
 					cylinderMesh.TopRadius = detectionRadius;
 					cylinderMesh.BottomRadius = detectionRadius;

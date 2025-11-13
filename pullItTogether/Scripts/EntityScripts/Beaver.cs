@@ -174,21 +174,22 @@ public partial class Beaver : Entity
         }
         if (item.IsInGroup("plank"))
         {
-            if (item is Interactable plankInteractable)
+            SceneTreeTimer timer = GetTree().CreateTimer(0.25f); // delay to see if wagon changees plank status
+            timer.Timeout += () =>
             {
-                if (plankInteractable.Carrier == null)
+                if (item is WoodPlank plank && !plank.isInWagon && plank.Carrier == null)
                 {
                     plankInRange = true;
                     //label.Text = "Plank in range";
-                    targetPosition = plankInteractable.GlobalPosition;
-                    plankTarget = plankInteractable;
+                    targetPosition = plank.GlobalPosition;
+                    plankTarget = plank;
                 }
                 else
                 {
                     plankInRange = false;
                     plankTarget = null;
                 }
-            }
+            };
             
         }
     }
