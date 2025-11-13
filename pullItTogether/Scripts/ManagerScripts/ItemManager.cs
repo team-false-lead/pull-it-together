@@ -1209,7 +1209,15 @@ public partial class ItemManager : Node3D
 		PackedScene itemToSpawnScene = bow.SpawnOnUseScene;
 		if (itemToSpawnScene == null) { GD.Print("arrowScene null"); return; }
 		var instance = itemToSpawnScene.Instantiate<Node3D>(); // assuming all interactables and entities are Node3D or derived
-		instance.GlobalTransform = bow.GlobalTransform; // spawn at bow position and rotation before adding child
+		PlayerController bowCarrier = bow.Carrier as PlayerController;
+		if(bowCarrier != null)
+		{
+			Transform3D targetTransform = bowCarrier.camera.GlobalTransform;
+			targetTransform.Origin += -targetTransform.Basis.Z.Normalized();
+			instance.GlobalTransform = targetTransform; // spawn at player camera position and rotation before adding child
+        }
+		else
+			instance.GlobalTransform = bow.GlobalTransform; // spawn at bow position and rotation before adding child
 
 		PreAssignId(instance);
 		itemSpawnRegistry.AddChild(instance, true); // local temp instance
