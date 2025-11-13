@@ -70,4 +70,12 @@ public partial class Log : Entity
         }
     }
 
+    public override void ToggleHighlighted(bool highlighted)
+    {
+        MeshInstance3D mesh = GetNode<MeshInstance3D>("LogMesh");
+        mesh.GetSurfaceOverrideMaterial(0).Set("emission_enabled", highlighted);
+        if (highlighted)
+            mesh.GetSurfaceOverrideMaterial(0).Set("emission", Colors.Green);
+    }
+
 }

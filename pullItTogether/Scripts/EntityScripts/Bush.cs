@@ -52,4 +52,12 @@ public partial class Bush : Entity
             }
         }
     }
+
+    public override void ToggleHighlighted(bool highlighted)
+    {
+        MeshInstance3D mesh = GetNode<MeshInstance3D>("BushMesh");
+        mesh.GetSurfaceOverrideMaterial(0).Set("emission_enabled", highlighted);
+        if (highlighted)
+            mesh.GetSurfaceOverrideMaterial(0).Set("emission", Colors.Green);
+    }
 }

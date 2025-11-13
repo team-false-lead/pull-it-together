@@ -78,7 +78,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.896183, 0)
 billboard = 2
 text = "Log"
 
-[node name="log" type="MeshInstance3D" parent="."]
+[node name="LogMesh" type="MeshInstance3D" parent="."]
 transform = Transform3D(100, 0, 0, 0, -100, -1.50996e-05, 0, 1.50996e-05, -100, 0, 0, 0)
 mesh = SubResource("ArrayMesh_0ypay")
 skeleton = NodePath("")

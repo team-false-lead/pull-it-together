@@ -3,4 +3,5 @@
 [ext_resource type="Texture2D" uid="uid://xr7qq4drrjo1" path="res://Textures/Entities/txr_logBaseColor.png" id="1_a4s8k"]
 
 [resource]
+resource_local_to_scene = true
 albedo_texture = ExtResource("1_a4s8k")

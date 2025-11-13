@@ -435,7 +435,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.3891, 14.3068, -599.851)
 transform = Transform3D(0.230967, 0, -0.972961, 0, 1, 0, 0.972961, 0, 0.230967, 30.476, 0.462509, -52.7293)
 
 [node name="Log2" parent="Placeholders" instance=ExtResource("14_w1dx0")]
-transform = Transform3D(-0.225682, 0, -0.974201, 0, 1, 0, 0.974201, 0, -0.225682, 39.7906, 0.448577, -52.7293)
+transform = Transform3D(0.649767, 0, -0.760134, 0, 1, 0, 0.760134, 0, 0.649767, 36.2046, 0.6, -58.3207)
 
 [node name="Hatchet" parent="Placeholders" instance=ExtResource("15_nvhef")]
 transform = Transform3D(0.866025, -0.5, 0, 0.5, 0.866025, 0, 0, 0, 1, 5.39227, 1.19851, -21.0722)

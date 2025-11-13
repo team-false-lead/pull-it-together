@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://lh3dmhh32tu1"]
+[gd_scene load_steps=8 format=3 uid="uid://lh3dmhh32tu1"]
 
 [ext_resource type="Script" uid="uid://m82x0scchx38" path="res://Scripts/EntityScripts/Bush.cs" id="1_epff6"]
 [ext_resource type="PackedScene" uid="uid://dnrj6qm3hslwt" path="res://Scenes/Interactables/Food_Goodberry.tscn" id="2_oep0d"]
@@ -19,6 +19,8 @@ properties/2/replication_mode = 2
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_oep0d"]
 height = 1.0
 radius = 1.5
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_s1ndp"]
 
 [node name="Bush" type="RigidBody3D"]
 collision_layer = 8
@@ -48,3 +50,4 @@ text = "Bush"
 
 [node name="BushMesh" parent="." instance=ExtResource("4_s1ndp")]
 transform = Transform3D(150, 0, 0, 0, 150, 0, 0, 0, 150, 0, 0, 0)
+material_override = SubResource("StandardMaterial3D_s1ndp")
