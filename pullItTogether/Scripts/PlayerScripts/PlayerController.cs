@@ -79,11 +79,13 @@ public partial class PlayerController : CharacterBody3D
 	private bool inStorm = false;
 	private Label lookingAtLabel;
 	private string lookingAtText = "";
+	private Node3D lastLookedAtItem;
 	
 	// Pause menu parameters
 	private bool isPaused;
 	[Export] private PauseMenu pauseMenu;
 	private Label debugTrackerLabel;
+	private RichTextLabel itemInstructionsLabel;
 
 	// Heaving parameters
 	private bool isHeaving = false;
@@ -143,6 +145,7 @@ public partial class PlayerController : CharacterBody3D
 			debugTrackerLabel = HUD.GetNode<Label>("DebugTrackerLabel");
 			inStormLabel = HUD.GetNode<Label>("InStormLabel");
 			lookingAtLabel = HUD.GetNode<Label>("LookingAtLabel");
+			itemInstructionsLabel = HUD.GetNode<RichTextLabel>("ItemInstructionsLabel");
 
 			// Set health and energy values to their default
 			currentHealth = maxHealth;
@@ -391,25 +394,31 @@ public partial class PlayerController : CharacterBody3D
 		Velocity = velocity;
 		MoveAndSlide();
 
-		// Handle interaction input
-		if (Input.IsActionJustPressed("use"))// LMB
-			OnUsedPressed();
-		if (Input.IsActionJustPressed("pickup") && !IsDowned) // E
+		if (!isPaused)
 		{
-			var target = GetInteractableLookedAt();
-			if (target != null)
-				PickupObject(target);
-			else
-				DropObject();
-		}
-		if (Input.IsActionJustPressed("swap_items"))
-		{
-			if (HeldValid() && OffhandValid())
-				SwapItemsInOffhand();
+			// Handle interaction input
+			if (Input.IsActionJustPressed("use"))// LMB
+				OnUsedPressed();
+			if (Input.IsActionJustPressed("pickup") && !IsDowned) // E	
+			{
+				var target = GetInteractableLookedAt();
+				if (target != null)
+					PickupObject(target);
+				else
+					DropObject();
+			}
+			if (Input.IsActionJustPressed("swap_items"))
+			{
+				if (HeldValid() && OffhandValid())
+					SwapItemsInOffhand();
+			}
+
+			if (!HeldValid() && OffhandValid())
+				MoveObjectToInventory(offhandObject);
 		}
 
-		if (!HeldValid() && OffhandValid())
-			MoveObjectToInventory(offhandObject);
+		if (!Multiplayer.IsServer()) // Peer-side players have to reset their looked-at item every frame because of networking shenanigans
+			ResetLookedAtItem();
 
 		//get looked at object for debug and highlighting later
 		var lookedAtObject = RayCastForward();
@@ -424,18 +433,33 @@ public partial class PlayerController : CharacterBody3D
 					var entity = FindEntity(colliderNode);
 					if (interactable != null)
 					{
+						if (lastLookedAtItem != interactable && (interactable.CanBeCarried() 
+							|| (HeldValid() && interactable.CanAcceptUseFrom(this, heldObject))))
+						{
+							ResetLookedAtItem();
+							lastLookedAtItem = interactable;
+							interactable.ToggleHighlighted(true);
+						}
+
 						lookingAtText = interactable.publicName;
 					}
 					else if (entity != null)
 					{
+						if (lastLookedAtItem != entity && HeldValid() && entity.CanAcceptUseFrom(this, heldObject))
+						{
+							ResetLookedAtItem();
+							lastLookedAtItem = entity;
+							entity.ToggleHighlighted(true);
+						}
 						lookingAtText = entity.publicName;
 					}
-				}
-			}
+                }
+            }
 		}
 		else
 		{
 			lookingAtText = "";
+			ResetLookedAtItem();
 		}
 		EmitSignal("ChangeHUD");
 
@@ -468,6 +492,8 @@ public partial class PlayerController : CharacterBody3D
 			debugTrackerLabel.Text += "\nIs lobby host";
 		else
 			debugTrackerLabel.Text += "\nIs lobby peer";
+
+		UpdateItemInstructionsText();
     }
 
 	// Simple head bobbing effect
@@ -505,13 +531,10 @@ public partial class PlayerController : CharacterBody3D
     // Handle the "use" action input
     private void OnUsedPressed()
 	{
-		if (!IsLocalControlled() || !HeldValid()) return; // Only the local player can interact
-        UseHeldObject();
-        // If the object was used successfully and there's something in the player's offhand, move
-        // the offhand item to the inventory slot
-        //if (!HeldValid() && offhandObject != null)
-		//	MoveObjectToInventory(offhandObject);
-	}
+		if (!IsLocalControlled() || heldObject == null) return; // Only the local player can interact
+		UseHeldObject();
+        ResetLookedAtItem();
+    }
 
 	// Raycast forward from the camera to find what the player is looking at
 	public Dictionary RayCastForward()
@@ -654,7 +677,7 @@ public partial class PlayerController : CharacterBody3D
         {
             heldObject = obj;
 			offhandObject = null;
-            GD.Print("Moved object to inventory: " + obj.interactableId);
+            GD.Print("Moved object to inventory: " + obj.interactableId); 
         }
     }
 
@@ -667,13 +690,15 @@ public partial class PlayerController : CharacterBody3D
 		GD.Print("Player " + Name + " Dropping held object: " + heldObject.interactableId);
 		if (heldObject.TryDrop(this) == true)
 		{
+			heldObject = null;
+            ResetLookedAtItem();
 			// If the offhand slot is empty, set the held object to empty too.
 			if (!OffhandValid())
 				heldObject = null;
 			// Otherwise, move the object in the offhand slot to the inventory slot.
 			else
 				MoveObjectToInventory(offhandObject);
-		}
+        }
 	}
 
 	// Use the held object on itself or on a target
@@ -701,7 +726,7 @@ public partial class PlayerController : CharacterBody3D
 			if (!IsInstanceValid(heldObject) || heldObject.IsQueuedForDeletion())
 			{
 				heldObject = null; // The held object was destroyed during use
-			}
+            }
 			return;
 		}
 
@@ -710,7 +735,7 @@ public partial class PlayerController : CharacterBody3D
 		if (!IsInstanceValid(heldObject) || heldObject.IsQueuedForDeletion())
 		{
 			heldObject = null; // The held object was destroyed during use
-		}
+        }
 	}
 
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
@@ -736,6 +761,7 @@ public partial class PlayerController : CharacterBody3D
             GD.Print("Swapped items!");
 			offhandObject = heldObject;
 			heldObject = tempItem;
+            ResetLookedAtItem();
         }
 	}
 
@@ -940,6 +966,56 @@ public partial class PlayerController : CharacterBody3D
 		GlobalRotation = rotation;
 	}
 
+	/// <summary>
+	/// Sets the item instructions text based on whether or not an item is held,
+	/// another item is being looked at, etc.
+	/// </summary>
+	private void UpdateItemInstructionsText()
+	{
+		string instructionsString = "";
+		string eKeyImage = "[img=20]res://Assets/UI/Keyboard & Mouse/Default/keyboard_e.png[/img]";
+        string leftClickImage = "[img=20]res://Assets/UI/Keyboard & Mouse/Default/mouse_left.png[/img]";
+		string tabKeyImage = "[img=20]res://Assets/UI/Keyboard & Mouse/Default/keyboard_tab.png[/img]";
+
+        // When looking at an interactable, display the pick-up interactable text
+        Interactable i = GetInteractableLookedAt();
+		if (i != null && i.CanBeCarried())
+		{
+			if (HeldValid() && OffhandValid())
+				instructionsString += eKeyImage + "- Switch " + heldObject.publicName + " with " + i.publicName + "\n";
+			else
+				instructionsString += eKeyImage + "- Pick up " + i.publicName + "\n";
+		}
+
+		// If holding an item:
+		if (HeldValid())
+		{
+			// Display the drop item text when not looking at an interactable
+			if (i == null)
+				instructionsString += eKeyImage + "- Drop " + heldObject.publicName + "\n";
+
+			// If the item can be used, display the use item prompt
+			Entity e = GetEntityLookedAt();
+			if (e != null && heldObject.CanUseOnEntity(this, e))
+				instructionsString += leftClickImage + "- Use " + heldObject.publicName + " on " + e.publicName;
+			else if (i != null && heldObject.CanUseOnInteractable(this, i))
+				instructionsString += leftClickImage + "- Use " + heldObject.publicName + " on " + i.publicName;
+			else if (heldObject.CanUseSelf(this))
+				instructionsString += leftClickImage + "- Use " + heldObject.publicName;
+
+			// TO-DO: Be more specific with certain objects (i.e. Cook food or repair wheel)
+        }
+
+		// If holding something in offhand, display the Tab to switch prompt
+		if (OffhandValid())
+		{
+			instructionsString += "\n" + tabKeyImage + "- Swap held items";
+		}
+
+		// Set the item instructions label accordingly
+		itemInstructionsLabel.Text = instructionsString;
+	}
+
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
 	public void DoHeave()
 	{
@@ -976,4 +1052,13 @@ public partial class PlayerController : CharacterBody3D
 			canHeave = true; // can heave again
 		};
 	}
+
+	private void ResetLookedAtItem()
+	{
+        if (lastLookedAtItem is Interactable i)
+            i.ToggleHighlighted(false);
+        else if (lastLookedAtItem is Entity e)
+            e.ToggleHighlighted(false);
+		lastLookedAtItem = null;
+    }
 }

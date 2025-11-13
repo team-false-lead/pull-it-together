@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=3 uid="uid://b2cc2nt2bpja0"]
+[gd_scene load_steps=27 format=3 uid="uid://b2cc2nt2bpja0"]
 
 [ext_resource type="Script" uid="uid://dja12uyulc7ee" path="res://addons/verlet_rope_4/Physics/VerletRopeRigid.cs" id="1_24ylq"]
 [ext_resource type="Script" uid="uid://toi5sicfb28n" path="res://Scripts/Wagon/Wagon.cs" id="1_f8cd6"]
@@ -40,6 +40,18 @@ height = 1.7
 [sub_resource type="SphereShape3D" id="SphereShape3D_roc07"]
 
 [sub_resource type="SphereMesh" id="SphereMesh_m5r0p"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_w40pc"]
+resource_local_to_scene = true
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_mc2ob"]
+resource_local_to_scene = true
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_onbxt"]
+resource_local_to_scene = true
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3i4sx"]
+resource_local_to_scene = true
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_q3xkn"]
 properties/0/path = NodePath(".:position")
@@ -234,6 +246,7 @@ shape = SubResource("SphereShape3D_roc07")
 transform = Transform3D(0.25, 0, 0, 0, 0.25, 0, 0, 0, 0.25, 0, 0, 0)
 mesh = SubResource("SphereMesh_m5r0p")
 skeleton = NodePath("")
+surface_material_override/0 = SubResource("StandardMaterial3D_w40pc")
 
 [node name="Label3D" type="Label3D" parent="GrabPoint"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25, 0)
@@ -299,6 +312,7 @@ shape = SubResource("SphereShape3D_roc07")
 transform = Transform3D(0.25, 0, 0, 0, 0.25, 0, 0, 0, 0.25, 0, 0, 0)
 mesh = SubResource("SphereMesh_m5r0p")
 skeleton = NodePath("")
+surface_material_override/0 = SubResource("StandardMaterial3D_mc2ob")
 
 [node name="Label3D" type="Label3D" parent="GrabPoint3"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25, 0)
@@ -364,6 +378,7 @@ shape = SubResource("SphereShape3D_roc07")
 transform = Transform3D(0.25, 0, 0, 0, 0.25, 0, 0, 0, 0.25, 0, 0, 0)
 mesh = SubResource("SphereMesh_m5r0p")
 skeleton = NodePath("")
+surface_material_override/0 = SubResource("StandardMaterial3D_onbxt")
 
 [node name="Label3D" type="Label3D" parent="GrabPoint4"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25, 0)
@@ -430,6 +445,7 @@ shape = SubResource("SphereShape3D_roc07")
 transform = Transform3D(0.25, 0, 0, 0, 0.25, 0, 0, 0, 0.25, 0, 0, 0)
 mesh = SubResource("SphereMesh_m5r0p")
 skeleton = NodePath("")
+surface_material_override/0 = SubResource("StandardMaterial3D_3i4sx")
 
 [node name="Label3D" type="Label3D" parent="GrabPoint2"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25, 0)

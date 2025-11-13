@@ -32,7 +32,7 @@ public partial class Wheel : Entity
     //override to accept food items
     public override bool CanAcceptUseFrom(CharacterBody3D user, Interactable source)
     {
-        if (source.IsInGroup("plank"))
+        if (currentHealth < maxHealth && source.IsInGroup("plank"))
         {
             return true;
         }
@@ -150,6 +150,14 @@ public partial class Wheel : Entity
             }
         }
 
+    }
+
+    public override void ToggleHighlighted(bool highlighted)
+    {
+        MeshInstance3D mesh = GetNode<MeshInstance3D>("WheelMesh");
+        mesh.GetSurfaceOverrideMaterial(0).Set("emission_enabled", highlighted);
+        if (highlighted)
+            mesh.GetSurfaceOverrideMaterial(0).Set("emission", Colors.Green);
     }
 
 }
