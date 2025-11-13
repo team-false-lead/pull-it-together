@@ -269,4 +269,12 @@ public partial class RopeGrabPoint : Interactable
             }
         }
     }
+
+    public override void ToggleHighlighted(bool highlighted)
+    {
+        MeshInstance3D mesh = GetNode<MeshInstance3D>("MeshInstance3D");
+        mesh.GetSurfaceOverrideMaterial(0).Set("emission_enabled", highlighted);
+        if (highlighted)
+            mesh.GetSurfaceOverrideMaterial(0).Set("emission", Colors.Yellow);
+    }
 }
