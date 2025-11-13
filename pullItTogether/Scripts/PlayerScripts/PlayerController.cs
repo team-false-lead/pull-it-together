@@ -36,7 +36,7 @@ public partial class PlayerController : CharacterBody3D
 	private Interactable offhandObject = null;
 	private bool HeldValid() => heldObject != null && IsInstanceValid(heldObject) && !heldObject.IsQueuedForDeletion() && heldObject.IsInsideTree();
 	private bool OffhandValid () => offhandObject != null && IsInstanceValid(offhandObject) && !offhandObject.IsQueuedForDeletion() && offhandObject.IsInsideTree();
-	[Export] public NodePath inventorySlotPath;
+    [Export] public NodePath inventorySlotPath;
 	[Export] public NodePath offhandPath;
 	[Export] public float interactRange = 3.0f;
 	//[Export] public int interactLayer = 4;
@@ -420,7 +420,7 @@ public partial class PlayerController : CharacterBody3D
 		if (Multiplayer.HasMultiplayerPeer() && !Multiplayer.IsServer()) // Peer-side players have to reset their looked-at item every frame because of networking shenanigans
 			ResetLookedAtItem();
 
-		//get looked at object for debug and highlighting later
+		//get looked at object for debug and highlighting
 		var lookedAtObject = RayCastForward();
 		if (lookedAtObject.Count > 0)
 		{
@@ -1085,9 +1085,9 @@ public partial class PlayerController : CharacterBody3D
 
 	private void ResetLookedAtItem()
 	{
-        if (lastLookedAtItem is Interactable i && !i.IsQueuedForDeletion())
+        if (lastLookedAtItem is Interactable i && IsInstanceValid(i))
             i.ToggleHighlighted(false);
-        else if (lastLookedAtItem is Entity e && !e.IsQueuedForDeletion())
+        else if (lastLookedAtItem is Entity e && IsInstanceValid(e))
             e.ToggleHighlighted(false);
 		lastLookedAtItem = null;
     }
