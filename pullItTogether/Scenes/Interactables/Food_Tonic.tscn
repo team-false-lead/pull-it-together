@@ -79,6 +79,7 @@ albedo_texture = ExtResource("3_7y36t")
 collision_layer = 8
 collision_mask = 29
 script = ExtResource("1_yntn0")
+isCooked = true
 rawMesh = NodePath("TonicMesh")
 cookedMesh = NodePath("TonicMesh")
 label3D = NodePath("Label3D")
