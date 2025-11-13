@@ -1,0 +1,17 @@
+[gd_resource type="AudioStreamSynchronized" load_steps=5 format=3 uid="uid://cdtkjpneu5m2a"]
+
+[ext_resource type="AudioStream" uid="uid://b85aodjb3dsxk" path="res://Assets/Audio/Forest/PiT-Forest-Calm-Mainlayer.ogg" id="1_v87fh"]
+[ext_resource type="AudioStream" uid="uid://3f6sg81fkufd" path="res://Assets/Audio/Forest/PiT-Forest-Calm-Sublayer.ogg" id="2_4xadf"]
+[ext_resource type="AudioStream" uid="uid://3b8kwkc6ca0d" path="res://Assets/Audio/Forest/PiT-Forest-Tense-Banjo.ogg" id="3_d40yc"]
+[ext_resource type="AudioStream" uid="uid://dx801hkcgnxqn" path="res://Assets/Audio/Forest/PiT-Forest-Tense-Drums.ogg" id="4_w50to"]
+
+[resource]
+stream_count = 4
+stream_0/stream = ExtResource("1_v87fh")
+stream_0/volume = 0.0
+stream_1/stream = ExtResource("2_4xadf")
+stream_1/volume = 0.0
+stream_2/stream = ExtResource("3_d40yc")
+stream_2/volume = 0.0
+stream_3/stream = ExtResource("4_w50to")
+stream_3/volume = 0.0

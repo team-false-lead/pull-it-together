@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://cv44tvj0o5jcf"]
+[gd_scene load_steps=13 format=3 uid="uid://cv44tvj0o5jcf"]
 
 [ext_resource type="Script" uid="uid://d35fcmqkvt0n3" path="res://Scripts/ManagerScripts/GameManager.gd" id="1_pbw6q"]
 [ext_resource type="Script" uid="uid://1yk74iatudu6" path="res://Scripts/ManagerScripts/NetworkManager.gd" id="2_v1gob"]
@@ -8,6 +8,7 @@
 [ext_resource type="PackedScene" uid="uid://ckpgu08xdcwp4" path="res://Scenes/Player.tscn" id="6_jw32o"]
 [ext_resource type="Texture2D" uid="uid://bwljc876116v2" path="res://Textures/UI/TitleBackground.png" id="7_50glp"]
 [ext_resource type="Texture2D" uid="uid://digfldgx5a5cy" path="res://Textures/UI/logo_main.png" id="7_jw32o"]
+[ext_resource type="PackedScene" uid="uid://wqi0voow1hdb" path="res://Scenes/AudioManager.tscn" id="7_vy5pj"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_50glp"]
 transparency = 1
@@ -76,6 +77,8 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.46775, 3.43957, -2.10603)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.3259, 0)
 layers = 32
 material = SubResource("StandardMaterial3D_50glp")
+
+[node name="AudioManager" parent="." instance=ExtResource("7_vy5pj")]
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
