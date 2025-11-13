@@ -792,12 +792,24 @@ public partial class PlayerController : CharacterBody3D
 			Vector3 toSlot = inventorySlot.GlobalTransform.Origin - tetherAnchor.GlobalTransform.Origin;
 			float slotDist = toSlot.Length();
 
-			if (slotDist <= maxTetherDist && heldObject is RopeGrabPoint rope)
+			
+			Vector3 targetPos = new Vector3(tetherAnchor.GlobalTransform.Origin.X, GlobalPosition.Y, tetherAnchor.GlobalTransform.Origin.Z);
+			var tween = GetTree().CreateTween();
+			tween.SetTrans(Tween.TransitionType.Sine).SetEase(Tween.EaseType.InOut);
+			tween.TweenProperty(this, "global_position", targetPos, 0.05f);
+			SceneTreeTimer timer = GetTree().CreateTimer(0.05f);
+			//await ToSignal(tween, "finished");
+
+			timer.Timeout += () =>
 			{
-				rope.RpcId(1, nameof(RopeGrabPoint.DeferredResetJoint));
-				resetRopeInTetherRange = true;
-				GD.Print("Rope tether reset joint called");
-			}
+				if (slotDist <= maxTetherDist && heldObject is RopeGrabPoint rope)
+				{
+					rope.RpcId(1, nameof(RopeGrabPoint.DeferredResetJoint));
+					resetRopeInTetherRange = true;
+					GD.Print("Rope tether reset joint called");
+				}
+			};
+			
         }
 
 		//if player is past max tether distance, apply force to pull back
