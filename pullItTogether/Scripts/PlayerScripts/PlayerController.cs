@@ -1029,6 +1029,12 @@ public partial class PlayerController : CharacterBody3D
 
 			// TO-DO: Be more specific with certain objects (i.e. Cook food or repair wheel)
         }
+		else
+		{
+            Entity e = GetEntityLookedAt();
+			if (e != null && e.CanAcceptUseFrom(this, null))
+                instructionsString += leftClickImage + "- Use bare hands on " + e.publicName;
+        }
 
 		// If holding something in offhand, display the Tab to switch prompt
 		if (OffhandValid())
@@ -1079,9 +1085,9 @@ public partial class PlayerController : CharacterBody3D
 
 	private void ResetLookedAtItem()
 	{
-        if (lastLookedAtItem is Interactable i)
+        if (lastLookedAtItem is Interactable i && !i.IsQueuedForDeletion())
             i.ToggleHighlighted(false);
-        else if (lastLookedAtItem is Entity e)
+        else if (lastLookedAtItem is Entity e && !e.IsQueuedForDeletion())
             e.ToggleHighlighted(false);
 		lastLookedAtItem = null;
     }
