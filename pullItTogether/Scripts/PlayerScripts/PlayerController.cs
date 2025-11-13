@@ -445,8 +445,7 @@ public partial class PlayerController : CharacterBody3D
 					}
 					else if (entity != null)
 					{
-						if (lastLookedAtItem != entity && (HeldValid() && entity.CanAcceptUseFrom(this, heldObject)) ||
-							(!HeldValid() && entity.CanAcceptUseFrom(this, null)))
+						if (lastLookedAtItem != entity && HeldValid() && entity.CanAcceptUseFrom(this, heldObject))
 						{
 							ResetLookedAtItem();
 							lastLookedAtItem = entity;
