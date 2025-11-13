@@ -3,4 +3,6 @@
 [ext_resource type="Texture2D" uid="uid://bfacq3t6lscl2" path="res://Textures/Entities/txr_bush_bc.png" id="1_abab2"]
 
 [resource]
+resource_local_to_scene = true
 albedo_texture = ExtResource("1_abab2")
+emission_enabled = true
