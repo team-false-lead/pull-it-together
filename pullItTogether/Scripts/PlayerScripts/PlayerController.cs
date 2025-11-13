@@ -12,11 +12,12 @@ public partial class PlayerController : CharacterBody3D
 	// Movement parameters
 	public float speed;
 	[Export] public float walkSpeed = 4.0f;
-    [Export] public float sprintSpeed = 6.5f;
+	[Export] public float sprintSpeed = 6.5f;
 	public float jumpVelocity = 4.5f;
 	public float inertiaAirValue = 1.5f;
 	public float inertiaGroundValue = 3.5f;
 	private bool isSprinting;
+	private Vector3 lastGroundedPos;
 
 	// Camera and look parameters
 	private Color initialBodyColor = Colors.White;
@@ -70,9 +71,9 @@ public partial class PlayerController : CharacterBody3D
 	[Export] private float energyRegen;
 	[Export] private float pullingEnergyCost;
 	[Export] private Label3D helpMeLabel;
-    [Signal] public delegate void ChangeHUDEventHandler();
+	[Signal] public delegate void ChangeHUDEventHandler();
 	[Signal] public delegate void OnDownedEventHandler();
-    [Signal] public delegate void OnRevivedEventHandler();
+	[Signal] public delegate void OnRevivedEventHandler();
 
 	// Storm parameters
 	private Label inStormLabel;
@@ -116,8 +117,8 @@ public partial class PlayerController : CharacterBody3D
 
 			//GetTree().Root.GetNode("Main/MapManager/TestTerrain/Terrain3D").Call("set_camera", camera); // moved hardcoded to when we have mapmanager ref
 
-            // Hide all nodes in the "self_hide" group
-            foreach (var child in GetTree().GetNodesInGroup("self_hide"))
+			// Hide all nodes in the "self_hide" group
+			foreach (var child in GetTree().GetNodesInGroup("self_hide"))
 			{
 				if (child is Node3D node && IsAncestorOf(node))
 				{
@@ -132,13 +133,13 @@ public partial class PlayerController : CharacterBody3D
 
 			pauseMenu.ExitButton.Pressed += ExitLobby;
 			
-            // Load the player HUD
-            Control HUD = (Control)hudScene.Instantiate();
-            AddChild(HUD);
-            // Hard-coded values for now
-            healthBar = HUD.GetNode<ProgressBar>("HealthBar/HealthProgressBar");
-            energyBar = HUD.GetNode<ProgressBar>("EnergyBar/EnergyProgressBar");
-            fatigueBar = HUD.GetNode<ProgressBar>("EnergyBar/FatigueProgressBar");
+			// Load the player HUD
+			Control HUD = (Control)hudScene.Instantiate();
+			AddChild(HUD);
+			// Hard-coded values for now
+			healthBar = HUD.GetNode<ProgressBar>("HealthBar/HealthProgressBar");
+			energyBar = HUD.GetNode<ProgressBar>("EnergyBar/EnergyProgressBar");
+			fatigueBar = HUD.GetNode<ProgressBar>("EnergyBar/FatigueProgressBar");
 			outOfHealthLabel = HUD.GetNode<Label>("OutOfHealthLabel");
 			debugTrackerLabel = HUD.GetNode<Label>("DebugTrackerLabel");
 			inStormLabel = HUD.GetNode<Label>("InStormLabel");
@@ -208,10 +209,10 @@ public partial class PlayerController : CharacterBody3D
 		TintMeshIfFound("Head/HeadMesh", color);
 		TintMeshIfFound("Head/Camera3D/EyesMesh", color);
 		TintMeshIfFound("Head/Camera3D/Inventory/InventorySlot1", color);
-        TintMeshIfFound("Head/Camera3D/Inventory/InventorySlot2", color);
-        TintMeshIfFound("Head/Camera3D/Inventory/LeftArmMesh", color);
-        TintMeshIfFound("Head/Camera3D/Inventory/RightArmMesh", color);
-    }
+		TintMeshIfFound("Head/Camera3D/Inventory/InventorySlot2", color);
+		TintMeshIfFound("Head/Camera3D/Inventory/LeftArmMesh", color);
+		TintMeshIfFound("Head/Camera3D/Inventory/RightArmMesh", color);
+	}
 
 	private void TintMeshIfFound(string path, Color color)
 	{
@@ -279,22 +280,22 @@ public partial class PlayerController : CharacterBody3D
 		if (playerInteractable !=null)
 		{
 			if (IsDowned)
-            {
+			{
 				GlobalPosition = playerInteractable.GlobalPosition;
 				if (playerInteractable.Carrier != null)
-                {
+				{
 					return;
-                }
-            }
+				}
+			}
 			else
-            {
-                playerInteractable.GlobalTransform = GlobalTransform;
-            }
-        }
+			{
+				playerInteractable.GlobalTransform = GlobalTransform;
+			}
+		}
 
 		if (!IsLocalControlled()) return; // local player processes movement
 
-        Vector3 velocity = Velocity;
+		Vector3 velocity = Velocity;
 		float maxEnergyChange = -maxEnergyReductionRate * (float)delta;
 		float energyChange = 0;
 
@@ -302,93 +303,100 @@ public partial class PlayerController : CharacterBody3D
 		if (!IsOnFloor())
 		{
 			velocity += GetGravity() * (float)delta;
+			if (GlobalPosition.Y < -10f) // If the player has fallen through the floor, un-fall them through the floor.
+            {
+                GlobalPosition = new Vector3(lastGroundedPos.X, lastGroundedPos.Y + 0.5f, lastGroundedPos.Z);
+				Velocity = Vector3.Zero;
+            }
 		}
+		else
+			lastGroundedPos = GlobalPosition;
 
 		// Do not process movement inputs when controls are paused or when out of health.
 		if (!isPaused && !IsDowned)
 		{
-            // Handle Jump.
-            if (Input.IsActionJustPressed("jump") && IsOnFloor())
-            {
-                velocity.Y = jumpVelocity;
+			// Handle Jump.
+			if (Input.IsActionJustPressed("jump") && IsOnFloor())
+			{
+				velocity.Y = jumpVelocity;
 				energyChange -= jumpingEnergyCost;
 				maxEnergyChange -= jumpingEnergyCost * 0.25f;
-            }
+			}
 
-            // Get the input direction and handle the movement/deceleration.
-            // As good practice, you should replace UI actions with custom gameplay actions.
-            Vector2 inputDir = Input.GetVector("left", "right", "forward", "back"); // WASD
-            Vector3 direction = (head.Transform.Basis * new Vector3(inputDir.X, 0, inputDir.Y)).Normalized();
+			// Get the input direction and handle the movement/deceleration.
+			// As good practice, you should replace UI actions with custom gameplay actions.
+			Vector2 inputDir = Input.GetVector("left", "right", "forward", "back"); // WASD
+			Vector3 direction = (head.Transform.Basis * new Vector3(inputDir.X, 0, inputDir.Y)).Normalized();
 
-            // intertia
-            if (IsOnFloor()) // full control when on the ground
-            {
-                if (direction != Vector3.Zero)
-                {
-                    velocity.X = direction.X * speed;
-                    velocity.Z = direction.Z * speed;
-                }
-                else
-                {
-                    velocity.X = Mathf.Lerp(velocity.X, direction.X * speed, (float)delta * inertiaGroundValue);
-                    velocity.Z = Mathf.Lerp(velocity.Z, direction.Z * speed, (float)delta * inertiaGroundValue);
-                }
-            }
-            else // inertia when in the air
-            {
-                velocity.X = Mathf.Lerp(velocity.X, direction.X * speed, (float)delta * inertiaAirValue);
-                velocity.Z = Mathf.Lerp(velocity.Z, direction.Z * speed, (float)delta * inertiaAirValue);
-            }
+			// intertia
+			if (IsOnFloor()) // full control when on the ground
+			{
+				if (direction != Vector3.Zero)
+				{
+					velocity.X = direction.X * speed;
+					velocity.Z = direction.Z * speed;
+				}
+				else
+				{
+					velocity.X = Mathf.Lerp(velocity.X, direction.X * speed, (float)delta * inertiaGroundValue);
+					velocity.Z = Mathf.Lerp(velocity.Z, direction.Z * speed, (float)delta * inertiaGroundValue);
+				}
+			}
+			else // inertia when in the air
+			{
+				velocity.X = Mathf.Lerp(velocity.X, direction.X * speed, (float)delta * inertiaAirValue);
+				velocity.Z = Mathf.Lerp(velocity.Z, direction.Z * speed, (float)delta * inertiaAirValue);
+			}
 
-            // Handle head bobbing
-            if (IsOnFloor() && direction != Vector3.Zero)
-            {
-                bobTimer += (float)delta * velocity.Length();
-                camera.Position = headBob(bobTimer);
-            }
-            else
-            {
-                bobTimer = 0.0f;
-                camera.Position = Vector3.Zero;
-            }
+			// Handle head bobbing
+			if (IsOnFloor() && direction != Vector3.Zero)
+			{
+				bobTimer += (float)delta * velocity.Length();
+				camera.Position = headBob(bobTimer);
+			}
+			else
+			{
+				bobTimer = 0.0f;
+				camera.Position = Vector3.Zero;
+			}
 
 			// Handle sprint input and FOV change
 			if (isSprinting && direction != Vector3.Zero)
 			{
 				speed = sprintSpeed;
-                camera.Fov = Mathf.Lerp(camera.Fov, fov * fovChange, (float)delta * fovChangeSpeed);
-                energyChange -= sprintingEnergyReduction * (float)delta;
+				camera.Fov = Mathf.Lerp(camera.Fov, fov * fovChange, (float)delta * fovChangeSpeed);
+				energyChange -= sprintingEnergyReduction * (float)delta;
 				maxEnergyChange -= sprintingEnergyReduction * 0.2f * (float)delta;
-            }
-            else
-            {
-                speed = walkSpeed;
-                camera.Fov = Mathf.Lerp(camera.Fov, fov, (float)delta * fovChangeSpeed);
-            }
-        }
+			}
+			else
+			{
+				speed = walkSpeed;
+				camera.Fov = Mathf.Lerp(camera.Fov, fov, (float)delta * fovChangeSpeed);
+			}
+		}
 		else
 		{
-            if (IsOnFloor())
-            {
-                velocity.X = Mathf.Lerp(velocity.X, 0, (float)delta * inertiaGroundValue);
-                velocity.Z = Mathf.Lerp(velocity.Z, 0, (float)delta * inertiaGroundValue);
-            }
-            else // inertia when in the air
-            {
-                velocity.X = Mathf.Lerp(velocity.X, 0, (float)delta * inertiaAirValue);
-                velocity.Z = Mathf.Lerp(velocity.Z, 0, (float)delta * inertiaAirValue);
-            }
+			if (IsOnFloor())
+			{
+				velocity.X = Mathf.Lerp(velocity.X, 0, (float)delta * inertiaGroundValue);
+				velocity.Z = Mathf.Lerp(velocity.Z, 0, (float)delta * inertiaGroundValue);
+			}
+			else // inertia when in the air
+			{
+				velocity.X = Mathf.Lerp(velocity.X, 0, (float)delta * inertiaAirValue);
+				velocity.Z = Mathf.Lerp(velocity.Z, 0, (float)delta * inertiaAirValue);
+			}
 
-            camera.Fov = Mathf.Lerp(camera.Fov, fov, (float)delta * fovChangeSpeed);
-        }
+			camera.Fov = Mathf.Lerp(camera.Fov, fov, (float)delta * fovChangeSpeed);
+		}
 
 		if (isHeaving)
 		{
 			camera.Fov = Mathf.Lerp(camera.Fov, fov * fovChange, (float)delta * fovChangeSpeed);
 			var keepY = velocity.Y;
-            velocity = heaveVelocity;
+			velocity = heaveVelocity;
 			velocity.Y = keepY;
-        }
+		}
 
 		// add tether force if holding rope
 		if (tetherAnchor != null)
@@ -483,7 +491,7 @@ public partial class PlayerController : CharacterBody3D
 			debugTrackerLabel.Text += "\nIs lobby host";
 		else
 			debugTrackerLabel.Text += "\nIs lobby peer";
-    }
+	}
 
 	// Simple head bobbing effect
 	private Vector3 headBob(float timer)
@@ -511,20 +519,20 @@ public partial class PlayerController : CharacterBody3D
 		return GetNode<Node3D>(inventorySlotPath);
 	}
 
-    public Node3D GetOffhandSlot()
-    {
-        if (offhandPath == null || offhandPath == String.Empty) return null;
-        return GetNode<Node3D>(offhandPath);
-    }
+	public Node3D GetOffhandSlot()
+	{
+		if (offhandPath == null || offhandPath == String.Empty) return null;
+		return GetNode<Node3D>(offhandPath);
+	}
 
-    // Handle the "use" action input
-    private void OnUsedPressed()
+	// Handle the "use" action input
+	private void OnUsedPressed()
 	{
 		if (!IsLocalControlled() || !HeldValid()) return; // Only the local player can interact
-        UseHeldObject();
-        // If the object was used successfully and there's something in the player's offhand, move
-        // the offhand item to the inventory slot
-        //if (!HeldValid() && offhandObject != null)
+		UseHeldObject();
+		// If the object was used successfully and there's something in the player's offhand, move
+		// the offhand item to the inventory slot
+		//if (!HeldValid() && offhandObject != null)
 		//	MoveObjectToInventory(offhandObject);
 	}
 
@@ -625,9 +633,9 @@ public partial class PlayerController : CharacterBody3D
 	{
 		HandleInvalidHeldObject(); 
 		if (HeldValid() && heldObject.isTwoHanded)
-        {
+		{
 			DropObject();
-        }
+		}
 
 		// When picking up a two-handed object, drop all currently-held objects.
 		// Null checks aren't strictly necessary since DropObject() does that anyways,
@@ -638,9 +646,9 @@ public partial class PlayerController : CharacterBody3D
 			DropObject();
 		}
 		else if (HeldValid())
-        {
+		{
 			// When both hands are full, drop the held object
-            if (OffhandValid())
+			if (OffhandValid())
 				DropObject();
 
 			MoveObjectToOffhand(heldObject); // Move anything in the player's active hand to their offhand
@@ -662,19 +670,19 @@ public partial class PlayerController : CharacterBody3D
 		{
 			offhandObject = obj;
 			heldObject = null;
-            GD.Print("Moved object to offhand: " + obj.interactableId);
-        }
+			GD.Print("Moved object to offhand: " + obj.interactableId);
+		}
 	}
 
 	public void MoveObjectToInventory(Interactable obj)
 	{
-        if (obj.TryChangeToSlot(this, inventorySlotPath))
-        {
-            heldObject = obj;
+		if (obj.TryChangeToSlot(this, inventorySlotPath))
+		{
+			heldObject = obj;
 			offhandObject = null;
-            GD.Print("Moved object to inventory: " + obj.interactableId);
-        }
-    }
+			GD.Print("Moved object to inventory: " + obj.interactableId);
+		}
+	}
 
 	// Drop the currently held object
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
@@ -750,11 +758,11 @@ public partial class PlayerController : CharacterBody3D
 		HandleInvalidHeldObject();
 		Interactable tempItem = offhandObject;
 		if (heldObject.TryChangeToSlot(this, offhandPath) && tempItem.TryChangeToSlot(this, inventorySlotPath))
-        {
-            GD.Print("Swapped items!");
+		{
+			GD.Print("Swapped items!");
 			offhandObject = heldObject;
 			heldObject = tempItem;
-        }
+		}
 	}
 
 	// Set up a tether anchor point for rope mechanics
@@ -787,8 +795,8 @@ public partial class PlayerController : CharacterBody3D
 		float dist = toPlayer.Length();
 
 		if (!resetRopeInTetherRange)
-        {
-            var inventorySlot = GetInventorySlot();
+		{
+			var inventorySlot = GetInventorySlot();
 			Vector3 toSlot = inventorySlot.GlobalTransform.Origin - tetherAnchor.GlobalTransform.Origin;
 			float slotDist = toSlot.Length();
 
@@ -810,7 +818,7 @@ public partial class PlayerController : CharacterBody3D
 				}
 			};
 			
-        }
+		}
 
 		//if player is past max tether distance, apply force to pull back
 		if (dist > maxTetherDist)
@@ -830,8 +838,8 @@ public partial class PlayerController : CharacterBody3D
 
 			// Also spend energy if at max distance.
 			ChangeCurrentEnergy(pullingEnergyCost * -(float)delta); // Times like these make me wish C# had float references
-            ChangeMaxEnergy(pullingEnergyCost * -(float)delta * 0.1f); // 0.3x multiplier reduces max waaaaaaaay too fast imo
-        }
+			ChangeMaxEnergy(pullingEnergyCost * -(float)delta * 0.1f); // 0.3x multiplier reduces max waaaaaaaay too fast imo
+		}
 
 		return velocity;
 	}
@@ -845,24 +853,24 @@ public partial class PlayerController : CharacterBody3D
 	{
 		this.isPaused = isPaused;
 		if (openPauseMenu && isPaused)
-        {
-            pauseMenu.Visible = true;
+		{
+			pauseMenu.Visible = true;
 			Input.MouseMode = Input.MouseModeEnum.Visible;
-        }
+		}
 		else
 		{
-            pauseMenu.Visible = false;
-            Input.MouseMode = Input.MouseModeEnum.Captured;
+			pauseMenu.Visible = false;
+			Input.MouseMode = Input.MouseModeEnum.Captured;
 
-        }
+		}
 	}
 
 	public void ExitLobby()
 	{
-        //GameStateTracker gameStateTracker = GetTree().CurrentScene.GetNode<GameStateTracker>("%MapManager/TestTerrain/GameStateTracker");
-        //gameStateTracker.RemovePlayerFromPlayerList(this);
-        GetTree().CurrentScene.GetNodeOrNull<Node>("NetworkManager").CallDeferred("leave");
-    }
+		//GameStateTracker gameStateTracker = GetTree().CurrentScene.GetNode<GameStateTracker>("%MapManager/TestTerrain/GameStateTracker");
+		//gameStateTracker.RemovePlayerFromPlayerList(this);
+		GetTree().CurrentScene.GetNodeOrNull<Node>("NetworkManager").CallDeferred("leave");
+	}
 
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
 	public void ChangeCurrentHealth(float diff)
@@ -870,9 +878,9 @@ public partial class PlayerController : CharacterBody3D
 		bool wasAlreadyDowned = currentHealth <= 0;
 		// If recovering health from a downed state, emit the revival event
 		if (currentHealth == 0 && diff > 0)
-        {
-            EmitSignal("OnRevived");
-        }
+		{
+			EmitSignal("OnRevived");
+		}
 
 		currentHealth = Mathf.Min(currentHealth + diff, maxHealth);
 		if (currentHealth <= 0)
@@ -880,10 +888,10 @@ public partial class PlayerController : CharacterBody3D
 			currentHealth = 0;
 			DropObject();
 			if (!wasAlreadyDowned)
-            {
-                EmitSignal("OnDowned");
+			{
+				EmitSignal("OnDowned");
 				gameStateTracker.RpcId(1, nameof(GameStateTracker.CheckLossState), GetMultiplayerAuthority(), currentHealth); // check for loss state on server
-            }	
+			}	
 		}
 
 		EmitSignal("ChangeHUD");
@@ -940,7 +948,7 @@ public partial class PlayerController : CharacterBody3D
 		outOfHealthLabel.Visible = helpMeLabel.Visible || outOfHealthLabel.Text != "You are out of health! Wait for someone to pick you up or heal you!";
 		inStormLabel.Visible = inStorm;
 		lookingAtLabel.Text = lookingAtText;
-    }
+	}
 
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
 	public void SetOutOfHealthLabelText(string text)
@@ -983,9 +991,9 @@ public partial class PlayerController : CharacterBody3D
 			direction = -head.Transform.Basis.Z; // if no input, heave forward
 		}
 		ChangeCurrentEnergy(-heaveEnergyCost); // flat energy cost for heave
-        ChangeMaxEnergy(-heaveEnergyCost * 0.2f);
+		ChangeMaxEnergy(-heaveEnergyCost * 0.2f);
 
-        heaveVelocity = new Vector3(direction.X, Velocity.Y, direction.Z).Normalized() * heaveSpeed;
+		heaveVelocity = new Vector3(direction.X, Velocity.Y, direction.Z).Normalized() * heaveSpeed;
 
 		float savedTetherBuffer = tetherBuffer;
 		tetherBuffer += 0.5f;
