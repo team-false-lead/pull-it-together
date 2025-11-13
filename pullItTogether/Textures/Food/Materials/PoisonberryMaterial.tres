@@ -3,4 +3,5 @@
 [ext_resource type="Texture2D" uid="uid://cmfywqap3nfxq" path="res://Textures/Food/ALL_Poisonberry_Diffuse.png" id="1_ja4re"]
 
 [resource]
+resource_local_to_scene = true
 albedo_texture = ExtResource("1_ja4re")
