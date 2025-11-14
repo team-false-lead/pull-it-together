@@ -4,6 +4,9 @@ using System;
 /// a wooden plank that can be used to create a campfire and eventually fix wheels
 public partial class WoodPlank : Interactable
 {
+    [Export]
+    private MeshInstance3D mesh;
+
     //spawn campfire when used on self
     public override void TryUseSelf(CharacterBody3D user)
     {
@@ -28,6 +31,13 @@ public partial class WoodPlank : Interactable
         }
 
         //QueueFree(); // Remove this plank after use
+    }
+
+    public override void ToggleHighlighted(bool highlighted)
+    {
+        mesh.GetSurfaceOverrideMaterial(0).Set("emission_enabled", highlighted);
+        if (highlighted)
+            mesh.GetSurfaceOverrideMaterial(0).Set("emission", Colors.Yellow);
     }
 
 	//add logic for using on wheels

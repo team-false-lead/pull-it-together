@@ -21,6 +21,7 @@ public partial class Food : Interactable
         {
             rawMesh.Visible = false;
             cookedMesh.Visible = true;
+            publicName = "Cooked " + publicName;
         }
     }
     // Logic for using the food item on self (eating)
@@ -37,7 +38,6 @@ public partial class Food : Interactable
         // Request feeding via RPC if not server
         if (multiplayerActive && !multiplayer.IsServer())
         {
-
             var error = itemManager.RpcId(1, nameof(ItemManager.RequestFeedTarget), id, targetPeerId);
             if (error != Error.Ok)
             {
@@ -51,23 +51,39 @@ public partial class Food : Interactable
         }
     }
 
+    public override void ToggleHighlighted(bool highlighted)
+    {
+        MeshInstance3D activeMesh;
+        if (isCooked)
+            activeMesh = cookedMesh;
+        else
+            activeMesh = rawMesh;
+
+        for (int i = 0; i < activeMesh.GetSurfaceOverrideMaterialCount(); i++)
+        {
+            activeMesh.GetSurfaceOverrideMaterial(i).Set("emission_enabled", highlighted);
+            if (highlighted)
+                activeMesh.GetSurfaceOverrideMaterial(i).Set("emission", Colors.Yellow);
+        }
+    }
+
     // Logic for using the food item on an interactable Player (feeding)
     //public override void TryUseOnInteractable(CharacterBody3D user, Interactable target)
     //{
     //    if (user == null) return;
-//
+    //
     //    if (CanUseOnInteractable(user, target) == false)
     //    {
     //        GD.Print("Food: Cannot use " + Name + " on " + target.Name);
     //        return;
     //    }
-//
+    //
     //    if (itemManager == null) InitReferences();
     //    var id = GetInteractableId(); //get unique id, default to name
-//
+    //
     //    var targetPC = target.GetPlayerController();
     //    long targetPeerId = targetPC.GetMultiplayerAuthority();
-//
+    //
     //    // Request feed via RPC if not server
     //    if (multiplayerActive && !multiplayer.IsServer())
     //    {

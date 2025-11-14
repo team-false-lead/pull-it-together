@@ -585,6 +585,42 @@ public partial class ItemManager : Node3D
 		item.Carrier = carrier;
 	}
 
+    // Item slot change request
+    [Rpc(MultiplayerApi.RpcMode.AnyPeer)] // Allow any peer to request item pickup
+    public void RequestChangeItemSlot(string itemId, NodePath slotPath)
+    {
+        GD.Print("ItemManager: RequestChangeItemSlot called for " + itemId);
+        if (multiplayer.HasMultiplayerPeer() && isMultiplayerSession && !multiplayer.IsServer()) return; // Only the server should handle item movement
+
+        long requesterId = multiplayer.GetRemoteSenderId();
+        if (requesterId == 0) // host called
+        {
+            requesterId = multiplayer.GetUniqueId(); // fallback to local player in singleplayer
+        }
+
+		DoChangeItemSlot(itemId, requesterId, slotPath);
+    }
+
+    public void DoChangeItemSlot(string itemId, long requesterId, NodePath slotPath)
+	{
+        GD.Print("ItemManager: DoChangeItemSlot called for " + itemId + ", moving to slot " + slotPath);
+
+        var item = FindInteractableById(itemId);
+        if (item == null) { GD.Print("Item null"); return; }
+
+        PlayerController carrier = GetPlayerControllerById(requesterId);
+        if (carrier == null) { GD.Print("Carrier null"); return; }
+
+		Node3D slot = carrier.GetNodeOrNull<Node3D>(slotPath);
+        if (slot == null) { GD.Print("Slot null"); return; }
+
+        // Moving items to offhand should only be done when an item has already been held,
+        // so changing the item's physics isn't necessary. If the player is somehow moving
+		// an item directly into their offhand, however, there is a problem.
+		//if (item.Carrier != carrier) { GD.Print("Item doesn't have a carrier"); return; }
+        item.StartFollowingSlot(slot);
+    }
+
 	// item drop request
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer)] // Allow any peer to request item drop
 	public void RequestDropItem(string itemId)

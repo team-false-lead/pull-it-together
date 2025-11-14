@@ -6,7 +6,8 @@ public partial class ItemDetector : Area3D
 {
 	[Export] CollisionShape3D collider;
 	[Export] public float detectionRadius = 5.0f;
-	[Export] public string[] customGroupFilters;
+    [Export] public float detectionHeight = 5.0f;
+    [Export] public string[] customGroupFilters;
 	public List<Node3D> itemsInside = new List<Node3D>();
 	[Signal] public delegate void FilteredBodyEnteredEventHandler(Node3D body);
 	[Signal] public delegate void FilteredBodyExitedEventHandler(Node3D body);
@@ -23,13 +24,16 @@ public partial class ItemDetector : Area3D
 			if (colliderShape != null)
 			{
 				colliderShape.Radius = detectionRadius;
-			}
-			if (collider.GetChild(0) is MeshInstance3D meshInstance)
+                colliderShape.Height = detectionHeight;
+
+            }
+            if (collider.GetChild(0) is MeshInstance3D meshInstance)
 			{
 				if (meshInstance.Mesh is CylinderMesh cylinderMesh)
 				{
 					cylinderMesh.TopRadius = detectionRadius;
 					cylinderMesh.BottomRadius = detectionRadius;
+					cylinderMesh.Height = detectionHeight;
 				}
 			}
 		}
@@ -50,7 +54,7 @@ public partial class ItemDetector : Area3D
 		}
 		else if (body.IsInGroup("interactable") || body.IsInGroup("entity"))
 		{
-			itemsInside.Add(body);
+            itemsInside.Add(body);
 			//EmitSignal(SignalName.BodyEntered, body);
 		}
 
@@ -64,7 +68,7 @@ public partial class ItemDetector : Area3D
 			{
 				if (!string.IsNullOrEmpty(group) && body.IsInGroup(group))
 				{
-					itemsInside.Remove(body);
+                    itemsInside.Remove(body);
 					EmitSignal(SignalName.FilteredBodyExited, body);
 				}
 			}

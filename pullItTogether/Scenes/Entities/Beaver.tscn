@@ -74,6 +74,7 @@ wagonDetector = NodePath("WagonDetector2")
 BT = NodePath("BTPlayer")
 inventorySlot = NodePath("InventorySlot1")
 SpawnOnUseScene = ExtResource("2_lhu0b")
+publicName = "Beaver?"
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 replication_config = SubResource("SceneReplicationConfig_on6pt")

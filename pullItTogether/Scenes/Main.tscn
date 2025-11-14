@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://cv44tvj0o5jcf"]
+[gd_scene load_steps=12 format=3 uid="uid://cv44tvj0o5jcf"]
 
 [ext_resource type="Script" uid="uid://d35fcmqkvt0n3" path="res://Scripts/ManagerScripts/GameManager.gd" id="1_pbw6q"]
 [ext_resource type="Script" uid="uid://1yk74iatudu6" path="res://Scripts/ManagerScripts/NetworkManager.gd" id="2_v1gob"]
@@ -6,11 +6,16 @@
 [ext_resource type="PackedScene" uid="uid://b518v5yn7ig5o" path="res://Scenes/Map/TestTerrain.tscn" id="4_v1gob"]
 [ext_resource type="Script" uid="uid://wudugmq7kbma" path="res://Scripts/ManagerScripts/PlayerSpawnManager.gd" id="5_v1gob"]
 [ext_resource type="PackedScene" uid="uid://ckpgu08xdcwp4" path="res://Scenes/Player.tscn" id="6_jw32o"]
+[ext_resource type="Texture2D" uid="uid://bwljc876116v2" path="res://Textures/UI/TitleBackground.png" id="7_50glp"]
+[ext_resource type="Texture2D" uid="uid://digfldgx5a5cy" path="res://Textures/UI/logo_main.png" id="7_jw32o"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_50glp"]
 transparency = 1
 vertex_color_use_as_albedo = true
 albedo_color = Color(0, 1, 1, 0.301961)
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_vy5pj"]
+texture = ExtResource("7_50glp")
 
 [sub_resource type="LabelSettings" id="LabelSettings_nfy72"]
 font_size = 25
@@ -90,6 +95,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 1
+theme_override_styles/panel = SubResource("StyleBoxTexture_vy5pj")
 
 [node name="MainMenu" type="Control" parent="CanvasLayer/MainControl"]
 layout_mode = 1
@@ -99,6 +105,18 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
+[node name="TextureRect" type="TextureRect" parent="CanvasLayer/MainControl/MainMenu"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -373.0
+offset_right = 355.0
+offset_bottom = 222.0
+grow_horizontal = 2
+texture = ExtResource("7_jw32o")
+expand_mode = 3
+
 [node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/MainControl/MainMenu"]
 layout_mode = 1
 anchors_preset = 13
@@ -106,9 +124,9 @@ anchor_left = 0.5
 anchor_right = 0.5
 anchor_bottom = 1.0
 offset_left = -162.0
-offset_top = 145.0
+offset_top = 217.0
 offset_right = 161.0
-offset_bottom = -51.0
+offset_bottom = 21.0
 grow_horizontal = 2
 grow_vertical = 2
 

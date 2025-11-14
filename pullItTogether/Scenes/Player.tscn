@@ -45,16 +45,22 @@ properties/10/replication_mode = 1
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_r1we1"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_rliju"]
+resource_local_to_scene = true
 albedo_color = Color(0.054902, 0.67451, 0.976471, 1)
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_8k31v"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ndhuy"]
+resource_local_to_scene = true
 albedo_color = Color(0.054902, 0.67451, 0.976471, 1)
 
 [sub_resource type="SphereMesh" id="SphereMesh_ndhuy"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_rliju"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_5ixxa"]
+radius = 0.05
+height = 1.0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_kyqiw"]
 albedo_color = Color(0.054902, 0.67451, 0.976471, 1)
@@ -70,17 +76,17 @@ camera = NodePath("Head/Camera3D")
 fovChange = 1.1
 bobAmplitude = 0.04
 inventorySlotPath = NodePath("Head/Camera3D/Inventory/InventorySlot1")
+offhandPath = NodePath("Head/Camera3D/Inventory/InventorySlot2")
 collisionPusher = NodePath("AnimatableBody3D")
 interactableRB = NodePath("PlayerInteractable")
 hudScene = ExtResource("2_dewec")
-maxEnergyReductionRate = 0.2
-sprintingEnergyReduction = 4.0
-jumpingEnergyCost = 10.0
-energyRegen = 2.0
-pullingEnergyCost = 3.0
+maxEnergyReductionRate = 0.15
+sprintingEnergyReduction = 8.0
+energyRegen = 7.0
+pullingEnergyCost = 6.0
 helpMeLabel = NodePath("HelpMeLabel")
 pauseMenu = NodePath("PauseMenu")
-itemDetector = NodePath("ItemDetector")
+heaveEnergyCost = 12.0
 
 [node name="PlayerCameraSync" type="Node" parent="." node_paths=PackedStringArray("Camera")]
 script = ExtResource("2_gntrk")
@@ -119,9 +125,27 @@ skeleton = NodePath("../..")
 [node name="Inventory" type="Node3D" parent="Head/Camera3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.238014, -1.04144)
 
+[node name="LeftArmMesh" type="MeshInstance3D" parent="Head/Camera3D/Inventory"]
+transform = Transform3D(0.812893, 0.578465, -0.0677054, -0.260134, 0.464625, 0.846436, 0.521091, -0.670449, 0.528168, 0.691017, -0.247199, 0.355816)
+mesh = SubResource("CapsuleMesh_5ixxa")
+skeleton = NodePath("../../../..")
+surface_material_override/0 = SubResource("StandardMaterial3D_rliju")
+
+[node name="RightArmMesh" type="MeshInstance3D" parent="Head/Camera3D/Inventory"]
+transform = Transform3D(0.713063, -0.698617, -0.0589639, 0.124722, 0.0436394, 0.991232, -0.689918, -0.714164, 0.11825, -0.644432, -0.287959, 0.463448)
+mesh = SubResource("CapsuleMesh_5ixxa")
+skeleton = NodePath("../../../..")
+surface_material_override/0 = SubResource("StandardMaterial3D_rliju")
+
 [node name="InventorySlot1" type="MeshInstance3D" parent="Head/Camera3D/Inventory" groups=["player_mesh"]]
 unique_name_in_owner = true
 transform = Transform3D(0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1, 1, 0, 0)
+material_override = SubResource("StandardMaterial3D_kyqiw")
+mesh = SubResource("SphereMesh_gntrk")
+
+[node name="InventorySlot2" type="MeshInstance3D" parent="Head/Camera3D/Inventory" groups=["player_mesh"]]
+unique_name_in_owner = true
+transform = Transform3D(0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1, -1, -0.25, 0.1)
 material_override = SubResource("StandardMaterial3D_kyqiw")
 mesh = SubResource("SphereMesh_gntrk")
 

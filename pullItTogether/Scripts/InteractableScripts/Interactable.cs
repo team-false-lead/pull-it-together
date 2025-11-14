@@ -6,7 +6,9 @@ public abstract partial class Interactable : RigidBody3D
 {
     [Export] public PackedScene SpawnOnUseScene; // Optional scene to spawn when used
     [Export] public float dropClearance = 0.5f; // per item drop clearance roughly based on size
-    [Export] public string interactableId = "bruh";
+    [Export] public string interactableId = "";
+    [Export] public bool isTwoHanded;
+    [Export] public string publicName = "";
     public string scenePath = "";
     public uint savedLayer, savedMask;
     public Vector3 savedScale;
@@ -107,6 +109,33 @@ public abstract partial class Interactable : RigidBody3D
 
         //server handles pickup logic
 
+        Carrier = carrier;
+        return true;
+    }
+
+    public virtual bool TryChangeToSlot(CharacterBody3D carrier, NodePath slotPath)
+    {
+        if (!CanBeCarried()) return false;
+
+        if (itemManager == null) InitReferences();
+        var id = GetInteractableId(); //get unique id, default to name
+
+        // Request pickup via RPC if not server, 
+        if (multiplayerActive && !multiplayer.IsServer())
+        {
+            var error = itemManager.RpcId(1, nameof(ItemManager.RequestChangeItemSlot), id, slotPath); // Request swap via RPC, 1 is server ID
+            if (error != Error.Ok)
+            {
+                GD.PrintErr("Interactable: Failed to request item slot swap via RPC. Error: " + error);
+                return false; // failed pickup request
+            }
+        }
+        else // Server or single-player handles pickup directly
+        {
+            itemManager.DoChangeItemSlot(id, multiplayer.GetUniqueId(), slotPath);
+        }
+
+        //server handles pickup logic
         Carrier = carrier;
         return true;
     }
@@ -212,6 +241,8 @@ public abstract partial class Interactable : RigidBody3D
     // By default, objects do not accept being used on them
     public virtual bool CanAcceptUseFrom(CharacterBody3D user, Interactable source) { return false; }
     public virtual void AcceptUseFrom(CharacterBody3D user, Interactable source) { }
+
+    public virtual void ToggleHighlighted(bool highlighted) { }
 
     [Rpc(MultiplayerApi.RpcMode.AnyPeer)]
     public void ClientSetMyInteractableId(string id)
