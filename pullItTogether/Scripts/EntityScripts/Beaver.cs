@@ -285,4 +285,17 @@ public partial class Beaver : Entity
             itemManager.DoSpawnItem(GetEntityId());
         }
     }
+
+    public override void ToggleHighlighted(bool highlighted)
+    {
+        foreach (Node3D child in GetNode<Node3D>("BeaverMeshes").GetChildren())
+        {
+            if (child is MeshInstance3D mesh)
+            {
+                mesh.GetSurfaceOverrideMaterial(0).Set("emission_enabled", highlighted);
+                if (highlighted)
+                    mesh.GetSurfaceOverrideMaterial(0).Set("emission", Colors.Green);
+            }
+        }
+    }
 }
