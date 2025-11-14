@@ -20,4 +20,17 @@ public partial class Hatchet : Interactable
         tween.TweenProperty(this, "rotation_degrees", chopRotation, 0.1f).SetTrans(Tween.TransitionType.Sine).SetEase(Tween.EaseType.In);
         tween.TweenProperty(this, "rotation_degrees", originalRotation, 0.1f).SetTrans(Tween.TransitionType.Sine).SetEase(Tween.EaseType.Out);
     }
+
+    public override void ToggleHighlighted(bool highlighted)
+    {
+        foreach (Node3D child in GetNode<Node3D>("HatchetMeshes").GetChildren())
+        {
+            if (child is MeshInstance3D mesh)
+            {
+                mesh.GetSurfaceOverrideMaterial(0).Set("emission_enabled", highlighted);
+                if (highlighted)
+                    mesh.GetSurfaceOverrideMaterial(0).Set("emission", Colors.Yellow);
+            }
+        }
+    }
 }
