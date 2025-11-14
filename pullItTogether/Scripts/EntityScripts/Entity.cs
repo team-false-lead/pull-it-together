@@ -8,6 +8,7 @@ public abstract partial class Entity : Node3D
     [Export] public PackedScene SpawnOnUseScene; // Optional scene to spawn when used
     [Export] public string entityId = "";
     [Export] public string publicName = "";
+    [Export] public bool emptyHandedOkay;
 
     public string scenePath = "";
     protected Node mapManager;

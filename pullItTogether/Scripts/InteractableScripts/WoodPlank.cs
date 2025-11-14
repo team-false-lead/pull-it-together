@@ -4,8 +4,8 @@ using System;
 /// a wooden plank that can be used to create a campfire and eventually fix wheels
 public partial class WoodPlank : Interactable
 {
-    [Export]
-    private MeshInstance3D mesh;
+    [Export] private MeshInstance3D mesh;
+    [Export] public bool isInWagon = false;
 
     //spawn campfire when used on self
     public override void TryUseSelf(CharacterBody3D user)

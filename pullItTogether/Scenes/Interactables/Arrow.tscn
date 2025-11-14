@@ -1,0 +1,85 @@
+[gd_scene load_steps=9 format=3 uid="uid://7ys62y0ss0pj"]
+
+[ext_resource type="Script" uid="uid://ca17p7rqwbw75" path="res://Scripts/InteractableScripts/Arrow.cs" id="1_jrvme"]
+[ext_resource type="Material" uid="uid://cvf84d2t0368h" path="res://Textures/Supplies/Materials/WoodPlankMaterial.tres" id="2_jrvme"]
+[ext_resource type="Material" uid="uid://41bg7y8xt0l1" path="res://Textures/Entities/Materials/CampfireRockMaterial.tres" id="3_jrvme"]
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_0kels"]
+properties/0/path = NodePath(".:position")
+properties/0/spawn = true
+properties/0/replication_mode = 2
+properties/1/path = NodePath(".:rotation")
+properties/1/spawn = true
+properties/1/replication_mode = 2
+properties/2/path = NodePath(".:interactableId")
+properties/2/spawn = true
+properties/2/replication_mode = 2
+properties/3/path = NodePath(".:scale")
+properties/3/spawn = true
+properties/3/replication_mode = 2
+properties/4/path = NodePath(".:collision_mask")
+properties/4/spawn = true
+properties/4/replication_mode = 2
+properties/5/path = NodePath(".:collision_layer")
+properties/5/spawn = true
+properties/5/replication_mode = 2
+properties/6/path = NodePath(".:freeze")
+properties/6/spawn = true
+properties/6/replication_mode = 2
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_kkteo"]
+radius = 0.1
+height = 0.75
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_v0tjl"]
+radius = 0.015
+height = 0.675
+
+[sub_resource type="PrismMesh" id="PrismMesh_b47jx"]
+size = Vector3(0.03, 0.075, 0.035)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_drlc0"]
+top_radius = 0.03
+bottom_radius = 0.015
+height = 0.05
+
+[node name="Arrow" type="RigidBody3D"]
+physics_interpolation_mode = 1
+collision_layer = 8
+collision_mask = 29
+script = ExtResource("1_jrvme")
+publicName = "Arrow"
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
+replication_config = SubResource("SceneReplicationConfig_0kels")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0)
+shape = SubResource("CapsuleShape3D_kkteo")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="CollisionShape3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.025, 0)
+material_override = ExtResource("2_jrvme")
+mesh = SubResource("CapsuleMesh_v0tjl")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="CollisionShape3D"]
+transform = Transform3D(1, 0, 0, 0, -1, 8.74228e-08, 0, -8.74228e-08, -1, 0, -0.344174, 1.50443e-08)
+material_override = ExtResource("3_jrvme")
+mesh = SubResource("PrismMesh_b47jx")
+
+[node name="MeshInstance3D3" type="MeshInstance3D" parent="CollisionShape3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.30131, -1.31707e-08)
+mesh = SubResource("CylinderMesh_drlc0")
+
+[node name="MeshInstance3D4" type="MeshInstance3D" parent="CollisionShape3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.322614, -1.41019e-08)
+mesh = SubResource("CylinderMesh_drlc0")
+
+[node name="MeshInstance3D5" type="MeshInstance3D" parent="CollisionShape3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.342673, -1.49787e-08)
+mesh = SubResource("CylinderMesh_drlc0")
+
+[node name="Label3D" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.15941, 0)
+billboard = 2
+text = "Arrow"
