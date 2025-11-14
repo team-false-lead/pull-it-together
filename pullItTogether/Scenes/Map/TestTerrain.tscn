@@ -1,4 +1,4 @@
-[gd_scene load_steps=26 format=3 uid="uid://b518v5yn7ig5o"]
+[gd_scene load_steps=27 format=3 uid="uid://b518v5yn7ig5o"]
 
 [ext_resource type="PackedScene" uid="uid://ddkl7vjoqp5kd" path="res://Scenes/GameStateTracker.tscn" id="1_eicjb"]
 [ext_resource type="Terrain3DAssets" uid="uid://dal3jhw6241qg" path="res://demo/data/assets.tres" id="1_in7uf"]
@@ -12,6 +12,7 @@
 [ext_resource type="PackedScene" uid="uid://ba4fbx16j3l67" path="res://Scenes/Entities/Beaver.tscn" id="13_iddi4"]
 [ext_resource type="PackedScene" uid="uid://cllu1opbcu5ux" path="res://Scenes/Interactables/Food_Poisonberry.tscn" id="13_nvhef"]
 [ext_resource type="PackedScene" uid="uid://dutt28pb7vdid" path="res://Scenes/Interactables/Food_Tonic.tscn" id="14_pigjd"]
+[ext_resource type="PackedScene" uid="uid://cbaojwfqgmguo" path="res://Scenes/Entities/Wolf.tscn" id="14_w1dx0"]
 [ext_resource type="PackedScene" uid="uid://drat1km3kl28w" path="res://Scenes/Interactables/Food_Meat.tscn" id="15_6x6jt"]
 [ext_resource type="PackedScene" uid="uid://bysb2u8m55de2" path="res://Shaders/ToonShader.tscn" id="16_iddi4"]
 [ext_resource type="PackedScene" uid="uid://ddfftfo3cb1gj" path="res://Scenes/TempTree.tscn" id="17_w1dx0"]
@@ -426,6 +427,9 @@ SpawnOnUseScene = null
 
 [node name="WoodPlank22" parent="Placeholders" instance=ExtResource("5_pd0wi")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.3891, 14.3068, -599.851)
+
+[node name="Wolf" parent="Placeholders" instance=ExtResource("14_w1dx0")]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 9.66559, 1.47601, -44.4202)
 
 [node name="ToonShader" parent="." instance=ExtResource("16_iddi4")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.51888, 0, -16.3447)

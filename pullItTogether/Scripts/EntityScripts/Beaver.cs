@@ -105,7 +105,7 @@ public partial class Beaver : Animal
                         // request spawn wheel
                         if (multiplayerActive && !multiplayer.IsServer())
                         {
-                            var error = itemManager.RpcId(1, nameof(ItemManager.RequestBeaverSpawnWheel), id);
+                            var error = itemManager.RpcId(1, nameof(ItemManager.RequestAnimalSpawnItem), id);
                             if (error != Error.Ok)
                             {
                                 GD.PrintErr("Beaver: Failed to request use via RPC. Error: " + error);
@@ -116,7 +116,7 @@ public partial class Beaver : Animal
                         }
                         else // Server or single-player handles spawn directly
                         {
-                            itemManager.DoBeaverSpawnWheel(id);
+                            itemManager.DoAnimalSpawnItem(id);
                             hasItem = true;
                             inventorySlot.Rotation += new Vector3(Mathf.DegToRad(-90f), 0, Mathf.DegToRad(-90f));
                             inventorySlot.Position = new Vector3(0, -1.25f, 0);

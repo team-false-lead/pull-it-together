@@ -1037,31 +1037,31 @@ public partial class ItemManager : Node3D
 		//plank.Carrier = animal;
 	}
 
-	[Rpc(MultiplayerApi.RpcMode.AnyPeer)] // Allow any peer to request beaver spawning wheel
-	public void RequestBeaverSpawnWheel(string beaverId)
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer)] // Allow any peer to request animal spawning item
+	public void RequestAnimalSpawnItem(string animalId)
 	{
-		GD.Print("ItemManager: RequestBeaverSpawnWheel called for " + beaverId);
-		if (isMultiplayerSession && !multiplayer.IsServer()) return; // Only the server should handle beaver spawning
-		DoBeaverSpawnWheel(beaverId);
+		GD.Print("ItemManager: RequestAnimalSpawnItem called for " + animalId);
+		if (isMultiplayerSession && !multiplayer.IsServer()) return; // Only the server should handle animal spawning
+		DoAnimalSpawnItem(animalId);
 	}
 
-	public void DoBeaverSpawnWheel(string beaverId)
+	public void DoAnimalSpawnItem(string animalId)
 	{
-		GD.Print("ItemManager: DoBeaverSpawnWheel called for " + beaverId);
+		GD.Print("ItemManager: DoAnimalSpawnItem called for " + animalId);
 
-		var beaver = FindEntityById(beaverId) as Beaver;
-		if (beaver == null) { GD.Print("Beaver null"); return; }
+		var animal = FindEntityById(animalId) as Animal;
+		if (animal == null) { GD.Print("Animal null"); return; }
 
-		var wheelScene = beaver.SpawnOnUseScene;
-		if (wheelScene == null) { GD.Print("Wheel Scene null"); return; }
+		var itemScene = animal.SpawnOnUseScene;
+		if (itemScene == null) { GD.Print("Item Scene null"); return; }
 
-		var instance = wheelScene.Instantiate<RigidBody3D>(); // assuming all interactables and entities are RigidBody3D or derived
+		var instance = itemScene.Instantiate<RigidBody3D>(); // assuming all interactables and entities are RigidBody3D or derived
 		PreAssignId(instance);
 
 		itemSpawnRegistry.AddChild(instance, true); // local temp instance
 		instance.SetOwner(GetTree().CurrentScene); // Ensure the instance is owned by the current scene
 
-		Vector3 spawnPosition = beaver.GetInventorySlot().GlobalPosition;
+		Vector3 spawnPosition = animal.GetInventorySlot().GlobalPosition;
 		instance.GlobalTransform = new Transform3D(Basis.Identity, spawnPosition);
 
 		string tempId = "";
@@ -1071,12 +1071,12 @@ public partial class ItemManager : Node3D
 		if (instance is Interactable instanceInteractable)
 		{
 			tempId = instanceInteractable.interactableId;
-			instanceInteractable.scenePath = wheelScene.ResourcePath;
+			instanceInteractable.scenePath = itemScene.ResourcePath;
 			tempScenePath = instanceInteractable.scenePath;
 		}
 		else
 		{
-			GD.PrintErr("ItemManager: DoBeaverSpawnWheel - Spawned item is not an Interactable.");
+			GD.PrintErr("ItemManager: DoAnimalSpawnItem - Spawned item is not an Interactable.");
 			//instance.QueueFree(); // Free the local instance no matter what // actually dont cause host needs to keep it
 			return; // exit early and do not broadcast
 		}
@@ -1090,7 +1090,7 @@ public partial class ItemManager : Node3D
 		}
 		//itemSpawnRegistry.RpcId(multiplayer.GetUniqueId(), nameof(ItemSpawnRegistry.ClientSpawnItem), tempScenePath, tempId, tempTransform, 1);
 
-		DoAnimalPickupItem(beaverId, tempId); // have beaver pick up the spawned wheel
+		DoAnimalPickupItem(animalId, tempId); // have animal pick up the spawned item
 	}
 
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer)] // Allow any peer to request animal giving item
