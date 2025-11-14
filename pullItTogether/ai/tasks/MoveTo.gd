@@ -22,6 +22,10 @@ func _tick(_delta: float) -> Status:
 	
 	var direction = (target_position - current_position).normalized()
 	var desired_velocity = direction * speed
+
+	if desired_velocity.length() > distance_to_target:
+		desired_velocity = desired_velocity.normalized() * distance_to_target # prevent overshooting
+
 	agent.linear_velocity = desired_velocity
 
 	if agent.linear_velocity.length() > 0.1:

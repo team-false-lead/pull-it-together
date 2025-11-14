@@ -1,4 +1,4 @@
-[gd_resource type="BehaviorTree" load_steps=105 format=3 uid="uid://bbunrudt06ing"]
+[gd_resource type="BehaviorTree" load_steps=110 format=3 uid="uid://bbunrudt06ing"]
 
 [ext_resource type="Script" uid="uid://bo4phm0kj0f7w" path="res://ai/tasks/GetRandomPoint.gd" id="1_a4amu"]
 [ext_resource type="Script" uid="uid://du445sow2w3lg" path="res://ai/tasks/MoveTo.gd" id="2_mfd21"]
@@ -167,35 +167,56 @@ value = SubResource("BBVariant_1jble")
 custom_name = "StopIfMeatInRange"
 children = [SubResource("BTCheckVar_gey36")]
 
-[sub_resource type="BTAction" id="BTAction_lsdq3"]
+[sub_resource type="BBVariant" id="BBVariant_a5r3k"]
+type = 1
+saved_value = false
+resource_name = "false"
+
+[sub_resource type="BTCheckVar" id="BTCheckVar_8nmy1"]
+variable = &"playerInRange"
+value = SubResource("BBVariant_a5r3k")
+
+[sub_resource type="BTRepeatUntilSuccess" id="BTRepeatUntilSuccess_r1g5r"]
+custom_name = "StopIfPlayersOutOfRange"
+children = [SubResource("BTCheckVar_8nmy1")]
+
+[sub_resource type="BTAction" id="BTAction_la6vc"]
 script = ExtResource("2_mfd21")
 acceptance_radius = 1.0
 slowdown_radius = 2.0
 
-[sub_resource type="BTAction" id="BTAction_mfd21"]
-script = ExtResource("4_a4amu")
+[sub_resource type="BTParallel" id="BTParallel_5sjet"]
+children = [SubResource("BTRepeatUntilSuccess_r1g5r"), SubResource("BTAction_la6vc")]
 
-[sub_resource type="BTWait" id="BTWait_1jble"]
-duration = 2.0
-
-[sub_resource type="BBVariant" id="BBVariant_2c5ag"]
+[sub_resource type="BBVariant" id="BBVariant_r1g5r"]
 type = 1
 saved_value = true
 resource_name = "true"
 
-[sub_resource type="BTCheckVar" id="BTCheckVar_1shfx"]
+[sub_resource type="BTCheckVar" id="BTCheckVar_5sjet"]
+variable = &"playerInRange"
+value = SubResource("BBVariant_r1g5r")
+
+[sub_resource type="BTAction" id="BTAction_ur0qu"]
+script = ExtResource("4_a4amu")
+
+[sub_resource type="BTWait" id="BTWait_4b36v"]
+
+[sub_resource type="BBVariant" id="BBVariant_7giye"]
+type = 1
+saved_value = true
+resource_name = "true"
+
+[sub_resource type="BTCheckVar" id="BTCheckVar_a5r3k"]
 variable = &"finishedAttackPlayer"
-value = SubResource("BBVariant_2c5ag")
+value = SubResource("BBVariant_7giye")
 
-[sub_resource type="BTSequence" id="BTSequence_rewac"]
-children = [SubResource("BTAction_lsdq3"), SubResource("BTAction_mfd21"), SubResource("BTWait_1jble"), SubResource("BTCheckVar_1shfx")]
-
-[sub_resource type="BTRepeatUntilSuccess" id="BTRepeatUntilSuccess_wxpr4"]
+[sub_resource type="BTSequence" id="BTSequence_8nmy1"]
 custom_name = "Attack"
-children = [SubResource("BTSequence_rewac")]
+children = [SubResource("BTParallel_5sjet"), SubResource("BTCheckVar_5sjet"), SubResource("BTAction_ur0qu"), SubResource("BTWait_4b36v"), SubResource("BTCheckVar_a5r3k")]
 
 [sub_resource type="BTParallel" id="BTParallel_7s2bl"]
-children = [SubResource("BTRepeatUntilSuccess_pak3h"), SubResource("BTRepeatUntilSuccess_2c5ag"), SubResource("BTRepeatUntilSuccess_wxpr4")]
+children = [SubResource("BTRepeatUntilSuccess_pak3h"), SubResource("BTRepeatUntilSuccess_2c5ag"), SubResource("BTSequence_8nmy1")]
 
 [sub_resource type="BTSequence" id="BTSequence_hmibo"]
 custom_name = "Attack Player"
@@ -221,16 +242,12 @@ value = SubResource("BBVariant_4b36v")
 
 [sub_resource type="BBVariant" id="BBVariant_ur0qu"]
 type = 1
-saved_value = true
-resource_name = "true"
+saved_value = false
+resource_name = "false"
 
 [sub_resource type="BTCheckVar" id="BTCheckVar_4b36v"]
 variable = &"stalkTimerEnded"
 value = SubResource("BBVariant_ur0qu")
-
-[sub_resource type="BTRepeatUntilSuccess" id="BTRepeatUntilSuccess_w3kmg"]
-custom_name = "StopIfStalkTimerOver"
-children = [SubResource("BTCheckVar_4b36v")]
 
 [sub_resource type="BBVariant" id="BBVariant_8nmy1"]
 type = 1
@@ -271,32 +288,35 @@ value = SubResource("BBVariant_vru18")
 custom_name = "StopIfPlayerInRange"
 children = [SubResource("BTCheckVar_vbvw7")]
 
-[sub_resource type="BTAction" id="BTAction_l5o56"]
+[sub_resource type="BTAction" id="BTAction_4mghh"]
 script = ExtResource("5_mfd21")
 
-[sub_resource type="BTAction" id="BTAction_gy5oc"]
+[sub_resource type="BTAction" id="BTAction_8f5kg"]
 script = ExtResource("2_mfd21")
 acceptance_radius = 1.0
 slowdown_radius = 2.0
 
-[sub_resource type="BTAction" id="BTAction_8f5kg"]
+[sub_resource type="BTTimeLimit" id="BTTimeLimit_la6vc"]
+children = [SubResource("BTAction_8f5kg")]
+
+[sub_resource type="BTAlwaysSucceed" id="BTAlwaysSucceed_ur0qu"]
+children = [SubResource("BTTimeLimit_la6vc")]
+
+[sub_resource type="BTAction" id="BTAction_4b36v"]
 script = ExtResource("6_4mghh")
 
-[sub_resource type="BTWait" id="BTWait_la6vc"]
+[sub_resource type="BTWait" id="BTWait_w3kmg"]
 
-[sub_resource type="BTSequence" id="BTSequence_ewfc6"]
-children = [SubResource("BTAction_l5o56"), SubResource("BTAction_gy5oc"), SubResource("BTAction_8f5kg"), SubResource("BTWait_la6vc")]
-
-[sub_resource type="BTRepeatUntilSuccess" id="BTRepeatUntilSuccess_e2uuv"]
+[sub_resource type="BTSequence" id="BTSequence_nmrw8"]
 custom_name = "GetNewStalkPointInRange"
-children = [SubResource("BTSequence_ewfc6")]
+children = [SubResource("BTAction_4mghh"), SubResource("BTAlwaysSucceed_ur0qu"), SubResource("BTAction_4b36v"), SubResource("BTWait_w3kmg")]
 
 [sub_resource type="BTParallel" id="BTParallel_yp0cj"]
-children = [SubResource("BTRepeatUntilSuccess_w3kmg"), SubResource("BTRepeatUntilSuccess_5sjet"), SubResource("BTRepeatUntilSuccess_hkbci"), SubResource("BTRepeatUntilSuccess_5feha"), SubResource("BTRepeatUntilSuccess_e2uuv")]
+children = [SubResource("BTRepeatUntilSuccess_5sjet"), SubResource("BTRepeatUntilSuccess_hkbci"), SubResource("BTRepeatUntilSuccess_5feha"), SubResource("BTSequence_nmrw8")]
 
 [sub_resource type="BTSequence" id="BTSequence_moqcw"]
 custom_name = "Get In Stalk Range"
-children = [SubResource("BTCheckVar_la6vc"), SubResource("BTCheckVar_w3kmg"), SubResource("BTParallel_yp0cj")]
+children = [SubResource("BTCheckVar_la6vc"), SubResource("BTCheckVar_w3kmg"), SubResource("BTCheckVar_4b36v"), SubResource("BTParallel_yp0cj")]
 
 [sub_resource type="BBVariant" id="BBVariant_a4amu"]
 type = 1
@@ -318,16 +338,12 @@ value = SubResource("BBVariant_nmrw8")
 
 [sub_resource type="BBVariant" id="BBVariant_la6vc"]
 type = 1
-saved_value = true
-resource_name = "true"
+saved_value = false
+resource_name = "false"
 
 [sub_resource type="BTCheckVar" id="BTCheckVar_ur0qu"]
 variable = &"stalkTimerEnded"
 value = SubResource("BBVariant_la6vc")
-
-[sub_resource type="BTRepeatUntilSuccess" id="BTRepeatUntilSuccess_4b36v"]
-custom_name = "StopIfStalkTimerOver"
-children = [SubResource("BTCheckVar_ur0qu")]
 
 [sub_resource type="BBVariant" id="BBVariant_jg0xx"]
 type = 1
@@ -381,7 +397,7 @@ value = SubResource("BBVariant_mfd21")
 custom_name = "StopIfPlayerInRange"
 children = [SubResource("BTCheckVar_4mghh")]
 
-[sub_resource type="BTAction" id="BTAction_4mghh"]
+[sub_resource type="BTAction" id="BTAction_7giye"]
 script = ExtResource("5_mfd21")
 
 [sub_resource type="BTAction" id="BTAction_a5r3k"]
@@ -389,24 +405,27 @@ script = ExtResource("2_mfd21")
 acceptance_radius = 1.0
 slowdown_radius = 2.0
 
-[sub_resource type="BTAction" id="BTAction_la6vc"]
+[sub_resource type="BTTimeLimit" id="BTTimeLimit_8nmy1"]
+children = [SubResource("BTAction_a5r3k")]
+
+[sub_resource type="BTAlwaysSucceed" id="BTAlwaysSucceed_r1g5r"]
+children = [SubResource("BTTimeLimit_8nmy1")]
+
+[sub_resource type="BTAction" id="BTAction_5sjet"]
 script = ExtResource("6_4mghh")
 
-[sub_resource type="BTWait" id="BTWait_r1g5r"]
+[sub_resource type="BTWait" id="BTWait_x4bfo"]
 
 [sub_resource type="BTSequence" id="BTSequence_q6hrm"]
-children = [SubResource("BTAction_4mghh"), SubResource("BTAction_a5r3k"), SubResource("BTAction_la6vc"), SubResource("BTWait_r1g5r")]
-
-[sub_resource type="BTRepeatUntilSuccess" id="BTRepeatUntilSuccess_uampx"]
 custom_name = "Stalk"
-children = [SubResource("BTSequence_q6hrm")]
+children = [SubResource("BTAction_7giye"), SubResource("BTAlwaysSucceed_r1g5r"), SubResource("BTAction_5sjet"), SubResource("BTWait_x4bfo")]
 
 [sub_resource type="BTParallel" id="BTParallel_hkbci"]
-children = [SubResource("BTRepeatUntilSuccess_4b36v"), SubResource("BTRepeatUntilSuccess_btjbj"), SubResource("BTRepeatUntilSuccess_la6vc"), SubResource("BTRepeatUntilSuccess_7giye"), SubResource("BTRepeatUntilSuccess_8f5kg"), SubResource("BTRepeatUntilSuccess_uampx")]
+children = [SubResource("BTRepeatUntilSuccess_btjbj"), SubResource("BTRepeatUntilSuccess_la6vc"), SubResource("BTRepeatUntilSuccess_7giye"), SubResource("BTRepeatUntilSuccess_8f5kg"), SubResource("BTSequence_q6hrm")]
 
 [sub_resource type="BTSequence" id="BTSequence_vru18"]
 custom_name = "Stalk Wagon"
-children = [SubResource("BTCheckVar_mfd21"), SubResource("BTCheckVar_7giye"), SubResource("BTParallel_hkbci")]
+children = [SubResource("BTCheckVar_mfd21"), SubResource("BTCheckVar_7giye"), SubResource("BTCheckVar_ur0qu"), SubResource("BTParallel_hkbci")]
 
 [sub_resource type="BBVariant" id="BBVariant_rewac"]
 type = 1

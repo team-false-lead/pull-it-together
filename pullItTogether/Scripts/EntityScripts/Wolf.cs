@@ -9,7 +9,9 @@ public partial class Wolf : Animal
     [Export] public ItemDetector playerDetector;
     [Export] public ItemDetector wagonDetector;
     [Export] public bool meatInRange = false;
+    private List<Node3D> meatsInside = new List<Node3D>();
     [Export] public bool playerInRange = false;
+    private List<Node3D> playersInside = new List<Node3D>();
     [Export] public bool wagonInRange = false;
     //hasItemTarget for meat from animal class
     [Export] public bool hasPlayerTarget = false;
@@ -23,7 +25,7 @@ public partial class Wolf : Animal
     [Export] public float maxDamageToDeal = 50f;
     [Export] public float maxWagonStalkDistance = 20f;
     [Export] public float minWagonStalkDistance = 12f; // player detector current range = 10;
-    [Export] public float maxWagonStalkTime = 120f; // seconds
+    [Export] public float maxWagonStalkTime = 45f; // seconds
     [Export] public Timer stalkTimer;
     [Export] public bool finishedStalkWagon = false;
     private float totalDamageDealt = 0f;
@@ -148,6 +150,7 @@ public partial class Wolf : Animal
 
     private void OnItemsAdded(Node3D item)
     {
+        GD.Print("Wolf: OnItemsAdded called for " + item.Name);
         if (item.IsInGroup("wagon"))
         {
             wagonInRange = true;
@@ -158,12 +161,21 @@ public partial class Wolf : Animal
         }
         if (item.IsInGroup("players"))
         {
-            playerInRange = true;
-            //label.Text = "Player in range";
-            playerTarget = item as PlayerController;
+            if (!playersInside.Contains(item))
+                playersInside.Add(item);
+
+            if (item is PlayerController player)
+            {
+                playerInRange = true;
+                //label.Text = "Player in range";
+                playerTarget = player;
+            }
         }
         if (item.IsInGroup("meat"))
         {
+            if (!meatsInside.Contains(item))
+                meatsInside.Add(item);
+
             if (item is Interactable meatInteractable)
             {
                 if (meatInteractable.Carrier == null)
@@ -184,21 +196,25 @@ public partial class Wolf : Animal
 
     private void OnItemsRemoved(Node3D item)
     {
+        GD.Print("Wolf: OnItemsRemoved called for " + item.Name);
         if (item.IsInGroup("wagon"))
         {
             wagonInRange = false;
         }
         if (item.IsInGroup("players"))
         {
-            if (playerDetector.itemsInside.Count == 0)
+            playersInside.Remove(item);
+            if (playersInside.Count <= 0)
             {
                 playerInRange = false;
                 playerTarget = null;
+                targetPosition = GlobalPosition; // stop moving toward last known player position
             }
         }
         if (item.IsInGroup("meat"))
         {
-            if (meatDetector.itemsInside.Count == 0)
+            meatsInside.Remove(item);
+            if (meatsInside.Count <= 0)
             {
                 meatInRange = false;
                 itemTarget = null;
@@ -228,7 +244,13 @@ public partial class Wolf : Animal
         if (wagonTarget == null) return false;
         
         Vector3 wagonPosition = wagonTarget.GlobalPosition;
-        float angle = GD.Randf() * Mathf.Tau; // magic for random angle in radians
+        Vector3 toWolf = (GlobalPosition - wagonPosition).Normalized();
+
+        // black magic for random point in closest arc around wagon
+        float baseAngle = Mathf.Atan2(toWolf.Z, toWolf.X); // angle from wagon to wolf
+        float arcThird = Mathf.Tau / 6f; // 60 degrees in radians (half of one third of circle)
+        float angle = baseAngle + Mathf.Lerp(-arcThird, arcThird, GD.Randf()); // random angle within one third of circle
+
         float distance = Mathf.Lerp(minWagonStalkDistance, maxWagonStalkDistance, GD.Randf()); // random distance between min and max
 
         Vector3 offset = new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle)) * distance;
