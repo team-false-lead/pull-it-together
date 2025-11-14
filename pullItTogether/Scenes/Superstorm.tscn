@@ -42,7 +42,7 @@ height = 10000.0
 [node name="Superstorm" type="Area3D" node_paths=PackedStringArray("rainParticles", "stormCollider", "fogVolume")]
 collision_mask = 2
 script = ExtResource("1_up175")
-stormSpeed = 0.75
+stormSpeed = 0.85
 stormDPS = -1.5
 rainParticles = NodePath("GPUParticles3D")
 rainDensity = 3.5
