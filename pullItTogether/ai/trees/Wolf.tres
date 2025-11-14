@@ -1,41 +1,36 @@
-[gd_resource type="BehaviorTree" load_steps=52 format=3 uid="uid://cdntafo1eagv5"]
+[gd_resource type="BehaviorTree" load_steps=52 format=3 uid="uid://bbunrudt06ing"]
 
-[ext_resource type="Script" uid="uid://du445sow2w3lg" path="res://ai/tasks/MoveTo.gd" id="1_v88ds"]
-[ext_resource type="Script" uid="uid://c0omlb2afmd1g" path="res://ai/tasks/PickupItem.gd" id="3_7s2bl"]
-[ext_resource type="Script" uid="uid://dbgfhv0qxiwai" path="res://ai/tasks/AttackWheel.gd" id="4_lsdq3"]
-[ext_resource type="Script" uid="uid://bo4phm0kj0f7w" path="res://ai/tasks/GetRandomPoint.gd" id="5_7r8yy"]
+[ext_resource type="Script" uid="uid://bo4phm0kj0f7w" path="res://ai/tasks/GetRandomPoint.gd" id="1_a4amu"]
+[ext_resource type="Script" uid="uid://du445sow2w3lg" path="res://ai/tasks/MoveTo.gd" id="2_mfd21"]
+[ext_resource type="Script" uid="uid://c0omlb2afmd1g" path="res://ai/tasks/PickupItem.gd" id="3_a4amu"]
+[ext_resource type="Script" uid="uid://dbgfhv0qxiwai" path="res://ai/tasks/AttackWheel.gd" id="4_8f5kg"]
 
-[sub_resource type="BlackboardPlan" id="BlackboardPlan_mu0o3"]
-var/hasPlank/name = &"hasPlank"
-var/hasPlank/type = 1
-var/hasPlank/value = false
-var/hasPlank/hint = 0
-var/hasPlank/hint_string = ""
-var/plankInRange/name = &"plankInRange"
-var/plankInRange/type = 1
-var/plankInRange/value = false
-var/plankInRange/hint = 0
-var/plankInRange/hint_string = ""
-var/wagonInRange/name = &"wagonInRange"
-var/wagonInRange/type = 1
-var/wagonInRange/value = false
-var/wagonInRange/hint = 0
-var/wagonInRange/hint_string = ""
-var/hasWheelTarget/name = &"hasWheelTarget"
-var/hasWheelTarget/type = 1
-var/hasWheelTarget/value = false
-var/hasWheelTarget/hint = 0
-var/hasWheelTarget/hint_string = ""
-var/wheelBroken/name = &"wheelBroken"
-var/wheelBroken/type = 1
-var/wheelBroken/value = false
-var/wheelBroken/hint = 0
-var/wheelBroken/hint_string = ""
-binding/hasPlank = NodePath(".:hasItem")
-binding/plankInRange = NodePath(".:plankInRange")
-binding/wagonInRange = NodePath(".:wagonInRange")
-binding/hasWheelTarget = NodePath(".:hasWheelTarget")
-binding/wheelBroken = NodePath(".:wheelBroken")
+[sub_resource type="BlackboardPlan" id="BlackboardPlan_a4amu"]
+var/hasMeat/name = &"hasMeat"
+var/hasMeat/type = 1
+var/hasMeat/value = false
+var/hasMeat/hint = 0
+var/hasMeat/hint_string = ""
+var/meatInRange/name = &"meatInRange"
+var/meatInRange/type = 1
+var/meatInRange/value = false
+var/meatInRange/hint = 0
+var/meatInRange/hint_string = ""
+var/playerInRange/name = &"playerInRange"
+var/playerInRange/type = 1
+var/playerInRange/value = false
+var/playerInRange/hint = 0
+var/playerInRange/hint_string = ""
+var/hasPlayerTarget/name = &"hasPlayerTarget"
+var/hasPlayerTarget/type = 1
+var/hasPlayerTarget/value = false
+var/hasPlayerTarget/hint = 0
+var/hasPlayerTarget/hint_string = ""
+var/finishedAttackPlayer/name = &"finishedAttackPlayer"
+var/finishedAttackPlayer/type = 1
+var/finishedAttackPlayer/value = false
+var/finishedAttackPlayer/hint = 0
+var/finishedAttackPlayer/hint_string = ""
 resource_local_to_scene = true
 
 [sub_resource type="BBVariant" id="BBVariant_mu0o3"]
@@ -48,11 +43,11 @@ variable = &"hasPlank"
 value = SubResource("BBVariant_mu0o3")
 
 [sub_resource type="BTAction" id="BTAction_7s2bl"]
-script = ExtResource("5_7r8yy")
+script = ExtResource("1_a4amu")
 patrol_radius = 15.0
 
 [sub_resource type="BTAction" id="BTAction_v88ds"]
-script = ExtResource("1_v88ds")
+script = ExtResource("2_mfd21")
 acceptance_radius = 1.0
 slowdown_radius = 2.0
 
@@ -83,7 +78,7 @@ variable = &"plankInRange"
 value = SubResource("BBVariant_gey36")
 
 [sub_resource type="BTAction" id="BTAction_1shfx"]
-script = ExtResource("1_v88ds")
+script = ExtResource("2_mfd21")
 acceptance_radius = 1.0
 slowdown_radius = 2.0
 
@@ -91,7 +86,7 @@ slowdown_radius = 2.0
 children = [SubResource("BTAction_1shfx")]
 
 [sub_resource type="BTAction" id="BTAction_rewac"]
-script = ExtResource("3_7s2bl")
+script = ExtResource("3_a4amu")
 
 [sub_resource type="BTSequence" id="BTSequence_jrsvk"]
 custom_name = "Grab Plank"
@@ -142,12 +137,12 @@ custom_name = "StopIfPlankInRange"
 children = [SubResource("BTCheckVar_gey36")]
 
 [sub_resource type="BTAction" id="BTAction_lsdq3"]
-script = ExtResource("1_v88ds")
+script = ExtResource("2_mfd21")
 acceptance_radius = 1.0
 slowdown_radius = 2.0
 
 [sub_resource type="BTAction" id="BTAction_7r8yy"]
-script = ExtResource("4_lsdq3")
+script = ExtResource("4_8f5kg")
 
 [sub_resource type="BTWait" id="BTWait_1jble"]
 duration = 2.0
@@ -189,11 +184,11 @@ custom_name = "StopIfPlankInRange"
 children = [SubResource("BTCheckVar_wxpr4")]
 
 [sub_resource type="BTAction" id="BTAction_out0v"]
-script = ExtResource("5_7r8yy")
+script = ExtResource("1_a4amu")
 patrol_radius = 5.0
 
 [sub_resource type="BTAction" id="BTAction_k57rh"]
-script = ExtResource("1_v88ds")
+script = ExtResource("2_mfd21")
 acceptance_radius = 1.0
 slowdown_radius = 2.0
 
@@ -222,5 +217,5 @@ custom_name = "Sel - Root"
 children = [SubResource("BTSequence_mu0o3"), SubResource("BTSequence_jrsvk"), SubResource("BTSequence_hmibo"), SubResource("BTParallel_mbbb1"), SubResource("BTWait_7s2bl")]
 
 [resource]
-blackboard_plan = SubResource("BlackboardPlan_mu0o3")
+blackboard_plan = SubResource("BlackboardPlan_a4amu")
 root_task = SubResource("BTSelector_jrsvk")

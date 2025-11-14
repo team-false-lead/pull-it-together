@@ -2,24 +2,24 @@ using Godot;
 using System;
 using System.Reflection.Metadata.Ecma335;
 
-public partial class Beaver : Entity
+public partial class Beaver : Animal
 {
-    [Export] public Label3D label;
+    //[Export] public Label3D label;
     [Export] public ItemDetector plankDetector;
     [Export] public ItemDetector wagonDetector;
-    [Export] public Node BT;
-    [Export] public bool hasPlank = false;
+    //[Export] public Node BT;
+    //[Export] public bool hasItem = false;
     [Export] public bool plankInRange = false;
-    public Interactable plankTarget = null;
+    //public Interactable itemTarget = null;
     [Export] public bool wagonInRange = false;
     public Wagon wagonRef = null;
     [Export] public bool hasWheelTarget = false;
     public Wheel wheelTarget = null;
     [Export] public bool wheelBroken = false;
     [Export] public float wheelDamage = 25f;
-    [Export] public float movementSpeed = 5f;
-    [Export] public Vector3 targetPosition;
-    [Export] public Node3D inventorySlot;
+    //[Export] public float movementSpeed = 5f;
+    //[Export] public Vector3 targetPosition;
+    //[Export] public Node3D inventorySlot;
     private bool spawnedWheel = false;
 
     public override void _Ready()
@@ -50,33 +50,11 @@ public partial class Beaver : Entity
     // By default, entities do not accept being used on them
     public override bool CanAcceptUseFrom(CharacterBody3D user, Interactable source)
     {
-        if (source.IsInGroup("plank") && !hasPlank)
+        if (source.IsInGroup("plank") && !hasItem)
         {
             return true;
         }
         return false;
-    }
-
-    // Logic for accepting use from food items
-    public override void AcceptUseFrom(CharacterBody3D user, Interactable source)
-    {
-        if (itemManager == null) InitReferences();
-        var id = GetEntityId(); //get unique id, default to name
-
-        // Request spawn via RPC if not server
-        if (multiplayerActive && !multiplayer.IsServer())
-        {
-            var error = itemManager.RpcId(1, nameof(ItemManager.RequestGiveBeaverPlank), id, source.GetInteractableId());
-            if (error != Error.Ok)
-            {
-                GD.PrintErr("Beaver: Failed to request use via RPC. Error: " + error);
-                return;
-            }
-        }
-        else // Server or single-player handles spawn directly
-        {
-            itemManager.DoGiveBeaverPlank(id, source.GetInteractableId());
-        }
     }
 
     public override void _PhysicsProcess(double delta)
@@ -107,7 +85,7 @@ public partial class Beaver : Entity
         }
         if (wheelTarget != null)
         {
-            if (plankInRange || hasPlank)
+            if (plankInRange || hasItem)
             {
                 hasWheelTarget = false;
             }
@@ -132,14 +110,14 @@ public partial class Beaver : Entity
                             {
                                 GD.PrintErr("Beaver: Failed to request use via RPC. Error: " + error);
                             }
-                            hasPlank = true;
+                            hasItem = true;
                             inventorySlot.Rotation += new Vector3(Mathf.DegToRad(-90f), 0, Mathf.DegToRad(-90f));
                             inventorySlot.Position = new Vector3(0, -1.25f, 0);
                         }
                         else // Server or single-player handles spawn directly
                         {
                             itemManager.DoBeaverSpawnWheel(id);
-                            hasPlank = true;
+                            hasItem = true;
                             inventorySlot.Rotation += new Vector3(Mathf.DegToRad(-90f), 0, Mathf.DegToRad(-90f));
                             inventorySlot.Position = new Vector3(0, -1.25f, 0);
                         }
@@ -170,12 +148,12 @@ public partial class Beaver : Entity
                     plankInRange = true;
                     //label.Text = "Plank in range";
                     targetPosition = plankInteractable.GlobalPosition;
-                    plankTarget = plankInteractable;
+                    itemTarget = plankInteractable;
                 }
                 else
                 {
                     plankInRange = false;
-                    plankTarget = null;
+                    itemTarget = null;
                 }
             }
             
@@ -206,34 +184,34 @@ public partial class Beaver : Entity
         return null; // All wheels are broken or no wheels found
     }
 
-    public bool PickupPlank()
-    {
-        if (plankTarget != null && !hasPlank)
-        {
-            if (itemManager == null) InitReferences();
-            var id = GetEntityId(); //get unique id, default to name
-
-            // request damage wheel via RPC if not server
-            if (multiplayerActive && !multiplayer.IsServer())
-            {
-                var error = itemManager.RpcId(1, nameof(ItemManager.RequestBeaverPickupItem), id, plankTarget.GetInteractableId());
-                if (error != Error.Ok)
-                {
-                    GD.PrintErr("Beaver: Failed to request use via RPC. Error: " + error);
-                    return false;
-                }
-                hasPlank = true;
-                return hasPlank;
-            }
-            else // Server or single-player handles spawn directly
-            {
-                itemManager.DoBeaverPickupItem(id, plankTarget.GetInteractableId());
-                hasPlank = true;
-                return hasPlank;
-            }
-        }
-        return hasPlank;
-    }
+    //public bool PickupItem()
+    //{
+    //    if (plankTarget != null && !hasPlank)
+    //    {
+    //        if (itemManager == null) InitReferences();
+    //        var id = GetEntityId(); //get unique id, default to name
+//
+    //        // request damage wheel via RPC if not server
+    //        if (multiplayerActive && !multiplayer.IsServer())
+    //        {
+    //            var error = itemManager.RpcId(1, nameof(ItemManager.RequestBeaverPickupItem), id, plankTarget.GetInteractableId());
+    //            if (error != Error.Ok)
+    //            {
+    //                GD.PrintErr("Beaver: Failed to request use via RPC. Error: " + error);
+    //                return false;
+    //            }
+    //            hasPlank = true;
+    //            return hasPlank;
+    //        }
+    //        else // Server or single-player handles spawn directly
+    //        {
+    //            itemManager.DoBeaverPickupItem(id, plankTarget.GetInteractableId());
+    //            hasPlank = true;
+    //            return hasPlank;
+    //        }
+    //    }
+    //    return hasPlank;
+    //}
 
     public bool AttackWheel()
     {
@@ -250,14 +228,5 @@ public partial class Beaver : Entity
     public bool AttackPlayer()
     {
         return false;
-    }
-
-    public Node3D GetInventorySlot()
-    {
-        if (inventorySlot != null)
-        {
-            return inventorySlot;
-        }
-        return null;
     }
 }
