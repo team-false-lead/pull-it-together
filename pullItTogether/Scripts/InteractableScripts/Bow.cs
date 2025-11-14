@@ -40,4 +40,17 @@ public partial class Bow : Interactable
         ammoLabel.Text = $"{currentAmmo} / {maxAmmo}";
     }
 
+    public override void ToggleHighlighted(bool highlighted)
+    {
+        foreach (Node3D child in GetNode<Node3D>("BowMeshes").GetChildren())
+        {
+            if (child is MeshInstance3D mesh)
+            {
+                mesh.GetSurfaceOverrideMaterial(0).Set("emission_enabled", highlighted);
+                if (highlighted)
+                    mesh.GetSurfaceOverrideMaterial(0).Set("emission", Colors.Yellow);
+            }
+        }
+    }
+
 }
