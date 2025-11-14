@@ -3,5 +3,6 @@
 [ext_resource type="Texture2D" uid="uid://bvs1ghq6bfadf" path="res://Textures/Supplies/txr_plankBaseColor.png" id="1_4fy1q"]
 
 [resource]
+resource_local_to_scene = true
 albedo_color = Color(0.637843, 0.637843, 0.637843, 1)
 albedo_texture = ExtResource("1_4fy1q")

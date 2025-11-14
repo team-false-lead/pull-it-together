@@ -59,4 +59,6 @@ public abstract partial class Entity : Node3D
     public virtual bool CanAcceptUseFrom(CharacterBody3D user, Interactable source) { return false; }
     public virtual void AcceptUseFrom(CharacterBody3D user, Interactable source) { }
 
+
+    public virtual void ToggleHighlighted(bool highlighted) { }
 }
