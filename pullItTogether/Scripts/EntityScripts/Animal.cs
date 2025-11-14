@@ -12,10 +12,12 @@ public partial class Animal : Entity
     [Export] public bool hasItem = false;
     [Export] public bool hasItemTarget = false;
     public Interactable itemTarget = null;
+    [Export] public Vector3 spawnPosition;
 
     public override void _Ready()
     {
         base._Ready();
+        spawnPosition = GlobalPosition;
         
         if (multiplayerActive && !multiplayer.IsServer())
         {

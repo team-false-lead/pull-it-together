@@ -1,4 +1,4 @@
-[gd_scene load_steps=27 format=3 uid="uid://b2cc2nt2bpja0"]
+[gd_scene load_steps=28 format=3 uid="uid://b2cc2nt2bpja0"]
 
 [ext_resource type="Script" uid="uid://dja12uyulc7ee" path="res://addons/verlet_rope_4/Physics/VerletRopeRigid.cs" id="1_24ylq"]
 [ext_resource type="Script" uid="uid://toi5sicfb28n" path="res://Scripts/Wagon/Wagon.cs" id="1_f8cd6"]
@@ -6,6 +6,7 @@
 [ext_resource type="Script" uid="uid://c3oxgehluk75x" path="res://addons/verlet_rope_4/Physics/VerletRopeSimulated.cs" id="2_wf68l"]
 [ext_resource type="Script" uid="uid://cvxw3h20i7vjf" path="res://addons/verlet_rope_4/Physics/Joints/VerletJointSimulated.cs" id="3_bdj2n"]
 [ext_resource type="PackedScene" uid="uid://cvvdqeqd1hyw2" path="res://Scenes/Entities/Wheels/WheelFrontLeft.tscn" id="3_kkr0m"]
+[ext_resource type="PackedScene" uid="uid://buki2eo4rk6br" path="res://Scenes/Interactables/BirdPerch.tscn" id="3_mc2ob"]
 [ext_resource type="Script" uid="uid://576r8y5ml8oo" path="res://Scripts/InteractableScripts/RopeGrabPoint.cs" id="3_q3xkn"]
 [ext_resource type="PackedScene" uid="uid://ddytphieibg3f" path="res://Scenes/Entities/Wheels/WheelFrontRight.tscn" id="4_4mj3o"]
 [ext_resource type="PackedScene" uid="uid://b638mtt6nax88" path="res://Scenes/Interactables/RopeProxy.tscn" id="4_f8cd6"]
@@ -109,7 +110,7 @@ properties/17/path = NodePath("GrabPoint4:visible")
 properties/17/spawn = true
 properties/17/replication_mode = 2
 
-[node name="WagonPrototype" type="RigidBody3D" node_paths=PackedStringArray("wheels") groups=["wagon"]]
+[node name="WagonPrototype" type="RigidBody3D" node_paths=PackedStringArray("wheels", "perchPoints") groups=["wagon"]]
 collision_layer = 4
 collision_mask = 9
 mass = 850.0
@@ -123,9 +124,20 @@ linearXMultiplier = 0.5
 angularYMultiplier = 0.96
 wheels = [NodePath("Wheels/WheelFL"), NodePath("Wheels/WheelFR"), NodePath("Wheels/WheelBL"), NodePath("Wheels/WheelBR")]
 frictionPerWheel = 0.02
+perchPoints = [NodePath("Perches/BirdPerch"), NodePath("Perches/BirdPerch2")]
 
 [node name="WagonBodyMesh" parent="." instance=ExtResource("6_bdj2n")]
 transform = Transform3D(-150, 0, -1.74846e-05, 0, 150, 0, 1.31134e-05, 0, -200, 0, -0.782943, 0.315071)
+
+[node name="Perches" type="Node3D" parent="."]
+
+[node name="BirdPerch" parent="Perches" instance=ExtResource("3_mc2ob")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, -1.36748)
+wagonFrontPerch = true
+
+[node name="BirdPerch2" parent="Perches" instance=ExtResource("3_mc2ob")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 3)
+wagonBackPerch = true
 
 [node name="Wheels" type="Node3D" parent="."]
 
