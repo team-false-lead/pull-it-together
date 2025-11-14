@@ -32,8 +32,8 @@ public partial class PlayerController : CharacterBody3D
 	private float bobTimer = 0.0f;
 
 	// Interaction parameters
-	private Interactable heldObject = null;
-	private Interactable offhandObject = null;
+	public Interactable heldObject = null;
+	public Interactable offhandObject = null;
 	private bool HeldValid() => heldObject != null && IsInstanceValid(heldObject) && !heldObject.IsQueuedForDeletion() && heldObject.IsInsideTree();
 	private bool OffhandValid () => offhandObject != null && IsInstanceValid(offhandObject) && !offhandObject.IsQueuedForDeletion() && offhandObject.IsInsideTree();
 	[Export] public NodePath inventorySlotPath;
@@ -424,7 +424,7 @@ public partial class PlayerController : CharacterBody3D
 				MoveObjectToInventory(offhandObject);
 		}
 
-		if (!Multiplayer.IsServer()) // Peer-side players have to reset their looked-at item every frame because of networking shenanigans
+		if (Multiplayer.HasMultiplayerPeer() && !Multiplayer.IsServer()) // Peer-side players have to reset their looked-at item every frame because of networking shenanigans
 			ResetLookedAtItem();
 
 		//get looked at object for debug and highlighting later
@@ -500,7 +500,7 @@ public partial class PlayerController : CharacterBody3D
 		else
 			debugTrackerLabel.Text += "\nIs lobby peer";
 
-		if (Multiplayer.IsServer())
+		if (Multiplayer.HasMultiplayerPeer() && Multiplayer.IsServer())
 		{
 			if (gameStateTracker != null && gameStateTracker.totalStressLevel != totalStressValue) // only update if changed
 			{

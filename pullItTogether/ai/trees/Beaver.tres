@@ -1,10 +1,5 @@
 [gd_resource type="BehaviorTree" load_steps=52 format=3 uid="uid://cdntafo1eagv5"]
 
-[ext_resource type="Script" uid="uid://du445sow2w3lg" path="res://ai/tasks/MoveTo.gd" id="1_v88ds"]
-[ext_resource type="Script" uid="uid://c0omlb2afmd1g" path="res://ai/tasks/PickupPlank.gd" id="2_7y0tj"]
-[ext_resource type="Script" uid="uid://dbgfhv0qxiwai" path="res://ai/tasks/AttackWheel.gd" id="4_lsdq3"]
-[ext_resource type="Script" uid="uid://bo4phm0kj0f7w" path="res://ai/tasks/GetRandomPoint.gd" id="5_7r8yy"]
-
 [sub_resource type="BlackboardPlan" id="BlackboardPlan_mu0o3"]
 var/hasPlank/name = &"hasPlank"
 var/hasPlank/type = 1
@@ -47,12 +42,66 @@ resource_name = "true"
 variable = &"hasPlank"
 value = SubResource("BBVariant_mu0o3")
 
+[sub_resource type="GDScript" id="GDScript_jrsvk"]
+script/source = "class_name GetRandomPoint
+extends BTAction
+
+@export var patrol_radius: float = 5.0
+
+func _tick(_delta: float) -> Status:
+    if agent == null:
+        return Status.FAILURE
+    
+    var random_offset = Vector3(
+        randf_range(-patrol_radius, patrol_radius),
+        0,
+        randf_range(-patrol_radius, patrol_radius)
+    )
+    var random_point = agent.position + random_offset
+    agent.set(\"targetPosition\", random_point)
+    
+    return Status.SUCCESS"
+
 [sub_resource type="BTAction" id="BTAction_7s2bl"]
-script = ExtResource("5_7r8yy")
+script = SubResource("GDScript_jrsvk")
 patrol_radius = 15.0
 
+[sub_resource type="GDScript" id="GDScript_7jdii"]
+script/source = "class_name MoveTo
+extends BTAction
+
+@export var acceptance_radius: float = 1
+@export var slowdown_radius: float = 2
+
+func _tick(_delta: float) -> Status:
+	if agent == null:
+		return Status.FAILURE
+
+	var current_position = agent.call(\"GetInventorySlot\").global_transform.origin #agent.global_transform.origin
+	var target_position = agent.get(\"targetPosition\")
+	var distance_to_target = current_position.distance_to(target_position)
+	#print(\"Distance to target: \", distance_to_target)
+	if distance_to_target <= acceptance_radius:
+		agent.linear_velocity = Vector3.ZERO
+		return Status.SUCCESS
+
+	var speed = agent.get(\"movementSpeed\")
+	if distance_to_target <= slowdown_radius:
+		speed /= 2
+	
+	var direction = (target_position - current_position).normalized()
+	var desired_velocity = direction * speed
+	agent.linear_velocity = desired_velocity
+
+	if agent.linear_velocity.length() > 0.1:
+		agent.look_at(current_position + agent.linear_velocity, Vector3.UP)
+		agent.rotation_degrees.x = 90
+
+	return Status.RUNNING
+"
+
 [sub_resource type="BTAction" id="BTAction_v88ds"]
-script = ExtResource("1_v88ds")
+script = SubResource("GDScript_7jdii")
 acceptance_radius = 1.0
 slowdown_radius = 2.0
 
@@ -83,15 +132,29 @@ variable = &"plankInRange"
 value = SubResource("BBVariant_gey36")
 
 [sub_resource type="BTAction" id="BTAction_1shfx"]
-script = ExtResource("1_v88ds")
+script = SubResource("GDScript_7jdii")
 acceptance_radius = 1.0
 slowdown_radius = 2.0
 
 [sub_resource type="BTTimeLimit" id="BTTimeLimit_v88ds"]
 children = [SubResource("BTAction_1shfx")]
 
+[sub_resource type="GDScript" id="GDScript_mu0o3"]
+script/source = "class_name PickupItem
+extends BTAction
+
+func _tick(_delta: float) -> Status:
+	if agent == null:
+		return Status.FAILURE
+
+	if agent.call(\"PickupItem\") == true:
+		return Status.SUCCESS
+	else:
+		return Status.FAILURE
+"
+
 [sub_resource type="BTAction" id="BTAction_rewac"]
-script = ExtResource("2_7y0tj")
+script = SubResource("GDScript_mu0o3")
 
 [sub_resource type="BTSequence" id="BTSequence_jrsvk"]
 custom_name = "Grab Plank"
@@ -142,12 +205,26 @@ custom_name = "StopIfPlankInRange"
 children = [SubResource("BTCheckVar_gey36")]
 
 [sub_resource type="BTAction" id="BTAction_lsdq3"]
-script = ExtResource("1_v88ds")
+script = SubResource("GDScript_7jdii")
 acceptance_radius = 1.0
 slowdown_radius = 2.0
 
+[sub_resource type="GDScript" id="GDScript_mcitd"]
+script/source = "class_name AttackWheel
+extends BTAction
+
+func _tick(_delta: float) -> Status:
+    if agent == null:
+        return Status.FAILURE
+
+    if agent.call(\"AttackWheel\") == true:
+        agent.apply_central_impulse(Vector3.UP * 2.5) # small jump when attacking
+        return Status.SUCCESS
+    else:
+        return Status.FAILURE"
+
 [sub_resource type="BTAction" id="BTAction_7r8yy"]
-script = ExtResource("4_lsdq3")
+script = SubResource("GDScript_mcitd")
 
 [sub_resource type="BTWait" id="BTWait_1jble"]
 duration = 2.0
@@ -189,11 +266,11 @@ custom_name = "StopIfPlankInRange"
 children = [SubResource("BTCheckVar_wxpr4")]
 
 [sub_resource type="BTAction" id="BTAction_out0v"]
-script = ExtResource("5_7r8yy")
+script = SubResource("GDScript_jrsvk")
 patrol_radius = 5.0
 
 [sub_resource type="BTAction" id="BTAction_k57rh"]
-script = ExtResource("1_v88ds")
+script = SubResource("GDScript_7jdii")
 acceptance_radius = 1.0
 slowdown_radius = 2.0
 

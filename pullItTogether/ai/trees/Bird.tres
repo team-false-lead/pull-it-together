@@ -1,0 +1,335 @@
+[gd_resource type="BehaviorTree" load_steps=60 format=3 uid="uid://barq20lcv8qt2"]
+
+[ext_resource type="Script" uid="uid://c3ltrljgeup3e" path="res://ai/tasks/GetPerch.gd" id="3_qavn1"]
+[ext_resource type="Script" uid="uid://cvpkko2722b56" path="res://ai/tasks/CheckWagonHasFood.gd" id="4_dxfhd"]
+[ext_resource type="Script" uid="uid://dn12sjuyjlxd5" path="res://ai/tasks/GetCirclePoint.gd" id="6_ivtbg"]
+
+[sub_resource type="BlackboardPlan" id="BlackboardPlan_a4amu"]
+var/wagonInRange/name = &"wagonInRange"
+var/wagonInRange/type = 1
+var/wagonInRange/value = false
+var/wagonInRange/hint = 0
+var/wagonInRange/hint_string = ""
+var/hasWagonTarget/name = &"hasWagonTarget"
+var/hasWagonTarget/type = 1
+var/hasWagonTarget/value = false
+var/hasWagonTarget/hint = 0
+var/hasWagonTarget/hint_string = ""
+var/wagonHasFood/name = &"wagonHasFood"
+var/wagonHasFood/type = 1
+var/wagonHasFood/value = false
+var/wagonHasFood/hint = 0
+var/wagonHasFood/hint_string = ""
+var/foodInRange/name = &"foodInRange"
+var/foodInRange/type = 1
+var/foodInRange/value = false
+var/foodInRange/hint = 0
+var/foodInRange/hint_string = ""
+var/hasFoodTarget/name = &"hasFoodTarget"
+var/hasFoodTarget/type = 1
+var/hasFoodTarget/value = false
+var/hasFoodTarget/hint = 0
+var/hasFoodTarget/hint_string = ""
+var/hasFood/name = &"hasFood"
+var/hasFood/type = 1
+var/hasFood/value = false
+var/hasFood/hint = 0
+var/hasFood/hint_string = ""
+var/isOnPerch/name = &"isOnPerch"
+var/isOnPerch/type = 1
+var/isOnPerch/value = false
+var/isOnPerch/hint = 0
+var/isOnPerch/hint_string = ""
+var/isOnWagonPerch/name = &"isOnWagonPerch"
+var/isOnWagonPerch/type = 1
+var/isOnWagonPerch/value = false
+var/isOnWagonPerch/hint = 0
+var/isOnWagonPerch/hint_string = ""
+var/finishedCircling/name = &"finishedCircling"
+var/finishedCircling/type = 1
+var/finishedCircling/value = false
+var/finishedCircling/hint = 0
+var/finishedCircling/hint_string = ""
+binding/wagonInRange = NodePath(".:wagonInRange")
+binding/hasWagonTarget = NodePath(".:hasWagonTarget")
+binding/wagonHasFood = NodePath(".:wagonHasFood")
+binding/foodInRange = NodePath(".:itemInRange")
+binding/hasFoodTarget = NodePath(".:hasItemTarget")
+binding/hasFood = NodePath(".:hasItem")
+binding/isOnPerch = NodePath(".:isOnPerch")
+binding/isOnWagonPerch = NodePath(".:isOnWagonPerch")
+binding/finishedCircling = NodePath(".:finishedCircling")
+resource_local_to_scene = true
+
+[sub_resource type="BBVariant" id="BBVariant_mu0o3"]
+type = 1
+saved_value = true
+resource_name = "true"
+
+[sub_resource type="BTCheckVar" id="BTCheckVar_jrsvk"]
+variable = &"hasFood"
+value = SubResource("BBVariant_mu0o3")
+
+[sub_resource type="GDScript" id="GDScript_jrsvk"]
+script/source = "class_name GetRandomPoint
+extends BTAction
+
+@export var patrol_radius: float = 5.0
+
+func _tick(_delta: float) -> Status:
+    if agent == null:
+        return Status.FAILURE
+    
+    var random_offset = Vector3(
+        randf_range(-patrol_radius, patrol_radius),
+        0,
+        randf_range(-patrol_radius, patrol_radius)
+    )
+    var random_point = agent.position + random_offset
+    agent.set(\"targetPosition\", random_point)
+    
+    return Status.SUCCESS"
+
+[sub_resource type="BTAction" id="BTAction_qavn1"]
+script = SubResource("GDScript_jrsvk")
+patrol_radius = 15.0
+
+[sub_resource type="BTAction" id="BTAction_dxfhd"]
+script = ExtResource("3_qavn1")
+wagon_perch = false
+
+[sub_resource type="BTRandomSelector" id="BTRandomSelector_ivtbg"]
+children = [SubResource("BTAction_qavn1"), SubResource("BTAction_dxfhd")]
+
+[sub_resource type="GDScript" id="GDScript_7jdii"]
+script/source = "class_name MoveTo
+extends BTAction
+
+@export var acceptance_radius: float = 1
+@export var slowdown_radius: float = 2
+
+func _tick(_delta: float) -> Status:
+	if agent == null:
+		return Status.FAILURE
+
+	var current_position = agent.call(\"GetInventorySlot\").global_transform.origin #agent.global_transform.origin
+	var target_position = agent.get(\"targetPosition\")
+	var distance_to_target = current_position.distance_to(target_position)
+	#print(\"Distance to target: \", distance_to_target)
+	if distance_to_target <= acceptance_radius:
+		agent.linear_velocity = Vector3.ZERO
+		return Status.SUCCESS
+
+	var speed = agent.get(\"movementSpeed\")
+	if distance_to_target <= slowdown_radius:
+		speed /= 2
+	
+	var direction = (target_position - current_position).normalized()
+	var desired_velocity = direction * speed
+	agent.linear_velocity = desired_velocity
+
+	if agent.linear_velocity.length() > 0.1:
+		agent.look_at(current_position + agent.linear_velocity, Vector3.UP)
+		agent.rotation_degrees.x = 90
+
+	return Status.RUNNING
+"
+
+[sub_resource type="BTAction" id="BTAction_dddi3"]
+script = SubResource("GDScript_7jdii")
+acceptance_radius = 1.0
+slowdown_radius = 2.0
+
+[sub_resource type="BTTimeLimit" id="BTTimeLimit_7o73u"]
+children = [SubResource("BTAction_dddi3")]
+
+[sub_resource type="BTAlwaysSucceed" id="BTAlwaysSucceed_fvxed"]
+children = [SubResource("BTTimeLimit_7o73u")]
+
+[sub_resource type="BTWait" id="BTWait_308ub"]
+duration = 2.0
+
+[sub_resource type="BTSequence" id="BTSequence_vpcwg"]
+custom_name = "Patrol"
+children = [SubResource("BTRandomSelector_ivtbg"), SubResource("BTAlwaysSucceed_fvxed"), SubResource("BTWait_308ub")]
+
+[sub_resource type="BTSequence" id="BTSequence_mu0o3"]
+custom_name = "Fly Away With Food"
+children = [SubResource("BTCheckVar_jrsvk"), SubResource("BTSequence_vpcwg")]
+
+[sub_resource type="BBVariant" id="BBVariant_7s2bl"]
+type = 1
+saved_value = true
+resource_name = "true"
+
+[sub_resource type="BTCheckVar" id="BTCheckVar_v88ds"]
+variable = &"hasWagonTarget"
+value = SubResource("BBVariant_7s2bl")
+
+[sub_resource type="BBVariant" id="BBVariant_dddi3"]
+type = 1
+saved_value = true
+resource_name = "true"
+
+[sub_resource type="BTCheckVar" id="BTCheckVar_7o73u"]
+variable = &"finishedCircling"
+value = SubResource("BBVariant_dddi3")
+
+[sub_resource type="BBVariant" id="BBVariant_fvxed"]
+type = 1
+saved_value = false
+resource_name = "false"
+
+[sub_resource type="BTCheckVar" id="BTCheckVar_308ub"]
+variable = &"hasFood"
+value = SubResource("BBVariant_fvxed")
+
+[sub_resource type="BTAction" id="BTAction_vpcwg"]
+script = ExtResource("3_qavn1")
+wagon_perch = true
+
+[sub_resource type="BTAction" id="BTAction_1c70r"]
+script = SubResource("GDScript_7jdii")
+acceptance_radius = 1.0
+slowdown_radius = 2.0
+
+[sub_resource type="BTTimeLimit" id="BTTimeLimit_m4igg"]
+children = [SubResource("BTAction_1c70r")]
+
+[sub_resource type="BTAlwaysSucceed" id="BTAlwaysSucceed_e23fh"]
+children = [SubResource("BTTimeLimit_m4igg")]
+
+[sub_resource type="BTWait" id="BTWait_h84ud"]
+duration = 2.5
+
+[sub_resource type="BTAction" id="BTAction_go8ad"]
+script = ExtResource("4_dxfhd")
+
+[sub_resource type="BBVariant" id="BBVariant_lc3ap"]
+type = 1
+saved_value = true
+resource_name = "true"
+
+[sub_resource type="BTCheckVar" id="BTCheckVar_4ijaa"]
+variable = &"wagonHasFood"
+value = SubResource("BBVariant_lc3ap")
+
+[sub_resource type="GDScript" id="GDScript_mu0o3"]
+script/source = "class_name PickupItem
+extends BTAction
+
+func _tick(_delta: float) -> Status:
+	if agent == null:
+		return Status.FAILURE
+
+	if agent.call(\"PickupItem\") == true:
+		return Status.SUCCESS
+	else:
+		return Status.FAILURE
+"
+
+[sub_resource type="BTAction" id="BTAction_t2oci"]
+script = SubResource("GDScript_mu0o3")
+
+[sub_resource type="BTSequence" id="BTSequence_hmibo"]
+custom_name = "Perch Check and Steal"
+children = [SubResource("BTCheckVar_v88ds"), SubResource("BTCheckVar_7o73u"), SubResource("BTCheckVar_308ub"), SubResource("BTAction_vpcwg"), SubResource("BTAlwaysSucceed_e23fh"), SubResource("BTWait_h84ud"), SubResource("BTAction_go8ad"), SubResource("BTCheckVar_4ijaa"), SubResource("BTAction_t2oci")]
+
+[sub_resource type="BBVariant" id="BBVariant_gey36"]
+type = 1
+saved_value = true
+resource_name = "true"
+
+[sub_resource type="BTCheckVar" id="BTCheckVar_2c5ag"]
+variable = &"hasWagonTarget"
+value = SubResource("BBVariant_gey36")
+
+[sub_resource type="BBVariant" id="BBVariant_e341v"]
+type = 1
+saved_value = false
+resource_name = "false"
+
+[sub_resource type="BTCheckVar" id="BTCheckVar_y0mpb"]
+variable = &"finishedCircling"
+value = SubResource("BBVariant_e341v")
+
+[sub_resource type="BBVariant" id="BBVariant_fafph"]
+type = 1
+saved_value = true
+resource_name = "true"
+
+[sub_resource type="BTCheckVar" id="BTCheckVar_427e6"]
+variable = &"hasFood"
+value = SubResource("BBVariant_fafph")
+
+[sub_resource type="BTRepeatUntilSuccess" id="BTRepeatUntilSuccess_2q04m"]
+custom_name = "StopIfHasFood"
+children = [SubResource("BTCheckVar_427e6")]
+
+[sub_resource type="BTAction" id="BTAction_atmaq"]
+script = ExtResource("6_ivtbg")
+
+[sub_resource type="BTAction" id="BTAction_b74qd"]
+script = SubResource("GDScript_7jdii")
+acceptance_radius = 1.0
+slowdown_radius = 2.0
+
+[sub_resource type="BTTimeLimit" id="BTTimeLimit_t4dui"]
+children = [SubResource("BTAction_b74qd")]
+
+[sub_resource type="BTAlwaysSucceed" id="BTAlwaysSucceed_r1nd8"]
+children = [SubResource("BTTimeLimit_t4dui")]
+
+[sub_resource type="BTWait" id="BTWait_kkt52"]
+duration = 0.25
+
+[sub_resource type="BTSequence" id="BTSequence_ofcu3"]
+custom_name = "Do Circle"
+children = [SubResource("BTAction_atmaq"), SubResource("BTAlwaysSucceed_r1nd8"), SubResource("BTWait_kkt52")]
+
+[sub_resource type="BTParallel" id="BTParallel_1v16i"]
+children = [SubResource("BTRepeatUntilSuccess_2q04m"), SubResource("BTSequence_ofcu3")]
+
+[sub_resource type="BTSequence" id="BTSequence_vfa16"]
+custom_name = "Circle Wagon"
+children = [SubResource("BTCheckVar_2c5ag"), SubResource("BTCheckVar_y0mpb"), SubResource("BTParallel_1v16i")]
+
+[sub_resource type="BTAction" id="BTAction_m4igg"]
+script = SubResource("GDScript_jrsvk")
+patrol_radius = 15.0
+
+[sub_resource type="BTAction" id="BTAction_e23fh"]
+script = ExtResource("3_qavn1")
+wagon_perch = false
+
+[sub_resource type="BTRandomSelector" id="BTRandomSelector_h84ud"]
+children = [SubResource("BTAction_m4igg"), SubResource("BTAction_e23fh")]
+
+[sub_resource type="BTAction" id="BTAction_lc3ap"]
+script = SubResource("GDScript_7jdii")
+acceptance_radius = 1.0
+slowdown_radius = 2.0
+
+[sub_resource type="BTTimeLimit" id="BTTimeLimit_4ijaa"]
+children = [SubResource("BTAction_lc3ap")]
+
+[sub_resource type="BTAlwaysSucceed" id="BTAlwaysSucceed_t2oci"]
+children = [SubResource("BTTimeLimit_4ijaa")]
+
+[sub_resource type="BTWait" id="BTWait_e341v"]
+duration = 2.0
+
+[sub_resource type="BTSequence" id="BTSequence_y0mpb"]
+custom_name = "Patrol"
+children = [SubResource("BTRandomSelector_h84ud"), SubResource("BTAlwaysSucceed_t2oci"), SubResource("BTWait_e341v")]
+
+[sub_resource type="BTWait" id="BTWait_7s2bl"]
+custom_name = "Fail Safe Wait"
+
+[sub_resource type="BTSelector" id="BTSelector_jrsvk"]
+custom_name = "Sel - Root"
+children = [SubResource("BTSequence_mu0o3"), SubResource("BTSequence_hmibo"), SubResource("BTSequence_vfa16"), SubResource("BTSequence_y0mpb"), SubResource("BTWait_7s2bl")]
+
+[resource]
+blackboard_plan = SubResource("BlackboardPlan_a4amu")
+root_task = SubResource("BTSelector_jrsvk")

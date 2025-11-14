@@ -216,13 +216,13 @@ SpawnOnUseScene = null
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.36223, 0.177226, -15.5005)
 SpawnOnUseScene = null
 
-[node name="Campfire" parent="Placeholders" groups=["entity"] instance=ExtResource("8_iddi4")]
+[node name="Campfire" parent="Placeholders" instance=ExtResource("8_iddi4")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.2946, 0.313574, -12.2608)
 collision_layer = 9
 collision_mask = 29
 publicName = ""
 
-[node name="Campfire2" parent="Placeholders" groups=["entity"] instance=ExtResource("8_iddi4")]
+[node name="Campfire2" parent="Placeholders" instance=ExtResource("8_iddi4")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 98.5397, 51.4239, -688.055)
 collision_layer = 9
 collision_mask = 29

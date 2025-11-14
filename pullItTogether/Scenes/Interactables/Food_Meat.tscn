@@ -114,7 +114,7 @@ shadow_mesh = SubResource("ArrayMesh_0x64q")
 resource_local_to_scene = true
 albedo_texture = ExtResource("5_knjl6")
 
-[node name="Meat" type="RigidBody3D" node_paths=PackedStringArray("rawMesh", "cookedMesh", "label3D") groups=["food"]]
+[node name="Meat" type="RigidBody3D" node_paths=PackedStringArray("rawMesh", "cookedMesh", "label3D") groups=["food", "interactable"]]
 collision_layer = 8
 collision_mask = 29
 script = ExtResource("1_b84pb")
