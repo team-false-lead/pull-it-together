@@ -1,8 +1,11 @@
-[gd_scene load_steps=2 format=3 uid="uid://wqi0voow1hdb"]
+[gd_scene load_steps=3 format=3 uid="uid://wqi0voow1hdb"]
 
 [ext_resource type="Script" uid="uid://b1u1sblge556m" path="res://Scripts/ManagerScripts/AudioManager.cs" id="1_dygvs"]
+[ext_resource type="AudioStream" uid="uid://cdtkjpneu5m2a" path="res://Resources/Audio/ForestMusic.tres" id="2_i2xd5"]
 
-[node name="AudioManager" type="Node"]
+[node name="AudioManager" type="Node" node_paths=PackedStringArray("audioPlayer")]
 script = ExtResource("1_dygvs")
+audioPlayer = NodePath("AudioStreamPlayer")
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("2_i2xd5")

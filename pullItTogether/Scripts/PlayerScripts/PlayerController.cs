@@ -153,7 +153,12 @@ public partial class PlayerController : CharacterBody3D
 			healthBar.MaxValue = healthBar.Value = maxHealth; // double-to-float shenaningans :pensive:
 			energyBar.MaxValue = energyBar.Value = fatigueBar.MaxValue = maxEnergy;
 			fatigueBar.Value = 0;
-		}
+
+			// TEMP: Play music as soon as the player spawns in
+			AudioManager audio = GetTree().Root.GetNode<AudioManager>("Main/AudioManager");
+			audio.StartMusic();
+
+        }
 		//else
 		//{
 		//	Input.SetMouseMode(Input.MouseModeEnum.Visible);
