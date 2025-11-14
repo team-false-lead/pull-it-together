@@ -140,4 +140,17 @@ public partial class PlayerInteractable : Interactable
     {
         return ownerPlayerController;
     }
+    
+    public override void ToggleHighlighted(bool highlighted)
+    {
+        Material bodyMaterial = GetPlayerController().GetNode<MeshInstance3D>("BodyMesh").MaterialOverride;
+        Material headMaterial = GetPlayerController().GetNode<MeshInstance3D>("Head/HeadMesh").MaterialOverride;
+        bodyMaterial.Set("emission_enabled", highlighted);
+        headMaterial.Set("emission_enabled", highlighted);
+        if (highlighted)
+        {
+            bodyMaterial.Set("emission", Colors.Green);
+            headMaterial.Set("emission", Colors.Green);
+        }
+    }
 }
