@@ -76,6 +76,7 @@ script = ExtResource("1_epff6")
 berryOptions = Array[PackedScene]([ExtResource("2_oep0d"), ExtResource("3_s1ndp")])
 SpawnOnUseScene = ExtResource("2_oep0d")
 publicName = "Bush"
+emptyHandedOkay = true
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 replication_config = SubResource("SceneReplicationConfig_on6pt")

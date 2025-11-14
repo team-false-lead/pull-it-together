@@ -445,7 +445,8 @@ public partial class PlayerController : CharacterBody3D
 					}
 					else if (entity != null)
 					{
-						if (lastLookedAtItem != entity && HeldValid() && entity.CanAcceptUseFrom(this, heldObject))
+						if (lastLookedAtItem != entity && (HeldValid() && entity.CanAcceptUseFrom(this, heldObject)) ||
+							(!HeldValid() && entity.emptyHandedOkay))
 						{
 							ResetLookedAtItem();
 							lastLookedAtItem = entity;
@@ -1031,7 +1032,7 @@ public partial class PlayerController : CharacterBody3D
 		else
 		{
             Entity e = GetEntityLookedAt();
-			if (e != null && e.CanAcceptUseFrom(this, null))
+			if (e != null && e.emptyHandedOkay)
                 instructionsString += leftClickImage + "- Use bare hands on " + e.publicName;
         }
 
