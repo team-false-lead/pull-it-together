@@ -126,11 +126,11 @@ public partial class Wagon : RigidBody3D
 
     private void OnItemsRemoved(Node3D body)
     {
-        GD.Print("Wagon detected item removed: " + body.Name);
-        if (body is WoodPlank plank)
+        GD.Print("Wagon detected item added: " + body.Name);
+        if (body is Interactable interactable)
         {
-            plank.isInWagon = false;
-            GD.Print("plank in: " + plank.isInWagon);
+            interactable.isInWagon = false;
+            GD.Print("interactable out: " + interactable.isInWagon);
         }
     }
 }
