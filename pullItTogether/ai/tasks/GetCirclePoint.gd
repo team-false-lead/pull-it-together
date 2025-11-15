@@ -1,12 +1,11 @@
-class_name AttackPlayer
+class_name GetStalkPoint
 extends BTAction
 
 func _tick(_delta: float) -> Status:
     if agent == null:
         return Status.FAILURE
 
-    if agent.call("AttackPlayer") == true:
-        agent.apply_central_impulse(Vector3.UP * 2.5) # small jump when attacking
+    if agent.call("GetCirclePointAroundWagon") == true:
         return Status.SUCCESS
     else:
         return Status.FAILURE

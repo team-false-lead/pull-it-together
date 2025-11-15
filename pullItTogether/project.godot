@@ -34,6 +34,9 @@ item_manager=""
 plank=""
 food=""
 wheel=""
+meat=""
+bird=""
+perch=""
 hatchet=""
 
 [input]

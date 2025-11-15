@@ -1,11 +1,11 @@
-class_name PickupPlank
+class_name CheckWagonHasFood
 extends BTAction
 
 func _tick(_delta: float) -> Status:
     if agent == null:
         return Status.FAILURE
 
-    if agent.call("PickupPlank") == true:
+    if agent.call("CheckWagonHasFood") == true:
         return Status.SUCCESS
-    else:
-        return Status.FAILURE
+
+    return Status.FAILURE

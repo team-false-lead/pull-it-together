@@ -1,7 +1,7 @@
-[gd_resource type="BehaviorTree" load_steps=52 format=3 uid="uid://cdntafo1eagv5"]
+[gd_resource type="BehaviorTree" load_steps=57 format=3 uid="uid://cdntafo1eagv5"]
 
 [ext_resource type="Script" uid="uid://du445sow2w3lg" path="res://ai/tasks/MoveTo.gd" id="1_v88ds"]
-[ext_resource type="Script" uid="uid://c0omlb2afmd1g" path="res://ai/tasks/PickupPlank.gd" id="2_7y0tj"]
+[ext_resource type="Script" uid="uid://c0omlb2afmd1g" path="res://ai/tasks/PickupItem.gd" id="3_7s2bl"]
 [ext_resource type="Script" uid="uid://dbgfhv0qxiwai" path="res://ai/tasks/AttackWheel.gd" id="4_lsdq3"]
 [ext_resource type="Script" uid="uid://bo4phm0kj0f7w" path="res://ai/tasks/GetRandomPoint.gd" id="5_7r8yy"]
 
@@ -31,7 +31,7 @@ var/wheelBroken/type = 1
 var/wheelBroken/value = false
 var/wheelBroken/hint = 0
 var/wheelBroken/hint_string = ""
-binding/hasPlank = NodePath(".:hasPlank")
+binding/hasPlank = NodePath(".:hasItem")
 binding/plankInRange = NodePath(".:plankInRange")
 binding/wagonInRange = NodePath(".:wagonInRange")
 binding/hasWheelTarget = NodePath(".:hasWheelTarget")
@@ -91,7 +91,7 @@ slowdown_radius = 2.0
 children = [SubResource("BTAction_1shfx")]
 
 [sub_resource type="BTAction" id="BTAction_rewac"]
-script = ExtResource("2_7y0tj")
+script = ExtResource("3_7s2bl")
 
 [sub_resource type="BTSequence" id="BTSequence_jrsvk"]
 custom_name = "Grab Plank"
@@ -141,15 +141,40 @@ value = SubResource("BBVariant_1jble")
 custom_name = "StopIfPlankInRange"
 children = [SubResource("BTCheckVar_gey36")]
 
-[sub_resource type="BTAction" id="BTAction_lsdq3"]
+[sub_resource type="BBVariant" id="BBVariant_pak3h"]
+type = 1
+saved_value = false
+resource_name = "false"
+
+[sub_resource type="BTCheckVar" id="BTCheckVar_lsdq3"]
+variable = &"wagonInRange"
+value = SubResource("BBVariant_pak3h")
+
+[sub_resource type="BTRepeatUntilSuccess" id="BTRepeatUntilSuccess_7s2bl"]
+custom_name = "StopIfWagonOutOfRange"
+children = [SubResource("BTCheckVar_lsdq3")]
+
+[sub_resource type="BTAction" id="BTAction_1jble"]
 script = ExtResource("1_v88ds")
 acceptance_radius = 1.0
 slowdown_radius = 2.0
 
-[sub_resource type="BTAction" id="BTAction_7r8yy"]
+[sub_resource type="BTParallel" id="BTParallel_gey36"]
+children = [SubResource("BTRepeatUntilSuccess_7s2bl"), SubResource("BTAction_1jble")]
+
+[sub_resource type="BBVariant" id="BBVariant_lsdq3"]
+type = 1
+saved_value = true
+resource_name = "true"
+
+[sub_resource type="BTCheckVar" id="BTCheckVar_7r8yy"]
+variable = &"wagonInRange"
+value = SubResource("BBVariant_lsdq3")
+
+[sub_resource type="BTAction" id="BTAction_pak3h"]
 script = ExtResource("4_lsdq3")
 
-[sub_resource type="BTWait" id="BTWait_1jble"]
+[sub_resource type="BTWait" id="BTWait_7r8yy"]
 duration = 2.0
 
 [sub_resource type="BBVariant" id="BBVariant_2c5ag"]
@@ -162,14 +187,11 @@ variable = &"wheelBroken"
 value = SubResource("BBVariant_2c5ag")
 
 [sub_resource type="BTSequence" id="BTSequence_rewac"]
-children = [SubResource("BTAction_lsdq3"), SubResource("BTAction_7r8yy"), SubResource("BTWait_1jble"), SubResource("BTCheckVar_1shfx")]
-
-[sub_resource type="BTRepeatUntilSuccess" id="BTRepeatUntilSuccess_wxpr4"]
 custom_name = "Attack"
-children = [SubResource("BTSequence_rewac")]
+children = [SubResource("BTParallel_gey36"), SubResource("BTCheckVar_7r8yy"), SubResource("BTAction_pak3h"), SubResource("BTWait_7r8yy"), SubResource("BTCheckVar_1shfx")]
 
 [sub_resource type="BTParallel" id="BTParallel_7s2bl"]
-children = [SubResource("BTRepeatUntilSuccess_pak3h"), SubResource("BTRepeatUntilSuccess_2c5ag"), SubResource("BTRepeatUntilSuccess_wxpr4")]
+children = [SubResource("BTRepeatUntilSuccess_pak3h"), SubResource("BTRepeatUntilSuccess_2c5ag"), SubResource("BTSequence_rewac")]
 
 [sub_resource type="BTSequence" id="BTSequence_hmibo"]
 custom_name = "Attack Wheel"

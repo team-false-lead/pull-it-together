@@ -1,0 +1,199 @@
+[gd_scene load_steps=18 format=3 uid="uid://cbaojwfqgmguo"]
+
+[ext_resource type="Script" uid="uid://clww2kyjepjwc" path="res://Scripts/EntityScripts/Wolf.cs" id="1_j8ync"]
+[ext_resource type="PackedScene" uid="uid://drat1km3kl28w" path="res://Scenes/Interactables/Food_Meat.tscn" id="2_la4un"]
+[ext_resource type="PackedScene" uid="uid://cnn1gi0bkh08o" path="res://Scenes/ItemDetector.tscn" id="3_k21wc"]
+[ext_resource type="BehaviorTree" uid="uid://bbunrudt06ing" path="res://ai/trees/Wolf.tres" id="4_j8ync"]
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_on6pt"]
+properties/0/path = NodePath(".:position")
+properties/0/spawn = true
+properties/0/replication_mode = 2
+properties/1/path = NodePath(".:rotation")
+properties/1/spawn = true
+properties/1/replication_mode = 2
+properties/2/path = NodePath("Label3D:text")
+properties/2/spawn = true
+properties/2/replication_mode = 2
+properties/3/path = NodePath(".:entityId")
+properties/3/spawn = true
+properties/3/replication_mode = 2
+properties/4/path = NodePath("InventorySlot1:rotation")
+properties/4/spawn = true
+properties/4/replication_mode = 2
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_ftxwn"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_1ql20"]
+albedo_color = Color(0.230315, 0.230315, 0.230315, 1)
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_vg7qi"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_y4j34"]
+albedo_color = Color(0.140447, 0.140447, 0.140447, 1)
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_j8ync"]
+radius = 0.125
+height = 0.935
+
+[sub_resource type="BoxMesh" id="BoxMesh_bwxc5"]
+resource_local_to_scene = true
+size = Vector3(0.75, 0.585, 1)
+
+[sub_resource type="PrismMesh" id="PrismMesh_la4un"]
+size = Vector3(0.075, 0.075, 0.05)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_30wci"]
+albedo_color = Color(0, 0, 0, 1)
+
+[sub_resource type="SphereMesh" id="SphereMesh_ge06b"]
+radius = 0.11
+height = 0.1
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_k21wc"]
+radius = 0.075
+height = 0.5
+
+[sub_resource type="BlackboardPlan" id="BlackboardPlan_la4un"]
+binding/hasMeat = NodePath("..:hasItem")
+binding/meatInRange = NodePath("..:meatInRange")
+binding/playerInRange = NodePath("..:playerInRange")
+binding/hasPlayerTarget = NodePath("..:hasPlayerTarget")
+binding/finishedAttackPlayer = NodePath("..:finishedAttackPlayer")
+binding/wagonInRange = NodePath("..:wagonInRange")
+binding/hasWagonTarget = NodePath("..:hasWagonTarget")
+binding/inStalkRange = NodePath("..:inStalkRange")
+binding/stalkTimerEnded = NodePath("..:finishedStalkWagon")
+resource_local_to_scene = true
+
+[sub_resource type="SphereMesh" id="SphereMesh_y4j34"]
+
+[node name="Wolf" type="RigidBody3D" node_paths=PackedStringArray("meatDetector", "playerDetector", "wagonDetector", "stalkTimer", "label", "BT", "inventorySlot")]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0)
+collision_layer = 33
+collision_mask = 13
+axis_lock_angular_x = true
+axis_lock_angular_z = true
+script = ExtResource("1_j8ync")
+meatDetector = NodePath("MeatDetector")
+playerDetector = NodePath("PlayerDetector2")
+wagonDetector = NodePath("WagonDetector3")
+stalkTimer = NodePath("Timer")
+label = NodePath("Label3D")
+BT = NodePath("BTPlayer")
+movementSpeed = 5.5
+inventorySlot = NodePath("InventorySlot1")
+SpawnOnUseScene = ExtResource("2_la4un")
+publicName = "Wolf"
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
+replication_config = SubResource("SceneReplicationConfig_on6pt")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("CapsuleShape3D_ftxwn")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="CollisionShape3D"]
+material_override = SubResource("StandardMaterial3D_1ql20")
+mesh = SubResource("CapsuleMesh_vg7qi")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="CollisionShape3D"]
+transform = Transform3D(0.104528, 0, -0.994522, -0.376606, 0.925527, -0.0395829, 0.920457, 0.378681, 0.0967439, 0, 1.01407, -0.117976)
+material_override = SubResource("StandardMaterial3D_y4j34")
+mesh = SubResource("CapsuleMesh_j8ync")
+
+[node name="EyesMesh" type="MeshInstance3D" parent="CollisionShape3D" groups=["player_mesh", "self_hide"]]
+transform = Transform3D(0.69, 0, 0, 0, 0.0405656, 0.56353, 0, -0.266935, 0.0856384, 0, -0.716994, -0.250253)
+material_override = SubResource("StandardMaterial3D_1ql20")
+mesh = SubResource("BoxMesh_bwxc5")
+skeleton = NodePath("../..")
+
+[node name="MeshInstance3D3" type="MeshInstance3D" parent="CollisionShape3D"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0.0606932, -1.01469, 4.43534e-08)
+mesh = SubResource("PrismMesh_la4un")
+
+[node name="MeshInstance3D5" type="MeshInstance3D" parent="CollisionShape3D"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0.0235436, -1.01469, 4.43534e-08)
+mesh = SubResource("PrismMesh_la4un")
+
+[node name="MeshInstance3D6" type="MeshInstance3D" parent="CollisionShape3D"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, -0.0154472, -1.01469, 4.43534e-08)
+mesh = SubResource("PrismMesh_la4un")
+
+[node name="MeshInstance3D7" type="MeshInstance3D" parent="CollisionShape3D"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, -0.0509576, -1.01469, 4.43534e-08)
+mesh = SubResource("PrismMesh_la4un")
+
+[node name="MeshInstance3D8" type="MeshInstance3D" parent="CollisionShape3D"]
+transform = Transform3D(-1, -1.50996e-07, 6.60024e-15, 0, -4.37114e-08, -1, 1.50996e-07, -1, 4.37114e-08, -0.0516143, -1.01469, 0.079015)
+mesh = SubResource("PrismMesh_la4un")
+
+[node name="MeshInstance3D9" type="MeshInstance3D" parent="CollisionShape3D"]
+transform = Transform3D(-1, -1.50996e-07, 6.60024e-15, 0, -4.37114e-08, -1, 1.50996e-07, -1, 4.37114e-08, -0.0145724, -1.01469, 0.0818405)
+mesh = SubResource("PrismMesh_la4un")
+
+[node name="MeshInstance3D10" type="MeshInstance3D" parent="CollisionShape3D"]
+transform = Transform3D(-1, -1.50996e-07, 6.60024e-15, 0, -4.37114e-08, -1, 1.50996e-07, -1, 4.37114e-08, 0.0243056, -1.01469, 0.084806)
+mesh = SubResource("PrismMesh_la4un")
+
+[node name="MeshInstance3D11" type="MeshInstance3D" parent="CollisionShape3D"]
+transform = Transform3D(-1, -1.50996e-07, 6.60024e-15, 0, -4.37114e-08, -1, 1.50996e-07, -1, 4.37114e-08, 0.0597131, -1.01469, 0.0875069)
+mesh = SubResource("PrismMesh_la4un")
+
+[node name="MeshInstance3D4" type="MeshInstance3D" parent="CollisionShape3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.988139, 0.0315644)
+material_override = SubResource("StandardMaterial3D_30wci")
+mesh = SubResource("SphereMesh_ge06b")
+
+[node name="MeshInstance3D12" type="MeshInstance3D" parent="CollisionShape3D"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0.375, 0.65, 0.375)
+material_override = SubResource("StandardMaterial3D_y4j34")
+mesh = SubResource("CapsuleMesh_k21wc")
+
+[node name="MeshInstance3D13" type="MeshInstance3D" parent="CollisionShape3D"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, -0.375, 0.65, 0.375)
+material_override = SubResource("StandardMaterial3D_y4j34")
+mesh = SubResource("CapsuleMesh_k21wc")
+
+[node name="MeshInstance3D14" type="MeshInstance3D" parent="CollisionShape3D"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0.375, -0.55, 0.375)
+material_override = SubResource("StandardMaterial3D_y4j34")
+mesh = SubResource("CapsuleMesh_k21wc")
+
+[node name="MeshInstance3D15" type="MeshInstance3D" parent="CollisionShape3D"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, -0.375, -0.55, 0.375)
+material_override = SubResource("StandardMaterial3D_y4j34")
+mesh = SubResource("CapsuleMesh_k21wc")
+
+[node name="Label3D" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.30017e-08, -0.526216)
+billboard = 2
+text = "Wolf"
+
+[node name="MeatDetector" parent="." instance=ExtResource("3_k21wc")]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0)
+detectionRadius = 3.0
+customGroupFilters = PackedStringArray("meat")
+
+[node name="PlayerDetector2" parent="." instance=ExtResource("3_k21wc")]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0)
+detectionRadius = 10.0
+customGroupFilters = PackedStringArray("players")
+
+[node name="WagonDetector3" parent="." instance=ExtResource("3_k21wc")]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0)
+detectionRadius = 30.0
+customGroupFilters = PackedStringArray("wagon")
+
+[node name="BTPlayer" type="BTPlayer" parent="."]
+behavior_tree = ExtResource("4_j8ync")
+blackboard_plan = SubResource("BlackboardPlan_la4un")
+
+[node name="InventorySlot1" type="MeshInstance3D" parent="." groups=["player_mesh"]]
+unique_name_in_owner = true
+transform = Transform3D(-4.37114e-09, 0, 0.1, 0, 0.1, 0, -0.1, 0, -4.37114e-09, -0.442699, -1.03734, 0.047589)
+visible = false
+mesh = SubResource("SphereMesh_y4j34")
+
+[node name="Timer" type="Timer" parent="."]
+wait_time = 120.0
+one_shot = true
