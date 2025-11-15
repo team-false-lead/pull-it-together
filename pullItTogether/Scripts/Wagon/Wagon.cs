@@ -13,7 +13,7 @@ public partial class Wagon : RigidBody3D
     [Export] float frictionPerWheel;
     [Export] public Node3D[] perchPoints;
 
-    [Export] public ItemDetector itemDetector;
+    [Export] public ItemDetector itemInsideDetector;
     public float wheel1 = 0;
     public float wheel2 = 0;
     public float wheel3 = 0;
@@ -23,10 +23,10 @@ public partial class Wagon : RigidBody3D
     public override void _Ready()
     {
         base._Ready();
-        if (itemDetector != null)
+        if (itemInsideDetector != null)
         {
-            itemDetector.FilteredBodyEntered += OnItemsAdded;
-            itemDetector.FilteredBodyExited += OnItemsRemoved;
+            itemInsideDetector.BodyEntered += OnItemsAdded;
+            itemInsideDetector.BodyExited += OnItemsRemoved;
         }
     }
 
@@ -117,10 +117,10 @@ public partial class Wagon : RigidBody3D
     private void OnItemsAdded(Node3D body)
     {
         GD.Print("Wagon detected item added: " + body.Name);
-        if (body is WoodPlank plank)
+        if (body is Interactable interactable)
         {
-            plank.isInWagon = true;
-            GD.Print("plank in: " + plank.isInWagon);
+            interactable.isInWagon = true;
+            GD.Print("interactable in: " + interactable.isInWagon);
         }
     }
 

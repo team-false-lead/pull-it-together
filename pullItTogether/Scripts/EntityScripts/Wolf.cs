@@ -173,24 +173,28 @@ public partial class Wolf : Animal
         }
         if (item.IsInGroup("meat"))
         {
-            if (!meatsInside.Contains(item))
-                meatsInside.Add(item);
-
-            if (item is Interactable meatInteractable)
+            SceneTreeTimer timer = GetTree().CreateTimer(0.25f); // delay to see if wagon changees meat status
+            timer.Timeout += () =>
             {
-                if (meatInteractable.Carrier == null)
+                if (!meatsInside.Contains(item))
+                    meatsInside.Add(item);
+
+                if (item is Interactable meatInteractable)
                 {
-                    meatInRange = true;
-                    //label.Text = "Meat in range";
-                    targetPosition = meatInteractable.GlobalPosition;
-                    itemTarget = meatInteractable;
+                    if (meatInteractable.Carrier == null && !meatInteractable.isInWagon)
+                    {
+                        meatInRange = true;
+                        //label.Text = "Meat in range";
+                        targetPosition = meatInteractable.GlobalPosition;
+                        itemTarget = meatInteractable;
+                    }
+                    else
+                    {
+                        meatInRange = false;
+                        itemTarget = null;
+                    }
                 }
-                else
-                {
-                    meatInRange = false;
-                    itemTarget = null;
-                }
-            }
+            };
         }
     }
 

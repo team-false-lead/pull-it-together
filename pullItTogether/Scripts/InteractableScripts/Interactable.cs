@@ -9,6 +9,7 @@ public abstract partial class Interactable : RigidBody3D
     [Export] public string interactableId = "";
     [Export] public bool isTwoHanded;
     [Export] public string publicName = "";
+    [Export] public bool isInWagon = false;
     public string scenePath = "";
     public uint savedLayer, savedMask;
     public Vector3 savedScale;

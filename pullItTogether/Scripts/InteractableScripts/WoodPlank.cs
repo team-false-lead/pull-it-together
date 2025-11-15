@@ -5,7 +5,7 @@ using System;
 public partial class WoodPlank : Interactable
 {
     [Export] private MeshInstance3D mesh;
-    [Export] public bool isInWagon = false;
+    //[Export] public bool isInWagon = false;
 
     //spawn campfire when used on self
     public override void TryUseSelf(CharacterBody3D user)
