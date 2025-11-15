@@ -64,6 +64,12 @@ public partial class ItemManager : Node3D
 			//if (multiplayer.HasMultiplayerPeer() && isMultiplayerSession && !multiplayer.IsServer()) return;
 			GD.Print(GetPlayerControllerById(GetMultiplayerAuthority()).Name);
 			PrintDictionaryContents();
+			
+			var eventScene = ResourceLoader.Load<PackedScene>("res://Scenes/Events/BeaverEvent.tscn");
+			if (eventScene != null)
+			{
+				ExecuteEvent(eventScene, new Vector3(3f, 3f, -45f));
+			}
 		}
 	}
 
@@ -1163,6 +1169,50 @@ public partial class ItemManager : Node3D
 
 		//just dropping the plank first the beaver should detect it and pick it up through its BT
 		//DoBeaverPickupItem(beaverId, plankId); // have beaver pick up the plank
+	}
+
+	public void ExecuteEvent(PackedScene eventScene, Vector3 spawnPosition)
+	{
+		if (isMultiplayerSession && !multiplayer.IsServer()) return; // Only the server should handle event execution
+		var eventInstance = eventScene.Instantiate<Node3D>();
+		var eventScript = eventInstance as Event;
+
+		itemSpawnRegistry.AddChild(eventInstance, true); // local temp instance
+		eventInstance.SetOwner(GetTree().CurrentScene); // Ensure the instance is owned by the current scene
+		eventInstance.GlobalTransform = new Transform3D(Basis.Identity, spawnPosition);
+
+		eventScript.currentCooldown = eventScript.cooldownValue; // start cooldown
+
+		var childrenRelativePaths = new List<NodePath>();
+		var childrenIds = new List<string>();
+		CollectEventChildren(eventInstance, childrenRelativePaths, childrenIds);
+
+		foreach (var peerId in multiplayer.GetPeers())
+		{
+			if (peerId == multiplayer.GetUniqueId()) continue; // skip host
+			itemSpawnRegistry.RpcId(peerId, nameof(ItemSpawnRegistry.ClientSpawnEvent), eventScene.ResourcePath, eventInstance.GlobalTransform, 1, childrenRelativePaths.ToArray(), childrenIds.ToArray());
+		}
+	}
+
+	private void CollectEventChildren(Node eventInstance, List<NodePath> childrenRelativePaths, List<string> childrenIds)
+	{
+		foreach (var child in eventInstance.GetChildren())
+		{
+			//CollectEventChildren(child, childrenRelativePaths, childrenIds);// recurse into children
+
+			if (child is Interactable childInteractable)
+			{
+				AssignInteractableId(childInteractable);
+				childrenRelativePaths.Add(eventInstance.GetPathTo(childInteractable));
+				childrenIds.Add(childInteractable.interactableId);
+			}
+			else if (child is Entity childEntity)
+			{
+				AssignEntityId(childEntity);
+				childrenRelativePaths.Add(eventInstance.GetPathTo(childEntity));
+				childrenIds.Add(childEntity.entityId);
+			}
+		}
 	}
 	
 

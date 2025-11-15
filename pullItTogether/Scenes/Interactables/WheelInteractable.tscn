@@ -84,7 +84,7 @@ collision_mask = 29
 script = ExtResource("1_y3kp4")
 mesh = NodePath("WheelMesh")
 
-[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="." groups=["interactable"]]
 replication_config = SubResource("SceneReplicationConfig_on6pt")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]

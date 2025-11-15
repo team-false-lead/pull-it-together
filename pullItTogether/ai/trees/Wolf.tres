@@ -1,0 +1,555 @@
+[gd_resource type="BehaviorTree" load_steps=110 format=3 uid="uid://dimjhm4mhcp"]
+
+[ext_resource type="Script" uid="uid://b1gldnty3aw7v" path="res://ai/tasks/GetStalkPoint.gd" id="5_mfd21"]
+[ext_resource type="Script" uid="uid://6lwgcnin12uf" path="res://ai/tasks/LookAtWagon.gd" id="6_4mghh"]
+
+[sub_resource type="BlackboardPlan" id="BlackboardPlan_a4amu"]
+var/hasMeat/name = &"hasMeat"
+var/hasMeat/type = 1
+var/hasMeat/value = false
+var/hasMeat/hint = 0
+var/hasMeat/hint_string = ""
+var/meatInRange/name = &"meatInRange"
+var/meatInRange/type = 1
+var/meatInRange/value = false
+var/meatInRange/hint = 0
+var/meatInRange/hint_string = ""
+var/playerInRange/name = &"playerInRange"
+var/playerInRange/type = 1
+var/playerInRange/value = false
+var/playerInRange/hint = 0
+var/playerInRange/hint_string = ""
+var/hasPlayerTarget/name = &"hasPlayerTarget"
+var/hasPlayerTarget/type = 1
+var/hasPlayerTarget/value = false
+var/hasPlayerTarget/hint = 0
+var/hasPlayerTarget/hint_string = ""
+var/finishedAttackPlayer/name = &"finishedAttackPlayer"
+var/finishedAttackPlayer/type = 1
+var/finishedAttackPlayer/value = false
+var/finishedAttackPlayer/hint = 0
+var/finishedAttackPlayer/hint_string = ""
+var/wagonInRange/name = &"wagonInRange"
+var/wagonInRange/type = 1
+var/wagonInRange/value = false
+var/wagonInRange/hint = 0
+var/wagonInRange/hint_string = ""
+var/hasWagonTarget/name = &"hasWagonTarget"
+var/hasWagonTarget/type = 1
+var/hasWagonTarget/value = false
+var/hasWagonTarget/hint = 0
+var/hasWagonTarget/hint_string = ""
+var/inStalkRange/name = &"inStalkRange"
+var/inStalkRange/type = 1
+var/inStalkRange/value = false
+var/inStalkRange/hint = 0
+var/inStalkRange/hint_string = ""
+var/stalkTimerEnded/name = &"stalkTimerEnded"
+var/stalkTimerEnded/type = 1
+var/stalkTimerEnded/value = false
+var/stalkTimerEnded/hint = 0
+var/stalkTimerEnded/hint_string = ""
+binding/hasMeat = NodePath(".:hasItem")
+binding/meatInRange = NodePath(".:meatInRange")
+binding/playerInRange = NodePath(".:playerInRange")
+binding/hasPlayerTarget = NodePath(".:hasPlayerTarget")
+binding/finishedAttackPlayer = NodePath(".:finishedAttackPlayer")
+binding/wagonInRange = NodePath(".:wagonInRange")
+binding/hasWagonTarget = NodePath(".:hasWagonTarget")
+binding/inStalkRange = NodePath(".:inStalkRange")
+binding/stalkTimerEnded = NodePath(".:finishedStalkWagon")
+resource_local_to_scene = true
+
+[sub_resource type="BBVariant" id="BBVariant_mu0o3"]
+type = 1
+saved_value = true
+resource_name = "true"
+
+[sub_resource type="BTCheckVar" id="BTCheckVar_jrsvk"]
+variable = &"hasMeat"
+value = SubResource("BBVariant_mu0o3")
+
+[sub_resource type="GDScript" id="GDScript_jrsvk"]
+script/source = "class_name GetRandomPoint
+extends BTAction
+
+@export var patrol_radius: float = 5.0
+
+func _tick(_delta: float) -> Status:
+    if agent == null:
+        return Status.FAILURE
+    
+    var random_offset = Vector3(
+        randf_range(-patrol_radius, patrol_radius),
+        0,
+        randf_range(-patrol_radius, patrol_radius)
+    )
+    var random_point = agent.position + random_offset
+    agent.set(\"targetPosition\", random_point)
+    
+    return Status.SUCCESS"
+
+[sub_resource type="BTAction" id="BTAction_7s2bl"]
+script = SubResource("GDScript_jrsvk")
+patrol_radius = 15.0
+
+[sub_resource type="GDScript" id="GDScript_7jdii"]
+script/source = "class_name MoveTo
+extends BTAction
+
+@export var acceptance_radius: float = 1
+@export var slowdown_radius: float = 2
+
+func _tick(_delta: float) -> Status:
+	if agent == null:
+		return Status.FAILURE
+
+	var current_position = agent.call(\"GetInventorySlot\").global_transform.origin #agent.global_transform.origin
+	var target_position = agent.get(\"targetPosition\")
+	var distance_to_target = current_position.distance_to(target_position)
+	#print(\"Distance to target: \", distance_to_target)
+	if distance_to_target <= acceptance_radius:
+		agent.linear_velocity = Vector3.ZERO
+		return Status.SUCCESS
+
+	var speed = agent.get(\"movementSpeed\")
+	if distance_to_target <= slowdown_radius:
+		speed /= 2
+	
+	var direction = (target_position - current_position).normalized()
+	var desired_velocity = direction * speed
+	agent.linear_velocity = desired_velocity
+
+	if agent.linear_velocity.length() > 0.1:
+		agent.look_at(current_position + agent.linear_velocity, Vector3.UP)
+		agent.rotation_degrees.x = 90
+
+	return Status.RUNNING
+"
+
+[sub_resource type="BTAction" id="BTAction_v88ds"]
+script = SubResource("GDScript_7jdii")
+acceptance_radius = 1.0
+slowdown_radius = 2.0
+
+[sub_resource type="BTTimeLimit" id="BTTimeLimit_7y0tj"]
+children = [SubResource("BTAction_v88ds")]
+
+[sub_resource type="BTAlwaysSucceed" id="BTAlwaysSucceed_pak3h"]
+children = [SubResource("BTTimeLimit_7y0tj")]
+
+[sub_resource type="BTWait" id="BTWait_lsdq3"]
+duration = 2.0
+
+[sub_resource type="BTSequence" id="BTSequence_7r8yy"]
+custom_name = "Patrol"
+children = [SubResource("BTAction_7s2bl"), SubResource("BTAlwaysSucceed_pak3h"), SubResource("BTWait_lsdq3")]
+
+[sub_resource type="BTSequence" id="BTSequence_mu0o3"]
+custom_name = "Run Away With Meat"
+children = [SubResource("BTCheckVar_jrsvk"), SubResource("BTSequence_7r8yy")]
+
+[sub_resource type="BBVariant" id="BBVariant_gey36"]
+type = 1
+saved_value = true
+resource_name = "true"
+
+[sub_resource type="BTCheckVar" id="BTCheckVar_2c5ag"]
+variable = &"meatInRange"
+value = SubResource("BBVariant_gey36")
+
+[sub_resource type="BTAction" id="BTAction_1shfx"]
+script = SubResource("GDScript_7jdii")
+acceptance_radius = 1.0
+slowdown_radius = 2.0
+
+[sub_resource type="BTTimeLimit" id="BTTimeLimit_v88ds"]
+children = [SubResource("BTAction_1shfx")]
+
+[sub_resource type="GDScript" id="GDScript_mu0o3"]
+script/source = "class_name PickupItem
+extends BTAction
+
+func _tick(_delta: float) -> Status:
+	if agent == null:
+		return Status.FAILURE
+
+	if agent.call(\"PickupItem\") == true:
+		return Status.SUCCESS
+	else:
+		return Status.FAILURE
+"
+
+[sub_resource type="BTAction" id="BTAction_rewac"]
+script = SubResource("GDScript_mu0o3")
+
+[sub_resource type="BTSequence" id="BTSequence_jrsvk"]
+custom_name = "Grab Meat"
+children = [SubResource("BTCheckVar_2c5ag"), SubResource("BTTimeLimit_v88ds"), SubResource("BTAction_rewac")]
+
+[sub_resource type="BBVariant" id="BBVariant_7s2bl"]
+type = 1
+saved_value = true
+resource_name = "true"
+
+[sub_resource type="BTCheckVar" id="BTCheckVar_v88ds"]
+variable = &"playerInRange"
+value = SubResource("BBVariant_7s2bl")
+
+[sub_resource type="BBVariant" id="BBVariant_7y0tj"]
+type = 1
+saved_value = true
+resource_name = "true"
+
+[sub_resource type="BTCheckVar" id="BTCheckVar_pak3h"]
+variable = &"hasPlayerTarget"
+value = SubResource("BBVariant_7y0tj")
+
+[sub_resource type="BBVariant" id="BBVariant_v88ds"]
+type = 1
+saved_value = true
+resource_name = "true"
+
+[sub_resource type="BTCheckVar" id="BTCheckVar_7y0tj"]
+variable = &"hasMeat"
+value = SubResource("BBVariant_v88ds")
+
+[sub_resource type="BTRepeatUntilSuccess" id="BTRepeatUntilSuccess_pak3h"]
+custom_name = "StopIfHasMeat"
+children = [SubResource("BTCheckVar_7y0tj")]
+
+[sub_resource type="BBVariant" id="BBVariant_1jble"]
+type = 1
+saved_value = true
+resource_name = "true"
+
+[sub_resource type="BTCheckVar" id="BTCheckVar_gey36"]
+variable = &"meatInRange"
+value = SubResource("BBVariant_1jble")
+
+[sub_resource type="BTRepeatUntilSuccess" id="BTRepeatUntilSuccess_2c5ag"]
+custom_name = "StopIfMeatInRange"
+children = [SubResource("BTCheckVar_gey36")]
+
+[sub_resource type="BBVariant" id="BBVariant_a5r3k"]
+type = 1
+saved_value = false
+resource_name = "false"
+
+[sub_resource type="BTCheckVar" id="BTCheckVar_8nmy1"]
+variable = &"playerInRange"
+value = SubResource("BBVariant_a5r3k")
+
+[sub_resource type="BTRepeatUntilSuccess" id="BTRepeatUntilSuccess_r1g5r"]
+custom_name = "StopIfPlayersOutOfRange"
+children = [SubResource("BTCheckVar_8nmy1")]
+
+[sub_resource type="BTAction" id="BTAction_la6vc"]
+script = SubResource("GDScript_7jdii")
+acceptance_radius = 1.0
+slowdown_radius = 2.0
+
+[sub_resource type="BTParallel" id="BTParallel_5sjet"]
+children = [SubResource("BTRepeatUntilSuccess_r1g5r"), SubResource("BTAction_la6vc")]
+
+[sub_resource type="BBVariant" id="BBVariant_r1g5r"]
+type = 1
+saved_value = true
+resource_name = "true"
+
+[sub_resource type="BTCheckVar" id="BTCheckVar_5sjet"]
+variable = &"playerInRange"
+value = SubResource("BBVariant_r1g5r")
+
+[sub_resource type="GDScript" id="GDScript_yfyfl"]
+script/source = "class_name AttackPlayer
+extends BTAction
+
+func _tick(_delta: float) -> Status:
+    if agent == null:
+        return Status.FAILURE
+
+    if agent.call(\"AttackPlayer\") == true:
+        return Status.SUCCESS
+    else:
+        return Status.FAILURE"
+
+[sub_resource type="BTAction" id="BTAction_ur0qu"]
+script = SubResource("GDScript_yfyfl")
+
+[sub_resource type="BTWait" id="BTWait_4b36v"]
+
+[sub_resource type="BBVariant" id="BBVariant_7giye"]
+type = 1
+saved_value = true
+resource_name = "true"
+
+[sub_resource type="BTCheckVar" id="BTCheckVar_a5r3k"]
+variable = &"finishedAttackPlayer"
+value = SubResource("BBVariant_7giye")
+
+[sub_resource type="BTSequence" id="BTSequence_8nmy1"]
+custom_name = "Attack"
+children = [SubResource("BTParallel_5sjet"), SubResource("BTCheckVar_5sjet"), SubResource("BTAction_ur0qu"), SubResource("BTWait_4b36v"), SubResource("BTCheckVar_a5r3k")]
+
+[sub_resource type="BTParallel" id="BTParallel_7s2bl"]
+children = [SubResource("BTRepeatUntilSuccess_pak3h"), SubResource("BTRepeatUntilSuccess_2c5ag"), SubResource("BTSequence_8nmy1")]
+
+[sub_resource type="BTSequence" id="BTSequence_hmibo"]
+custom_name = "Attack Player"
+children = [SubResource("BTCheckVar_v88ds"), SubResource("BTCheckVar_pak3h"), SubResource("BTParallel_7s2bl")]
+
+[sub_resource type="BBVariant" id="BBVariant_8f5kg"]
+type = 1
+saved_value = true
+resource_name = "true"
+
+[sub_resource type="BTCheckVar" id="BTCheckVar_la6vc"]
+variable = &"hasWagonTarget"
+value = SubResource("BBVariant_8f5kg")
+
+[sub_resource type="BBVariant" id="BBVariant_4b36v"]
+type = 1
+saved_value = false
+resource_name = "false"
+
+[sub_resource type="BTCheckVar" id="BTCheckVar_w3kmg"]
+variable = &"inStalkRange"
+value = SubResource("BBVariant_4b36v")
+
+[sub_resource type="BBVariant" id="BBVariant_ur0qu"]
+type = 1
+saved_value = false
+resource_name = "false"
+
+[sub_resource type="BTCheckVar" id="BTCheckVar_4b36v"]
+variable = &"stalkTimerEnded"
+value = SubResource("BBVariant_ur0qu")
+
+[sub_resource type="BBVariant" id="BBVariant_8nmy1"]
+type = 1
+saved_value = true
+resource_name = "true"
+
+[sub_resource type="BTCheckVar" id="BTCheckVar_r1g5r"]
+variable = &"hasMeat"
+value = SubResource("BBVariant_8nmy1")
+
+[sub_resource type="BTRepeatUntilSuccess" id="BTRepeatUntilSuccess_5sjet"]
+custom_name = "StopIfHasMeat"
+children = [SubResource("BTCheckVar_r1g5r")]
+
+[sub_resource type="BBVariant" id="BBVariant_x4bfo"]
+type = 1
+saved_value = true
+resource_name = "true"
+
+[sub_resource type="BTCheckVar" id="BTCheckVar_q6hrm"]
+variable = &"meatInRange"
+value = SubResource("BBVariant_x4bfo")
+
+[sub_resource type="BTRepeatUntilSuccess" id="BTRepeatUntilSuccess_hkbci"]
+custom_name = "StopIfMeatInRange"
+children = [SubResource("BTCheckVar_q6hrm")]
+
+[sub_resource type="BBVariant" id="BBVariant_vru18"]
+type = 1
+saved_value = true
+resource_name = "true"
+
+[sub_resource type="BTCheckVar" id="BTCheckVar_vbvw7"]
+variable = &"playerInRange"
+value = SubResource("BBVariant_vru18")
+
+[sub_resource type="BTRepeatUntilSuccess" id="BTRepeatUntilSuccess_5feha"]
+custom_name = "StopIfPlayerInRange"
+children = [SubResource("BTCheckVar_vbvw7")]
+
+[sub_resource type="BTAction" id="BTAction_4mghh"]
+script = ExtResource("5_mfd21")
+
+[sub_resource type="BTAction" id="BTAction_8f5kg"]
+script = SubResource("GDScript_7jdii")
+acceptance_radius = 1.0
+slowdown_radius = 2.0
+
+[sub_resource type="BTTimeLimit" id="BTTimeLimit_la6vc"]
+children = [SubResource("BTAction_8f5kg")]
+
+[sub_resource type="BTAlwaysSucceed" id="BTAlwaysSucceed_ur0qu"]
+children = [SubResource("BTTimeLimit_la6vc")]
+
+[sub_resource type="BTAction" id="BTAction_4b36v"]
+script = ExtResource("6_4mghh")
+
+[sub_resource type="BTWait" id="BTWait_w3kmg"]
+
+[sub_resource type="BTSequence" id="BTSequence_nmrw8"]
+custom_name = "GetNewStalkPointInRange"
+children = [SubResource("BTAction_4mghh"), SubResource("BTAlwaysSucceed_ur0qu"), SubResource("BTAction_4b36v"), SubResource("BTWait_w3kmg")]
+
+[sub_resource type="BTParallel" id="BTParallel_yp0cj"]
+children = [SubResource("BTRepeatUntilSuccess_5sjet"), SubResource("BTRepeatUntilSuccess_hkbci"), SubResource("BTRepeatUntilSuccess_5feha"), SubResource("BTSequence_nmrw8")]
+
+[sub_resource type="BTSequence" id="BTSequence_moqcw"]
+custom_name = "Get In Stalk Range"
+children = [SubResource("BTCheckVar_la6vc"), SubResource("BTCheckVar_w3kmg"), SubResource("BTCheckVar_4b36v"), SubResource("BTParallel_yp0cj")]
+
+[sub_resource type="BBVariant" id="BBVariant_a4amu"]
+type = 1
+saved_value = true
+resource_name = "true"
+
+[sub_resource type="BTCheckVar" id="BTCheckVar_mfd21"]
+variable = &"hasWagonTarget"
+value = SubResource("BBVariant_a4amu")
+
+[sub_resource type="BBVariant" id="BBVariant_nmrw8"]
+type = 1
+saved_value = true
+resource_name = "true"
+
+[sub_resource type="BTCheckVar" id="BTCheckVar_7giye"]
+variable = &"inStalkRange"
+value = SubResource("BBVariant_nmrw8")
+
+[sub_resource type="BBVariant" id="BBVariant_la6vc"]
+type = 1
+saved_value = false
+resource_name = "false"
+
+[sub_resource type="BTCheckVar" id="BTCheckVar_ur0qu"]
+variable = &"stalkTimerEnded"
+value = SubResource("BBVariant_la6vc")
+
+[sub_resource type="BBVariant" id="BBVariant_jg0xx"]
+type = 1
+saved_value = false
+resource_name = "false"
+
+[sub_resource type="BTCheckVar" id="BTCheckVar_5a84x"]
+variable = &"wagonInRange"
+value = SubResource("BBVariant_jg0xx")
+
+[sub_resource type="BTRepeatUntilSuccess" id="BTRepeatUntilSuccess_btjbj"]
+custom_name = "StopIfTooFar"
+children = [SubResource("BTCheckVar_5a84x")]
+
+[sub_resource type="BBVariant" id="BBVariant_4mghh"]
+type = 1
+saved_value = true
+resource_name = "true"
+
+[sub_resource type="BTCheckVar" id="BTCheckVar_8f5kg"]
+variable = &"hasMeat"
+value = SubResource("BBVariant_4mghh")
+
+[sub_resource type="BTRepeatUntilSuccess" id="BTRepeatUntilSuccess_la6vc"]
+custom_name = "StopIfHasMeat"
+children = [SubResource("BTCheckVar_8f5kg")]
+
+[sub_resource type="BBVariant" id="BBVariant_w3kmg"]
+type = 1
+saved_value = true
+resource_name = "true"
+
+[sub_resource type="BTCheckVar" id="BTCheckVar_nmrw8"]
+variable = &"meatInRange"
+value = SubResource("BBVariant_w3kmg")
+
+[sub_resource type="BTRepeatUntilSuccess" id="BTRepeatUntilSuccess_7giye"]
+custom_name = "StopIfMeatInRange"
+children = [SubResource("BTCheckVar_nmrw8")]
+
+[sub_resource type="BBVariant" id="BBVariant_mfd21"]
+type = 1
+saved_value = true
+resource_name = "true"
+
+[sub_resource type="BTCheckVar" id="BTCheckVar_4mghh"]
+variable = &"playerInRange"
+value = SubResource("BBVariant_mfd21")
+
+[sub_resource type="BTRepeatUntilSuccess" id="BTRepeatUntilSuccess_8f5kg"]
+custom_name = "StopIfPlayerInRange"
+children = [SubResource("BTCheckVar_4mghh")]
+
+[sub_resource type="BTAction" id="BTAction_7giye"]
+script = ExtResource("5_mfd21")
+
+[sub_resource type="BTAction" id="BTAction_a5r3k"]
+script = SubResource("GDScript_7jdii")
+acceptance_radius = 1.0
+slowdown_radius = 2.0
+
+[sub_resource type="BTTimeLimit" id="BTTimeLimit_8nmy1"]
+children = [SubResource("BTAction_a5r3k")]
+
+[sub_resource type="BTAlwaysSucceed" id="BTAlwaysSucceed_r1g5r"]
+children = [SubResource("BTTimeLimit_8nmy1")]
+
+[sub_resource type="BTAction" id="BTAction_5sjet"]
+script = ExtResource("6_4mghh")
+
+[sub_resource type="BTWait" id="BTWait_x4bfo"]
+
+[sub_resource type="BTSequence" id="BTSequence_q6hrm"]
+custom_name = "Stalk"
+children = [SubResource("BTAction_7giye"), SubResource("BTAlwaysSucceed_r1g5r"), SubResource("BTAction_5sjet"), SubResource("BTWait_x4bfo")]
+
+[sub_resource type="BTParallel" id="BTParallel_hkbci"]
+children = [SubResource("BTRepeatUntilSuccess_btjbj"), SubResource("BTRepeatUntilSuccess_la6vc"), SubResource("BTRepeatUntilSuccess_7giye"), SubResource("BTRepeatUntilSuccess_8f5kg"), SubResource("BTSequence_q6hrm")]
+
+[sub_resource type="BTSequence" id="BTSequence_vru18"]
+custom_name = "Stalk Wagon"
+children = [SubResource("BTCheckVar_mfd21"), SubResource("BTCheckVar_7giye"), SubResource("BTCheckVar_ur0qu"), SubResource("BTParallel_hkbci")]
+
+[sub_resource type="BBVariant" id="BBVariant_rewac"]
+type = 1
+saved_value = true
+resource_name = "true"
+
+[sub_resource type="BTCheckVar" id="BTCheckVar_wxpr4"]
+variable = &"meatInRange"
+value = SubResource("BBVariant_rewac")
+
+[sub_resource type="BTRepeatUntilSuccess" id="BTRepeatUntilSuccess_hmibo"]
+custom_name = "StopIfMeatInRange"
+children = [SubResource("BTCheckVar_wxpr4")]
+
+[sub_resource type="BTAction" id="BTAction_out0v"]
+script = SubResource("GDScript_jrsvk")
+patrol_radius = 5.0
+
+[sub_resource type="BTAction" id="BTAction_k57rh"]
+script = SubResource("GDScript_7jdii")
+acceptance_radius = 1.0
+slowdown_radius = 2.0
+
+[sub_resource type="BTTimeLimit" id="BTTimeLimit_7s2bl"]
+children = [SubResource("BTAction_k57rh")]
+
+[sub_resource type="BTAlwaysSucceed" id="BTAlwaysSucceed_7s2bl"]
+children = [SubResource("BTTimeLimit_7s2bl")]
+
+[sub_resource type="BTWait" id="BTWait_xcr1a"]
+duration = 2.0
+
+[sub_resource type="BTSequence" id="BTSequence_mcitd"]
+custom_name = "Patrol"
+children = [SubResource("BTAction_out0v"), SubResource("BTAlwaysSucceed_7s2bl"), SubResource("BTWait_xcr1a")]
+
+[sub_resource type="BTParallel" id="BTParallel_mbbb1"]
+custom_name = "PatrolUnlessMeat"
+children = [SubResource("BTRepeatUntilSuccess_hmibo"), SubResource("BTSequence_mcitd")]
+
+[sub_resource type="BTWait" id="BTWait_7s2bl"]
+custom_name = "Fail Safe Wait"
+
+[sub_resource type="BTSelector" id="BTSelector_jrsvk"]
+custom_name = "Sel - Root"
+children = [SubResource("BTSequence_mu0o3"), SubResource("BTSequence_jrsvk"), SubResource("BTSequence_hmibo"), SubResource("BTSequence_moqcw"), SubResource("BTSequence_vru18"), SubResource("BTParallel_mbbb1"), SubResource("BTWait_7s2bl")]
+
+[resource]
+blackboard_plan = SubResource("BlackboardPlan_a4amu")
+root_task = SubResource("BTSelector_jrsvk")

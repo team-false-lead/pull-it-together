@@ -25,7 +25,7 @@ top_radius = 0.75
 bottom_radius = 0.75
 height = 0.5
 
-[node name="Wheel" type="RigidBody3D" groups=["wheel"]]
+[node name="Wheel" type="RigidBody3D" groups=["entity", "wheel"]]
 transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 0, 0, 0)
 collision_layer = 8
 collision_mask = 29

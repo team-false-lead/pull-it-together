@@ -32,8 +32,8 @@ public partial class PlayerController : CharacterBody3D
 	private float bobTimer = 0.0f;
 
 	// Interaction parameters
-	private Interactable heldObject = null;
-	private Interactable offhandObject = null;
+	public Interactable heldObject = null;
+	public Interactable offhandObject = null;
 	private bool HeldValid() => heldObject != null && IsInstanceValid(heldObject) && !heldObject.IsQueuedForDeletion() && heldObject.IsInsideTree();
 	private bool OffhandValid () => offhandObject != null && IsInstanceValid(offhandObject) && !offhandObject.IsQueuedForDeletion() && offhandObject.IsInsideTree();
     [Export] public NodePath inventorySlotPath;
@@ -95,8 +95,13 @@ public partial class PlayerController : CharacterBody3D
 	[Export] public float heaveTime = 0.5f;
 	[Export] public float heaveCooldown = 2.5f;
 	private Vector3 heaveVelocity = Vector3.Zero;
-	
+
 	private GameStateTracker gameStateTracker;
+	[Export] public ItemDetector itemDetector;
+
+	private Label totalStressLabel;
+	private Label rawStressLabel;
+	private float totalStressValue = 0f;
 
 
 	public bool IsDowned
@@ -131,8 +136,16 @@ public partial class PlayerController : CharacterBody3D
 			{
 				TogglePaused(false);
 			};
-
 			pauseMenu.ExitButton.Pressed += ExitLobby;
+
+			var mapManager = GetTree().CurrentScene.GetNodeOrNull<Node>("%MapManager");
+			if (mapManager != null)
+			{
+				mapManager.Connect("map_reloaded", new Callable(this, nameof(OnMapReloaded)));
+				var level_instance = (Node)mapManager.Get("level_instance");
+				gameStateTracker = level_instance.GetNodeOrNull<GameStateTracker>("GameStateTracker");
+				level_instance.GetNodeOrNull<Node3D>("Terrain3D").Call("set_camera", camera);
+			}
 			
             // Load the player HUD
             Control HUD = (Control)hudScene.Instantiate();
@@ -142,9 +155,11 @@ public partial class PlayerController : CharacterBody3D
             energyBar = HUD.GetNode<ProgressBar>("EnergyBar/EnergyProgressBar");
             fatigueBar = HUD.GetNode<ProgressBar>("EnergyBar/FatigueProgressBar");
 			outOfHealthLabel = HUD.GetNode<Label>("OutOfHealthLabel");
-			debugTrackerLabel = HUD.GetNode<Label>("DebugTrackerLabel");
+			debugTrackerLabel = HUD.GetNode<Label>("DebugContainer/DebugTrackerLabel");
 			inStormLabel = HUD.GetNode<Label>("InStormLabel");
 			lookingAtLabel = HUD.GetNode<Label>("LookingAtLabel");
+			totalStressLabel = HUD.GetNode<Label>("DebugContainer/TotalStressLabel");
+			rawStressLabel = HUD.GetNode<Label>("DebugContainer/RawStressLabel");
 			itemInstructionsLabel = HUD.GetNode<RichTextLabel>("ItemInstructionsLabel");
 
 			// Set health and energy values to their default
@@ -172,14 +187,6 @@ public partial class PlayerController : CharacterBody3D
 
 		//interactMaskUint = (uint)(1 << (interactLayer - 1));// Convert layer number to bitmask
 
-		var mapManager = GetTree().CurrentScene.GetNodeOrNull<Node>("%MapManager");
-		if (mapManager != null)
-		{
-			mapManager.Connect("map_reloaded", new Callable(this, nameof(OnMapReloaded)));
-			var level_instance = (Node)mapManager.Get("level_instance");
-			gameStateTracker = level_instance.GetNodeOrNull<GameStateTracker>("GameStateTracker");
-			level_instance.GetNodeOrNull<Node3D>("Terrain3D").Call("set_camera", camera);
-		}
 		ApplyBodyColor(bodyColor);
 	}
 
@@ -494,6 +501,20 @@ public partial class PlayerController : CharacterBody3D
 		else
 			debugTrackerLabel.Text += "\nIs lobby peer";
 
+		if (Multiplayer.HasMultiplayerPeer() && Multiplayer.IsServer())
+		{
+			if (gameStateTracker != null && gameStateTracker.totalStressLevel != totalStressValue) // only update if changed
+			{
+				totalStressValue = gameStateTracker.totalStressLevel;
+				totalStressLabel.Text = "Team Stress: " + Math.Round(totalStressValue, 4);
+				rawStressLabel.Text = "Raw Stress\nPlayers=" + Math.Round(gameStateTracker.playersStatusStressRaw, 4) + "\nWagon=" + Math.Round(gameStateTracker.wagonStressRaw, 4) + "\nStorm=" + Math.Round(gameStateTracker.stormStressRaw, 4) + "\nEnv=" + Math.Round(gameStateTracker.environmentalStressRaw, 4);
+			}
+		}
+        else
+        {
+			totalStressLabel.Text = "";
+			rawStressLabel.Text = "";
+        }
 		UpdateItemInstructionsText();
     }
 

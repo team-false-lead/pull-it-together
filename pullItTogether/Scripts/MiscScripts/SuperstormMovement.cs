@@ -9,7 +9,7 @@ public partial class SuperstormMovement : Area3D
 	[Export] public GpuParticles3D rainParticles;
 	[Export] public float dropSpeed = 45f;
 	[Export] public float rainDensity = 1f;
-	[Export] CollisionShape3D stormCollider;
+	[Export] public CollisionShape3D stormCollider;
 	[Export] FogVolume fogVolume;
 	[Export] public float effectorParallaxMaxMultiplier = 400f;
 	[Export] public Node3D interactablesNode;
