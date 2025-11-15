@@ -4,12 +4,15 @@ using System.Reflection.Metadata.Ecma335;
 
 public partial class Animal : Entity
 {
+    [Export] public float currentHealth = 100; //export to use on multiPlayer syncer
+    //[Export] public float damageToTake = 100;
     [Export] public Label3D label;
     [Export] public Node BT;
     [Export] public float movementSpeed = 5f;
     [Export] public Vector3 targetPosition;
     [Export] public Node3D inventorySlot;
     [Export] public bool hasItem = false;
+    public string heldItemId = "";
     [Export] public bool hasItemTarget = false;
     public Interactable itemTarget = null;
     [Export] public Vector3 spawnPosition;
@@ -34,6 +37,13 @@ public partial class Animal : Entity
     // Logic for accepting use from food items
     public override void AcceptUseFrom(CharacterBody3D user, Interactable source)
     {
+        if (source is Hatchet hatchet)
+        {
+            hatchet.PlayChopAnimation();
+            TakeDamage(100f); // remove hard code later
+            return;
+        }
+
         if (itemManager == null) InitReferences();
         var id = GetEntityId(); //get unique id, default to name
 
@@ -100,5 +110,18 @@ public partial class Animal : Entity
             return inventorySlot;
         }
         return null;
+    }
+
+    public void TakeDamage(float damage)
+    {
+        currentHealth -= damage;
+        if (currentHealth <= 0)
+        {
+            if (hasItem)
+            {
+                itemManager.DoDespawnItem(heldItemId);
+            }
+            itemManager.DoSpawnItem(GetEntityId());
+        }
     }
 }

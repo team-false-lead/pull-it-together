@@ -72,7 +72,7 @@ public partial class Wolf : Animal
     // By default, entities do not accept being used on them
     public override bool CanAcceptUseFrom(CharacterBody3D user, Interactable source)
     {
-        if (source.IsInGroup("meat") && !hasItem)
+        if (source.IsInGroup("hatchet") || (source.IsInGroup("meat") && !hasItem))
         {
             return true;
         }

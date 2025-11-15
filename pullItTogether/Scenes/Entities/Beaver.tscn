@@ -67,21 +67,19 @@ height = 0.1
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_30wci"]
 albedo_color = Color(0, 0, 0, 1)
 
-[node name="Beaver" type="RigidBody3D" node_paths=PackedStringArray("label", "plankDetector", "wagonDetector", "BT", "inventorySlot")]
+[node name="Beaver" type="RigidBody3D" node_paths=PackedStringArray("plankDetector", "wagonDetector", "label", "BT", "inventorySlot")]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0)
 collision_layer = 33
 collision_mask = 13
 axis_lock_angular_x = true
 axis_lock_angular_z = true
 script = ExtResource("1_vg7qi")
-damageToTake = 50.0
-label = NodePath("Label3D")
 plankDetector = NodePath("PlankDetector")
 wagonDetector = NodePath("WagonDetector2")
+wheelScene = ExtResource("2_lhu0b")
 label = NodePath("Label3D")
 BT = NodePath("BTPlayer")
 inventorySlot = NodePath("BeaverSlot")
-wheelScene = ExtResource("2_lhu0b")
 SpawnOnUseScene = ExtResource("3_bwxc5")
 publicName = "Beaver?"
 

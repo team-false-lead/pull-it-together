@@ -4,8 +4,8 @@ using System.Reflection.Metadata.Ecma335;
 
 public partial class Beaver : Animal
 {
-    [Export] public float currentHealth = 100; //export to use on multiPlayer syncer
-    [Export] public float damageToTake = 100;
+    //[Export] public float currentHealth = 100; //export to use on multiPlayer syncer
+    //[Export] public float damageToTake = 100;
     //[Export] public Label3D label;
     [Export] public ItemDetector plankDetector;
     [Export] public ItemDetector wagonDetector;
@@ -55,40 +55,11 @@ public partial class Beaver : Animal
     // By default, entities do not accept being used on them
     public override bool CanAcceptUseFrom(CharacterBody3D user, Interactable source)
     {
-        if (source.IsInGroup("hatchet") || (source.IsInGroup("plank") && !hasPlank))
+        if (source.IsInGroup("hatchet") || (source.IsInGroup("plank") && !hasItem))
         {
             return true;
         }
         return false;
-    }
-
-    // Logic for accepting use from food items
-    public override void AcceptUseFrom(CharacterBody3D user, Interactable source)
-    {
-        if (source is Hatchet hatchet)
-        {
-            hatchet.PlayChopAnimation();
-            TakeDamage(100f); // remove hard code later
-            return;
-        }
-
-        if (itemManager == null) InitReferences();
-        var id = GetEntityId(); //get unique id, default to name
-
-        // Request spawn via RPC if not server
-        if (multiplayerActive && !multiplayer.IsServer())
-        {
-            var error = itemManager.RpcId(1, nameof(ItemManager.RequestGiveBeaverPlank), id, source.GetInteractableId());
-            if (error != Error.Ok)
-            {
-                GD.PrintErr("Beaver: Failed to request use via RPC. Error: " + error);
-                return;
-            }
-        }
-        else // Server or single-player handles spawn directly
-        {
-            itemManager.DoGiveBeaverPlank(id, source.GetInteractableId());
-        }
     }
 
     public override void _PhysicsProcess(double delta)
@@ -265,27 +236,14 @@ public partial class Beaver : Animal
         return false;
     }
 
-    public Node3D GetInventorySlot()
-    {
-        if (inventorySlot != null)
-        {
-            return inventorySlot;
-        }
-        return null;
-    }
-
-    public void TakeDamage(float damage)
-    {
-        currentHealth -= damage;
-        if (currentHealth <= 0)
-        {
-            if (hasPlank)
-            {
-                itemManager.DoDespawnItem(heldPlankId);
-            }
-            itemManager.DoSpawnItem(GetEntityId());
-        }
-    }
+    //public Node3D GetInventorySlot()
+    //{
+    //    if (inventorySlot != null)
+    //    {
+    //        return inventorySlot;
+    //    }
+    //    return null;
+    //}
 
     public override void ToggleHighlighted(bool highlighted)
     {

@@ -4,6 +4,7 @@ using System;
 /// an arrow that can be used with a bow
 public partial class Arrow : Interactable
 {
+    [Export] public float damage = 34f;
     [Export] public float speed = 25f;
     [Export] public float linearDamp = 0.05f;
     [Export] public float angularDamp = 4f;
@@ -40,9 +41,9 @@ public partial class Arrow : Interactable
             AngularVelocity = Vector3.Zero;
             Freeze = true;
             Node3D collider = GetCollidingBodies()[0];
-            if (collider is Beaver beaver)
+            if (collider is Animal animal)
             {
-                beaver.TakeDamage(beaver.damageToTake);
+                animal.TakeDamage(damage);
             }
             StartDespawnTimer();
             SetPhysicsProcess(false);

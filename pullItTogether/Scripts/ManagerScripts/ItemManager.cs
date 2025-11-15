@@ -1079,6 +1079,7 @@ public partial class ItemManager : Node3D
 
 		item.StartFollowingSlot(slot);
 		animal.hasItem = true;
+		animal.heldItemId = itemId;
 		//plank.Carrier = animal;
 	}
 

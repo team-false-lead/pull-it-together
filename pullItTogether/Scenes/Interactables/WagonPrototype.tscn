@@ -1,4 +1,4 @@
-[gd_scene load_steps=28 format=3 uid="uid://b2cc2nt2bpja0"]
+[gd_scene load_steps=29 format=3 uid="uid://b2cc2nt2bpja0"]
 
 [ext_resource type="Script" uid="uid://dja12uyulc7ee" path="res://addons/verlet_rope_4/Physics/VerletRopeRigid.cs" id="1_24ylq"]
 [ext_resource type="Script" uid="uid://toi5sicfb28n" path="res://Scripts/Wagon/Wagon.cs" id="1_f8cd6"]
@@ -111,7 +111,7 @@ properties/17/path = NodePath("GrabPoint4:visible")
 properties/17/spawn = true
 properties/17/replication_mode = 2
 
-[node name="WagonPrototype" type="RigidBody3D" node_paths=PackedStringArray("wheels", "itemDetector") groups=["wagon"]]
+[node name="WagonPrototype" type="RigidBody3D" node_paths=PackedStringArray("wheels", "perchPoints", "itemDetector") groups=["wagon"]]
 collision_layer = 4
 collision_mask = 9
 mass = 850.0
@@ -125,6 +125,7 @@ linearXMultiplier = 0.5
 angularYMultiplier = 0.96
 wheels = [NodePath("Wheels/WheelFL"), NodePath("Wheels/WheelFR"), NodePath("Wheels/WheelBL"), NodePath("Wheels/WheelBR")]
 frictionPerWheel = 0.02
+perchPoints = [NodePath("Perches/BirdPerch"), NodePath("Perches/BirdPerch2")]
 itemDetector = NodePath("InsideWagonArea")
 
 [node name="WagonBodyMesh" parent="." instance=ExtResource("6_bdj2n")]
