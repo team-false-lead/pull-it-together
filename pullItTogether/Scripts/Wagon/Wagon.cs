@@ -13,11 +13,22 @@ public partial class Wagon : RigidBody3D
     [Export] float frictionPerWheel;
     [Export] public Node3D[] perchPoints;
 
+    [Export] public ItemDetector itemDetector;
     public float wheel1 = 0;
     public float wheel2 = 0;
     public float wheel3 = 0;
     public float wheel4 = 0;
     public Vector3 localVelocity;
+
+    public override void _Ready()
+    {
+        base._Ready();
+        if (itemDetector != null)
+        {
+            itemDetector.FilteredBodyEntered += OnItemsAdded;
+            itemDetector.FilteredBodyExited += OnItemsRemoved;
+        }
+    }
 
     // Limits sideways velocity to prevent unrealistic turning
     public override void _IntegrateForces(PhysicsDirectBodyState3D state)
@@ -77,6 +88,49 @@ public partial class Wagon : RigidBody3D
 
         PhysicsMaterialOverride.Friction = 0.05f + wheel1 + wheel2 + wheel3 + wheel4;
         //GD.Print(PhysicsMaterialOverride.Friction);
+        ScaleWeightPlayerCount();
     }
 
+    public void ScaleWeightPlayerCount()
+    {
+        var playersArray = GetTree().GetNodesInGroup("players"); // get current players
+        //GD.Print(playersArray.Count + ": " + Mass);
+
+        if (playersArray.Count == 1 && Mass != 400f)
+        {
+            Mass = 400f;
+        }
+        else if (playersArray.Count == 2 && Mass != 550f)
+        {
+            Mass = 550f;
+        }
+        else if (playersArray.Count == 3 && Mass != 700f)
+        {
+            Mass = 700f;
+        }
+        else if (playersArray.Count == 4 && Mass != 850f)
+        {
+            Mass = 850f;
+        }
+    }
+
+    private void OnItemsAdded(Node3D body)
+    {
+        GD.Print("Wagon detected item added: " + body.Name);
+        if (body is WoodPlank plank)
+        {
+            plank.isInWagon = true;
+            GD.Print("plank in: " + plank.isInWagon);
+        }
+    }
+
+    private void OnItemsRemoved(Node3D body)
+    {
+        GD.Print("Wagon detected item removed: " + body.Name);
+        if (body is WoodPlank plank)
+        {
+            plank.isInWagon = false;
+            GD.Print("plank in: " + plank.isInWagon);
+        }
+    }
 }

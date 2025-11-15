@@ -1,0 +1,11 @@
+[gd_resource type="StandardMaterial3D" load_steps=2 format=3 uid="uid://dwhxw3s7j5pvq"]
+
+[ext_resource type="Texture2D" uid="uid://bfacq3t6lscl2" path="res://Textures/Entities/txr_bush_bc.png" id="1_abab2"]
+
+[resource]
+resource_local_to_scene = true
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("1_abab2")
+emission_enabled = true

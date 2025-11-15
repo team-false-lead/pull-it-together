@@ -39,6 +39,7 @@ public abstract partial class Interactable : RigidBody3D
     //if no id and not server, warn that waiting for id replication
     public override void _Ready()
     {
+        InitReferences();
         var sync = GetNodeOrNull<MultiplayerSynchronizer>("MultiplayerSynchronizer");
         if (sync == null)
         {
@@ -79,7 +80,10 @@ public abstract partial class Interactable : RigidBody3D
             //GlobalTransform = followTarget.GlobalTransform; // Snap to target position and rotation
             //Scale = savedScale; // Maintain original scale
             GlobalPosition = followTarget.GlobalPosition;
-            GlobalRotation = followTarget.GlobalRotation;
+            if (followTarget.Name.Equals("BeaverSlot"))
+                GlobalRotation = followTarget.GlobalRotation; // follow beaver slot rotation
+            else
+                GlobalRotation = followTarget.GetParent<Node3D>().GlobalRotation; // rotate with player head
         }
         //else reset to normal physics behavior
     }
