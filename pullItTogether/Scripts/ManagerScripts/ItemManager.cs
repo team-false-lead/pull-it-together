@@ -420,7 +420,7 @@ public partial class ItemManager : Node3D
 				interactables.Remove(id); // Clean up invalid reference
 			}
 		}
-		GD.Print("ItemManager: Interactable with ID " + id + " not found or invalid.");
+		//GD.Print("ItemManager: Interactable with ID " + id + " not found or invalid.");
 		return null;
 	}
 
@@ -471,10 +471,23 @@ public partial class ItemManager : Node3D
 	public void DoSpawnItem(string itemId)
 	{
 		GD.Print("ItemManager: DoSpawnItem called for " + itemId);
-		var requestingItem = FindInteractableById(itemId);
-		if (requestingItem == null) { GD.Print("Requesting Item null"); return; }
+		PackedScene itemToSpawnScene = null;
+		Interactable requestingItem = FindInteractableById(itemId);
+		Entity requestingEntity = FindEntityById(itemId);
+		if (requestingItem == null)
+		{
+			if (requestingEntity == null)
+			{
+				GD.Print("Requesting Item and Entity null");
+				return;
+			}
+			else
+				itemToSpawnScene = requestingEntity.SpawnOnUseScene;
+		}
+		else
+			itemToSpawnScene = requestingItem.SpawnOnUseScene;
 
-		var itemToSpawnScene = requestingItem.SpawnOnUseScene;
+		GD.Print("ItemManager: Spawning item from " + itemToSpawnScene.ToString());
 		if (itemToSpawnScene == null) { GD.Print("SpawnOnUseScene null"); return; }
 
 		var instance = itemToSpawnScene.Instantiate<Node3D>(); // assuming all interactables and entities are Node3D or derived
@@ -483,8 +496,15 @@ public partial class ItemManager : Node3D
 		itemSpawnRegistry.AddChild(instance, true); // local temp instance
 		instance.SetOwner(GetTree().CurrentScene); // Ensure the instance is owned by the current scene
 
-		Vector3 dropPosition = GetDropPosition(requestingItem); // drop in front of the user of the item
-		instance.GlobalTransform = new Transform3D(Basis.Identity, dropPosition);
+		Vector3 dropPosition;
+		float smallOffset = (float)GD.RandRange(0f, 1f);
+		if (requestingItem != null)
+			dropPosition = GetDropPosition(requestingItem); // drop in front of the user of the item
+		else
+			dropPosition = requestingEntity.GlobalTransform.Origin + new Vector3(smallOffset, smallOffset, smallOffset); // drop above the entity
+
+		instance.GlobalTransform = new Transform3D(instance.GlobalTransform.Basis, dropPosition);
+		GD.Print("ItemManager: Dropping spawned item at " + dropPosition.ToString());
 
 		string tempId = "";
 		string tempScenePath = "";
@@ -493,14 +513,21 @@ public partial class ItemManager : Node3D
 		if (instance is Interactable instanceInteractable)
 		{
 			tempId = instanceInteractable.interactableId;
-			instanceInteractable.scenePath = requestingItem.SpawnOnUseScene.ResourcePath;
+			if (requestingItem != null)
+				instanceInteractable.scenePath = requestingItem.SpawnOnUseScene.ResourcePath;
+			else
+				instanceInteractable.scenePath = requestingEntity.SpawnOnUseScene.ResourcePath;
 			tempScenePath = instanceInteractable.scenePath;
+
 			//itemSpawnRegistry.RpcId(peerId, nameof(ItemSpawnRegistry.ClientSpawnItem), instanceInteractable.scenePath, tempId, instance.GlobalTransform, 1);
 		}
 		else if (instance is Entity instanceEntity)
 		{
 			tempId = instanceEntity.entityId;
-			instanceEntity.scenePath = requestingItem.SpawnOnUseScene.ResourcePath;
+			if (requestingItem != null)
+				instanceEntity.scenePath = requestingItem.SpawnOnUseScene.ResourcePath;
+			else
+				instanceEntity.scenePath = requestingEntity.SpawnOnUseScene.ResourcePath;
 			tempScenePath = instanceEntity.scenePath;
 			//itemSpawnRegistry.RpcId(peerId, nameof(ItemSpawnRegistry.ClientSpawnItem), instanceEntity.scenePath, tempId, instance.GlobalTransform, 1);
 		}
@@ -520,6 +547,24 @@ public partial class ItemManager : Node3D
 		}
 
 		//requestingItem.QueueFree(); // remove the used item
+		itemSpawnRegistry.ClientDespawnItem(itemId); // remove locally first
+		foreach (var peerId in multiplayer.GetPeers())
+		{
+			//if (peerId == multiplayer.GetUniqueId()) continue;
+			itemSpawnRegistry.RpcId(peerId, nameof(ItemSpawnRegistry.ClientDespawnItem), itemId);
+		}
+	}
+
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer)]
+	public void RequestDespawnItem(string itemId)
+	{
+		GD.Print("ItemManager: RequestDespawnItem called for " + itemId);
+		if (multiplayer.HasMultiplayerPeer() && isMultiplayerSession && !multiplayer.IsServer()) return; // Only the server should handle despawning
+		DoDespawnItem(itemId);
+	}
+
+	public void DoDespawnItem(string itemId)
+	{
 		itemSpawnRegistry.ClientDespawnItem(itemId); // remove locally first
 		foreach (var peerId in multiplayer.GetPeers())
 		{
@@ -1040,6 +1085,7 @@ public partial class ItemManager : Node3D
 
 		item.StartFollowingSlot(slot);
 		beaver.hasPlank = true;
+		beaver.heldPlankId = itemId;
 		//plank.Carrier = beaver;
 	}
 
@@ -1058,7 +1104,7 @@ public partial class ItemManager : Node3D
 		var beaver = FindEntityById(beaverId) as Beaver;
 		if (beaver == null) { GD.Print("Beaver null"); return; }
 
-		var wheelScene = beaver.SpawnOnUseScene;
+		var wheelScene = beaver.wheelScene;
 		if (wheelScene == null) { GD.Print("Wheel Scene null"); return; }
 
 		var instance = wheelScene.Instantiate<RigidBody3D>(); // assuming all interactables and entities are RigidBody3D or derived
@@ -1165,6 +1211,96 @@ public partial class ItemManager : Node3D
 				AssignEntityId(childEntity);
 				childrenRelativePaths.Add(eventInstance.GetPathTo(childEntity));
 				childrenIds.Add(childEntity.entityId);
+			}
+		}
+	}
+	
+
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer)] // Allow any peer to request chopping log
+	public void RequestChopLog(string logId)
+	{
+		GD.Print("ItemManager: RequestChopLog called for " + logId);
+		if (multiplayer.HasMultiplayerPeer() && isMultiplayerSession && !multiplayer.IsServer()) return; // Only the server should handle chopping
+		DoChopLog(logId);
+	}
+
+	public void DoChopLog(string logId)
+	{
+		var log = FindEntityById(logId) as Log;
+		if (log == null) { GD.Print("Log null"); return; }
+
+		log.currentHealth -= log.damageToTake;
+		if (log.currentHealth <= 0)
+		{
+			log.GiveWoodPlanks();
+
+			itemSpawnRegistry.ClientDespawnItem(logId); // despawn locally first
+			foreach (var peerId in multiplayer.GetPeers())
+			{
+				//if (peerId == multiplayer.GetUniqueId()) continue;
+				itemSpawnRegistry.RpcId(peerId, nameof(ItemSpawnRegistry.ClientDespawnItem), logId);
+			}
+		}
+	}
+
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer)] // Allow any peer to request firing arrow
+	public void RequestFireArrow(string bowId)
+	{
+		GD.Print("ItemManager: RequestFireArrow called for " + bowId);
+		if (multiplayer.HasMultiplayerPeer() && isMultiplayerSession && !multiplayer.IsServer()) return; // Only the server should handle firing
+		DoFireArrow(bowId);
+	}
+
+	public void DoFireArrow(string bowId)
+	{
+		var bow = FindInteractableById(bowId) as Bow;
+		if (bow == null) { GD.Print("Bow null"); return; }
+
+		PackedScene itemToSpawnScene = bow.SpawnOnUseScene;
+		if (itemToSpawnScene == null) { GD.Print("arrowScene null"); return; }
+		var instance = itemToSpawnScene.Instantiate<Node3D>(); // assuming all interactables and entities are Node3D or derived
+		PlayerController bowCarrier = bow.Carrier as PlayerController;
+		if(bowCarrier != null)
+		{
+			Transform3D targetTransform = bowCarrier.camera.GlobalTransform;
+			targetTransform.Origin += -targetTransform.Basis.Z.Normalized();
+			instance.GlobalTransform = targetTransform; // spawn at player camera position and rotation before adding child
+        }
+		else
+			instance.GlobalTransform = bow.GlobalTransform; // spawn at bow position and rotation before adding child
+
+		PreAssignId(instance);
+		itemSpawnRegistry.AddChild(instance, true); // local temp instance
+		instance.SetOwner(GetTree().CurrentScene); // Ensure the instance is owned by the current scene
+		
+
+		string tempId = "";
+		string tempScenePath = "";
+		Transform3D tempTransform = instance.GlobalTransform;
+
+		if (instance is Interactable instanceInteractable)
+		{
+			tempId = instanceInteractable.interactableId;
+			instanceInteractable.scenePath = bow.SpawnOnUseScene.ResourcePath;
+			tempScenePath = instanceInteractable.scenePath;
+		}
+		else
+			return; // exit early and do not broadcast
+
+		foreach (var peerId in multiplayer.GetPeers())
+		{
+			itemSpawnRegistry.RpcId(peerId, nameof(ItemSpawnRegistry.ClientSpawnItem), tempScenePath, tempId, tempTransform, 1);
+		}
+
+		bow.currentAmmo -= 1;
+		bow.UpdateAmmoLabel();
+		if (bow.currentAmmo <= 0)
+		{
+			itemSpawnRegistry.ClientDespawnItem(bowId); // despawn locally first
+			foreach (var peerId in multiplayer.GetPeers())
+			{
+				//if (peerId == multiplayer.GetUniqueId()) continue;
+				itemSpawnRegistry.RpcId(peerId, nameof(ItemSpawnRegistry.ClientDespawnItem), bowId);
 			}
 		}
 	}

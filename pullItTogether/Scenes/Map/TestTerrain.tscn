@@ -1,4 +1,4 @@
-[gd_scene load_steps=26 format=3 uid="uid://b518v5yn7ig5o"]
+[gd_scene load_steps=30 format=3 uid="uid://b518v5yn7ig5o"]
 
 [ext_resource type="PackedScene" uid="uid://ddkl7vjoqp5kd" path="res://Scenes/GameStateTracker.tscn" id="1_eicjb"]
 [ext_resource type="Terrain3DAssets" uid="uid://dal3jhw6241qg" path="res://demo/data/assets.tres" id="1_in7uf"]
@@ -12,8 +12,12 @@
 [ext_resource type="PackedScene" uid="uid://ba4fbx16j3l67" path="res://Scenes/Entities/Beaver.tscn" id="13_iddi4"]
 [ext_resource type="PackedScene" uid="uid://cllu1opbcu5ux" path="res://Scenes/Interactables/Food_Poisonberry.tscn" id="13_nvhef"]
 [ext_resource type="PackedScene" uid="uid://dutt28pb7vdid" path="res://Scenes/Interactables/Food_Tonic.tscn" id="14_pigjd"]
+[ext_resource type="PackedScene" uid="uid://cudb13yj568gq" path="res://Scenes/Entities/Log.tscn" id="14_w1dx0"]
 [ext_resource type="PackedScene" uid="uid://drat1km3kl28w" path="res://Scenes/Interactables/Food_Meat.tscn" id="15_6x6jt"]
+[ext_resource type="PackedScene" uid="uid://wn25tsfnopfm" path="res://Scenes/Interactables/Hatchet.tscn" id="15_nvhef"]
 [ext_resource type="PackedScene" uid="uid://bysb2u8m55de2" path="res://Shaders/ToonShader.tscn" id="16_iddi4"]
+[ext_resource type="PackedScene" uid="uid://daq3xk4re0xl8" path="res://Scenes/Interactables/Bow.tscn" id="16_pigjd"]
+[ext_resource type="PackedScene" uid="uid://lh3dmhh32tu1" path="res://Scenes/Entities/Bush.tscn" id="17_6x6jt"]
 [ext_resource type="PackedScene" uid="uid://ddfftfo3cb1gj" path="res://Scenes/TempTree.tscn" id="17_w1dx0"]
 [ext_resource type="PackedScene" uid="uid://bvxg2stfsjosw" path="res://Scenes/Superstorm.tscn" id="18_tys2t"]
 
@@ -428,6 +432,36 @@ SpawnOnUseScene = null
 
 [node name="WoodPlank22" parent="Placeholders" instance=ExtResource("5_pd0wi")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.3891, 14.3068, -599.851)
+
+[node name="Log" parent="Placeholders" instance=ExtResource("14_w1dx0")]
+transform = Transform3D(0.230967, 0, -0.972961, 0, 1, 0, 0.972961, 0, 0.230967, 30.476, 0.462509, -52.7293)
+
+[node name="Log2" parent="Placeholders" instance=ExtResource("14_w1dx0")]
+transform = Transform3D(0.649767, 0, -0.760134, 0, 1, 0, 0.760134, 0, 0.649767, 36.2046, 0.6, -58.3207)
+
+[node name="Hatchet" parent="Placeholders" instance=ExtResource("15_nvhef")]
+transform = Transform3D(0.866025, -0.5, 0, 0.5, 0.866025, 0, 0, 0, 1, 5.39227, 1.19851, -21.0722)
+
+[node name="Bow" parent="Placeholders" instance=ExtResource("16_pigjd")]
+transform = Transform3D(0.866025, -0.5, 0, 0.5, 0.866025, 0, 0, 0, 1, 6.38839, 0.616709, -21.0181)
+
+[node name="Bush" parent="Placeholders" instance=ExtResource("17_6x6jt")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.62339, 0.764531, -38.0901)
+
+[node name="Bush2" parent="Placeholders" instance=ExtResource("17_6x6jt")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 28.1603, 1.14357, -20.7825)
+
+[node name="Bush3" parent="Placeholders" instance=ExtResource("17_6x6jt")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22.6823, 0.739018, -51.8889)
+
+[node name="Bush4" parent="Placeholders" instance=ExtResource("17_6x6jt")]
+transform = Transform3D(1, 0, 0, 0, 0.983537, 0.180708, 0, -0.180708, 0.983537, 36.0854, 1.1734, -26.137)
+
+[node name="Bush5" parent="Placeholders" instance=ExtResource("17_6x6jt")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.5425, 0.768654, -26.137)
+
+[node name="Bush6" parent="Placeholders" instance=ExtResource("17_6x6jt")]
+transform = Transform3D(0.990783, -0.135456, 0, 0.135456, 0.990783, 0, 0, 0, 1, 44.9491, 1.33819, -32.5528)
 
 [node name="ToonShader" parent="." instance=ExtResource("16_iddi4")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.51888, 0, -16.3447)

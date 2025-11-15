@@ -36,7 +36,7 @@ public partial class PlayerController : CharacterBody3D
 	public Interactable offhandObject = null;
 	private bool HeldValid() => heldObject != null && IsInstanceValid(heldObject) && !heldObject.IsQueuedForDeletion() && heldObject.IsInsideTree();
 	private bool OffhandValid () => offhandObject != null && IsInstanceValid(offhandObject) && !offhandObject.IsQueuedForDeletion() && offhandObject.IsInsideTree();
-	[Export] public NodePath inventorySlotPath;
+    [Export] public NodePath inventorySlotPath;
 	[Export] public NodePath offhandPath;
 	[Export] public float interactRange = 3.0f;
 	//[Export] public int interactLayer = 4;
@@ -427,7 +427,7 @@ public partial class PlayerController : CharacterBody3D
 		if (Multiplayer.HasMultiplayerPeer() && !Multiplayer.IsServer()) // Peer-side players have to reset their looked-at item every frame because of networking shenanigans
 			ResetLookedAtItem();
 
-		//get looked at object for debug and highlighting later
+		//get looked at object for debug and highlighting
 		var lookedAtObject = RayCastForward();
 		if (lookedAtObject.Count > 0)
 		{
@@ -452,7 +452,8 @@ public partial class PlayerController : CharacterBody3D
 					}
 					else if (entity != null)
 					{
-						if (lastLookedAtItem != entity && HeldValid() && entity.CanAcceptUseFrom(this, heldObject))
+						if (lastLookedAtItem != entity && (HeldValid() && entity.CanAcceptUseFrom(this, heldObject)) ||
+							(!HeldValid() && entity.emptyHandedOkay))
 						{
 							ResetLookedAtItem();
 							lastLookedAtItem = entity;
@@ -552,9 +553,30 @@ public partial class PlayerController : CharacterBody3D
     // Handle the "use" action input
     private void OnUsedPressed()
 	{
-		if (!IsLocalControlled() || heldObject == null) return; // Only the local player can interact
-		UseHeldObject();
-        ResetLookedAtItem();
+		if (!IsLocalControlled()) return; // Only the local player can interact || !HeldValid()
+		if (UseHeldObject()) return;
+		TryInteractEntity(); //try entity interaction if no held object used
+		ResetLookedAtItem();
+		// If the object was used successfully and there's something in the player's offhand, move
+		// the offhand item to the inventory slot
+		//if (!HeldValid() && offhandObject != null)
+		//	MoveObjectToInventory(offhandObject);
+		
+	}
+
+	private void TryInteractEntity()
+	{
+		//check if looking at an entity second
+		var targetEntity = GetEntityLookedAt();
+		//GD.Print("PlayerController: TryInteractEntity called, targetEntity: " + (targetEntity != null ? targetEntity.Name : "null"));
+        if (targetEntity != null) //target is entity
+        {
+            if(targetEntity.CanAcceptUseFrom(this, null))
+			{
+				targetEntity.AcceptUseFrom(this, null);
+			}
+            
+        }
     }
 
 	// Raycast forward from the camera to find what the player is looking at
@@ -723,9 +745,9 @@ public partial class PlayerController : CharacterBody3D
 	}
 
 	// Use the held object on itself or on a target
-	public void UseHeldObject()
+	public bool UseHeldObject()
 	{
-		if (HandleInvalidHeldObject()) return; // if invalid item was handled return
+		if (HandleInvalidHeldObject()) return false; // if invalid item was handled return
 
 		//check if looking at another interactable first
 		var targetInteractable = GetInteractableLookedAt();
@@ -736,7 +758,7 @@ public partial class PlayerController : CharacterBody3D
 			{
 				heldObject = null; // The held object was destroyed during use
 			}
-			return;
+			return true;
 		}
 
 		//check if looking at an entity second
@@ -747,8 +769,8 @@ public partial class PlayerController : CharacterBody3D
 			if (!IsInstanceValid(heldObject) || heldObject.IsQueuedForDeletion())
 			{
 				heldObject = null; // The held object was destroyed during use
-            }
-			return;
+			}
+			return true;
 		}
 
 		//use on self if no target found
@@ -756,7 +778,9 @@ public partial class PlayerController : CharacterBody3D
 		if (!IsInstanceValid(heldObject) || heldObject.IsQueuedForDeletion())
 		{
 			heldObject = null; // The held object was destroyed during use
-        }
+			return true;
+		}
+		return false;
 	}
 
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
@@ -1026,6 +1050,12 @@ public partial class PlayerController : CharacterBody3D
 
 			// TO-DO: Be more specific with certain objects (i.e. Cook food or repair wheel)
         }
+		else
+		{
+            Entity e = GetEntityLookedAt();
+			if (e != null && e.emptyHandedOkay)
+                instructionsString += leftClickImage + "- Use bare hands on " + e.publicName;
+        }
 
 		// If holding something in offhand, display the Tab to switch prompt
 		if (OffhandValid())
@@ -1076,9 +1106,9 @@ public partial class PlayerController : CharacterBody3D
 
 	private void ResetLookedAtItem()
 	{
-        if (lastLookedAtItem is Interactable i)
+        if (lastLookedAtItem is Interactable i && IsInstanceValid(i))
             i.ToggleHighlighted(false);
-        else if (lastLookedAtItem is Entity e)
+        else if (lastLookedAtItem is Entity e && IsInstanceValid(e))
             e.ToggleHighlighted(false);
 		lastLookedAtItem = null;
     }

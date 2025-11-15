@@ -1,8 +1,9 @@
-[gd_scene load_steps=17 format=3 uid="uid://ba4fbx16j3l67"]
+[gd_scene load_steps=19 format=3 uid="uid://ba4fbx16j3l67"]
 
 [ext_resource type="PackedScene" uid="uid://cnn1gi0bkh08o" path="res://Scenes/ItemDetector.tscn" id="1_1ql20"]
 [ext_resource type="Script" uid="uid://c1abo8mkv7so7" path="res://Scripts/EntityScripts/Beaver.cs" id="1_vg7qi"]
 [ext_resource type="PackedScene" uid="uid://c4dipwth8vfgc" path="res://Scenes/Interactables/WheelInteractable.tscn" id="2_lhu0b"]
+[ext_resource type="PackedScene" uid="uid://drat1km3kl28w" path="res://Scenes/Interactables/Food_Meat.tscn" id="3_bwxc5"]
 [ext_resource type="BehaviorTree" uid="uid://cdntafo1eagv5" path="res://ai/trees/Beaver.tres" id="3_y4j34"]
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_on6pt"]
@@ -18,38 +19,14 @@ properties/2/replication_mode = 2
 properties/3/path = NodePath(".:entityId")
 properties/3/spawn = true
 properties/3/replication_mode = 2
-properties/4/path = NodePath("InventorySlot1:rotation")
+properties/4/path = NodePath(".:currentHealth")
 properties/4/spawn = true
 properties/4/replication_mode = 2
+properties/5/path = NodePath("BeaverSlot:rotation")
+properties/5/spawn = true
+properties/5/replication_mode = 2
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_ftxwn"]
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_1ql20"]
-albedo_color = Color(0.364841, 0.215544, 0.16264, 1)
-
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_vg7qi"]
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_y4j34"]
-albedo_color = Color(0.14996, 0.202887, 0.161757, 1)
-
-[sub_resource type="PrismMesh" id="PrismMesh_lhu0b"]
-left_to_right = -2.0
-size = Vector3(0.06, 0.845, 0.47)
-
-[sub_resource type="BoxMesh" id="BoxMesh_bwxc5"]
-resource_local_to_scene = true
-size = Vector3(0.75, 0.585, 1)
-
-[sub_resource type="BoxMesh" id="BoxMesh_5yd6n"]
-resource_local_to_scene = true
-size = Vector3(0.1, 0.1, 0.1)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_30wci"]
-albedo_color = Color(0, 0, 0, 1)
-
-[sub_resource type="SphereMesh" id="SphereMesh_ge06b"]
-radius = 0.11
-height = 0.1
 
 [sub_resource type="BlackboardPlan" id="BlackboardPlan_lhu0b"]
 binding/hasPlank = NodePath("..:hasPlank")
@@ -61,19 +38,50 @@ resource_local_to_scene = true
 
 [sub_resource type="SphereMesh" id="SphereMesh_y4j34"]
 
-[node name="Beaver" type="RigidBody3D" node_paths=PackedStringArray("label", "plankDetector", "wagonDetector", "BT", "inventorySlot") groups=["entity"]]
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_vg7qi"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_1ql20"]
+albedo_color = Color(0.364841, 0.215544, 0.16264, 1)
+
+[sub_resource type="PrismMesh" id="PrismMesh_lhu0b"]
+left_to_right = -2.0
+size = Vector3(0.06, 0.845, 0.47)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_y4j34"]
+albedo_color = Color(0.14996, 0.202887, 0.161757, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_bwxc5"]
+resource_local_to_scene = true
+size = Vector3(0.75, 0.585, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_5yd6n"]
+resource_local_to_scene = true
+size = Vector3(0.1, 0.1, 0.1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_bwxc5"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_ge06b"]
+radius = 0.11
+height = 0.1
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_30wci"]
+albedo_color = Color(0, 0, 0, 1)
+
+[node name="Beaver" type="RigidBody3D" node_paths=PackedStringArray("label", "plankDetector", "wagonDetector", "BT", "inventorySlot")]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0)
 collision_layer = 33
 collision_mask = 13
 axis_lock_angular_x = true
 axis_lock_angular_z = true
 script = ExtResource("1_vg7qi")
+damageToTake = 50.0
 label = NodePath("Label3D")
 plankDetector = NodePath("PlankDetector")
 wagonDetector = NodePath("WagonDetector2")
 BT = NodePath("BTPlayer")
-inventorySlot = NodePath("InventorySlot1")
-SpawnOnUseScene = ExtResource("2_lhu0b")
+inventorySlot = NodePath("BeaverSlot")
+wheelScene = ExtResource("2_lhu0b")
+SpawnOnUseScene = ExtResource("3_bwxc5")
 publicName = "Beaver?"
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
@@ -82,30 +90,6 @@ replication_config = SubResource("SceneReplicationConfig_on6pt")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 transform = Transform3D(0.75, 0, 0, 0, 0.75, 0, 0, 0, 0.75, 0, 0, 0)
 shape = SubResource("CapsuleShape3D_ftxwn")
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="CollisionShape3D"]
-material_override = SubResource("StandardMaterial3D_1ql20")
-mesh = SubResource("CapsuleMesh_vg7qi")
-
-[node name="MeshInstance3D2" type="MeshInstance3D" parent="CollisionShape3D"]
-transform = Transform3D(0.104528, 0, -0.994522, -0.376606, 0.925527, -0.0395829, 0.920457, 0.378681, 0.0967439, 0, 1.29228, 0.179191)
-material_override = SubResource("StandardMaterial3D_y4j34")
-mesh = SubResource("PrismMesh_lhu0b")
-
-[node name="EyesMesh" type="MeshInstance3D" parent="CollisionShape3D" groups=["player_mesh", "self_hide"]]
-transform = Transform3D(0.69, 0, 0, 0, 0.0405656, 0.56353, 0, -0.266935, 0.0856384, 0, -0.716994, -0.250253)
-material_override = SubResource("StandardMaterial3D_1ql20")
-mesh = SubResource("BoxMesh_bwxc5")
-skeleton = NodePath("../..")
-
-[node name="MeshInstance3D3" type="MeshInstance3D" parent="CollisionShape3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.991483, -0.00974412)
-mesh = SubResource("BoxMesh_5yd6n")
-
-[node name="MeshInstance3D4" type="MeshInstance3D" parent="CollisionShape3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.988139, 0.0315644)
-material_override = SubResource("StandardMaterial3D_30wci")
-mesh = SubResource("SphereMesh_ge06b")
 
 [node name="Label3D" type="Label3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.30017e-08, -0.526216)
@@ -126,8 +110,40 @@ customGroupFilters = PackedStringArray("wagon", "wheel")
 behavior_tree = ExtResource("3_y4j34")
 blackboard_plan = SubResource("BlackboardPlan_lhu0b")
 
-[node name="InventorySlot1" type="MeshInstance3D" parent="." groups=["player_mesh"]]
+[node name="BeaverSlot" type="MeshInstance3D" parent="." groups=["player_mesh"]]
 unique_name_in_owner = true
 transform = Transform3D(-4.37114e-09, 0, 0.1, 0, 0.1, 0, -0.1, 0, -4.37114e-09, 0, -0.862907, 3.77189e-08)
 visible = false
 mesh = SubResource("SphereMesh_y4j34")
+
+[node name="BeaverMeshes" type="Node3D" parent="."]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="BeaverMeshes"]
+transform = Transform3D(0.75, 0, 0, 0, 0.75, 0, 0, 0, 0.75, 0, 0, 0)
+mesh = SubResource("CapsuleMesh_vg7qi")
+skeleton = NodePath("../../CollisionShape3D")
+surface_material_override/0 = SubResource("StandardMaterial3D_1ql20")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="BeaverMeshes"]
+transform = Transform3D(0.078396, 0, -0.745891, -0.282454, 0.694145, -0.0296872, 0.690343, 0.284011, 0.0725579, 0, 0.96921, 0.134393)
+mesh = SubResource("PrismMesh_lhu0b")
+skeleton = NodePath("../../CollisionShape3D")
+surface_material_override/0 = SubResource("StandardMaterial3D_y4j34")
+
+[node name="EyesMesh" type="MeshInstance3D" parent="BeaverMeshes" groups=["player_mesh", "self_hide"]]
+transform = Transform3D(0.5175, 0, 0, 0, 0.0304242, 0.422648, 0, -0.200201, 0.0642288, 0, -0.537745, -0.18769)
+mesh = SubResource("BoxMesh_bwxc5")
+skeleton = NodePath("../..")
+surface_material_override/0 = SubResource("StandardMaterial3D_1ql20")
+
+[node name="MeshInstance3D3" type="MeshInstance3D" parent="BeaverMeshes"]
+transform = Transform3D(0.75, 0, 0, 0, 0.75, 0, 0, 0, 0.75, 0, -0.743612, -0.00730809)
+mesh = SubResource("BoxMesh_5yd6n")
+skeleton = NodePath("../../CollisionShape3D")
+surface_material_override/0 = SubResource("StandardMaterial3D_bwxc5")
+
+[node name="MeshInstance3D4" type="MeshInstance3D" parent="BeaverMeshes"]
+transform = Transform3D(0.75, 0, 0, 0, 0.75, 0, 0, 0, 0.75, 0, -0.741104, 0.0236733)
+mesh = SubResource("SphereMesh_ge06b")
+skeleton = NodePath("../../CollisionShape3D")
+surface_material_override/0 = SubResource("StandardMaterial3D_30wci")

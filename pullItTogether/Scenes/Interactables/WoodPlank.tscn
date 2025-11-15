@@ -26,6 +26,9 @@ properties/5/replication_mode = 2
 properties/6/path = NodePath(".:freeze")
 properties/6/spawn = true
 properties/6/replication_mode = 2
+properties/7/path = NodePath(".:isInWagon")
+properties/7/spawn = true
+properties/7/replication_mode = 1
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_fmbki"]
 resource_local_to_scene = true

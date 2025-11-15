@@ -21,11 +21,12 @@ top_radius = 5.0
 bottom_radius = 5.0
 height = 5.0
 
-[node name="ItemDetector" type="Area3D" node_paths=PackedStringArray("collider")]
+[node name="ItemDetector" type="Area3D" node_paths=PackedStringArray("collider", "mesh")]
 collision_layer = 0
 collision_mask = 46
 script = ExtResource("1_mxlqg")
 collider = NodePath("CollisionShape3D")
+mesh = NodePath("CollisionShape3D/MeshInstance3D")
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 replication_config = SubResource("SceneReplicationConfig_3diyf")

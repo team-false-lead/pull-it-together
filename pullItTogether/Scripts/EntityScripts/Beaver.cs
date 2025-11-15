@@ -4,6 +4,8 @@ using System.Reflection.Metadata.Ecma335;
 
 public partial class Beaver : Entity
 {
+    [Export] public float currentHealth = 100; //export to use on multiPlayer syncer
+    [Export] public float damageToTake = 100;
     [Export] public Label3D label;
     [Export] public ItemDetector plankDetector;
     [Export] public ItemDetector wagonDetector;
@@ -11,6 +13,7 @@ public partial class Beaver : Entity
     [Export] public bool hasPlank = false;
     [Export] public bool plankInRange = false;
     public Interactable plankTarget = null;
+    public string heldPlankId = "";
     [Export] public bool wagonInRange = false;
     public Wagon wagonRef = null;
     [Export] public bool hasWheelTarget = false;
@@ -21,6 +24,7 @@ public partial class Beaver : Entity
     [Export] public Vector3 targetPosition;
     [Export] public Node3D inventorySlot;
     private bool spawnedWheel = false;
+    [Export] public PackedScene wheelScene;
 
     public override void _Ready()
     {
@@ -50,7 +54,7 @@ public partial class Beaver : Entity
     // By default, entities do not accept being used on them
     public override bool CanAcceptUseFrom(CharacterBody3D user, Interactable source)
     {
-        if (source.IsInGroup("plank") && !hasPlank)
+        if (source.IsInGroup("hatchet") || (source.IsInGroup("plank") && !hasPlank))
         {
             return true;
         }
@@ -60,6 +64,13 @@ public partial class Beaver : Entity
     // Logic for accepting use from food items
     public override void AcceptUseFrom(CharacterBody3D user, Interactable source)
     {
+        if (source is Hatchet hatchet)
+        {
+            hatchet.PlayChopAnimation();
+            TakeDamage(100f); // remove hard code later
+            return;
+        }
+
         if (itemManager == null) InitReferences();
         var id = GetEntityId(); //get unique id, default to name
 
@@ -163,21 +174,22 @@ public partial class Beaver : Entity
         }
         if (item.IsInGroup("plank"))
         {
-            if (item is Interactable plankInteractable)
+            SceneTreeTimer timer = GetTree().CreateTimer(0.25f); // delay to see if wagon changees plank status
+            timer.Timeout += () =>
             {
-                if (plankInteractable.Carrier == null)
+                if (item is WoodPlank plank && !plank.isInWagon && plank.Carrier == null)
                 {
                     plankInRange = true;
                     //label.Text = "Plank in range";
-                    targetPosition = plankInteractable.GlobalPosition;
-                    plankTarget = plankInteractable;
+                    targetPosition = plank.GlobalPosition;
+                    plankTarget = plank;
                 }
                 else
                 {
                     plankInRange = false;
                     plankTarget = null;
                 }
-            }
+            };
             
         }
     }
@@ -259,5 +271,31 @@ public partial class Beaver : Entity
             return inventorySlot;
         }
         return null;
+    }
+
+    public void TakeDamage(float damage)
+    {
+        currentHealth -= damage;
+        if (currentHealth <= 0)
+        {
+            if (hasPlank)
+            {
+                itemManager.DoDespawnItem(heldPlankId);
+            }
+            itemManager.DoSpawnItem(GetEntityId());
+        }
+    }
+
+    public override void ToggleHighlighted(bool highlighted)
+    {
+        foreach (Node3D child in GetNode<Node3D>("BeaverMeshes").GetChildren())
+        {
+            if (child is MeshInstance3D mesh)
+            {
+                mesh.GetSurfaceOverrideMaterial(0).Set("emission_enabled", highlighted);
+                if (highlighted)
+                    mesh.GetSurfaceOverrideMaterial(0).Set("emission", Colors.Green);
+            }
+        }
     }
 }
