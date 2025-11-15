@@ -336,7 +336,7 @@ public partial class PlayerController : CharacterBody3D
 			{
 				if (direction != Vector3.Zero)
 				{
-					velocity.X = direction.X * speed;
+					velocity.X = direction.X * speed; // Why no delta time :(
 					velocity.Z = direction.Z * speed;
 				}
 				else
@@ -410,8 +410,8 @@ public partial class PlayerController : CharacterBody3D
 		// For heavier objects that we will definitely add more of later, apply a movement penalty.
 		if (HeldValid())
 		{
-			velocity.X *= heldObject.MovementPenalty;
-			velocity.Z *= heldObject.MovementPenalty;
+			//velocity.X *= heldObject.MovementPenalty;
+			//velocity.Z *= heldObject.MovementPenalty;
 		}
 
 		Velocity = velocity;
