@@ -250,11 +250,4 @@ public abstract partial class Interactable : RigidBody3D
     //}
     
     public virtual void ToggleHighlighted(bool highlighted) { }
-
-    [Rpc(MultiplayerApi.RpcMode.AnyPeer)]
-    public void ClientSetMyInteractableId(string id)
-    {
-        GD.Print(GetPlayerController().Name + " Setting interactable ID to: " + id);
-        interactableId = id;
-    }
 }
